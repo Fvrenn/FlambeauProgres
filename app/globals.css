@@ -225,6 +225,11 @@
   z-index: 1;
 }
 
+.container-3D{
+  position: absolute;
+  top: 80px;
+  left: 20px;
+}
 @media screen and (max-width: 1432px) {
   .container2 {
     grid-template-rows: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);

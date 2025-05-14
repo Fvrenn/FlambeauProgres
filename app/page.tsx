@@ -1,3 +1,5 @@
+import ThreeScene from "../public/3D/ThreeScene";
+
 export default function Home() {
   return (
     <div className="container2">
@@ -9,6 +11,9 @@ export default function Home() {
           <div className="container-triangle">
             <div className="triangle-rounded-1"></div>
             <div className="triangle-cache"></div>
+          </div>
+          <div className="container-3D">
+            <ThreeScene />
           </div>
         </div>
       </div>
