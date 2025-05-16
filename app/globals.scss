@@ -1,0 +1,465 @@
+@import url('https://fonts.googleapis.com/css2?family=Koulen&display=swap');
+@import "tailwindcss";
+
+@theme {
+  /* Couleurs */
+  --color-primary: #bbd0ff;
+  --color-secondary: #b8c0ff;
+  --color-tertiary: #d9ed92;
+  --color-white: #ffffff;
+  --color-accent: #feb38f;
+  --color-dark: #171717;
+  --color-light: #ededed;
+  
+  /* Typographie */
+  --font-koulen: "Koulen", cursive;
+  
+  /* Border-radius */
+  --rounded-sm: 30px;
+  --rounded-md: 53px;
+  --rounded-lg: 55px;
+  --rounded-xl: 67px;
+  
+  /* Espacements */
+  --spacing: 0.25rem; /* Base pour les espacements dynamiques */
+  --space-xs: 10px;
+  --space-sm: 20px;
+  --space-md: 27px;
+  --space-lg: 40px;
+  --space-xl: 45px;
+
+  --text-header: 67px;
+
+  
+  /* Breakpoints */
+  --breakpoint-tablet: 1432px;
+  --breakpoint-mobile: 842px;
+}
+
+/* ==========================================================================
+   VARIABLES ET MAPS (Conservées pour SCSS complexes)
+   ========================================================================== */
+
+// Couleurs
+$colors: (
+  'primary': #bbd0ff,
+  'secondary': #b8c0ff,
+  'tertiary': #d9ed92,
+  'white': #ffffff,
+  'accent': #feb38f,
+  'dark': #171717,
+  'light': #ededed
+);
+
+// Dimensions
+$sizes: (
+  'triangle': 350px,
+  'border-height': 101px,
+  'border-width-sm': 40px,
+  'border-width-md': 130px,
+  'border-width-lg': 330px
+);
+
+// Border-radius
+$border-radius: (
+  'sm': 30px,
+  'md': 53px,
+  'lg': 55px,
+  'xl': 67px
+);
+
+// Espacements (utilisés uniquement dans les éléments SCSS complexes)
+$spacing: (
+  'xs': 10px,
+  'sm': 20px, 
+  'md': 27px,
+  'lg': 40px,
+  'xl': 45px
+);
+
+// Breakpoints
+$breakpoints: (
+  'tablet': 1432px,
+  'mobile': 842px
+);
+
+/* ==========================================================================
+   MIXINS
+   ========================================================================== */
+
+// Media queries
+@mixin respond-to($breakpoint) {
+  @media screen and (max-width: map-get($breakpoints, $breakpoint)) {
+    @content;
+  }
+}
+
+// Triangle arrondi
+@mixin triangle-rounded($size, $color, $radius) {
+  --r: #{$radius};
+  width: $size;
+  aspect-ratio: 1;
+  clip-path: polygon(100% 0, 0 100%, 100% 100%);
+  --_g: calc(50% * (1 + 1 / tan(22.5deg)) - var(--r) / (3 * sqrt(2) - 4));
+  --_r: calc(var(--r) / tan(22.5deg)), #000 98%, #0000 101%;
+  -webkit-mask: radial-gradient(var(--r) at bottom var(--r) left var(--_r)),
+    radial-gradient(var(--r) at right var(--r) top var(--_r)),
+    conic-gradient(
+      from 112.5deg at calc(100% - var(--_g)) calc(100% - var(--_g)),
+      #000 45deg,
+      #0000 0
+    );
+  transform: rotate(180deg);
+  background: $color;
+}
+
+// Élément de bordure
+@mixin border-element($width, $height, $bg-color) {
+  width: $width;
+  height: $height;
+  background: $bg-color;
+  position: absolute;
+}
+
+/* ==========================================================================
+   RESET ET BASE
+   ========================================================================== */
+
+/* Reset conservé dans SCSS car spécifique */
+:root {
+  --background: map-get($colors, 'white');
+  --foreground: map-get($colors, 'dark');
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: map-get($colors, 'light');
+  }
+}
+
+/* ==========================================================================
+   LAYOUT (conservé en SCSS car complexe)
+   ========================================================================== */
+
+.page {
+  &__container {
+    padding: map-get($spacing, 'md');
+    display: grid;
+    height: 100vh;
+    grid-template-rows:
+      minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr)
+      map-get($spacing, 'lg') 198px;
+    grid-template-columns:
+      minmax(0, 1fr) minmax(0, 1fr) 380px 300px
+      10px 430px;
+    gap: map-get($spacing, 'xl');
+  }
+}
+
+/* ==========================================================================
+   COMPOSANTS (conservés en SCSS car complexes)
+   ========================================================================== */
+
+/* Panel principal */
+.panel {
+  &--primary {
+    grid-column-start: 1;
+    grid-column-end: 6;
+    grid-row-start: 1;
+    grid-row-end: 6;
+    
+    &__content {
+      background: map-get($colors, 'primary');
+      height: 100%;
+      position: relative;
+      border-top-right-radius: map-get($border-radius, 'lg');
+      border-bottom-left-radius: map-get($border-radius, 'lg');
+    }
+  }
+  
+  &--secondary {
+    grid-column-start: 6;
+    grid-row-start: 1;
+    grid-row-end: 5;
+    z-index: 1;
+    
+    &__content {
+      background-color: map-get($colors, 'secondary');
+      border-radius: map-get($border-radius, 'md');
+      height: 100%;
+    }
+  }
+  
+  &--tertiary {
+    grid-column-start: 1;
+    grid-column-end: 4;
+    grid-row-start: 6;
+    z-index: 1;
+    
+    &__content {
+      background-color: map-get($colors, 'tertiary');
+      height: 100%;
+      border-radius: map-get($border-radius, 'xl');
+    }
+  }
+  
+  &--quaternary {
+    grid-column-start: 6;
+    grid-row-start: 5;
+    grid-row-end: 7;
+    z-index: 1;
+    
+    &__content {
+      background-color: map-get($colors, 'tertiary');
+      height: 100%;
+      border-radius: map-get($border-radius, 'xl');
+    }
+  }
+}
+
+/* Bordures du panel principal */
+.panel-border {
+  &__top-left {
+    background: map-get($colors, 'white');
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom-right-radius: map-get($border-radius, 'lg');
+    position: relative;
+    width: map-get($sizes, 'border-width-md');
+    height: map-get($sizes, 'border-height');
+    
+    &::after {
+      content: "";
+      @include border-element(map-get($sizes, 'border-width-md'), map-get($sizes, 'border-height'), map-get($colors, 'primary'));
+      top: 0;
+      left: map-get($sizes, 'border-width-md');
+      border-top-left-radius: map-get($border-radius, 'lg');
+      box-shadow: -30px -50px 0 0 map-get($colors, 'white');
+    }
+    
+    &::before {
+      content: "";
+      @include border-element(map-get($sizes, 'border-width-md'), map-get($sizes, 'border-height'), map-get($colors, 'primary'));
+      top: map-get($sizes, 'border-height');
+      left: 0;
+      border-top-left-radius: map-get($border-radius, 'lg');
+      box-shadow: -60px 0 0 0 map-get($colors, 'white');
+    }
+  }
+  
+  &__top-middle {
+    background: map-get($colors, 'white');
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    width: map-get($sizes, 'border-width-lg');
+    height: map-get($sizes, 'border-height');
+    top: 0;
+    left: 50%;
+    
+    &::after {
+      content: "";
+      @include border-element(map-get($sizes, 'border-width-sm'), map-get($sizes, 'border-height'), map-get($colors, 'primary'));
+      top: 0;
+      left: 0;
+      border-radius: 0 55.5px 0 0;
+    }
+    
+    &::before {
+      content: "";
+      @include border-element(map-get($sizes, 'border-width-sm'), map-get($sizes, 'border-height'), map-get($colors, 'white'));
+      top: 0;
+      left: map-get($sizes, 'border-width-sm');
+      border-radius: 0 0 0 55.5px;
+      box-shadow: 0 40px 0 0 map-get($colors, 'primary');
+    }
+  }
+  
+  &__top-right {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    width: map-get($sizes, 'border-width-lg');
+    height: map-get($sizes, 'border-height');
+    top: 0;
+    left: 50%;
+    
+    &::after {
+      content: "";
+      @include border-element(map-get($sizes, 'border-width-sm'), map-get($sizes, 'border-height'), map-get($colors, 'primary'));
+      top: 0;
+      right: 0;
+      border-radius: 55.5px 0 0 0;
+    }
+    
+    &::before {
+      content: "";
+      @include border-element(map-get($sizes, 'border-width-sm'), map-get($sizes, 'border-height'), map-get($colors, 'white'));
+      top: 0;
+      right: map-get($sizes, 'border-width-sm');
+      border-radius: 0 0 55.5px 0;
+      box-shadow: 0 40px 0 0 map-get($colors, 'primary');
+    }
+  }
+}
+
+/* Triangles */
+.triangle {
+  &__container {
+    position: absolute;
+    bottom: -42px;
+    right: -42px;
+    background-color: map-get($colors, 'white');
+  }
+  
+  &__rounded {
+    @include triangle-rounded(map-get($sizes, 'triangle'), map-get($colors, 'primary'), map-get($border-radius, 'sm'));
+  }
+  
+  &__cache {
+    background-color: map-get($colors, 'primary');
+    width: map-get($border-radius, 'sm');
+    height: map-get($border-radius, 'sm');
+    position: absolute;
+    bottom: 42px;
+    
+    &::after {
+      content: "";
+      background: map-get($colors, 'primary');
+      width: map-get($border-radius, 'sm');
+      height: map-get($border-radius, 'sm');
+      position: absolute;
+      bottom: 278px;
+      right: -278px;
+    }
+  }
+  
+  &__accent-container {
+    grid-column-start: 4;
+    grid-column-end: 6;
+    grid-row-start: 4;
+    grid-row-end: 7;
+    display: flex;
+    align-items: flex-end;
+    z-index: 1;
+  }
+}
+
+/* Contenu - simplifié en gardant seulement le positionnement */
+.content {
+  &__3d {
+    position: absolute;
+    left: map-get($spacing, 'sm');
+  }
+  
+  &__title {
+    position: absolute;
+    top: 0px;
+    left: 200px;
+  }
+}
+
+
+/* ==========================================================================
+   Brouillon
+   ========================================================================== */
+
+
+.content__badges{
+  position: absolute;
+  top: 130px;
+  left: 530px;
+  display: grid;
+  flex-direction: row;
+  gap: 30px;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+
+
+
+@include respond-to('tablet') {
+  .page {
+    &__container {
+      grid-template-rows: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+      column-gap: map-get($spacing, 'xl');
+    }
+  }
+
+  .panel {
+    &--primary {
+      grid-column-start: 1;
+      grid-column-end: 3;
+      grid-row-start: 1;
+      grid-row-end: 3;
+      
+      &__content {
+        border-bottom-right-radius: map-get($border-radius, 'lg');
+      }
+    }
+    
+    &--secondary {
+      grid-column-start: 3;
+      grid-row-start: 1;
+      grid-row-end: 3;
+    }
+    
+    &--tertiary {
+      grid-column-start: 1;
+      grid-column-end: 3;
+      grid-row-start: 3;
+      grid-row-end: 3;
+    }
+    
+    &--quaternary {
+      grid-column-start: 3;
+      grid-column-end: 3;
+      grid-row-start: 3;
+      grid-row-end: 3;
+    }
+  }
+
+  .triangle__container,
+  .panel-border__top-middle,
+  .panel-border__top-right,
+  .triangle__accent-container {
+    display: none;
+  }
+}
+
+@include respond-to('mobile') {
+  .page {
+    &__container {
+      display: flex;
+      flex-direction: column;
+    }
+  }
+
+  .panel {
+    &--primary {
+      height: 677px;
+    }
+    
+    &--secondary {
+      height: 595px;
+    }
+    
+    &--tertiary {
+      height: 198px;
+    }
+    
+    &--quaternary {
+      height: 294px;
+    }
+  }
+}
+
+

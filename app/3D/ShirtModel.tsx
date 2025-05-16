@@ -9,6 +9,6 @@ type ShirtModelProps = {
 }
 
 export default function ShirtModel({ scale = [1, 1, 1], position = [0, 0, 0] }: ShirtModelProps) {
-  const { scene } = useGLTF('/3D/Shirt3.glb')
+  const { scene } = useGLTF('/3D/Shirt4.glb')
   return <primitive object={scene} scale={scale} position={position} />
 }
