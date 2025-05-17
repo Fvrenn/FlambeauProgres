@@ -16,28 +16,30 @@ export default function Home() {
             <h3 className="font-koulen text-header text-white">Ma chemise</h3>
           </div>
           <div className="content__3d">
-            <ThreeScene />
-          </div>
-          <div className="content__badges">
-            <img src="/etape-badges/Group.png" alt="" />
-            <img src="/etape-badges/Rectangle-1.png" alt="" />
-            <img src="/etape-badges/Rectangle-10.png" alt="" />
-            <img src="/etape-badges/Rectangle-2.png" alt="" />
-            <img src="/etape-badges/Rectangle-3.png" alt="" />
-            <img src="/etape-badges/Rectangle-4.png" alt="" />
-            <img src="/etape-badges/Rectangle-5.png" alt="" />
-            <img src="/etape-badges/Rectangle-6.png" alt="" />
-            <img src="/etape-badges/Rectangle-7.png" alt="" />
-            <img src="/etape-badges/Rectangle-8.png" alt="" />
-            <img src="/etape-badges/Rectangle-9.png" alt="" />
-            <img src="/etape-badges/Rectangle.png" alt="" />
+            <div className="content__3d__container">
+              <ThreeScene />
+            </div>
+
+            <div className="content__badges">
+              <img src="/etape-badges/Group.png" alt="" />
+              <img src="/etape-badges/Rectangle-1.png" alt="" />
+              <img src="/etape-badges/Rectangle-10.png" alt="" />
+              <img src="/etape-badges/Rectangle-2.png" alt="" />
+              <img src="/etape-badges/Rectangle-3.png" alt="" />
+              <img src="/etape-badges/Rectangle-4.png" alt="" />
+              <img src="/etape-badges/Rectangle-5.png" alt="" />
+              <img src="/etape-badges/Rectangle-6.png" alt="" />
+              <img src="/etape-badges/Rectangle-7.png" alt="" />
+              <img src="/etape-badges/Rectangle-8.png" alt="" />
+              <img src="/etape-badges/Rectangle-9.png" alt="" />
+              <img src="/etape-badges/Rectangle.png" alt="" />
+            </div>
           </div>
 
           <div className="left-side">
             <div className="triaangle-shape-1"></div>
             <div className="title"></div>
             <div className="triaangle-shape-2"></div>
-
           </div>
         </div>
       </div>

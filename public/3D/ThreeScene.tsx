@@ -5,7 +5,7 @@ import ShirtModel from "../../app/3D/ShirtModel";
 
 export default function ThreeScene() {
   return (
-   <div style={{ width: "374px", height: "500px" }}>
+   <div style={{ width: "374px", height: "100%" }}>
       <Canvas 
         camera={{ position: [1.1, 0.5, 3], fov: 45 }} 
         shadows
@@ -13,7 +13,7 @@ export default function ThreeScene() {
         {/* Stage configuré pour maximiser l'utilisation de l'espace */}
         <Stage 
           environment="city"
-          intensity={0.9}
+          intensity={2}
           shadows
           adjustCamera={false} 
           preset="rembrandt"

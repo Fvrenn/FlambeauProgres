@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Koulen&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Koulen&display=swap");
 @import "tailwindcss";
 
 @theme {
@@ -10,16 +10,16 @@
   --color-accent: #feb38f;
   --color-dark: #171717;
   --color-light: #ededed;
-  
+
   /* Typographie */
   --font-koulen: "Koulen", cursive;
-  
+
   /* Border-radius */
   --rounded-sm: 30px;
   --rounded-md: 53px;
   --rounded-lg: 55px;
   --rounded-xl: 67px;
-  
+
   /* Espacements */
   --spacing: 0.25rem; /* Base pour les espacements dynamiques */
   --space-xs: 10px;
@@ -30,7 +30,6 @@
 
   --text-header: 67px;
 
-  
   /* Breakpoints */
   --breakpoint-tablet: 1432px;
   --breakpoint-mobile: 842px;
@@ -42,45 +41,45 @@
 
 // Couleurs
 $colors: (
-  'primary': #bbd0ff,
-  'secondary': #b8c0ff,
-  'tertiary': #d9ed92,
-  'white': #ffffff,
-  'accent': #feb38f,
-  'dark': #171717,
-  'light': #ededed
+  "primary": #bbd0ff,
+  "secondary": #b8c0ff,
+  "tertiary": #d9ed92,
+  "white": #ffffff,
+  "accent": #feb38f,
+  "dark": #171717,
+  "light": #ededed,
 );
 
 // Dimensions
 $sizes: (
-  'triangle': 350px,
-  'border-height': 101px,
-  'border-width-sm': 40px,
-  'border-width-md': 130px,
-  'border-width-lg': 330px
+  "triangle": 350px,
+  "border-height": 101px,
+  "border-width-sm": 40px,
+  "border-width-md": 130px,
+  "border-width-lg": 330px,
 );
 
 // Border-radius
 $border-radius: (
-  'sm': 30px,
-  'md': 53px,
-  'lg': 55px,
-  'xl': 67px
+  "sm": 30px,
+  "md": 53px,
+  "lg": 55px,
+  "xl": 67px,
 );
 
 // Espacements (utilisés uniquement dans les éléments SCSS complexes)
 $spacing: (
-  'xs': 10px,
-  'sm': 20px, 
-  'md': 27px,
-  'lg': 40px,
-  'xl': 45px
+  "xs": 10px,
+  "sm": 20px,
+  "md": 27px,
+  "lg": 40px,
+  "xl": 45px,
 );
 
 // Breakpoints
 $breakpoints: (
-  'tablet': 1432px,
-  'mobile': 842px
+  "tablet": 1432px,
+  "mobile": 842px,
 );
 
 /* ==========================================================================
@@ -127,14 +126,14 @@ $breakpoints: (
 
 /* Reset conservé dans SCSS car spécifique */
 :root {
-  --background: map-get($colors, 'white');
-  --foreground: map-get($colors, 'dark');
+  --background: map-get($colors, "white");
+  --foreground: map-get($colors, "dark");
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
-    --foreground: map-get($colors, 'light');
+    --foreground: map-get($colors, "light");
   }
 }
 
@@ -144,16 +143,16 @@ $breakpoints: (
 
 .page {
   &__container {
-    padding: map-get($spacing, 'md');
+    padding: map-get($spacing, "md");
     display: grid;
     height: 100vh;
     grid-template-rows:
       minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr)
-      map-get($spacing, 'lg') 198px;
+      map-get($spacing, "lg") 198px;
     grid-template-columns:
       minmax(0, 1fr) minmax(0, 1fr) 380px 300px
       10px 430px;
-    gap: map-get($spacing, 'xl');
+    gap: map-get($spacing, "xl");
   }
 }
 
@@ -168,52 +167,52 @@ $breakpoints: (
     grid-column-end: 6;
     grid-row-start: 1;
     grid-row-end: 6;
-    
+
     &__content {
-      background: map-get($colors, 'primary');
+      background: map-get($colors, "primary");
       height: 100%;
       position: relative;
-      border-top-right-radius: map-get($border-radius, 'lg');
-      border-bottom-left-radius: map-get($border-radius, 'lg');
+      border-top-right-radius: map-get($border-radius, "lg");
+      border-bottom-left-radius: map-get($border-radius, "lg");
     }
   }
-  
+
   &--secondary {
     grid-column-start: 6;
     grid-row-start: 1;
     grid-row-end: 5;
     z-index: 1;
-    
+
     &__content {
-      background-color: map-get($colors, 'secondary');
-      border-radius: map-get($border-radius, 'md');
+      background-color: map-get($colors, "secondary");
+      border-radius: map-get($border-radius, "md");
       height: 100%;
     }
   }
-  
+
   &--tertiary {
     grid-column-start: 1;
     grid-column-end: 4;
     grid-row-start: 6;
     z-index: 1;
-    
+
     &__content {
-      background-color: map-get($colors, 'tertiary');
+      background-color: map-get($colors, "tertiary");
       height: 100%;
-      border-radius: map-get($border-radius, 'xl');
+      border-radius: map-get($border-radius, "xl");
     }
   }
-  
+
   &--quaternary {
     grid-column-start: 6;
     grid-row-start: 5;
     grid-row-end: 7;
     z-index: 1;
-    
+
     &__content {
-      background-color: map-get($colors, 'tertiary');
+      background-color: map-get($colors, "tertiary");
       height: 100%;
-      border-radius: map-get($border-radius, 'xl');
+      border-radius: map-get($border-radius, "xl");
     }
   }
 }
@@ -221,88 +220,112 @@ $breakpoints: (
 /* Bordures du panel principal */
 .panel-border {
   &__top-left {
-    background: map-get($colors, 'white');
+    background: map-get($colors, "white");
     display: flex;
     justify-content: center;
     align-items: center;
-    border-bottom-right-radius: map-get($border-radius, 'lg');
+    border-bottom-right-radius: map-get($border-radius, "lg");
     position: relative;
-    width: map-get($sizes, 'border-width-md');
-    height: map-get($sizes, 'border-height');
-    
+    width: map-get($sizes, "border-width-md");
+    height: map-get($sizes, "border-height");
+
     &::after {
       content: "";
-      @include border-element(map-get($sizes, 'border-width-md'), map-get($sizes, 'border-height'), map-get($colors, 'primary'));
+      @include border-element(
+        map-get($sizes, "border-width-md"),
+        map-get($sizes, "border-height"),
+        map-get($colors, "primary")
+      );
       top: 0;
-      left: map-get($sizes, 'border-width-md');
-      border-top-left-radius: map-get($border-radius, 'lg');
-      box-shadow: -30px -50px 0 0 map-get($colors, 'white');
+      left: map-get($sizes, "border-width-md");
+      border-top-left-radius: map-get($border-radius, "lg");
+      box-shadow: -30px -50px 0 0 map-get($colors, "white");
     }
-    
+
     &::before {
       content: "";
-      @include border-element(map-get($sizes, 'border-width-md'), map-get($sizes, 'border-height'), map-get($colors, 'primary'));
-      top: map-get($sizes, 'border-height');
+      @include border-element(
+        map-get($sizes, "border-width-md"),
+        map-get($sizes, "border-height"),
+        map-get($colors, "primary")
+      );
+      top: map-get($sizes, "border-height");
       left: 0;
-      border-top-left-radius: map-get($border-radius, 'lg');
-      box-shadow: -60px 0 0 0 map-get($colors, 'white');
+      border-top-left-radius: map-get($border-radius, "lg");
+      box-shadow: -60px 0 0 0 map-get($colors, "white");
     }
   }
-  
+
   &__top-middle {
-    background: map-get($colors, 'white');
+    background: map-get($colors, "white");
     display: flex;
     justify-content: center;
     align-items: center;
     position: absolute;
-    width: map-get($sizes, 'border-width-lg');
-    height: map-get($sizes, 'border-height');
+    width: map-get($sizes, "border-width-lg");
+    height: map-get($sizes, "border-height");
     top: 0;
     left: 50%;
-    
+
     &::after {
       content: "";
-      @include border-element(map-get($sizes, 'border-width-sm'), map-get($sizes, 'border-height'), map-get($colors, 'primary'));
+      @include border-element(
+        map-get($sizes, "border-width-sm"),
+        map-get($sizes, "border-height"),
+        map-get($colors, "primary")
+      );
       top: 0;
       left: 0;
       border-radius: 0 55.5px 0 0;
     }
-    
+
     &::before {
       content: "";
-      @include border-element(map-get($sizes, 'border-width-sm'), map-get($sizes, 'border-height'), map-get($colors, 'white'));
+      @include border-element(
+        map-get($sizes, "border-width-sm"),
+        map-get($sizes, "border-height"),
+        map-get($colors, "white")
+      );
       top: 0;
-      left: map-get($sizes, 'border-width-sm');
+      left: map-get($sizes, "border-width-sm");
       border-radius: 0 0 0 55.5px;
-      box-shadow: 0 40px 0 0 map-get($colors, 'primary');
+      box-shadow: 0 40px 0 0 map-get($colors, "primary");
     }
   }
-  
+
   &__top-right {
     display: flex;
     justify-content: center;
     align-items: center;
     position: absolute;
-    width: map-get($sizes, 'border-width-lg');
-    height: map-get($sizes, 'border-height');
+    width: map-get($sizes, "border-width-lg");
+    height: map-get($sizes, "border-height");
     top: 0;
     left: 50%;
-    
+
     &::after {
       content: "";
-      @include border-element(map-get($sizes, 'border-width-sm'), map-get($sizes, 'border-height'), map-get($colors, 'primary'));
+      @include border-element(
+        map-get($sizes, "border-width-sm"),
+        map-get($sizes, "border-height"),
+        map-get($colors, "primary")
+      );
       top: 0;
       right: 0;
       border-radius: 55.5px 0 0 0;
     }
-    
+
     &::before {
       content: "";
-      @include border-element(map-get($sizes, 'border-width-sm'), map-get($sizes, 'border-height'), map-get($colors, 'white'));
+      @include border-element(
+        map-get($sizes, "border-width-sm"),
+        map-get($sizes, "border-height"),
+        map-get($colors, "white")
+      );
       top: 0;
-      right: map-get($sizes, 'border-width-sm');
+      right: map-get($sizes, "border-width-sm");
       border-radius: 0 0 55.5px 0;
-      box-shadow: 0 40px 0 0 map-get($colors, 'primary');
+      box-shadow: 0 40px 0 0 map-get($colors, "primary");
     }
   }
 }
@@ -313,31 +336,35 @@ $breakpoints: (
     position: absolute;
     bottom: -42px;
     right: -42px;
-    background-color: map-get($colors, 'white');
+    background-color: map-get($colors, "white");
   }
-  
+
   &__rounded {
-    @include triangle-rounded(map-get($sizes, 'triangle'), map-get($colors, 'primary'), map-get($border-radius, 'sm'));
+    @include triangle-rounded(
+      map-get($sizes, "triangle"),
+      map-get($colors, "primary"),
+      map-get($border-radius, "sm")
+    );
   }
-  
+
   &__cache {
-    background-color: map-get($colors, 'primary');
-    width: map-get($border-radius, 'sm');
-    height: map-get($border-radius, 'sm');
+    background-color: map-get($colors, "primary");
+    width: map-get($border-radius, "sm");
+    height: map-get($border-radius, "sm");
     position: absolute;
     bottom: 42px;
-    
+
     &::after {
       content: "";
-      background: map-get($colors, 'primary');
-      width: map-get($border-radius, 'sm');
-      height: map-get($border-radius, 'sm');
+      background: map-get($colors, "primary");
+      width: map-get($border-radius, "sm");
+      height: map-get($border-radius, "sm");
       position: absolute;
       bottom: 278px;
       right: -278px;
     }
   }
-  
+
   &__accent-container {
     grid-column-start: 4;
     grid-column-end: 6;
@@ -352,10 +379,9 @@ $breakpoints: (
 /* Contenu - simplifié en gardant seulement le positionnement */
 .content {
   &__3d {
-    position: absolute;
-    left: map-get($spacing, 'sm');
+    // height: 100%;
   }
-  
+
   &__title {
     position: absolute;
     top: 0px;
@@ -363,34 +389,51 @@ $breakpoints: (
   }
 }
 
-
 /* ==========================================================================
    Brouillon
    ========================================================================== */
+.content__3d__container {
+  // height: 100%;
+}
+.content__3d {
+  display: flex;
+  position: unset;
+  height: 80%;
+  gap: clamp(1px, calc((100vw - 1454px) * (59 / 50) + 0px), 60px);
+  padding-left: clamp(1%, calc((100vw - 1594px) * (59 / 196) + 0px), 7%);
+}
+.content__badges {
+  z-index: 10;
+  position: unset;
+  // max-width: 320px;
+  width: clamp(290px, calc((100vw - 1594px) * (30 / 50) + 290px), 320px);
+  align-items: center;
+  justify-items: center;
+  overflow: hidden;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
 
-
-.content__badges{
-  position: absolute;
-  top: 130px;
-  left: 530px;
-  display: grid;
-  flex-direction: row;
-  gap: 30px;
-  grid-template-columns: repeat(3, 1fr);
+.content__badges img {
+  // width: 100%;
+  // height: auto;
+  max-width: 100px;
+  // max-height: 90px;
+  object-fit: contain;
+  transition: width 0.2s, height 0.2s;
 }
 
 /* ==========================================================================
    RESPONSIVE
    ========================================================================== */
 
-
-
-@include respond-to('tablet') {
+@include respond-to("tablet") {
   .page {
     &__container {
       grid-template-rows: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
-      column-gap: map-get($spacing, 'xl');
+      column-gap: map-get($spacing, "xl");
     }
   }
 
@@ -400,31 +443,44 @@ $breakpoints: (
       grid-column-end: 3;
       grid-row-start: 1;
       grid-row-end: 3;
-      
+
       &__content {
-        border-bottom-right-radius: map-get($border-radius, 'lg');
+        border-bottom-right-radius: map-get($border-radius, "lg");
       }
     }
-    
+
     &--secondary {
       grid-column-start: 3;
       grid-row-start: 1;
       grid-row-end: 3;
     }
-    
+
     &--tertiary {
       grid-column-start: 1;
       grid-column-end: 3;
       grid-row-start: 3;
       grid-row-end: 3;
     }
-    
+
     &--quaternary {
       grid-column-start: 3;
       grid-column-end: 3;
       grid-row-start: 3;
       grid-row-end: 3;
     }
+  }
+
+  .content__badges img {
+    max-height: 90px;
+  }
+
+  .content__badges {
+    max-width: 440px;
+    height: 380px;
+  }
+
+  .content__3d {
+    // gap: 63px;
   }
 
   .triangle__container,
@@ -435,7 +491,7 @@ $breakpoints: (
   }
 }
 
-@include respond-to('mobile') {
+@include respond-to("mobile") {
   .page {
     &__container {
       display: flex;
@@ -447,19 +503,17 @@ $breakpoints: (
     &--primary {
       height: 677px;
     }
-    
+
     &--secondary {
       height: 595px;
     }
-    
+
     &--tertiary {
       height: 198px;
     }
-    
+
     &--quaternary {
       height: 294px;
     }
   }
 }
-
-
