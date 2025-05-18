@@ -1,4 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Koulen&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap");
 @import "tailwindcss";
 
 @theme {
@@ -13,6 +14,7 @@
 
   /* Typographie */
   --font-koulen: "Koulen", cursive;
+  --font-LuckiestGuy: "Luckiest Guy", cursive;
 
   /* Border-radius */
   --rounded-sm: 30px;
@@ -79,7 +81,7 @@ $spacing: (
 // Breakpoints
 $breakpoints: (
   "tablet": 1432px,
-  "mobile": 842px,
+  "mobile": 942px,
 );
 
 /* ==========================================================================
@@ -398,36 +400,109 @@ $breakpoints: (
 .content__3d {
   display: flex;
   position: unset;
-  height: 80%;
-  gap: clamp(1px, calc((100vw - 1454px) * (59 / 50) + 0px), 60px);
+  gap: clamp(1px, calc((100vw - 1554px) * (59 / 50) + 0px), 60px);
   padding-left: clamp(1%, calc((100vw - 1594px) * (59 / 196) + 0px), 7%);
+}
+
+.container__3d {
+  height: 80%;
+  display: flex;
 }
 .content__badges {
   z-index: 10;
   position: unset;
   // max-width: 320px;
-  width: clamp(290px, calc((100vw - 1594px) * (30 / 50) + 290px), 320px);
+  width: clamp(290px, calc((100vw - 1594px) * (30 / 50) + 290px), 420px);
   align-items: center;
   justify-items: center;
   overflow: hidden;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
+  margin-left: -20px;
+  padding: 0 2px;
 }
 
 .content__badges img {
   // width: 100%;
   // height: auto;
-  max-width: 100px;
+  max-width: 90px;
   // max-height: 90px;
   object-fit: contain;
   transition: width 0.2s, height 0.2s;
 }
 
+.etape2 {
+  display: none;
+}
+
+.chemise-txt2 {
+  display: none;
+}
+
+.holographic-card {
+  width: 90px;
+  // height: 108px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  border-radius: 15px;
+  transition: all 0.5s ease;
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+}
+
+.holographic-card h2 {
+  color: #0ff;
+  font-size: 2rem;
+  position: relative;
+  z-index: 2;
+}
+
+.holographic-card::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    0deg,
+    transparent,
+    transparent 30%,
+    rgb(255, 255, 255)
+  );
+  transform: rotate(-45deg);
+  transition: all 0.5s ease;
+  opacity: 0;
+}
+
+.holographic-card:hover {
+  transform: scale(1.05);
+  cursor: pointer;
+}
+
+.holographic-card:hover::before {
+  opacity: 1;
+  transform: rotate(-45deg) translateY(100%);
+}
 /* ==========================================================================
    RESPONSIVE
    ========================================================================== */
 
+@media screen and (max-width: 1514px) {
+  .content__badges {
+    width: 230px;
+  }
+  .content__badges img {
+    width: 70px;
+  }
+
+  .holographic-card {
+    width: 70px;
+  }
+}
 @include respond-to("tablet") {
   .page {
     &__container {
@@ -477,10 +552,12 @@ $breakpoints: (
   .content__badges {
     max-width: 440px;
     height: 380px;
+    padding-right: 0 25px 0 2px;
+    width: clamp(290px, 60vw - 666.4px, 320px);
   }
 
   .content__3d {
-    // gap: 63px;
+    align-items: center;
   }
 
   .triangle__container,
@@ -488,6 +565,23 @@ $breakpoints: (
   .panel-border__top-right,
   .triangle__accent-container {
     display: none;
+  }
+
+  .content__3d__container {
+    height: 95%;
+    margin-left: -20px;
+  }
+  .triangle-shape-2,
+  .triangle-shape-1 {
+    display: none;
+  }
+
+  .content__text {
+    display: none;
+  }
+
+  .etape2 {
+    display: block;
   }
 }
 
@@ -515,5 +609,73 @@ $breakpoints: (
     &--quaternary {
       height: 294px;
     }
+  }
+}
+
+@media screen and (max-width: 1006px) {
+  .object_3D {
+    height: 356px !important;
+  }
+
+  .content__badges {
+    width: 100%;
+  }
+}
+
+@media screen and (max-width: 643px) {
+  .page__container {
+    padding: 15px;
+  }
+  .content__3d {
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  .container__3d {
+    display: block;
+  }
+  .panel--primary {
+    height: auto;
+  }
+
+  .content__badges {
+    padding: 0px;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+  .content__badges {
+    height: auto;
+    padding: 30px;
+    justify-content: space-evenly;
+  }
+
+  .content__3d__container {
+    width: 260px !important;
+  }
+  .chemise-txt1 {
+    font-size: 40px;
+    display: none;
+  }
+
+  .chemise-txt2 {
+    font-size: 40px;
+    z-index: 10;
+    display: block;
+  }
+
+  .object_3D {
+    width: 260px !important;
+  }
+  .panel-border__top-left:after {
+    width: 75px;
+  }
+
+  .panel-border__top-left {
+    display: none;
+  }
+
+  .panel--primary__content {
+    border-radius: 55px;
   }
 }
