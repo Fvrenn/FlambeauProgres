@@ -118,10 +118,14 @@ export default function Home() {
       </div>
 
       <div className="panel--secondary">
-        <div className="panel--secondary__content flex items-center justify-center">
+        <div className="panel--secondary__content items-center justify-center relative">
+          <div className="border-right"></div>
+          <div className="border-right2"></div>
           <h2 className="font-koulen text-2xl text-white font-bold tracking-wide">
             MA PROGRESSION
           </h2>
+          <div className="border-right-center"></div>
+          <div className="border-right-center2"></div>
         </div>
       </div>
       <div className="panel--tertiary">
