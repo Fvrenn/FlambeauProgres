@@ -1,4 +1,7 @@
+"use client";
+
 import ThreeScene from "../public/3D/ThreeScene";
+import { Progress } from "@heroui/react";
 
 export default function Home() {
   return (
@@ -124,6 +127,9 @@ export default function Home() {
           <h2 className="font-koulen text-2xl text-white font-bold tracking-wide">
             MA PROGRESSION
           </h2>
+          <div>
+            <Progress value={60} color="warning" size="md" />
+          </div>
           <div className="border-right-center"></div>
           <div className="border-right-center2"></div>
         </div>
