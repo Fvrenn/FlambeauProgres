@@ -1,5 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Koulen&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -157,6 +158,37 @@ $breakpoints: (
       minmax(0, 1fr) minmax(0, 1fr) 380px 300px
       10px 430px;
     gap: map-get($spacing, "xl");
+    transition: grid-template-columns 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    &.badge-active {
+      grid-template-columns:
+        minmax(0, 1fr) minmax(0, 1fr) 280px 400px
+        10px 830px;
+
+      .content__text {
+        display: none;
+      }
+
+      .panel--secondary {
+        grid-row-end: 7;
+      }
+
+      .triangle__accent-container {
+        display: none;
+      }
+
+      .panel--quaternary {
+        display: none;
+      }
+      .panel--primary__content {
+        border-bottom-right-radius: 55px;
+      }
+      .triangle__rounded {
+        aspect-ratio: 0;
+      }
+      .panel--tertiary {
+        grid-column: 1 / 6;
+      }
+    }
   }
 }
 
@@ -219,6 +251,15 @@ $breakpoints: (
       border-radius: map-get($border-radius, "xl");
     }
   }
+}
+
+.text-checkbox {
+  color: #404359;
+  font-family: "DM Sans", sans-serif;
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 15px;
 }
 
 /* Bordures du panel principal */
@@ -377,6 +418,7 @@ $breakpoints: (
     display: flex;
     align-items: flex-end;
     z-index: 1;
+    transition: opacity 0.2s ease-in-out;
   }
 }
 
@@ -444,7 +486,6 @@ $breakpoints: (
 
 .holographic-card {
   width: 90px;
-  // height: 108px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -453,6 +494,7 @@ $breakpoints: (
   border-radius: 15px;
   transition: all 0.5s ease;
   clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  opacity: 55%;
 }
 
 .holographic-card h2 {
@@ -460,6 +502,10 @@ $breakpoints: (
   font-size: 2rem;
   position: relative;
   z-index: 2;
+}
+
+.active {
+  opacity: 1 !important;
 }
 
 .holographic-card::before {
@@ -488,6 +534,15 @@ $breakpoints: (
 .holographic-card:hover::before {
   opacity: 1;
   transform: rotate(-45deg) translateY(100%);
+}
+
+.holographic-card.active {
+  opacity: 1 !important;
+  transform: scale(1.05) !important;
+}
+
+.holographic-card.active:hover {
+  transform: scale(1.05) !important;
 }
 
 .border-right {
@@ -572,10 +627,10 @@ $breakpoints: (
     top: 31.5px;
     left: 0px;
     position: absolute;
-     background: map-get($colors, "white");
+    background: map-get($colors, "white");
     border-top-left-radius: 31px;
     z-index: 1;
-    box-shadow: -10px -10px 0 0  map-get($colors, "secondary");
+    box-shadow: -10px -10px 0 0 map-get($colors, "secondary");
   }
 }
 
@@ -606,11 +661,46 @@ $breakpoints: (
     top: 90px;
     left: 0px;
     position: absolute;
-     background: map-get($colors, "white");
+    background: map-get($colors, "white");
     border-bottom-left-radius: 31px;
     z-index: 1;
-    box-shadow: -10px 2cqh 0 0  map-get($colors, "secondary");
+    box-shadow: -10px 2cqh 0 0 map-get($colors, "secondary");
   }
+}
+
+.competences-view {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.competences-list {
+  max-height: calc(100% - 60px);
+  overflow-y: auto;
+}
+
+.competence-item {
+  padding: 8px 0;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.competence-item label {
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+.competence-item input[type="checkbox"] {
+  accent-color: #feb38f;
+  width: 16px;
+  height: 16px;
+}
+
+.progress-view {
+  text-align: center;
+  width: 100%;
 }
 /* ==========================================================================
    RESPONSIVE
