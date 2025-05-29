@@ -10,18 +10,30 @@ export interface Competence {
   isCompleted: boolean;
   files?: File[];
 }
+export interface Realisations {
+  id: string;
+  description: string;
+  isCompleted: boolean;
+  files?: File[];
+}
 
 export interface Badge {
   id: string;
   name: string;
+  number: string;
+  description: string;
   imageSrc: string;
   competences: Competence[];
+  realisations: Realisations[];
 }
 
 const badgesData: Badge[] = [
   {
     id: "2b-spe_PF",
-    name: "Spécialité PF",
+    number: "2B",
+    name: "Branche Petits Flambeaux",
+    description:
+      "Cette spécialité s'adresse bien entendu aux Chefs de la branche Petits Flambeaux. C'est une étape indispensable pour être Chef de Troupe de cette branche mais elle concerne également tout responsable qui souhaite mieux comprendre les objectifs pédagogiques propres à cette tranche d'âge.",
     imageSrc: "/etape-badges/2b-spe_PF.svg",
     competences: [
       {
@@ -67,20 +79,17 @@ const badgesData: Badge[] = [
         isCompleted: false,
       },
     ],
-  },
-  {
-    id: "2c-spe_F",
-    name: "Spécialité F",
-    imageSrc: "/etape-badges/2c-spe_F.svg",
-    competences: [
+    realisations: [
       {
-        id: "f1",
-        description: "Maîtriser les techniques de base du feu",
+        id: "b8",
+        description:
+          "Concevoir un jeu, un Cercle du Feu et un Grand Arbre en lien avec l'imaginaire des ABQS et réaliser une fiche d'activité pour chacune d'elles en précisant les objectifs, la durée, le matériel nécessaire ...",
         isCompleted: false,
       },
       {
-        id: "f2",
-        description: "Connaître les règles de sécurité",
+        id: "b9",
+        description:
+          'Proposer une ressource pédagogique (autre qu\'une fiche d\'animation) pour compléter la partie "Bois Tahouti" du "Guide du Bois"',
         isCompleted: false,
       },
     ],
@@ -173,7 +182,7 @@ export default function Home() {
       </div>
 
       <div className="panel--secondary purple ">
-        <div className="panel--secondary__content items-center justify-center relative">
+        <div className="panel--secondary__content items-center justify-center relative py-5">
           <div className="border-right"></div>
           <div className="border-right2"></div>
 
@@ -188,17 +197,23 @@ export default function Home() {
               </div>
             </div>
           ) : (
-            <div className="competences-view p-4">
-              <div className="flex items-center mb-4 gap-3">
+            <div className="competences-view relative z-10">
+              <div className="flex items-center mb-5 gap-3 m-6">
                 <button onClick={handleBackToProgress}>
                   <ArrowLeft className="text-white" />
                 </button>
 
-                <h2 className="font-koulen text-2xl text-white font-bold tracking-wide">
-                  {selectedBadge?.name}
+                <h2 className="font-LondrinaSolid text-4xl text-white font-bold tracking-wide uppercase">
+                  Étape {selectedBadge?.number}. {selectedBadge?.name}
                 </h2>
               </div>
-              <div className="competences-list space-y-3">
+              <div className="m-6 description-etape font-DMSans text-sm font-semibold border-b border-white pb-5 px-3.5 mb-5 z-10 relative pr-11">
+                <p>{selectedBadge?.description}</p>
+              </div>
+              <div className="competences-list space-y-3 m-8">
+                <h3 className="font-LondrinaSolid text-3xl text-white font-bold tracking-wide uppercase">
+                  Compétences
+                </h3>
                 {selectedBadge?.competences.map((competence) => (
                   <div key={competence.id} className="competence-item">
                     <label className="flex gap-3 text-white text-sm">
@@ -219,8 +234,56 @@ export default function Home() {
                           {competence.description}
                         </span>
                       </Checkbox>
-                      ;
                     </label>
+                  </div>
+                ))}
+              </div>
+              <div className="competences-list space-y-3 m-8">
+                <h3 className="font-LondrinaSolid text-3xl text-white font-bold tracking-wide uppercase">
+                  Réalisations
+                </h3>
+                {selectedBadge?.realisations.map((realisations) => (
+                  <div key={realisations.id} className="competence-item">
+                    <label className="flex gap-3 text-white text-sm">
+                      <Checkbox
+                        defaultSelected
+                        classNames={{
+                          base: "max-w-full",
+                          wrapper: [
+                            "before:border-white before:bg-white",
+                            "after:bg-[#594238] after:border-[#594238]",
+                            "hover:before:border-white/70",
+                          ].join(" "),
+                          icon: "text-white",
+                          label: "text-white font-medium",
+                        }}
+                      >
+                        <span className="text-checkbox font-DMSans">
+                          {realisations.description}
+                        </span>
+                      </Checkbox>
+                    </label>
+                    <div className="mt-2 ml-6">
+                      <input
+                        type="file"
+                        multiple
+                        accept=".pdf"
+                        className="block w-full text-sm text-white
+                          file:mr-4 file:py-2 file:px-4
+                          file:rounded-md file:border-0
+                          file:text-sm file:font-semibold
+                          file:bg-white file:text-[#594238]
+                          hover:file:bg-gray-100
+                          file:cursor-pointer cursor-pointer"
+                        onChange={(e) => {
+                          const files = Array.from(e.target.files || []);
+                          console.log(
+                            `Fichiers pour ${realisations.id}:`,
+                            files
+                          );
+                        }}
+                      />
+                    </div>
                   </div>
                 ))}
               </div>

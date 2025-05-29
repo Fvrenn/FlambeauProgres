@@ -22,6 +22,7 @@ module.exports = {
       fontFamily: {
         koulen: ["Koulen", "cursive"],
         LuckiestGuy: ["Luckiest Guy", "cursive"],
+        LondrinaSolid: ["Londrina Solid", "sans-serif"],
       },
       borderRadius: {
         sm: "30px",
