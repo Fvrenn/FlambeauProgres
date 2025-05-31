@@ -2,101 +2,16 @@
 import { ArrowLeft } from "lucide-react";
 import ThreeScene from "../public/3D/ThreeScene";
 import { Progress } from "@heroui/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Checkbox } from "@heroui/react";
-export interface Competence {
-  id: string;
-  description: string;
-  isCompleted: boolean;
-  files?: File[];
-}
-export interface Realisations {
-  id: string;
-  description: string;
-  isCompleted: boolean;
-  files?: File[];
-}
-
-export interface Badge {
-  id: string;
-  name: string;
-  number: string;
-  description: string;
-  imageSrc: string;
-  competences: Competence[];
-  realisations: Realisations[];
-}
-
-const badgesData: Badge[] = [
-  {
-    id: "2b-spe_PF",
-    number: "2B",
-    name: "Branche Petits Flambeaux",
-    description:
-      "Cette spécialité s'adresse bien entendu aux Chefs de la branche Petits Flambeaux. C'est une étape indispensable pour être Chef de Troupe de cette branche mais elle concerne également tout responsable qui souhaite mieux comprendre les objectifs pédagogiques propres à cette tranche d'âge.",
-    imageSrc: "/etape-badges/2b-spe_PF.svg",
-    competences: [
-      {
-        id: "b1",
-        description:
-          'Acquérir et savoir utiliser le "Guide du Bois" (p. 9 à 11)',
-        isCompleted: false,
-      },
-      {
-        id: "b2",
-        description:
-          "Se repérer dans le carnet et savoir expliquer l'ordre et le principe des différentes parties de chaque volume.",
-        isCompleted: false,
-      },
-      {
-        id: "b3",
-        description:
-          "Lire le chapitre \"L'enfant à l'âge PF\" p.19 du Guide du Bois et animer une discussion avec la maîtrise pour adapter les activités et les attitudes des Chefs.",
-        isCompleted: false,
-      },
-      {
-        id: "b4",
-        description:
-          "Observer les jeunes de ta sizaine, noter pour chacun d'eux les domaines dans lesquels il peut progresser (gestion affaires perso, vie de groupe, une des 5 relations ...), proposer des activités en rapport et faire le point à la fin du trimestre.",
-        isCompleted: false,
-      },
-      {
-        id: "b5",
-        description:
-          "Connaître les grandes lignes de l'histoire des ABQS, le rôle des 5 personnages principaux et savoir raconter le départ et l'arrivée au Parc.",
-        isCompleted: false,
-      },
-      {
-        id: "b6",
-        description:
-          "Expliquer aux jeunes le sens des différents rituels (rassemblement, Grand Arbre, Foulard d'Accueil...) et connaître la place des différents marqueurs sur l'uniforme.",
-        isCompleted: false,
-      },
-      {
-        id: "b7",
-        description:
-          "Accompagner un ami du Bois dans toute la démarche de la Parole de PF.",
-        isCompleted: false,
-      },
-    ],
-    realisations: [
-      {
-        id: "b8",
-        description:
-          "Concevoir un jeu, un Cercle du Feu et un Grand Arbre en lien avec l'imaginaire des ABQS et réaliser une fiche d'activité pour chacune d'elles en précisant les objectifs, la durée, le matériel nécessaire ...",
-        isCompleted: false,
-      },
-      {
-        id: "b9",
-        description:
-          'Proposer une ressource pédagogique (autre qu\'une fiche d\'animation) pour compléter la partie "Bois Tahouti" du "Guide du Bois"',
-        isCompleted: false,
-      },
-    ],
-  },
-];
+import { fetchBadges, createBadge } from "./services/api.service";
+import type { Badge, Competence, Realisations } from "../interface/interfaces";
 
 export default function Home() {
+  useEffect(() => {
+    fetchBadges().then(setBadges).catch(console.error);
+  }, []);
+  const [badges, setBadges] = useState<Badge[]>([]);
   const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
   const [showProgress, setShowProgress] = useState(true);
 
@@ -111,7 +26,7 @@ export default function Home() {
       return;
     }
 
-    const badge = badgesData.find((b) => b.id === badgeId);
+    const badge = badges.find((b) => b.id === badgeId);
     setSelectedBadge(badge || null);
     setShowProgress(false);
   };
@@ -145,16 +60,18 @@ export default function Home() {
               </div>
 
               <div className="content__badges">
-                <div className="holographic-container">
-                  <div
-                    className={`holographic-card ${
-                      selectedBadge?.id === "2b-spe_PF" ? "active" : ""
-                    }`}
-                    onClick={() => handleBadgeClick("2b-spe_PF")}
-                  >
-                    <img src="/etape-badges/2b-spe_PF.svg" alt="" />
+                {badges.map((badge) => (
+                  <div className="holographic-container" key={badge.id}>
+                    <div
+                      className={`holographic-card ${
+                        selectedBadge?.id === badge.id ? "active" : ""
+                      }`}
+                      onClick={() => handleBadgeClick(badge.id)}
+                    >
+                      <img src={badge.image_src} alt={badge.name} />
+                    </div>
                   </div>
-                </div>
+                ))}
               </div>
             </div>
 
