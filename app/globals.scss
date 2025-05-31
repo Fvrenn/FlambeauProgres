@@ -157,7 +157,7 @@ $breakpoints: (
       minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr)
       map-get($spacing, "lg") 198px;
     grid-template-columns:
-      minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1.2fr)
+      minmax(0, 1fr) minmax(0, 1fr) minmax(380px, 1.2fr) minmax(300px, 1.2fr)
       10px minmax(0, 1.8fr);
     gap: map-get($spacing, "xl");
     transition: grid-template-columns 0.3s ease-in-out, opacity 0.3s ease-in-out;
@@ -511,6 +511,7 @@ $breakpoints: (
   transition: all 0.5s ease;
   clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
   opacity: 55%;
+  filter: grayscale(100%);
 }
 
 .holographic-card h2 {
@@ -555,6 +556,7 @@ $breakpoints: (
 .holographic-card.active {
   opacity: 1 !important;
   transform: scale(1.05) !important;
+  filter: grayscale(0) !important;
 }
 
 .holographic-card.active:hover {
@@ -911,6 +913,7 @@ $breakpoints: (
     justify-content: space-between;
     flex-wrap: wrap;
     width: 100%;
+    margin: 0;
   }
   .content__badges {
     height: auto;

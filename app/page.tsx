@@ -56,7 +56,7 @@ export default function Home() {
                 Ma chemise
               </h3>
               <div className="content__3d__container">
-                <ThreeScene />
+                <ThreeScene rotate={!!selectedBadge} />
               </div>
 
               <div className="content__badges">
