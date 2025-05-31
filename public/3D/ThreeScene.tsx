@@ -2,7 +2,13 @@ import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Environment, Stage, Center } from "@react-three/drei";
 import ShirtModel from "../../app/3D/ShirtModel";
 
-export default function ThreeScene({ rotate = false }) {
+export default function ThreeScene({ 
+  rotate = false, 
+  selectedBadgeId = null 
+}: { 
+  rotate?: boolean; 
+  selectedBadgeId?: string | null; 
+}) {
   return (
     <div className="object_3D" style={{ width: "374px", height: "100%" }}>
       <Canvas
@@ -21,7 +27,11 @@ export default function ThreeScene({ rotate = false }) {
           preset="rembrandt"
         >
           <Center scale={3.1}>
-            <ShirtModel position={[0, -0.2, 0]} rotate={rotate} />
+            <ShirtModel 
+              position={[0, -0.2, 0]} 
+              rotate={rotate} 
+              selectedBadgeId={selectedBadgeId}
+            />
           </Center>
         </Stage>
       </Canvas>
