@@ -58,7 +58,7 @@ export default function Home() {
               <div className="content__3d__container">
                 <ThreeScene
                   rotate={!!selectedBadge}
-                  selectedBadgeId={selectedBadge?.id?.toString()}
+                  selectedBadgeId={selectedBadge?.number ?? null}
                 />
               </div>
 
