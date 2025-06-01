@@ -744,6 +744,40 @@ $breakpoints: (
   margin-top: 60px !important;
   margin-bottom: 25px !important;
 }
+
+.panel--secondary__content::-webkit-scrollbar-track {
+  border-radius: 10px;
+  background-color: #f5f5f500;
+  margin-top: 45px !important;
+  margin-bottom: 40px !important;
+}
+
+.panel--secondary__content::-webkit-scrollbar {
+  width: 8px;
+  background-color: #f5f5f500;
+}
+
+.panel--secondary__content::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background-color: #594238;
+  margin-top: 60px !important;
+  margin-bottom: 25px !important;
+}
+
+.panel--secondary__content {
+  direction: rtl;
+}
+.panel--secondary__content > * {
+  direction: ltr;
+}
+
+.container-progress > div:nth-child(3),
+.container-progress > div:nth-child(4){
+  width: 85%;
+}
+.container-progress > div:nth-child(5){
+  width: 90%;
+}
 /* ==========================================================================
    RESPONSIVE
    ========================================================================== */

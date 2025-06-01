@@ -23,7 +23,7 @@ export default function ShirtModel({
   rotate = false,
   selectedBadgeId = null,
 }: ShirtModelProps) {
-  const { scene } = useGLTF("/3D/Shirt-badge6.glb");
+  const { scene } = useGLTF("/3D/Shirt-badge7.glb");
   const ref = useRef<THREE.Group>(null);
   const badgeMeshes = useRef<Map<string, THREE.Mesh[]>>(new Map());
   const initialized = useRef(false);

@@ -102,18 +102,185 @@ export default function Home() {
       </div>
 
       <div className="panel--secondary purple ">
-        <div className="panel--secondary__content items-center justify-center relative py-5">
+        <div className="panel--secondary__content items-center justify-center relative py-5 overflow-auto	">
           <div className="border-right"></div>
           <div className="border-right2"></div>
 
           {/* Affichage conditionnel : Progression OU Compétences */}
           {showProgress ? (
-            <div className="progress-view p-4">
-              <h2 className="font-koulen text-2xl text-white font-bold tracking-wide text-left">
+            <div className="progress-view pt-3 px-4 ">
+              <h2 className="font-LondrinaSolid text-4xl text-white font-bold tracking-wide text-left">
                 MA PROGRESSION
               </h2>
-              <div>
-                <Progress value={60} color="warning" size="md" />
+              <div className="container-progress mt-4 flex flex-col gap-3">
+                <div className="flex flex-col gap-1.5 z-10">
+                  <span className="text-[#404359] font-DMSans text-sm font-semibold text-start">
+                    Specialité Branche Petits Flambeaux
+                  </span>
+                  <Progress
+                    value={60}
+                    size="md"
+                    classNames={{
+                      track: "bg-white border-1 border-black",
+                      indicator: "bg-[#ece835]",
+                    }}
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5 z-10">
+                  <span className="text-[#404359] font-DMSans text-sm font-semibold text-start">
+                    Specialité Branche Flambeaux
+                  </span>
+                  <Progress
+                    value={60}
+                    color="warning"
+                    size="md"
+                    classNames={{
+                      track: "bg-white border-1 border-black",
+                      indicator: "bg-[#2357a7]",
+                    }}
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5 z-10">
+                  <span className="text-[#404359] font-DMSans text-sm font-semibold text-start">
+                    Spécialité Animation
+                  </span>
+                  <Progress
+                    value={60}
+                    color="warning"
+                    size="md"
+                    classNames={{
+                      track: "bg-white border-1 border-black",
+                      indicator: "bg-[#eabf2c]",
+                    }}
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5 z-10">
+                  <span className="text-[#404359] font-DMSans text-sm font-semibold text-start">
+                    Spécialité Communication
+                  </span>
+                  <Progress
+                    value={60}
+                    color="warning"
+                    size="md"
+                    classNames={{
+                      track: "bg-white border-1 border-black",
+                      indicator: "bg-[#f37b61]",
+                    }}
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5 z-10">
+                  <span className="text-[#404359] font-DMSans text-sm font-semibold text-start">
+                    Spécialité Construction
+                  </span>
+                  <Progress
+                    value={60}
+                    color="warning"
+                    size="md"
+                    classNames={{
+                      track: "bg-white border-1 border-black",
+                      indicator: "bg-[#cc7b4d]",
+                    }}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1.5 z-10">
+                  <span className="text-[#404359] font-DMSans text-sm font-semibold text-start">
+                    Spécialité Exploration
+                  </span>
+                  <Progress
+                    value={60}
+                    color="warning"
+                    size="md"
+                    classNames={{
+                      track: "bg-white border-1 border-black",
+                      indicator: "bg-[#3a7155]",
+                    }}
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5 z-10">
+                  <span className="text-[#404359] font-DMSans text-sm font-semibold text-start">
+                    Spécialité Intendance
+                  </span>
+                  <Progress
+                    value={60}
+                    color="warning"
+                    size="md"
+                    classNames={{
+                      track: "bg-white border-1 border-black",
+                      indicator: "bg-[#733d8a]",
+                    }}
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5 z-10">
+                  <span className="text-[#404359] font-DMSans text-sm font-semibold text-start">
+                    Spécialité Matériel
+                  </span>
+                  <Progress
+                    value={60}
+                    color="warning"
+                    size="md"
+                    classNames={{
+                      track: "bg-white border-1 border-black",
+                      indicator: "bg-[#333333]",
+                    }}
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5 z-10">
+                  <span className="text-[#404359] font-DMSans text-sm font-semibold text-start">
+                    Spécialité Nature
+                  </span>
+                  <Progress
+                    value={60}
+                    color="warning"
+                    size="md"
+                    classNames={{
+                      track: "bg-white border-1 border-black",
+                      indicator: "bg-[#4bbe97]",
+                    }}
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5 z-10">
+                  <span className="text-[#404359] font-DMSans text-sm font-semibold text-start">
+                    Spécialité Santé
+                  </span>
+                  <Progress
+                    value={60}
+                    color="warning"
+                    size="md"
+                    classNames={{
+                      track: "bg-white border-1 border-black",
+                      indicator: "bg-[#9a1622]",
+                    }}
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5 z-10">
+                  <span className="text-[#404359] font-DMSans text-sm font-semibold text-start">
+                    Spécialité Vie Spirituelle
+                  </span>
+                  <Progress
+                    value={60}
+                    color="warning"
+                    size="md"
+                    classNames={{
+                      track: "bg-white border-1 border-black",
+                      indicator: "bg-[#9d57a2]",
+                    }}
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5 z-10">
+                  <span className="text-[#404359] font-DMSans text-sm font-semibold text-start">
+                    Spécialité Cuisine
+                  </span>
+                  <Progress
+                    value={60}
+                    color="warning"
+                    size="md"
+                    classNames={{
+                      track: "bg-white border-1 border-black",
+                      indicator: "bg-[#e07f31]",
+                    }}
+                  />
+                </div>
               </div>
             </div>
           ) : (
