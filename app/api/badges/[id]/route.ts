@@ -27,9 +27,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 }
 
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
-  await prisma.badges.delete({
-    where: { id: Number(params.id) },
-  });
-  return NextResponse.json({ success: true });
-}
+// export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+//   await prisma.badges.delete({
+//     where: { id: Number(params.id) },
+//   });
+//   return NextResponse.json({ success: true });
+// }
