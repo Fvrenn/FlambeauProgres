@@ -30,3 +30,19 @@ model realisations {
   description String
   badge       badges  @relation(fields: [badge_id], references: [id])
 }
+
+model User {
+  id       Int    @id @default(autoincrement())
+  email    String @unique
+  password String
+  name     String
+  role     Role
+  
+  @@map("users")
+}
+
+enum Role {
+  ADMIN
+  CHEF
+  REFERENT
+}

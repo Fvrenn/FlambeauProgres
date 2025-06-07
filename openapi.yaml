@@ -1,0 +1,217 @@
+openapi: 3.1.0
+info:
+  title: Flambeau Progresse API
+  description: API pour la gestion des badges, compétences et réalisations pour les scouts Flambeaux.
+  version: 1.0.0
+servers:
+  - url: /api
+
+tags:
+  - name: Badges
+  - name: Compétences
+  - name: Réalisations
+  - name: Auth
+
+paths:
+  /badges:
+    get:
+      tags: [Badges]
+      summary: Liste tous les badges
+      responses:
+        "200":
+          description: Liste des badges
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Badge"
+
+    post:
+      tags: [Badges]
+      summary: Crée un nouveau badge
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BadgeCreateInput"
+      responses:
+        "201":
+          description: Badge créé
+
+  /badges/{id}:
+    get:
+      tags: [Badges]
+      summary: Récupère les détails d’un badge
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Détails du badge
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Badge"
+
+    patch:
+      tags: [Badges]
+      summary: Met à jour un badge
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BadgeUpdateInput"
+      responses:
+        "200":
+          description: Badge mis à jour
+
+    delete:
+      tags: [Badges]
+      summary: Supprime un badge
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Badge supprimé
+
+  /auth/signup:
+    post:
+      tags: [Auth]
+      summary: Crée un nouvel utilisateur
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignupInput"
+      responses:
+        "201":
+          description: Utilisateur créé
+
+  /auth/signin:
+    post:
+      tags: [Auth]
+      summary: Authentifie un utilisateur
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SigninInput"
+      responses:
+        "200":
+          description: JWT renvoyé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+
+components:
+  schemas:
+    Badge:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        number:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        image_src:
+          type: string
+          nullable: true
+        competences:
+          type: array
+          items:
+            $ref: "#/components/schemas/Competence"
+        realisations:
+          type: array
+          items:
+            $ref: "#/components/schemas/Realisation"
+
+    BadgeCreateInput:
+      type: object
+      properties:
+        name:
+          type: string
+        number:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        image_src:
+          type: string
+          nullable: true
+
+    BadgeUpdateInput:
+      allOf:
+        - $ref: "#/components/schemas/BadgeCreateInput"
+
+    Competence:
+      type: object
+      properties:
+        id:
+          type: integer
+        badge_id:
+          type: integer
+        description:
+          type: string
+
+    Realisation:
+      type: object
+      properties:
+        id:
+          type: integer
+        badge_id:
+          type: integer
+        description:
+          type: string
+
+    SignupInput:
+      type: object
+      required: [email, password, name, role]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+          enum: [ADMIN, CHEF, REFERENT]
+
+    SigninInput:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string

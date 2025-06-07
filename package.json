@@ -10,12 +10,14 @@
   },
   "dependencies": {
     "@heroui/react": "^2.7.8",
-    "@prisma/client": "^6.8.2",
+    "@prisma/client": "^6.9.0",
     "@react-spring/three": "^10.0.1",
     "@react-three/drei": "^10.0.7",
     "@react-three/fiber": "^9.1.2",
     "autoprefixer": "^10.4.21",
+    "bcryptjs": "^2.4.3",
     "framer-motion": "^12.15.0",
+    "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.511.0",
     "next": "15.3.2",
     "postcss": "^8.5.3",
@@ -27,10 +29,12 @@
     "three-stdlib": "^2.36.0"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "prisma": "^6.8.2",
+    "prisma": "^6.9.0",
     "typescript": "^5"
   }
 }
