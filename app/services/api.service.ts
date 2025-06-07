@@ -37,3 +37,34 @@ export async function deleteBadge(id: number) {
   if (!res.ok) throw new Error("Erreur lors de la suppression du badge");
   return res.json();
 }
+
+// Récupérer les progressions de l'utilisateur connecté
+export async function fetchUserProgress(): Promise<Record<number, { isCompleted: boolean; completedAt: Date | null }>> {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("Non authentifié");
+
+  const res = await fetch("/api/competences/progress", {
+    headers: {
+      "Authorization": `Bearer ${token}`,
+    },
+  });
+  if (!res.ok) throw new Error("Erreur lors du chargement des progressions");
+  return res.json();
+}
+
+// Sauvegarder une progression de compétence
+export async function saveCompetenceProgress(competenceId: number, isCompleted: boolean) {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("Non authentifié");
+
+  const res = await fetch("/api/competences/progress", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    },
+    body: JSON.stringify({ competenceId, isCompleted }),
+  });
+  if (!res.ok) throw new Error("Erreur lors de la sauvegarde de la progression");
+  return res.json();
+}

@@ -4,7 +4,7 @@ import ThreeScene from "../public/3D/ThreeScene";
 import { Progress } from "@heroui/react";
 import { useState, useEffect } from "react";
 import { Checkbox } from "@heroui/react";
-import { fetchBadges, createBadge } from "./services/api.service";
+import { fetchBadges, fetchUserProgress, saveCompetenceProgress } from "./services/api.service";
 import type { Badge, Competence, Realisations } from "../interface/interfaces";
 import { useRouter } from "next/navigation";
 
@@ -12,6 +12,10 @@ export default function Home() {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [badges, setBadges] = useState<Badge[]>([]);
+  const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
+  const [showProgress, setShowProgress] = useState(true);
+  const [userProgress, setUserProgress] = useState<Record<number, { isCompleted: boolean; completedAt: Date | null }>>({});
 
   useEffect(() => {
     // Vérifier l'authentification
@@ -22,15 +26,45 @@ export default function Home() {
     }
 
     setIsAuthenticated(true);
-    setIsLoading(false);
-
-    // Charger les badges seulement si authentifié
-    fetchBadges().then(setBadges).catch(console.error);
+    
+    // Charger les badges et les progressions
+    Promise.all([fetchBadges(), fetchUserProgress()])
+      .then(([badgesData, progressData]) => {
+        setBadges(badgesData);
+        setUserProgress(progressData);
+      })
+      .catch(console.error)
+      .finally(() => setIsLoading(false));
   }, [router]);
 
-  const [badges, setBadges] = useState<Badge[]>([]);
-  const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
-  const [showProgress, setShowProgress] = useState(true);
+  // Fonction pour gérer le changement d'état d'une compétence
+  const handleCompetenceToggle = async (competenceId: string, isCompleted: boolean) => {
+    const numericId = parseInt(competenceId);
+    
+    try {
+      // Sauvegarde optimiste
+      setUserProgress(prev => ({
+        ...prev,
+        [numericId]: {
+          isCompleted,
+          completedAt: isCompleted ? new Date() : null,
+        },
+      }));
+
+      // Sauvegarde en base
+      await saveCompetenceProgress(numericId, isCompleted);
+    } catch (error) {
+      console.error("Erreur lors de la sauvegarde:", error);
+      // Rollback en cas d'erreur
+      setUserProgress(prev => ({
+        ...prev,
+        [numericId]: {
+          isCompleted: !isCompleted,
+          completedAt: !isCompleted ? new Date() : null,
+        },
+      }));
+    }
+  };
 
   const handleBackToProgress = () => {
     setSelectedBadge(null);
@@ -354,29 +388,35 @@ export default function Home() {
                 <h3 className="font-LondrinaSolid text-3xl text-white font-bold tracking-wide uppercase">
                   Compétences
                 </h3>
-                {selectedBadge?.competences.map((competence) => (
-                  <div key={competence.id} className="competence-item">
-                    <label className="flex gap-3 text-white text-sm">
-                      <Checkbox
-                        defaultSelected
-                        classNames={{
-                          base: "max-w-full",
-                          wrapper: [
-                            "before:border-white before:bg-white",
-                            "after:bg-[#594238] after:border-[#594238]",
-                            "hover:before:border-white/70",
-                          ].join(" "),
-                          icon: "text-white",
-                          label: "text-white font-medium",
-                        }}
-                      >
-                        <span className="text-checkbox font-DMSans">
-                          {competence.description}
-                        </span>
-                      </Checkbox>
-                    </label>
-                  </div>
-                ))}
+                {selectedBadge?.competences.map((competence) => {
+                  const numericId = parseInt(competence.id);
+                  const isCompleted = userProgress[numericId]?.isCompleted || false;
+                  
+                  return (
+                    <div key={competence.id} className="competence-item">
+                      <label className="flex gap-3 text-white text-sm">
+                        <Checkbox
+                          isSelected={isCompleted}
+                          onValueChange={(checked) => handleCompetenceToggle(competence.id, checked)}
+                          classNames={{
+                            base: "max-w-full",
+                            wrapper: [
+                              "before:border-white before:bg-white",
+                              "after:bg-[#594238] after:border-[#594238]",
+                              "hover:before:border-white/70",
+                            ].join(" "),
+                            icon: "text-white",
+                            label: "text-white font-medium",
+                          }}
+                        >
+                          <span className="text-checkbox font-DMSans">
+                            {competence.description}
+                          </span>
+                        </Checkbox>
+                      </label>
+                    </div>
+                  );
+                })}
               </div>
               <div className="competences-list space-y-3 m-8">
                 <h3 className="font-LondrinaSolid text-3xl text-white font-bold tracking-wide uppercase">

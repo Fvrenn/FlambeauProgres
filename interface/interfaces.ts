@@ -21,3 +21,13 @@ export interface Badge {
   competences: Competence[];
   realisations: Realisations[];
 }
+
+export interface UserCompetenceProgress {
+  competenceId: number;
+  isCompleted: boolean;
+  completedAt: Date | null;
+}
+
+export interface CompetenceWithProgress extends Competence {
+  userProgress?: UserCompetenceProgress;
+}
