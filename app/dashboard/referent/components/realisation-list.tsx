@@ -1,7 +1,7 @@
 import React from "react";
-import { Card, CardBody, CardFooter, Button, Image, Modal, ModalContent, ModalHeader, ModalBody, useDisclosure } from "@heroui/react";
+import { Card, CardBody, CardFooter, Button, Modal, ModalContent, ModalHeader, ModalBody, useDisclosure } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { mockUsers, mockBadges } from "../data/mock-data";
+import { fetchBadgesComplete } from "../../../services/api.service";
 
 interface RealisationListProps {
   userId: string;
@@ -15,18 +15,32 @@ export const RealisationList: React.FC<RealisationListProps> = ({ userId, badgeI
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   
   React.useEffect(() => {
-    // Simulate API call
-    setIsLoading(true);
-    setTimeout(() => {
-      const user = mockUsers.find(u => u.id === userId);
-      const userBadge = user?.badges.find(b => b.badgeId === badgeId);
-      
-      if (userBadge) {
-        setRealisations(userBadge.realisations);
+    const loadRealisations = async () => {
+      try {
+        setIsLoading(true);
+        const badges = await fetchBadgesComplete();
+        const badge = badges.find(b => b.id.toString() === badgeId);
+        
+        if (badge) {
+          // Utiliser les vraies réalisations de l'API
+          const realisationsList = badge.realisations.map(r => ({
+            id: r.id.toString(),
+            title: `Réalisation ${r.id}`,
+            description: r.description,
+            submittedAt: new Date().toISOString(), // Pour l'instant, date fictive
+            isValidated: false
+          }));
+          
+          setRealisations(realisationsList);
+        }
+      } catch (err) {
+        console.error("Erreur lors du chargement des réalisations:", err);
+      } finally {
+        setIsLoading(false);
       }
-      
-      setIsLoading(false);
-    }, 500);
+    };
+
+    loadRealisations();
   }, [userId, badgeId]);
   
   const handleValidation = (realisationId: string, isValidated: boolean) => {
@@ -57,93 +71,105 @@ export const RealisationList: React.FC<RealisationListProps> = ({ userId, badgeI
   if (realisations.length === 0) {
     return (
       <div className="text-center py-8 text-foreground-400">
-        Aucune réalisation soumise pour ce badge
+        <Icon icon="lucide:clipboard-list" className="text-4xl mb-2 mx-auto" />
+        <p>Aucune réalisation définie pour ce badge</p>
       </div>
     );
   }
   
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="space-y-4">
         {realisations.map((realisation) => (
           <Card key={realisation.id} className="border border-divider">
-            <CardBody className="p-0">
-              <div className="relative h-48">
-                <Image
-                  removeWrapper
-                  alt={realisation.title}
-                  className="z-0 w-full h-full object-cover"
-                  src={realisation.imageUrl}
-                />
-                {realisation.isValidated && (
-                  <div className="absolute top-2 right-2 bg-success rounded-full p-1">
-                    <Icon icon="lucide:check" className="text-white" />
+            <CardBody className="p-4">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center mb-2">
+                    <Icon icon="lucide:file-text" className="text-lg text-default-500 mr-2" />
+                    <h4 className="font-medium">{realisation.title}</h4>
+                    {realisation.isValidated && (
+                      <Icon icon="lucide:check-circle" className="text-success ml-2" />
+                    )}
                   </div>
-                )}
+                  <p className="text-foreground-600 text-sm mb-2">{realisation.description}</p>
+                  <p className="text-foreground-400 text-xs">
+                    Soumis le {new Date(realisation.submittedAt).toLocaleDateString('fr-FR')}
+                  </p>
+                </div>
               </div>
             </CardBody>
-            <CardFooter className="flex flex-col items-start text-small">
-              <div className="w-full">
-                <h4 className="font-medium">{realisation.title}</h4>
-                <p className="text-foreground-500 text-xs mt-1">
-                  Soumis le {new Date(realisation.submittedAt).toLocaleDateString('fr-FR')}
-                </p>
-              </div>
+            <CardFooter className="flex justify-between pt-0">
+              <Button
+                size="sm"
+                variant="flat"
+                onPress={() => handleViewRealisation(realisation)}
+                startContent={<Icon icon="lucide:eye" />}
+              >
+                Voir détails
+              </Button>
               
-              <div className="flex justify-between w-full mt-3">
+              {realisation.isValidated ? (
                 <Button
                   size="sm"
+                  color="danger"
                   variant="flat"
-                  onPress={() => handleViewRealisation(realisation)}
-                  startContent={<Icon icon="lucide:eye" />}
+                  onPress={() => handleValidation(realisation.id, false)}
+                  startContent={<Icon icon="lucide:x" />}
                 >
-                  Voir
+                  Invalider
                 </Button>
-                
-                {realisation.isValidated ? (
-                  <Button
-                    size="sm"
-                    color="danger"
-                    variant="flat"
-                    onPress={() => handleValidation(realisation.id, false)}
-                    startContent={<Icon icon="lucide:x" />}
-                  >
-                    Invalider
-                  </Button>
-                ) : (
-                  <Button
-                    size="sm"
-                    color="success"
-                    variant="flat"
-                    onPress={() => handleValidation(realisation.id, true)}
-                    startContent={<Icon icon="lucide:check" />}
-                  >
-                    Valider
-                  </Button>
-                )}
-              </div>
+              ) : (
+                <Button
+                  size="sm"
+                  color="success"
+                  variant="flat"
+                  onPress={() => handleValidation(realisation.id, true)}
+                  startContent={<Icon icon="lucide:check" />}
+                >
+                  Valider
+                </Button>
+              )}
             </CardFooter>
           </Card>
         ))}
       </div>
       
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="3xl">
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="2xl">
         <ModalContent>
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">
-                {selectedRealisation?.title}
+                <div className="flex items-center">
+                  <Icon icon="lucide:file-text" className="text-lg mr-2" />
+                  {selectedRealisation?.title}
+                </div>
               </ModalHeader>
               <ModalBody className="pb-6">
-                <div className="mb-4">
-                  <Image
-                    alt={selectedRealisation?.title}
-                    className="w-full object-contain max-h-[60vh]"
-                    src={selectedRealisation?.imageUrl}
-                  />
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-medium mb-2">Description</h4>
+                    <p className="text-foreground-600">{selectedRealisation?.description}</p>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-medium mb-2">Informations</h4>
+                    <p className="text-sm text-foreground-500">
+                      Soumis le {selectedRealisation?.submittedAt && new Date(selectedRealisation.submittedAt).toLocaleDateString('fr-FR', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </p>
+                    <p className="text-sm text-foreground-500">
+                      Statut: <span className={selectedRealisation?.isValidated ? 'text-success' : 'text-warning'}>
+                        {selectedRealisation?.isValidated ? 'Validé' : 'En attente de validation'}
+                      </span>
+                    </p>
+                  </div>
                 </div>
-                
-                <p className="text-foreground-600">{selectedRealisation?.description}</p>
                 
                 <div className="flex justify-between mt-6">
                   <Button

@@ -4,16 +4,16 @@ import ThreeScene from "../public/3D/ThreeScene";
 import { Progress } from "@heroui/react";
 import { useState, useEffect } from "react";
 import { Checkbox } from "@heroui/react";
-import { fetchBadges, fetchUserProgress, saveCompetenceProgress } from "./services/api.service";
-import type { Badge, Competence, Realisations } from "../interface/interfaces";
+import { fetchBadgesComplete, fetchUserProgress, saveCompetenceProgress } from "./services/api.service";
+import type { ApiBadge } from "./services/api.service";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [badges, setBadges] = useState<Badge[]>([]);
-  const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
+  const [badges, setBadges] = useState<ApiBadge[]>([]);
+  const [selectedBadge, setSelectedBadge] = useState<ApiBadge | null>(null);
   const [showProgress, setShowProgress] = useState(true);
   const [userProgress, setUserProgress] = useState<Record<number, { isCompleted: boolean; completedAt: Date | null }>>({});
   const [userRole, setUserRole] = useState<string>("");
@@ -38,7 +38,7 @@ export default function Home() {
     setIsAuthenticated(true);
     
     // Charger les badges et les progressions
-    Promise.all([fetchBadges(), fetchUserProgress()])
+    Promise.all([fetchBadgesComplete(), fetchUserProgress()])
       .then(([badgesData, progressData]) => {
         setBadges(badgesData);
         setUserProgress(progressData);
@@ -82,12 +82,12 @@ export default function Home() {
   };
 
   const handleBadgeClick = (badgeId: string) => {
-    if (selectedBadge && selectedBadge.id === badgeId) {
+    if (selectedBadge && selectedBadge.id.toString() === badgeId) {
       handleBackToProgress();
       return;
     }
 
-    const badge = badges.find((b) => b.id === badgeId);
+    const badge = badges.find((b) => b.id.toString() === badgeId);
     setSelectedBadge(badge || null);
     setShowProgress(false);
   };
@@ -100,6 +100,17 @@ export default function Home() {
 
   const handleReferentDashboard = () => {
     router.push("/dashboard/referent");
+  };
+
+  // Calculer la progression pour chaque badge
+  const calculateBadgeProgress = (badge: ApiBadge) => {
+    if (badge.competences.length === 0) return 0;
+    
+    const completedCompetences = badge.competences.filter(c => 
+      userProgress[c.id]?.isCompleted
+    ).length;
+    
+    return Math.round((completedCompetences / badge.competences.length) * 100);
   };
 
   if (isLoading) {
@@ -168,7 +179,7 @@ export default function Home() {
                       className={`holographic-card ${
                         selectedBadge?.id === badge.id ? "active" : ""
                       }`}
-                      onClick={() => handleBadgeClick(badge.id)}
+                      onClick={() => handleBadgeClick(badge.id.toString())}
                     >
                       <img src={badge.image_src} alt={badge.name} />
                     </div>
@@ -413,15 +424,14 @@ export default function Home() {
                   Compétences
                 </h3>
                 {selectedBadge?.competences.map((competence) => {
-                  const numericId = parseInt(competence.id);
-                  const isCompleted = userProgress[numericId]?.isCompleted || false;
+                  const isCompleted = userProgress[competence.id]?.isCompleted || false;
                   
                   return (
                     <div key={competence.id} className="competence-item">
                       <label className="flex gap-3 text-white text-sm">
                         <Checkbox
                           isSelected={isCompleted}
-                          onValueChange={(checked) => handleCompetenceToggle(competence.id, checked)}
+                          onValueChange={(checked) => handleCompetenceToggle(competence.id.toString(), checked)}
                           classNames={{
                             base: "max-w-full",
                             wrapper: [

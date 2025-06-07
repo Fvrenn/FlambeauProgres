@@ -194,6 +194,35 @@ paths:
         "404":
           description: Utilisateur non trouvé
 
+  /users/{userId}/progress:
+    get:
+      tags: [Users]
+      summary: Récupère toutes les progressions d'un utilisateur
+      description: Seuls les ADMIN et REFERENT peuvent accéder aux progressions d'autres utilisateurs
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Map des progressions de l'utilisateur
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  $ref: "#/components/schemas/CompetenceProgress"
+        "401":
+          description: Non authentifié
+        "403":
+          description: Accès non autorisé
+        "404":
+          description: Utilisateur non trouvé
+
   /competences/progress:
     get:
       tags: [Compétences]

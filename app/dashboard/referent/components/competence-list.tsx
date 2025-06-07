@@ -1,7 +1,13 @@
 import React from "react";
 import { Checkbox, Card, CardBody, Divider, Button } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { mockUsers, mockBadges } from "../data/mock-data";
+import { 
+  fetchBadgesComplete, 
+  fetchUserProgressById, 
+  validateCompetence, 
+  invalidateCompetence,
+  ApiBadge 
+} from "../../../services/api.service";
 
 interface CompetenceListProps {
   userId: string;
@@ -13,35 +19,55 @@ export const CompetenceList: React.FC<CompetenceListProps> = ({ userId, badgeId 
   const [isLoading, setIsLoading] = React.useState(true);
   
   React.useEffect(() => {
-    // Simulate API call
-    setIsLoading(true);
-    setTimeout(() => {
-      const user = mockUsers.find(u => u.id === userId);
-      const userBadge = user?.badges.find(b => b.badgeId === badgeId);
-      const badge = mockBadges.find(b => b.id === badgeId);
-      
-      if (userBadge && badge) {
-        const competencesList = badge.competences.map(c => {
-          const userCompetence = userBadge.competences.find(uc => uc.competenceId === c.id);
-          return {
-            ...c,
-            isCompleted: userCompetence?.isCompleted || false,
-            isValidated: userCompetence?.isValidated || false,
-            completedAt: userCompetence?.completedAt || null
-          };
-        });
+    const loadCompetences = async () => {
+      try {
+        setIsLoading(true);
+        const [badges, userProgress] = await Promise.all([
+          fetchBadgesComplete(),
+          fetchUserProgressById(parseInt(userId))
+        ]);
         
-        setCompetences(competencesList);
+        const badge = badges.find(b => b.id.toString() === badgeId);
+        
+        if (badge) {
+          const competencesList = badge.competences.map(c => {
+            const progress = userProgress[c.id];
+            return {
+              id: c.id.toString(),
+              title: `Compétence ${c.id}`,
+              description: c.description,
+              isCompleted: progress?.isCompleted || false,
+              isValidated: false, // TODO: À implémenter quand l'API sera disponible
+              completedAt: progress?.completedAt || null
+            };
+          });
+          
+          setCompetences(competencesList);
+        }
+      } catch (err) {
+        console.error("Erreur lors du chargement des compétences:", err);
+      } finally {
+        setIsLoading(false);
       }
-      
-      setIsLoading(false);
-    }, 500);
+    };
+
+    loadCompetences();
   }, [userId, badgeId]);
   
-  const handleValidation = (competenceId: string, isValidated: boolean) => {
-    setCompetences(prev => prev.map(c => 
-      c.id === competenceId ? { ...c, isValidated } : c
-    ));
+  const handleValidation = async (competenceId: string, isValidated: boolean) => {
+    try {
+      if (isValidated) {
+        await validateCompetence(parseInt(userId), parseInt(competenceId));
+      } else {
+        await invalidateCompetence(parseInt(userId), parseInt(competenceId));
+      }
+      
+      setCompetences(prev => prev.map(c => 
+        c.id === competenceId ? { ...c, isValidated } : c
+      ));
+    } catch (error) {
+      console.error("Erreur lors de la validation de la compétence:", error);
+    }
   };
   
   if (isLoading) {
@@ -74,11 +100,11 @@ export const CompetenceList: React.FC<CompetenceListProps> = ({ userId, badgeId 
                   {competence.description}
                 </p>
                 
-                {competence.isCompleted && (
+                {competence.isCompleted && competence.completedAt && (
                   <div className="mt-2 flex items-center text-xs text-foreground-400">
                     <Icon icon="lucide:clock" className="mr-1" />
                     <span>
-                      Déclaré le {new Date(competence.completedAt || Date.now()).toLocaleDateString('fr-FR')}
+                      Déclaré le {new Date(competence.completedAt).toLocaleDateString('fr-FR')}
                     </span>
                   </div>
                 )}
