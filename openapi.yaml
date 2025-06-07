@@ -11,6 +11,7 @@ tags:
   - name: Compétences
   - name: Réalisations
   - name: Auth
+  - name: Users
 
 paths:
   /badges:
@@ -30,6 +31,8 @@ paths:
     post:
       tags: [Badges]
       summary: Crée un nouveau badge
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -39,11 +42,15 @@ paths:
       responses:
         "201":
           description: Badge créé
+        "401":
+          description: Non authentifié
+        "409":
+          description: Numéro de badge déjà existant
 
   /badges/{id}:
     get:
       tags: [Badges]
-      summary: Récupère les détails d’un badge
+      summary: Récupère les détails d'un badge
       parameters:
         - name: id
           in: path
@@ -57,10 +64,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Badge"
+        "404":
+          description: Badge non trouvé
 
     patch:
       tags: [Badges]
       summary: Met à jour un badge
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: path
@@ -76,10 +87,14 @@ paths:
       responses:
         "200":
           description: Badge mis à jour
+        "404":
+          description: Badge non trouvé
 
     delete:
       tags: [Badges]
       summary: Supprime un badge
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: path
@@ -89,6 +104,138 @@ paths:
       responses:
         "204":
           description: Badge supprimé
+        "404":
+          description: Badge non trouvé
+
+  /users:
+    get:
+      tags: [Users]
+      summary: Liste tous les utilisateurs
+      description: Seuls les ADMIN et REFERENT peuvent accéder à cette ressource
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Liste des utilisateurs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        "401":
+          description: Non authentifié
+        "403":
+          description: Accès non autorisé
+
+  /users/{id}/role:
+    get:
+      tags: [Users]
+      summary: Récupère les informations d'un utilisateur
+      description: Seuls les ADMIN et REFERENT peuvent accéder à cette ressource
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Informations de l'utilisateur
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Non authentifié
+        "403":
+          description: Accès non autorisé
+        "404":
+          description: Utilisateur non trouvé
+
+    patch:
+      tags: [Users]
+      summary: Modifie le rôle d'un utilisateur
+      description: Seuls les ADMIN peuvent modifier les rôles
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoleUpdateInput"
+      responses:
+        "200":
+          description: Rôle mis à jour
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  user:
+                    $ref: "#/components/schemas/User"
+        "400":
+          description: Données invalides
+        "401":
+          description: Non authentifié
+        "403":
+          description: Accès non autorisé
+        "404":
+          description: Utilisateur non trouvé
+
+  /competences/progress:
+    get:
+      tags: [Compétences]
+      summary: Récupère les progressions d'un utilisateur
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Map des progressions de l'utilisateur
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  $ref: "#/components/schemas/CompetenceProgress"
+        "401":
+          description: Non authentifié
+
+    post:
+      tags: [Compétences]
+      summary: Sauvegarde ou met à jour une progression
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompetenceProgressInput"
+      responses:
+        "200":
+          description: Progression sauvegardée
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserCompetenceProgress"
+        "400":
+          description: Données invalides
+        "401":
+          description: Non authentifié
+        "404":
+          description: Compétence non trouvée
 
   /auth/signup:
     post:
@@ -103,6 +250,14 @@ paths:
       responses:
         "201":
           description: Utilisateur créé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: Données invalides
+        "409":
+          description: Email déjà utilisé
 
   /auth/signin:
     post:
@@ -124,8 +279,20 @@ paths:
                 properties:
                   token:
                     type: string
+                  user:
+                    $ref: "#/components/schemas/User"
+        "400":
+          description: Données invalides
+        "401":
+          description: Identifiants invalides
 
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
   schemas:
     Badge:
       type: object
@@ -154,6 +321,7 @@ components:
 
     BadgeCreateInput:
       type: object
+      required: [name, description]
       properties:
         name:
           type: string
@@ -162,10 +330,23 @@ components:
           nullable: true
         description:
           type: string
-          nullable: true
         image_src:
           type: string
           nullable: true
+        competences:
+          type: array
+          items:
+            type: object
+            properties:
+              description:
+                type: string
+        realisations:
+          type: array
+          items:
+            type: object
+            properties:
+              description:
+                type: string
 
     BadgeUpdateInput:
       allOf:
@@ -191,20 +372,81 @@ components:
         description:
           type: string
 
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        role:
+          type: string
+          enum: [ADMIN, CHEF, REFERENT]
+
+    RoleUpdateInput:
+      type: object
+      required: [role]
+      properties:
+        role:
+          type: string
+          enum: [ADMIN, CHEF, REFERENT]
+
+    CompetenceProgress:
+      type: object
+      properties:
+        isCompleted:
+          type: boolean
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    CompetenceProgressInput:
+      type: object
+      required: [competenceId, isCompleted]
+      properties:
+        competenceId:
+          type: integer
+        isCompleted:
+          type: boolean
+
+    UserCompetenceProgress:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        competenceId:
+          type: integer
+        isCompleted:
+          type: boolean
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
     SignupInput:
       type: object
-      required: [email, password, name, role]
+      required: [email, password, name]
       properties:
         email:
           type: string
           format: email
         password:
           type: string
+          minLength: 6
         name:
           type: string
-        role:
-          type: string
-          enum: [ADMIN, CHEF, REFERENT]
 
     SigninInput:
       type: object

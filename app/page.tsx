@@ -16,13 +16,23 @@ export default function Home() {
   const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
   const [showProgress, setShowProgress] = useState(true);
   const [userProgress, setUserProgress] = useState<Record<number, { isCompleted: boolean; completedAt: Date | null }>>({});
+  const [userRole, setUserRole] = useState<string>("");
 
   useEffect(() => {
     // Vérifier l'authentification
     const token = localStorage.getItem("token");
-    if (!token) {
+    const userStr = localStorage.getItem("user");
+    
+    if (!token || !userStr) {
       router.push("/login");
       return;
+    }
+
+    try {
+      const user = JSON.parse(userStr);
+      setUserRole(user.role);
+    } catch (error) {
+      console.error("Erreur lors de la lecture des données utilisateur:", error);
     }
 
     setIsAuthenticated(true);
@@ -88,6 +98,10 @@ export default function Home() {
     router.push("/login");
   };
 
+  const handleReferentDashboard = () => {
+    router.push("/dashboard/referent");
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#bbd0ff] flex items-center justify-center">
@@ -116,12 +130,22 @@ export default function Home() {
               <h3 className="chemise-txt1 font-koulen text-header text-white">
                 Ma chemise
               </h3>
-              <button
-                onClick={handleLogout}
-                className="bg-white text-[#171717] px-4 py-2 rounded-[20px] font-DMSans text-sm hover:bg-gray-100 transition-colors"
-              >
-                Déconnexion
-              </button>
+              <div className="flex gap-3">
+                {(userRole === "REFERENT" || userRole === "ADMIN") && (
+                  <button
+                    onClick={handleReferentDashboard}
+                    className="bg-[#d9ed92] text-[#171717] px-4 py-2 rounded-[20px] font-DMSans text-sm hover:bg-[#c9dd82] transition-colors"
+                  >
+                    Tableau de bord référent
+                  </button>
+                )}
+                <button
+                  onClick={handleLogout}
+                  className="bg-white text-[#171717] px-4 py-2 rounded-[20px] font-DMSans text-sm hover:bg-gray-100 transition-colors"
+                >
+                  Déconnexion
+                </button>
+              </div>
             </div>
           </div>
 

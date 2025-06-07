@@ -29,6 +29,7 @@
     "three-stdlib": "^2.36.0"
   },
   "devDependencies": {
+    "@iconify/react": "^6.0.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^20",
