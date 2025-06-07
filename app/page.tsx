@@ -120,6 +120,7 @@ export default function Home() {
                   <Progress
                     value={60}
                     size="md"
+                    aria-label="Progression Specialité Branche Petits Flambeaux"
                     classNames={{
                       track: "bg-white border-1 border-black",
                       indicator: "bg-[#ece835]",
@@ -134,6 +135,7 @@ export default function Home() {
                     value={60}
                     color="warning"
                     size="md"
+                    aria-label="Progression Specialité Branche Flambeaux"
                     classNames={{
                       track: "bg-white border-1 border-black",
                       indicator: "bg-[#2357a7]",
@@ -148,6 +150,7 @@ export default function Home() {
                     value={60}
                     color="warning"
                     size="md"
+                    aria-label="Progression Spécialité Animation"
                     classNames={{
                       track: "bg-white border-1 border-black",
                       indicator: "bg-[#eabf2c]",
@@ -162,6 +165,7 @@ export default function Home() {
                     value={60}
                     color="warning"
                     size="md"
+                    aria-label="Progression Spécialité Communication"
                     classNames={{
                       track: "bg-white border-1 border-black",
                       indicator: "bg-[#f37b61]",
@@ -176,6 +180,7 @@ export default function Home() {
                     value={60}
                     color="warning"
                     size="md"
+                    aria-label="Progression Spécialité Construction"
                     classNames={{
                       track: "bg-white border-1 border-black",
                       indicator: "bg-[#cc7b4d]",
@@ -191,6 +196,7 @@ export default function Home() {
                     value={60}
                     color="warning"
                     size="md"
+                    aria-label="Progression Spécialité Exploration"
                     classNames={{
                       track: "bg-white border-1 border-black",
                       indicator: "bg-[#3a7155]",
@@ -205,6 +211,7 @@ export default function Home() {
                     value={60}
                     color="warning"
                     size="md"
+                    aria-label="Progression Spécialité Intendance"
                     classNames={{
                       track: "bg-white border-1 border-black",
                       indicator: "bg-[#733d8a]",
@@ -219,6 +226,7 @@ export default function Home() {
                     value={60}
                     color="warning"
                     size="md"
+                    aria-label="Progression Spécialité Matériel"
                     classNames={{
                       track: "bg-white border-1 border-black",
                       indicator: "bg-[#333333]",
@@ -233,6 +241,7 @@ export default function Home() {
                     value={60}
                     color="warning"
                     size="md"
+                    aria-label="Progression Spécialité Nature"
                     classNames={{
                       track: "bg-white border-1 border-black",
                       indicator: "bg-[#4bbe97]",
@@ -247,6 +256,7 @@ export default function Home() {
                     value={60}
                     color="warning"
                     size="md"
+                    aria-label="Progression Spécialité Santé"
                     classNames={{
                       track: "bg-white border-1 border-black",
                       indicator: "bg-[#9a1622]",
@@ -261,6 +271,7 @@ export default function Home() {
                     value={60}
                     color="warning"
                     size="md"
+                    aria-label="Progression Spécialité Vie Spirituelle"
                     classNames={{
                       track: "bg-white border-1 border-black",
                       indicator: "bg-[#9d57a2]",
@@ -275,6 +286,7 @@ export default function Home() {
                     value={60}
                     color="warning"
                     size="md"
+                    aria-label="Progression Spécialité Cuisine"
                     classNames={{
                       track: "bg-white border-1 border-black",
                       indicator: "bg-[#e07f31]",
