@@ -6,11 +6,28 @@ import { useState, useEffect } from "react";
 import { Checkbox } from "@heroui/react";
 import { fetchBadges, createBadge } from "./services/api.service";
 import type { Badge, Competence, Realisations } from "../interface/interfaces";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
+    // Vérifier l'authentification
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    setIsAuthenticated(true);
+    setIsLoading(false);
+
+    // Charger les badges seulement si authentifié
     fetchBadges().then(setBadges).catch(console.error);
-  }, []);
+  }, [router]);
+
   const [badges, setBadges] = useState<Badge[]>([]);
   const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
   const [showProgress, setShowProgress] = useState(true);
@@ -30,6 +47,25 @@ export default function Home() {
     setSelectedBadge(badge || null);
     setShowProgress(false);
   };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    router.push("/login");
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#bbd0ff] flex items-center justify-center">
+        <div className="text-2xl font-DMSans text-white">Chargement...</div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
+
   return (
     <div className={`page__container ${selectedBadge ? "badge-active" : ""}`}>
       <div className="panel--primary">
@@ -42,11 +78,16 @@ export default function Home() {
             <div className="triangle__cache"></div>
           </div>
           <div className="content__title">
-            <div className="flex items-center justify-space-between gap-10">
+            <div className="flex items-center justify-between gap-10">
               <h3 className="chemise-txt1 font-koulen text-header text-white">
                 Ma chemise
               </h3>
-              {/* <h3 className="etape2 font-LuckiestGuy text-[30px] text-white"> 4 etape validée</h3> */}
+              <button
+                onClick={handleLogout}
+                className="bg-white text-[#171717] px-4 py-2 rounded-[20px] font-DMSans text-sm hover:bg-gray-100 transition-colors"
+              >
+                Déconnexion
+              </button>
             </div>
           </div>
 
