@@ -1,0 +1,142 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String     @id @default(uuid())
+  email           String     @unique
+  password        String
+  name            String
+  role            Role       @default(CHEF)
+  assignedBadges  Badge[]    @relation("ReferentsAssignedBadges")
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  // Progressions
+  competenceProgressions CompetenceProgression[]
+  realisations           Realisation[]
+  explanationRequests    ExplanationRequest[] @relation("RequestedToUser")
+
+  // For referents
+  explanationsDemanded   ExplanationRequest[] @relation("RequestedByReferent")
+  validatedRealisations  Realisation[] @relation("ValidatedBy")
+
+  @@map("users")
+}
+
+enum Role {
+  ADMIN
+  REFERENT
+  CHEF
+}
+
+model Badge {
+  id              String      @id @default(uuid())
+  number          String
+  name            String
+  description     String
+  image_src       String      // Changé de imageSrc à image_src
+
+  competences     Competence[]
+  realisations    RealisationRequirement[]
+  referents       User[]      @relation("ReferentsAssignedBadges")
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@map("badges")
+}
+
+model Competence {
+  id              String      @id @default(uuid())
+  description     String
+  badgeId         String
+  badge           Badge       @relation(fields: [badgeId], references: [id])
+
+  // Progressions
+  progressions    CompetenceProgression[]
+
+  @@map("competences")
+}
+
+model CompetenceProgression {
+  id              String      @id @default(uuid())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id])
+  competenceId    String
+  competence      Competence  @relation(fields: [competenceId], references: [id])
+  checked         Boolean     @default(false)
+  explanation     String?     // facultatif
+  explanationRequested Boolean @default(false) // vrai si un référent l'exige
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  explanationRequests ExplanationRequest[]
+
+  @@unique([userId, competenceId])
+  @@map("competence_progressions")
+}
+
+model ExplanationRequest {
+  id              String      @id @default(uuid())
+  referentId      String
+  referent        User        @relation("RequestedByReferent", fields: [referentId], references: [id])
+  userId          String
+  user            User        @relation("RequestedToUser", fields: [userId], references: [id])
+  competenceProgressionId String
+  competenceProgression     CompetenceProgression @relation(fields: [competenceProgressionId], references: [id])
+  createdAt       DateTime    @default(now())
+
+  @@map("explanation_requests")
+}
+
+model RealisationRequirement {
+  id              String      @id @default(uuid())
+  badgeId         String
+  badge           Badge       @relation(fields: [badgeId], references: [id])
+  description     String
+  required_count  Int?        // Ajout pour gérer "2 projets sur 3"
+
+  // Options
+  options         RealisationOption[]
+
+  @@map("realisation_requirements")
+}
+
+model RealisationOption {
+  id              String      @id @default(uuid())
+  description     String
+  requirementId   String
+  requirement     RealisationRequirement @relation(fields: [requirementId], references: [id])
+
+  realisations    Realisation[]
+
+  @@map("realisation_options")
+}
+
+model Realisation {
+  id              String      @id @default(uuid())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id])
+  optionId        String
+  option          RealisationOption @relation(fields: [optionId], references: [id])
+  fileUrl         String
+  status          ValidationStatus @default(PENDING)
+  validatedById   String?     // Admin ou Référent
+  validatedBy     User?       @relation("ValidatedBy", fields: [validatedById], references: [id])
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@map("realisations")
+}
+
+enum ValidationStatus {
+  PENDING
+  VALIDATED
+  REJECTED
+}
