@@ -5,7 +5,6 @@ import NextLink from "next/link";
 import clsx from "clsx";
 
 import { siteConfig } from "@/config/site";
-import { ThemeSwitch } from "@/components/theme-switch";
 import {
   TwitterIcon,
   GithubIcon,
@@ -59,9 +58,9 @@ export const Navbar = () => {
         </Button>
       </div>
 
-      {/* Liens sociaux et switch de thème */}
+      {/* Liens sociaux */}
       <div className="border-t border-divider pt-4">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-center">
           <div className="flex gap-3">
             <Link isExternal aria-label="Twitter" href={siteConfig.links.twitter}>
               <TwitterIcon className="text-default-500 hover:text-default-700 transition-colors" />
@@ -73,7 +72,6 @@ export const Navbar = () => {
               <GithubIcon className="text-default-500 hover:text-default-700 transition-colors" />
             </Link>
           </div>
-          <ThemeSwitch />
         </div>
       </div>
     </aside>
