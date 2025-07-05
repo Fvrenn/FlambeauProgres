@@ -1,0 +1,1118 @@
+openapi: 3.0.3
+info:
+  title: Flambeau Progresse API
+  description: |
+    API pour l'application Flambeau Progresse - Outil de gestion de progression des chefs scouts dans l'acquisition de badges, compétences et réalisations.
+    
+    ## Types d'utilisateurs
+    - **ADMIN** : peut tout modifier, valider, créer ou supprimer
+    - **REFERENT** : peut consulter tous les utilisateurs mais ne peut valider que ses badges assignés
+    - **CHEF** : peut consulter sa progression, valider des compétences et soumettre des réalisations
+    
+    ## Authentification
+    L'API utilise JWT via des cookies sécurisés. Tous les endpoints sont protégés sauf `/auth/signin` et `/auth/signup`.
+  version: 1.0.0
+  contact:
+    name: Flambeau Progresse
+    email: contact@flambeauprogresse.fr
+
+servers:
+  - url: http://localhost:3000/api
+    description: Serveur de développement
+  - url: https://flambeauprogresse.fr/api
+    description: Serveur de production
+
+security:
+  - cookieAuth: []
+
+paths:
+  # ===== AUTHENTIFICATION =====
+  /auth/signin:
+    post:
+      tags:
+        - Authentification
+      summary: Connexion utilisateur
+      description: Authentifie un utilisateur et retourne un JWT dans un cookie sécurisé
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "chef@example.com"
+                password:
+                  type: string
+                  format: password
+                  example: "motdepasse123"
+      responses:
+        '200':
+          description: Connexion réussie
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; HttpOnly; Secure; SameSite=Strict"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Données invalides
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Identifiants incorrects
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/signup:
+    post:
+      tags:
+        - Authentification
+      summary: Création de compte
+      description: Crée un nouveau compte utilisateur avec le rôle CHEF par défaut
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+                - firstName
+                - lastName
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "nouveau@example.com"
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+                  example: "motdepasse123"
+                firstName:
+                  type: string
+                  example: "Jean"
+                lastName:
+                  type: string
+                  example: "Dupont"
+      responses:
+        '201':
+          description: Compte créé avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Données invalides
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Email déjà utilisé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/me:
+    get:
+      tags:
+        - Authentification
+      summary: Informations du compte connecté
+      description: Retourne les informations de l'utilisateur actuellement connecté
+      responses:
+        '200':
+          description: Informations utilisateur
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Non authentifié
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # ===== BADGES =====
+  /badges:
+    get:
+      tags:
+        - Badges
+      summary: Liste des badges
+      description: Récupère tous les badges disponibles
+      responses:
+        '200':
+          description: Liste des badges
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Badge'
+        '401':
+          description: Non authentifié
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      tags:
+        - Badges
+      summary: Créer un badge
+      description: Crée un nouveau badge (ADMIN uniquement)
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BadgeInput'
+      responses:
+        '201':
+          description: Badge créé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Badge'
+        '400':
+          description: Données invalides
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Non authentifié
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Accès refusé (rôle ADMIN requis)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /badges/{id}:
+    get:
+      tags:
+        - Badges
+      summary: Détails d'un badge
+      description: Récupère un badge avec ses compétences et réalisations
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses:
+        '200':
+          description: Détails du badge
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadgeDetail'
+        '404':
+          description: Badge non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      tags:
+        - Badges
+      summary: Modifier un badge
+      description: Modifie un badge existant (ADMIN uniquement)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BadgeInput'
+      responses:
+        '200':
+          description: Badge modifié
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Badge'
+        '400':
+          description: Données invalides
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Accès refusé (rôle ADMIN requis)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Badge non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      tags:
+        - Badges
+      summary: Supprimer un badge
+      description: Supprime un badge (ADMIN uniquement)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses:
+        '204':
+          description: Badge supprimé
+        '403':
+          description: Accès refusé (rôle ADMIN requis)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Badge non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # ===== PROGRESSION =====
+  /progress:
+    get:
+      tags:
+        - Progression
+      summary: Progression de l'utilisateur
+      description: Liste toutes les compétences cochées ou non de l'utilisateur connecté
+      responses:
+        '200':
+          description: Progression utilisateur
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserProgress'
+        '401':
+          description: Non authentifié
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /progress/competence/{id}:
+    post:
+      tags:
+        - Progression
+      summary: Marquer une compétence comme réalisée
+      description: Permet à un CHEF de cocher une compétence avec ou sans justification
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - completed
+              properties:
+                completed:
+                  type: boolean
+                  example: true
+                justification:
+                  type: string
+                  example: "J'ai organisé la veillée du 15 mars avec succès"
+      responses:
+        '200':
+          description: Compétence mise à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompetenceProgress'
+        '400':
+          description: Données invalides
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Compétence non trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /progress/realisations:
+    get:
+      tags:
+        - Progression
+      summary: Liste des réalisations soumises
+      description: Récupère toutes les réalisations soumises par l'utilisateur connecté
+      responses:
+        '200':
+          description: Liste des réalisations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RealisationSubmission'
+        '401':
+          description: Non authentifié
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /progress/realisation/{id}:
+    post:
+      tags:
+        - Progression
+      summary: Soumettre une réalisation
+      description: Soumet une réalisation avec un fichier obligatoire
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 1
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Fichier de la réalisation (photo, PDF, etc.)
+                description:
+                  type: string
+                  example: "Preuve de l'organisation de la veillée"
+      responses:
+        '201':
+          description: Réalisation soumise
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RealisationSubmission'
+        '400':
+          description: Données invalides ou fichier manquant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Réalisation non trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # ===== VALIDATION =====
+  /competence-progress/{id}/request-explanation:
+    post:
+      tags:
+        - Validation
+      summary: Demander une explication sur une compétence
+      description: Demande une explication pour une compétence cochée sans justification (REFERENT/ADMIN uniquement, badge assigné requis)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 1
+          description: ID de la progression de compétence (CompetenceProgress.id)
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "Pouvez-vous détailler comment vous avez réalisé cette compétence ?"
+      responses:
+        '200':
+          description: Demande d'explication envoyée
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Demande d'explication envoyée"
+        '400':
+          description: Compétence déjà justifiée ou déjà validée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Accès refusé (rôle REFERENT/ADMIN requis ou badge non assigné)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Progression de compétence non trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /competence/{id}/request-explanation:
+    post:
+      tags:
+        - Validation
+      summary: Demander une explication
+      description: Demande une explication pour une compétence (REFERENT/ADMIN uniquement)
+      deprecated: true
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userId
+                - message
+              properties:
+                userId:
+                  type: integer
+                  example: 5
+                message:
+                  type: string
+                  example: "Pouvez-vous détailler votre organisation de la veillée ?"
+      responses:
+        '200':
+          description: Demande d'explication envoyée
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Demande d'explication envoyée"
+        '403':
+          description: Accès refusé (rôle REFERENT/ADMIN requis)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Compétence non trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /competence/{id}/validate:
+    post:
+      tags:
+        - Validation
+      summary: Valider une compétence
+      description: Valide une compétence d'un utilisateur (REFERENT/ADMIN uniquement)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userId
+                - validated
+              properties:
+                userId:
+                  type: integer
+                  example: 5
+                validated:
+                  type: boolean
+                  example: true
+                feedback:
+                  type: string
+                  example: "Excellente organisation, bien joué !"
+      responses:
+        '200':
+          description: Compétence validée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompetenceProgress'
+        '403':
+          description: Accès refusé (rôle REFERENT/ADMIN requis)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Compétence non trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /realisation/{id}/validate:
+    post:
+      tags:
+        - Validation
+      summary: Valider une réalisation
+      description: Valide une réalisation soumise (REFERENT/ADMIN uniquement)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                feedback:
+                  type: string
+                  example: "Réalisation conforme aux attentes"
+      responses:
+        '200':
+          description: Réalisation validée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RealisationSubmission'
+        '403':
+          description: Accès refusé (rôle REFERENT/ADMIN requis)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Réalisation non trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /realisation/{id}/refuse:
+    post:
+      tags:
+        - Validation
+      summary: Refuser une réalisation
+      description: Refuse une réalisation soumise (REFERENT/ADMIN uniquement)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - reason
+              properties:
+                reason:
+                  type: string
+                  example: "Le fichier fourni ne correspond pas à la réalisation demandée"
+      responses:
+        '200':
+          description: Réalisation refusée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RealisationSubmission'
+        '400':
+          description: Raison du refus manquante
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Accès refusé (rôle REFERENT/ADMIN requis)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Réalisation non trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # ===== ADMINISTRATION =====
+  /users:
+    get:
+      tags:
+        - Administration
+      summary: Liste des utilisateurs
+      description: Récupère tous les utilisateurs (ADMIN/REFERENT uniquement)
+      responses:
+        '200':
+          description: Liste des utilisateurs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '403':
+          description: Accès refusé (rôle ADMIN/REFERENT requis)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /users/{id}/progress:
+    get:
+      tags:
+        - Administration
+      summary: Progression d'un utilisateur
+      description: Récupère la progression complète d'un utilisateur spécifique (ADMIN/REFERENT uniquement)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 5
+      responses:
+        '200':
+          description: Progression de l'utilisateur
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                  progress:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/UserProgress'
+                  submissions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RealisationSubmission'
+        '403':
+          description: Accès refusé (rôle ADMIN/REFERENT requis)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Utilisateur non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: token
+      description: JWT token stocké dans un cookie HttpOnly
+
+  schemas:
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          example: "Message d'erreur"
+        details:
+          type: string
+          example: "Détails supplémentaires sur l'erreur"
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        email:
+          type: string
+          format: email
+          example: "chef@example.com"
+        firstName:
+          type: string
+          example: "Jean"
+        lastName:
+          type: string
+          example: "Dupont"
+        role:
+          type: string
+          enum: [CHEF, REFERENT, ADMIN]
+          example: "CHEF"
+        assignedBadges:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 1
+              name:
+                type: string
+                example: "Badge Nature"
+          description: "Badges assignés (uniquement pour les REFERENT)"
+          example: [{"id": 1, "name": "Badge Nature"}, {"id": 3, "name": "Badge Cuisine"}]
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:00:00Z"
+
+    Badge:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        number:
+          type: string
+          example: "2N"
+        name:
+          type: string
+          example: "Vie Spirituelle"
+        description:
+          type: string
+          example: "Badge pour développer les compétences en vie spirituelle"
+        image_src:
+          type: string
+          example: "/etape-badges/2n-spe_vie_spi.svg"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:00:00Z"
+
+    BadgeInput:
+      type: object
+      required:
+        - number
+        - name
+        - description
+        - image_src
+      properties:
+        number:
+          type: string
+          example: "2N"
+        name:
+          type: string
+          example: "Vie Spirituelle"
+        description:
+          type: string
+          example: "Badge pour développer les compétences en vie spirituelle"
+        image_src:
+          type: string
+          example: "/etape-badges/2n-spe_vie_spi.svg"
+        competences:
+          type: array
+          items:
+            type: object
+            required:
+              - description
+            properties:
+              description:
+                type: string
+                example: "N1 Etre capable de faire des canevas de Cercles du Feu"
+        realisations:
+          type: array
+          items:
+            type: object
+            required:
+              - description
+              - options
+            properties:
+              description:
+                type: string
+                example: "2 projets sur 3 :"
+              options:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - description
+                  properties:
+                    description:
+                      type: string
+                      example: "N8a Organiser un cycle cohérent de Cercle du Feu"
+
+    BadgeDetail:
+      allOf:
+        - $ref: '#/components/schemas/Badge'
+        - type: object
+          properties:
+            competences:
+              type: array
+              items:
+                $ref: '#/components/schemas/Competence'
+            realisationBlocks:
+              type: array
+              items:
+                $ref: '#/components/schemas/RealisationBlock'
+
+    Competence:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        badgeId:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Reconnaître 10 arbres"
+        description:
+          type: string
+          example: "Être capable d'identifier 10 essences d'arbres différentes"
+        order:
+          type: integer
+          example: 1
+
+    RealisationBlock:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        badgeId:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Projets spirituels"
+        description:
+          type: string
+          example: "2 projets sur 3 :"
+        requiredCount:
+          type: integer
+          example: 2
+          description: "Nombre de réalisations requises dans ce bloc"
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/RealisationOption'
+
+    RealisationOption:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        blockId:
+          type: integer
+          example: 1
+        code:
+          type: string
+          example: "N8a"
+        title:
+          type: string
+          example: "Organiser une sortie nature"
+        description:
+          type: string
+          example: "Organiser et animer une sortie nature pour sa patrouille"
+
+    UserProgress:
+      type: object
+      properties:
+        badgeId:
+          type: integer
+          example: 1
+        badgeName:
+          type: string
+          example: "Badge Nature"
+        competences:
+          type: array
+          items:
+            $ref: '#/components/schemas/CompetenceProgress'
+        completionRate:
+          type: number
+          format: float
+          example: 0.6
+          description: "Taux de complétion du badge (0.0 à 1.0)"
+
+    CompetenceProgress:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        competenceId:
+          type: integer
+          example: 1
+        userId:
+          type: integer
+          example: 5
+        title:
+          type: string
+          example: "Reconnaître 10 arbres"
+        completed:
+          type: boolean
+          example: true
+        justification:
+          type: string
+          nullable: true
+          example: "J'ai créé un herbier avec 12 essences différentes"
+        validated:
+          type: boolean
+          nullable: true
+          example: true
+        validatedBy:
+          type: integer
+          nullable: true
+          example: 2
+        validatedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2024-01-20T14:30:00Z"
+        feedback:
+          type: string
+          nullable: true
+          example: "Excellent travail sur l'herbier"
+        explanationRequired:
+          type: boolean
+          example: false
+          description: "Indique si une explication a été demandée par un référent"
+        explanationRequestMessage:
+          type: string
+          nullable: true
+          example: "Pouvez-vous détailler comment vous avez réalisé cette compétence ?"
+          description: "Message du référent lors de la demande d'explication"
+        completedAt:
+          type: string
+          format: date-time
+          example: "2024-01-18T16:00:00Z"
+
+    RealisationSubmission:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        userId:
+          type: integer
+          example: 5
+        realisationOptionId:
+          type: integer
+          example: 1
+        optionCode:
+          type: string
+          example: "N8a"
+        optionTitle:
+          type: string
+          example: "Organiser une sortie nature"
+        fileUrl:
+          type: string
+          example: "/uploads/realisations/sortie_nature_proof.pdf"
+        description:
+          type: string
+          nullable: true
+          example: "Preuve de l'organisation de la sortie nature du 15 mars"
+        status:
+          type: string
+          enum: [PENDING, VALIDATED, REFUSED]
+          example: "PENDING"
+        feedback:
+          type: string
+          nullable: true
+          example: "Réalisation conforme aux attentes"
+        validatedBy:
+          type: integer
+          nullable: true
+          example: 2
+        validatedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2024-01-22T09:15:00Z"
+        submittedAt:
+          type: string
+          format: date-time
+          example: "2024-01-20T11:30:00Z"
+
+tags:
+  - name: Authentification
+    description: Endpoints de gestion de l'authentification
+  - name: Badges
+    description: Gestion des badges disponibles
+  - name: Progression
+    description: Suivi de la progression des utilisateurs
+  - name: Validation
+    description: Validation des compétences et réalisations
+  - name: Administration
+    description: Endpoints d'administration (ADMIN/REFERENT uniquement)
