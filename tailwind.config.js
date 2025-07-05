@@ -1,5 +1,4 @@
 import {heroui} from "@heroui/theme"
-
 /** @type {import('tailwindcss').Config} */
 const config = {
   content: [
@@ -14,26 +13,26 @@ const config = {
         mono: ["var(--font-mono)"],
       },
       colors: {
-        primary: "#bbd0ff",
-        secondary: "#b8c0ff", 
-        tertiary: "#d9ed92",
-        accent: "#feb38f",
-        background: "#F3F2E9",
-        foreground: "#171717",
+        "light-beige": "#E8E7DE",
+        "dark-beige": "#DCDDD8", 
+        "border-beige": "#F0EFE7",
+        "sand": "#F4A460",
+        "ivory": "#FFFFF0",
+        "linen": "#FAF0E6",
+        "wheat": "#F5DEB3",
+        "khaki": "#F0E68C",
+        "sage": "#9CAF88",
+        "dusty-rose": "#DCAE96",
       }
     },
   },
-  darkMode: "class",
   plugins: [heroui({
     themes: {
       light: {
         colors: {
-          background: "#ffffff",
+          background: "#F3F2E9",
           foreground: "#171717",
           primary: {
-            50: "#f0f4ff",
-            500: "#bbd0ff",
-            900: "#1a237e",
             DEFAULT: "#bbd0ff",
           },
           secondary: "#b8c0ff",
