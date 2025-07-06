@@ -34,7 +34,8 @@ export const ChemiseModel = () => {
             clip 
             observe 
             margin={1.1} 
-            interpolateFunc={() => 1}
+            maxDuration={0}
+            interpolateFunc={(t) => t}
           >
             <Center>
               <ChemiseGLB />
