@@ -7,7 +7,7 @@ export default function ControlPanelTabs() {
       id: "progression",
       label: "Progression",
       content: (
-        <div>
+        <div className="bg-white border border-border-beige-gris rounded-[23px] p-[14px]">
           <h3>Votre Progression</h3>
         </div>
       )
@@ -16,7 +16,7 @@ export default function ControlPanelTabs() {
       id: "objectifs",
       label: "Objectifs", 
       content: (
-        <div>
+        <div className="bg-white border border-border-beige-gris rounded-[23px] p-[14px]">
           <h3>Vos Objectifs</h3>
         </div>
       )
@@ -25,7 +25,7 @@ export default function ControlPanelTabs() {
       id: "notifications",
       label: "Notifications",
       content: (
-        <div>
+        <div className="bg-white border border-border-beige-gris rounded-[23px] p-[14px]">
           <h3>Notifications</h3>
         </div>
       )

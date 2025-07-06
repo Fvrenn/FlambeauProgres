@@ -1,6 +1,6 @@
 "use client";
 
-import { Tabs, Tab, Card, CardBody } from "@heroui/react";
+import { Tabs, Tab } from "@heroui/react";
 
 const themes = {
   dashboard: {
@@ -43,9 +43,7 @@ export default function TabsComponent({
     >
       {(item) => (
         <Tab key={item.id} title={item.label}>
-          <Card>
-            <CardBody>{item.content}</CardBody>
-          </Card>
+          {item.content}
         </Tab>
       )}
     </Tabs>
