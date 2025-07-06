@@ -3,7 +3,7 @@
 import { Canvas } from '@react-three/fiber';
 import { useGLTF, Center, Bounds } from '@react-three/drei';
 import { Suspense } from 'react';
-import { useControls } from 'leva';
+// import { useControls } from 'leva'; // GUI commentée pour production
 
 // Composant pour charger et afficher le modèle 3D avec effet mat
 function ChemiseGLB() {
@@ -33,9 +33,41 @@ function ChemiseGLB() {
   );
 }
 
-// Composant principal exporté avec GUI pour ajuster les lumières
+// Composant principal exporté avec paramètres fixes (GUI désactivée)
 export const ChemiseModel = () => {
-  // GUI Controls pour ajuster les lumières en temps réel
+  // Paramètres d'éclairage fixes basés sur vos derniers réglages
+  const lightingConfig = {
+    // Ambient Light
+    ambientIntensity: 0.8,
+    ambientColor: '#ffffff',
+    
+    // Directional Light
+    directionalIntensity: 2.0,
+    directionalX: 10.0,
+    directionalY: 10.0,
+    directionalZ: 7.0,
+    directionalColor: '#ffffff',
+    enableShadows: false,
+    
+    // Spot Light
+    enableSpotLight: true,
+    spotIntensity: 80,
+    spotX: -2.0,
+    spotY: 6.0,
+    spotZ: 2.0,
+    spotAngle: 0.6,
+    spotPenumbra: 0.0,
+    
+    // Point Light
+    enablePointLight: true,
+    pointIntensity: 10,
+    pointX: 4.0,
+    pointY: -1.5,
+    pointZ: 1.0,
+    pointDistance: 10
+  };
+
+  /* GUI LEVA - Décommentez cette section pour réactiver la GUI
   const controls = useControls({
     // Ambient Light
     ambientIntensity: { value: 0.8, min: 0, max: 2, step: 0.1 },
@@ -66,47 +98,48 @@ export const ChemiseModel = () => {
     pointZ: { value: 1.0, min: -10, max: 10, step: 0.5 },
     pointDistance: { value: 10, min: 0, max: 20, step: 1 }
   });
+  */
 
   return (
     <div className="w-full h-full">
-      <Canvas camera={{ position: [0, 0, 5], fov: 20 }} shadows={controls.enableShadows}>
-        {/* Éclairage contrôlable via GUI */}
+      <Canvas camera={{ position: [0, 0, 5], fov: 20 }} shadows={lightingConfig.enableShadows}>
+        {/* Éclairage avec paramètres fixes */}
         
         {/* Ambient Light */}
         <ambientLight 
-          intensity={controls.ambientIntensity} 
-          color={controls.ambientColor} 
+          intensity={lightingConfig.ambientIntensity} 
+          color={lightingConfig.ambientColor} 
         />
         
         {/* Directional Light */}
         <directionalLight 
-          position={[controls.directionalX, controls.directionalY, controls.directionalZ]} 
-          intensity={controls.directionalIntensity}
-          color={controls.directionalColor}
-          castShadow={controls.enableShadows}
+          position={[lightingConfig.directionalX, lightingConfig.directionalY, lightingConfig.directionalZ]} 
+          intensity={lightingConfig.directionalIntensity}
+          color={lightingConfig.directionalColor}
+          castShadow={lightingConfig.enableShadows}
           shadow-mapSize-width={1024}
           shadow-mapSize-height={1024}
         />
         
         {/* Spot Light (conditionnel) */}
-        {controls.enableSpotLight && (
+        {lightingConfig.enableSpotLight && (
           <spotLight
-            position={[controls.spotX, controls.spotY, controls.spotZ]}
-            intensity={controls.spotIntensity}
-            angle={controls.spotAngle}
-            penumbra={controls.spotPenumbra}
+            position={[lightingConfig.spotX, lightingConfig.spotY, lightingConfig.spotZ]}
+            intensity={lightingConfig.spotIntensity}
+            angle={lightingConfig.spotAngle}
+            penumbra={lightingConfig.spotPenumbra}
             color="#ffffff"
-            castShadow={controls.enableShadows}
+            castShadow={lightingConfig.enableShadows}
           />
         )}
         
         {/* Point Light (conditionnel) */}
-        {controls.enablePointLight && (
+        {lightingConfig.enablePointLight && (
           <pointLight
-            position={[controls.pointX, controls.pointY, controls.pointZ]}
-            intensity={controls.pointIntensity}
+            position={[lightingConfig.pointX, lightingConfig.pointY, lightingConfig.pointZ]}
+            intensity={lightingConfig.pointIntensity}
             color="#ffffff"
-            distance={controls.pointDistance}
+            distance={lightingConfig.pointDistance}
             decay={2}
           />
         )}
