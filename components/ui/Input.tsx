@@ -1,7 +1,45 @@
 "use client";
 
-import { Input as HeroInput } from "@heroui/input";
+import {Input} from "@heroui/input";
 import { forwardRef } from "react";
+
+const inputThemes = {
+  default: {
+    variant: "faded" as const,
+    size: "md" as const,
+    color: "default" as const,
+    radius: "md" as const,
+    labelPlacement: "outside" as const,
+  },
+  modern: {
+    variant: "flat" as const,
+    size: "lg" as const,
+    color: "primary" as const,
+    radius: "lg" as const,
+    labelPlacement: "inside" as const,
+  },
+  minimal: {
+    variant: "underlined" as const,
+    size: "md" as const,
+    color: "secondary" as const,
+    radius: "none" as const,
+    labelPlacement: "outside" as const,
+  },
+  elegant: {
+    variant: "bordered" as const,
+    size: "lg" as const,
+    color: "primary" as const,
+    radius: "md" as const,
+    labelPlacement: "outside" as const,
+  },
+  auth: {
+    variant: "bordered" as const,
+    size: "lg" as const,
+    color: "primary" as const,
+    radius: "md" as const,
+    labelPlacement: "outside" as const,
+  },
+};
 
 interface CustomInputProps {
   label?: string;
@@ -24,6 +62,7 @@ interface CustomInputProps {
   startContent?: React.ReactNode;
   endContent?: React.ReactNode;
   className?: string;
+  theme?: keyof typeof inputThemes;
 }
 
 export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
@@ -40,21 +79,24 @@ export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
       isInvalid = false,
       errorMessage,
       description,
-      size = "md",
-      color = "default",
-      variant = "bordered",
-      radius = "md",
-      labelPlacement = "outside",
+      size,
+      color,
+      variant,
+      radius,
+      labelPlacement,
       isClearable = false,
       startContent,
       endContent,
       className = "",
+      theme = "default",
       ...props
     },
     ref
   ) => {
+    const currentTheme = inputThemes[theme];
+
     return (
-      <HeroInput
+      <Input
         ref={ref}
         label={label}
         placeholder={placeholder}
@@ -67,11 +109,11 @@ export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
         isInvalid={isInvalid}
         errorMessage={errorMessage}
         description={description}
-        size={size}
-        color={color}
-        variant={variant}
-        radius={radius}
-        labelPlacement={labelPlacement}
+        size={size || currentTheme.size}
+        color={color || currentTheme.color}
+        variant={variant || currentTheme.variant}
+        radius={radius || currentTheme.radius}
+        labelPlacement={labelPlacement || currentTheme.labelPlacement}
         isClearable={isClearable}
         startContent={startContent}
         endContent={endContent}

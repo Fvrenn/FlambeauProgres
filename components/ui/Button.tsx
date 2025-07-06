@@ -1,7 +1,51 @@
 "use client";
 
-import { Button as HeroButton } from "@heroui/button";
-import { forwardRef } from "react";
+import {Button} from "@heroui/button";import { forwardRef } from "react";
+
+const buttonThemes = {
+  default: {
+    variant: "solid" as const,
+    color: "default" as const,
+    size: "md" as const,
+    radius: "md" as const,
+    customClasses: "bg-medium-black text-white border-medium-black",
+  },
+  primary: {
+    variant: "solid" as const,
+    color: "primary" as const,
+    size: "lg" as const,
+    radius: "md" as const,
+    customClasses: "",
+  },
+  secondary: {
+    variant: "bordered" as const,
+    color: "primary" as const,
+    size: "md" as const,
+    radius: "md" as const,
+    customClasses: "",
+  },
+  ghost: {
+    variant: "light" as const,
+    color: "primary" as const,
+    size: "md" as const,
+    radius: "md" as const,
+    customClasses: "",
+  },
+  danger: {
+    variant: "solid" as const,
+    color: "danger" as const,
+    size: "md" as const,
+    radius: "md" as const,
+    customClasses: "",
+  },
+  auth: {
+    variant: "solid" as const,
+    color: "primary" as const,
+    size: "lg" as const,
+    radius: "md" as const,
+    customClasses: "",
+  },
+};
 
 interface CustomButtonProps {
   children: React.ReactNode;
@@ -19,6 +63,7 @@ interface CustomButtonProps {
   spinner?: React.ReactNode;
   onClick?: () => void;
   className?: string;
+  theme?: keyof typeof buttonThemes;
 }
 
 export const CustomButton = forwardRef<HTMLButtonElement, CustomButtonProps>(
@@ -26,10 +71,10 @@ export const CustomButton = forwardRef<HTMLButtonElement, CustomButtonProps>(
     {
       children,
       type = "button",
-      variant = "solid",
-      color = "primary",
-      size = "md",
-      radius = "md",
+      variant,
+      color,
+      size,
+      radius,
       disabled = false,
       isLoading = false,
       isDisabled = false,
@@ -39,18 +84,21 @@ export const CustomButton = forwardRef<HTMLButtonElement, CustomButtonProps>(
       spinner,
       onClick,
       className = "",
+      theme = "default",
       ...props
     },
     ref
   ) => {
+    const currentTheme = buttonThemes[theme];
+
     return (
-      <HeroButton
+      <Button
         ref={ref}
         type={type}
-        variant={variant}
-        color={color}
-        size={size}
-        radius={radius}
+        variant={variant || currentTheme.variant}
+        color={color || currentTheme.color}
+        size={size || currentTheme.size}
+        radius={radius || currentTheme.radius}
         disabled={disabled || isDisabled}
         isLoading={isLoading}
         isDisabled={isDisabled}
@@ -59,11 +107,11 @@ export const CustomButton = forwardRef<HTMLButtonElement, CustomButtonProps>(
         endContent={endContent}
         spinner={spinner}
         onClick={onClick}
-        className={`${fullWidth ? "w-full" : ""} ${className}`}
+        className={`${fullWidth ? "w-full" : ""} ${currentTheme.customClasses} ${className}`}
         {...props}
       >
         {children}
-      </HeroButton>
+      </Button>
     );
   }
 );

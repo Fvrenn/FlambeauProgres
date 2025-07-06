@@ -18,6 +18,7 @@ const config = {
         "border-beige": "#F0EFE7",
         "border-beige-gris": "#EFEDE9",
         "medium-black": "#0F1511",
+        "input-border": "#E4E4E7",
         "ivory": "#FFFFF0",
         "linen": "#FAF0E6",
         "wheat": "#F5DEB3",

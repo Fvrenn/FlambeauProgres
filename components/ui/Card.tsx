@@ -1,6 +1,38 @@
 "use client";
 
-import { Card as HeroCard, CardBody as HeroCardBody, CardHeader as HeroCardHeader, CardFooter as HeroCardFooter } from "@heroui/react";
+import {Card, CardHeader, CardBody, CardFooter} from "@heroui/card";
+const cardThemes = {
+  default: {
+    shadow: "md" as const,
+    radius: "lg" as const,
+    isHoverable: false,
+    isPressable: false,
+  },
+  elegant: {
+    shadow: "lg" as const,
+    radius: "lg" as const,
+    isHoverable: true,
+    isPressable: false,
+  },
+  minimal: {
+    shadow: "none" as const,
+    radius: "md" as const,
+    isHoverable: false,
+    isPressable: false,
+  },
+  interactive: {
+    shadow: "md" as const,
+    radius: "lg" as const,
+    isHoverable: true,
+    isPressable: true,
+  },
+  auth: {
+    shadow: "lg" as const,
+    radius: "lg" as const,
+    isHoverable: false,
+    isPressable: false,
+  },
+};
 
 interface CustomCardProps {
   children: React.ReactNode;
@@ -15,6 +47,7 @@ interface CustomCardProps {
   isDisabled?: boolean;
   disableAnimation?: boolean;
   onPress?: () => void;
+  theme?: keyof typeof cardThemes;
 }
 
 interface CustomCardBodyProps {
@@ -35,27 +68,30 @@ interface CustomCardFooterProps {
 export const CustomCard = ({
   children,
   className = "",
-  isHoverable = false,
-  isPressable = false,
+  isHoverable,
+  isPressable,
   isBlurred = false,
   isFooterBlurred = false,
-  shadow = "md",
-  radius = "lg",
+  shadow,
+  radius,
   fullWidth = false,
   isDisabled = false,
   disableAnimation = false,
   onPress,
+  theme = "default",
   ...props
 }: CustomCardProps) => {
+  const currentTheme = cardThemes[theme];
+
   return (
-    <HeroCard
+    <Card
       className={className}
-      isHoverable={isHoverable}
-      isPressable={isPressable}
+      isHoverable={isHoverable ?? currentTheme.isHoverable}
+      isPressable={isPressable ?? currentTheme.isPressable}
       isBlurred={isBlurred}
       isFooterBlurred={isFooterBlurred}
-      shadow={shadow}
-      radius={radius}
+      shadow={shadow || currentTheme.shadow}
+      radius={radius || currentTheme.radius}
       fullWidth={fullWidth}
       isDisabled={isDisabled}
       disableAnimation={disableAnimation}
@@ -63,29 +99,29 @@ export const CustomCard = ({
       {...props}
     >
       {children}
-    </HeroCard>
+    </Card>
   );
 };
 
 export const CustomCardBody = ({ children, className = "", ...props }: CustomCardBodyProps) => {
   return (
-    <HeroCardBody
+    <CardBody
       className={className}
       {...props}
     >
       {children}
-    </HeroCardBody>
+    </CardBody>
   );
 };
 
 export const CustomCardHeader = ({ children, className = "", ...props }: CustomCardHeaderProps) => {
   return (
-    <HeroCardHeader
+    <CardHeader
       className={className}
       {...props}
     >
       {children}
-    </HeroCardHeader>
+    </CardHeader>
   );
 };
 
@@ -95,12 +131,12 @@ export const CustomCardFooter = ({
   ...props
 }: CustomCardFooterProps) => {
   return (
-    <HeroCardFooter
+    <CardFooter
       className={className}
       {...props}
     >
       {children}
-    </HeroCardFooter>
+    </CardFooter>
   );
 };
 
