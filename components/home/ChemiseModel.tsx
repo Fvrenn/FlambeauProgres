@@ -13,6 +13,7 @@ function ChemiseGLB() {
       object={scene} 
       scale={1}
       position={[0, 0, 0]}
+    //   rotation={[0, -1, 0]}
     />
   );
 }
@@ -28,7 +29,13 @@ export const ChemiseModel = () => {
         
         {/* Modèle 3D avec gestion du chargement */}
         <Suspense fallback={null}>
-          <Bounds fit clip observe margin={1.1}>
+          <Bounds 
+            fit 
+            clip 
+            observe 
+            margin={1.1} 
+            interpolateFunc={() => 1}
+          >
             <Center>
               <ChemiseGLB />
             </Center>
