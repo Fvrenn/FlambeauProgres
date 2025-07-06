@@ -1,3 +1,5 @@
+"use client";
+
 import { Button as HeroButton } from "@heroui/button";
 import { forwardRef } from "react";
 

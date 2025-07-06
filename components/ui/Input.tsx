@@ -1,3 +1,5 @@
+"use client";
+
 import { Input as HeroInput } from "@heroui/input";
 import { forwardRef } from "react";
 
