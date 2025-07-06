@@ -1,0 +1,219 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Énumérations
+enum UserRole {
+  CHEF
+  REFERENT
+  ADMIN
+}
+
+enum TypeObjectif {
+  COMPETENCE
+  REALISATION
+}
+
+enum StatutJustification {
+  BROUILLON
+  SOUMISE
+  EN_COURS
+  DEMANDE_PRECISION
+  VALIDEE
+  REFUSEE
+}
+
+enum TypeFichier {
+  IMAGE
+  DOCUMENT
+  AUTRE
+}
+
+enum TypeCommentaire {
+  CHEF_REPONSE
+  REFERENT_QUESTION
+  REFERENT_FEEDBACK
+  SYSTEM
+}
+
+enum TypeNotification {
+  NOUVELLE_JUSTIFICATION
+  JUSTIFICATION_VALIDEE
+  JUSTIFICATION_REFUSEE
+  DEMANDE_PRECISION
+  REPONSE_PRECISION
+  BADGE_COMPLETE
+  JUSTIFICATION_URGENTE
+  NOUVEAU_COMMENTAIRE
+}
+
+// Modèles de données
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  role      UserRole
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  justifications         Justification[]
+  assignedBadges         BadgeReferent[]
+  commentsWritten        Commentaire[]
+  notificationsReceived  Notification[]
+
+  @@map("users")
+}
+
+model Badge {
+  id          String   @id @default(cuid())
+  code        String   @unique // "2b", "2c", "2e"...
+  nom         String   // "Branche Petits Flambeaux"
+  description String?
+  couleur     String?  // Pour affichage 3D
+  icone       String?
+  ordre       Int      // Ordre d'affichage
+  actif       Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  objectifs      Objectif[]
+  referents      BadgeReferent[]
+  justifications Justification[]
+
+  @@map("badges")
+}
+
+model Objectif {
+  id            String        @id @default(cuid())
+  badgeId       String
+  code          String        // "B1", "B8", "C1"...
+  titre         String        // Titre court
+  description   String        // Description détaillée
+  type          TypeObjectif  // COMPETENCE | REALISATION
+  ordre         Int
+  fichiersRequis Boolean      @default(false) // TRUE pour réalisations généralement
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  badge          Badge           @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  justifications Justification[]
+
+  // Contrainte unique : Un code unique par badge
+  @@unique([badgeId, code])
+  @@map("objectifs")
+}
+
+model Justification {
+  id                   String               @id @default(cuid())
+  chefId               String
+  objectifId           String
+  badgeId              String
+
+  // Contenu détaillé de la justification
+  activiteDescription  String               // 🎯 Quoi ?
+  dateActivite         DateTime?            // 📅 Quand ?
+  dureeHeures          Float?
+  contexte             String?              // Où/Occasion
+  nombreJeunes         Int?                 // 👥 Avec qui ?
+  trancheAge           String?              // "8-11 ans", "11-14 ans", "14-17 ans"
+  niveau               String?              // "Débutant", "Intermédiaire", "Expert"
+  objectifsAtteints    String?              // 📊 Résultats ?
+
+  // État et workflow
+  statut               StatutJustification  @default(BROUILLON)
+  version              Int                  @default(1) // Historique modifications
+  soumiseAt            DateTime?
+  valideeAt            DateTime?
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+
+  // Relations
+  chef         User           @relation(fields: [chefId], references: [id], onDelete: Cascade)
+  objectif     Objectif       @relation(fields: [objectifId], references: [id], onDelete: Cascade)
+  badge        Badge          @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  fichiers     Fichier[]
+  commentaires Commentaire[]
+  notifications Notification[]
+
+  // Contrainte unique : Une justification par chef par objectif
+  @@unique([chefId, objectifId])
+  @@map("justifications")
+}
+
+model Fichier {
+  id               String      @id @default(cuid())
+  justificationId  String
+  nomOriginal      String      // Nom du fichier utilisateur
+  nomStockage      String      // Nom sur serveur
+  cheminFichier    String      // Chemin complet
+  type             TypeFichier // IMAGE | DOCUMENT | AUTRE
+  mimeType         String      // "image/jpeg", "application/pdf"
+  taille           Int         // Taille en bytes
+  createdAt        DateTime    @default(now())
+
+  // Relations
+  justification    Justification @relation(fields: [justificationId], references: [id], onDelete: Cascade)
+
+  @@map("fichiers")
+}
+
+model Commentaire {
+  id               String           @id @default(cuid())
+  justificationId  String
+  auteurId         String
+  contenu          String
+  type             TypeCommentaire
+  createdAt        DateTime         @default(now())
+
+  // Relations
+  justification    Justification @relation(fields: [justificationId], references: [id], onDelete: Cascade)
+  auteur           User          @relation(fields: [auteurId], references: [id], onDelete: Cascade)
+
+  @@map("commentaires")
+}
+
+model BadgeReferent {
+  id          String    @id @default(cuid())
+  referentId  String
+  badgeId     String
+  assigneAt   DateTime  @default(now())
+  assignePar  String?   // ID admin qui a fait l'assignation
+
+  // Relations
+  referent    User      @relation(fields: [referentId], references: [id], onDelete: Cascade)
+  badge       Badge     @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  // Contrainte unique : Un référent ne peut être assigné qu'une fois par badge
+  @@unique([referentId, badgeId])
+  @@map("badge_referents")
+}
+
+model Notification {
+  id               String            @id @default(cuid())
+  destinataireId   String
+  justificationId  String?
+  type             TypeNotification
+  titre            String            // Titre court
+  message          String            // Message détaillé
+  lue              Boolean           @default(false)
+  createdAt        DateTime          @default(now())
+  lueAt            DateTime?
+
+  // Relations
+  destinataire     User              @relation(fields: [destinataireId], references: [id], onDelete: Cascade)
+  justification    Justification?    @relation(fields: [justificationId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
