@@ -463,3 +463,286 @@ Cette roadmap priorise l'expérience utilisateur chef en premier, puis construit
 ---
 
 Cette application révolutionne l'accompagnement scout en transformant un processus papier complexe en une expérience digitale immersive et motivante ! 🏕️✨
+
+---
+
+## 🗄️ Base de données - Architecture détaillée
+
+### 📊 **Schéma de base de données PostgreSQL + Prisma ORM**
+
+Cette section détaille toutes les décisions prises concernant la structure de la base de données, les relations et les choix techniques.
+
+---
+
+### 🎯 **Décisions clés prises**
+
+#### **1. Badges fixes vs dynamiques**
+- ✅ **12 badges prédéfinis** : 2b à 2n (codes officiels Flambeaux)
+- ✅ **CRUD complet** : Possibilité de modifier/ajouter/supprimer des badges
+- ✅ **Extensibilité** : Structure flexible pour futurs badges
+
+#### **2. Compétences vs Réalisations**
+- ✅ **Table unique `objectifs`** avec enum `TypeObjectif`
+- ✅ **COMPETENCE** : Savoir-faire (ex: B1 Guide du Bois) - fichiers optionnels
+- ✅ **REALISATION** : Projets (ex: B8 Concevoir un jeu) - fichiers requis généralement
+- ✅ **Différenciation** : Champ `fichiersRequis` pour adapter l'interface
+
+#### **3. Système de justifications**
+- ✅ **1 justification = 1 objectif** (granularité fine)
+- ✅ **Contrainte unique** : Un chef ne peut justifier qu'une fois par objectif
+- ✅ **Workflow complet** : BROUILLON → SOUMISE → EN_COURS → VALIDEE/REFUSEE
+
+#### **4. Gestion des fichiers**
+- ✅ **Upload local** pour commencer (extensible vers cloud)
+- ✅ **Métadonnées complètes** : nom, taille, type MIME, chemin
+- ✅ **Types supportés** : IMAGE, DOCUMENT, AUTRE
+
+#### **5. Assignations référent ↔ badge**
+- ✅ **Relation Many-to-Many** : Un référent peut avoir plusieurs badges
+- ✅ **Un badge peut avoir plusieurs référents** pour répartir la charge
+- ✅ **Traçabilité** : Qui a assigné, quand
+
+#### **6. Système de notifications**
+- ✅ **Table dédiée** pour historique et markAsRead
+- ✅ **8 types de notifications** couvrant tous les workflows
+- ✅ **Notifications persistantes** vs calculs temps réel
+
+#### **7. Calcul de progression**
+- ✅ **Formule** : (Objectifs validés / Total objectifs du badge) × 100
+- ✅ **Temps réel** : Recalculé à chaque validation
+
+---
+
+### 🏗️ **Modèles de données**
+
+#### **👥 User - Gestion des utilisateurs**
+```sql
+Table: users
+- id: String (CUID)
+- email: String (UNIQUE)
+- name: String
+- role: UserRole (CHEF | REFERENT | ADMIN)
+- createdAt/updatedAt: DateTime
+```
+
+**Relations :**
+- `justifications[]` → Justifications soumises (si CHEF)
+- `assignedBadges[]` → Badges assignés (si REFERENT)
+- `commentsWritten[]` → Commentaires écrits
+- `notificationsReceived[]` → Notifications reçues
+
+#### **🏆 Badge - Badges Flambeaux**
+```sql
+Table: badges
+- id: String (CUID)
+- code: String (UNIQUE) // "2b", "2c", "2e"...
+- nom: String // "Branche Petits Flambeaux"
+- description: String?
+- couleur: String? // Pour affichage 3D
+- icone: String?
+- ordre: Int // Ordre d'affichage
+- actif: Boolean // Actif/désactivé
+```
+
+**Relations :**
+- `objectifs[]` → Compétences + Réalisations
+- `referents[]` → Référents assignés (via BadgeReferent)
+- `justifications[]` → Justifications pour ce badge
+
+#### **🎯 Objectif - Compétences & Réalisations**
+```sql
+Table: objectifs
+- id: String (CUID)
+- badgeId: String (FK → Badge)
+- code: String // "B1", "B8", "C1"...
+- titre: String // Titre court
+- description: String // Description détaillée
+- type: TypeObjectif (COMPETENCE | REALISATION)
+- ordre: Int
+- fichiersRequis: Boolean // TRUE pour réalisations généralement
+```
+
+**Contrainte unique :** `(badgeId, code)` - Un code unique par badge
+
+#### **📝 Justification - Soumissions des chefs**
+```sql
+Table: justifications
+- id: String (CUID)
+- chefId: String (FK → User)
+- objectifId: String (FK → Objectif)
+- badgeId: String (FK → Badge)
+
+// Contenu détaillé de la justification
+- activiteDescription: String // 🎯 Quoi ?
+- dateActivite: DateTime // 📅 Quand ?
+- dureeHeures: Float
+- contexte: String // Où/Occasion
+- nombreJeunes: Int // 👥 Avec qui ?
+- trancheAge: String // "8-11 ans", "11-14 ans", "14-17 ans"
+- niveau: String // "Débutant", "Intermédiaire", "Expert"
+- objectifsAtteints: String // 📊 Résultats ?
+
+// État et workflow
+- statut: StatutJustification
+- version: Int // Historique modifications
+- soumiseAt: DateTime?
+- valideeAt: DateTime?
+```
+
+**Contrainte unique :** `(chefId, objectifId)` - Une justification par chef par objectif
+
+**États possibles :**
+- `BROUILLON` → En cours de rédaction
+- `SOUMISE` → Envoyée au référent
+- `EN_COURS` → En cours d'examen
+- `DEMANDE_PRECISION` → Référent demande des précisions
+- `VALIDEE` → Objectif validé ✅
+- `REFUSEE` → Objectif refusé ❌
+
+#### **📎 Fichier - Documents joints**
+```sql
+Table: fichiers
+- id: String (CUID)
+- justificationId: String (FK → Justification)
+- nomOriginal: String // Nom du fichier utilisateur
+- nomStockage: String // Nom sur serveur
+- cheminFichier: String // Chemin complet
+- type: TypeFichier (IMAGE | DOCUMENT | AUTRE)
+- mimeType: String // "image/jpeg", "application/pdf"
+- taille: Int // Taille en bytes
+```
+
+#### **💬 Commentaire - Échanges référent ↔ chef**
+```sql
+Table: commentaires
+- id: String (CUID)
+- justificationId: String (FK → Justification)
+- auteurId: String (FK → User)
+- contenu: String
+- type: TypeCommentaire
+- createdAt: DateTime
+```
+
+**Types de commentaires :**
+- `CHEF_REPONSE` → Réponse du chef
+- `REFERENT_QUESTION` → Question/demande de précision du référent
+- `REFERENT_FEEDBACK` → Feedback de validation/refus
+- `SYSTEM` → Messages automatiques du système
+
+#### **🔗 BadgeReferent - Assignations Many-to-Many**
+```sql
+Table: badge_referents
+- id: String (CUID)
+- referentId: String (FK → User)
+- badgeId: String (FK → Badge)
+- assigneAt: DateTime
+- assignePar: String? // ID admin qui a fait l'assignation
+```
+
+**Contrainte unique :** `(referentId, badgeId)` - Un référent ne peut être assigné qu'une fois par badge
+
+#### **🔔 Notification - Système de notifications**
+```sql
+Table: notifications
+- id: String (CUID)
+- destinataireId: String (FK → User)
+- justificationId: String? (FK → Justification)
+- type: TypeNotification
+- titre: String // Titre court
+- message: String // Message détaillé
+- lue: Boolean
+- createdAt: DateTime
+- lueAt: DateTime?
+```
+
+**Types de notifications :**
+- `NOUVELLE_JUSTIFICATION` → Nouvelle justification soumise (→ Référent)
+- `JUSTIFICATION_VALIDEE` → Justification validée (→ Chef)
+- `JUSTIFICATION_REFUSEE` → Justification refusée (→ Chef)
+- `DEMANDE_PRECISION` → Demande de précision (→ Chef)
+- `REPONSE_PRECISION` → Réponse à demande de précision (→ Référent)
+- `BADGE_COMPLETE` → Tous objectifs d'un badge validés (→ Chef)
+- `JUSTIFICATION_URGENTE` → Justification en attente >48h (→ Référent)
+- `NOUVEAU_COMMENTAIRE` → Nouveau commentaire ajouté (→ Chef/Référent)
+
+---
+
+### 🔄 **Relations et workflows**
+
+#### **Workflow de justification complet :**
+```
+1. Chef crée justification (BROUILLON)
+2. Chef soumet → statut SOUMISE → notification référent
+3. Référent examine → statut EN_COURS
+4. Référent peut :
+   - Valider → VALIDEE + notification chef
+   - Refuser → REFUSEE + commentaire obligatoire
+   - Demander précisions → DEMANDE_PRECISION + commentaire
+5. Si demande précisions → chef répond → retour EN_COURS
+6. Validation finale → mise à jour progression badge
+```
+
+#### **Calculs de progression :**
+```typescript
+// Progression d'un badge pour un chef
+const progression = (objectifsValides / totalObjectifsBadge) * 100
+
+// Progression globale d'un chef
+const progressionGlobale = moyennePondérée(progressionParBadge)
+
+// Statistiques référent
+const enAttente = justifications.filter(j => 
+  ['SOUMISE', 'EN_COURS', 'DEMANDE_PRECISION'].includes(j.statut)
+).length
+```
+
+---
+
+### 🚀 **Configuration et accès**
+
+#### **Connexion à la base :**
+- **Type :** PostgreSQL locale via Prisma Dev
+- **Host :** `localhost:51214`
+- **Database :** `template1`
+- **Interface graphique :** `npx prisma studio` → `http://localhost:5555`
+
+#### **Scripts utiles :**
+```bash
+npm run db:generate  # Génère le client Prisma
+npm run db:migrate   # Crée une nouvelle migration
+npm run db:reset     # Remet à zéro la BDD
+npm run db:studio    # Ouvre Prisma Studio
+```
+
+#### **Utilisation dans le code :**
+```typescript
+import { prisma } from '@/lib/prisma'
+
+// Exemple : récupérer badges avec progression
+const badges = await prisma.badge.findMany({
+  include: {
+    objectifs: {
+      include: {
+        justifications: {
+          where: { chefId: userId, statut: 'VALIDEE' }
+        }
+      }
+    }
+  }
+})
+```
+
+---
+
+### 🎯 **Avantages de cette architecture**
+
+✅ **Flexibilité** : Badges et objectifs modifiables par les admins  
+✅ **Scalabilité** : Relations Many-to-Many pour gérer la croissance  
+✅ **Traçabilité** : Historique complet des actions et modifications  
+✅ **Performance** : Index sur les clés étrangères et contraintes uniques  
+✅ **Sécurité** : Contraintes de données et relations strictes  
+✅ **Extensibilité** : Structure prête pour futures fonctionnalités  
+
+Cette architecture permet de gérer efficacement tous les aspects du système Flambeau Progrès, des justifications individuelles aux statistiques globales ! 🏕️✨
+
+---
