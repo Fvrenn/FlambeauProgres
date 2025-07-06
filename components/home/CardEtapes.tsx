@@ -1,10 +1,11 @@
 import { title, subtitle } from "@/components/primitives";
+import { ChemiseModel } from "./ChemiseModel";
 
 export const CardChemise = () => {
   return (
     <section className="bg-dark-beige w-full p-0.5 rounded-3xl">
       <div className="pt-6 pb-3.5 flex justify-center">
-        ouai oui
+        <ChemiseModel />
       </div>
       <div className="bg-light-beige w-full rounded-3xl border border-border-beige p-7">
         <div className="grid grid-cols-3 gap-4 place-items-center">

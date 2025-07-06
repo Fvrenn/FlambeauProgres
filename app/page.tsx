@@ -1,4 +1,4 @@
-import { CardChemise } from "@/components/home/CardChemise";
+import { CardChemise } from "@/components/home/CardEtapes";
 
 export default function Home() {
   return (
