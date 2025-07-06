@@ -1,60 +1,39 @@
 'use client';
 
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, useGLTF } from '@react-three/drei';
+import { useGLTF, Center, Bounds } from '@react-three/drei';
 import { Suspense } from 'react';
 
-// Composant pour charger et afficher le modèle 3D
+// Composant pour charger et afficher le modèle 3D - approche simple et directe
 function ChemiseGLB() {
   const { scene } = useGLTF('/chemise/chemise.glb');
   
   return (
     <primitive 
       object={scene} 
-      scale={[1, 1, 1]} 
-      position={[0, 0, 0]} 
-      rotation={[0, 0, 0]}
+      scale={1}
+      position={[0, 0, 0]}
     />
   );
 }
 
-// Composant de chargement simple
-function Loader() {
-  return (
-    <div className="flex items-center justify-center h-full">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-600"></div>
-    </div>
-  );
-}
-
-// Composant principal exporté
+// Composant principal exporté - approche simplifiée selon la doc R3F
 export const ChemiseModel = () => {
   return (
-    <div className="w-full h-32">
-      <Canvas
-        camera={{ 
-          position: [0, 0, 5], 
-          fov: 45 
-        }}
-        style={{ background: 'transparent' }}
-      >
-        {/* Éclairage */}
+    <div className="w-full h-full">
+      <Canvas camera={{ position: [0, 0, 5], fov: 20 }}>
+        {/* Éclairage - approche directe comme dans la doc */}
         <ambientLight intensity={0.5} />
-        <directionalLight position={[10, 10, 5]} intensity={1} />
+        <directionalLight position={[2, 2, 5]} intensity={1} />
         
         {/* Modèle 3D avec gestion du chargement */}
         <Suspense fallback={null}>
-          <ChemiseGLB />
+          <Bounds fit clip observe margin={1.1}>
+            <Center>
+              <ChemiseGLB />
+            </Center>
+          </Bounds>
         </Suspense>
-        
-        {/* Contrôles de caméra */}
-        <OrbitControls 
-          enableZoom={true}
-          enablePan={false}
-          enableRotate={true}
-          autoRotate={true}
-          autoRotateSpeed={2}
-        />
       </Canvas>
     </div>
   );
