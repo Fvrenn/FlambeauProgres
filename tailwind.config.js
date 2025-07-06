@@ -16,7 +16,7 @@ const config = {
         "light-beige": "#E8E7DE",
         "dark-beige": "#DCDDD8", 
         "border-beige": "#F0EFE7",
-        "sand": "#F4A460",
+        "medium-black": "#0F1511",
         "ivory": "#FFFFF0",
         "linen": "#FAF0E6",
         "wheat": "#F5DEB3",

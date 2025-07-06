@@ -1,5 +1,5 @@
 import { title, subtitle } from "@/components/primitives";
-import { ChemiseModel } from "./ChemiseModel";
+import { ChemiseModel } from "@/components/home/cardchemise/ChemiseModel";
 
 export const CardChemise = () => {
   return (
