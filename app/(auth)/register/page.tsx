@@ -1,6 +1,44 @@
+"use client";
 import { Input, Button, Link, Card, CardBody } from "@/components/ui";
+import { useState } from "react";
+import Image from "next/image";
+import { signUp } from "@/lib/auth-client";
+import { addToast, ToastProvider } from "@heroui/toast";
+import { useRouter } from "next/navigation";
+// Import Solar icons
+import { Star2, CloseCircle } from "@solar-icons/react";
 
 export default function RegisterPage() {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordConfirmation, setPasswordConfirmation] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await signUp.email({
+      email,
+      password,
+      name: `${firstName} ${lastName}`,
+      image: "", // ou image: image ? await convertImageToBase64(image) : ""
+      callbackURL: "/dashboard",
+      fetchOptions: {
+        onResponse: () => setLoading(false),
+        onRequest: () => setLoading(true),
+        onError: (ctx) =>
+          addToast({
+            title: "Erreur",
+            description: ctx.error.message,
+            variant: "solid",
+          }),
+        onSuccess: async () => router.push("/dashboard"),
+      },
+    });
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen">
       <Card theme="auth" className="w-full max-w-md">
@@ -17,7 +55,7 @@ export default function RegisterPage() {
           </div>
 
           {/* Formulaire */}
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
             {/* Input fields */}
             <div className="flex flex-col gap-5">
               <div className="flex gap-5">
@@ -27,6 +65,9 @@ export default function RegisterPage() {
                   label="Prénom"
                   placeholder="Entrez votre prénom"
                   labelPlacement="outside"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  required
                 />
                 <Input
                   theme="default"
@@ -34,6 +75,9 @@ export default function RegisterPage() {
                   label="Nom"
                   placeholder="Entrez votre nom"
                   labelPlacement="outside"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  required
                 />
               </div>
 
@@ -43,6 +87,9 @@ export default function RegisterPage() {
                 label="Email"
                 placeholder="Entrez votre adresse email"
                 labelPlacement="outside"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
               />
 
               <Input
@@ -50,18 +97,35 @@ export default function RegisterPage() {
                 type="password"
                 label="Mot de passe"
                 placeholder="Créez un mot de passe"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
               />
               <Input
                 theme="default"
                 type="password"
                 label="Confirmer le mot de passe"
                 placeholder="Confirmez votre mot de passe"
+                value={passwordConfirmation}
+                onChange={(e) => setPasswordConfirmation(e.target.value)}
+                required
               />
             </div>
 
             {/* Bouton Sign Up */}
-            <Button theme="default" type="submit" fullWidth>
-              Créer mon compte
+            <Button theme="default" type="submit" fullWidth disabled={loading}>
+              {loading ? (
+                <span className="flex items-center justify-center">
+                  <Star2
+                    weight="Linear"
+                    size={24}
+                    color="#0f4159"
+                    className="animate-spin"
+                  />
+                </span>
+              ) : (
+                "Créer mon compte"
+              )}
             </Button>
           </form>
 
@@ -78,4 +142,13 @@ export default function RegisterPage() {
       </Card>
     </div>
   );
+}
+
+async function convertImageToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
