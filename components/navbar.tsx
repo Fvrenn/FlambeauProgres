@@ -1,19 +1,18 @@
+"use client";
+
 import { Button } from "@heroui/button";
 import { Link } from "@heroui/link";
 import { link as linkStyles } from "@heroui/theme";
 import NextLink from "next/link";
 import clsx from "clsx";
-
+import { Logout2 } from "@solar-icons/react";
 import { siteConfig } from "@/config/site";
-import {
-  TwitterIcon,
-  GithubIcon,
-  DiscordIcon,
-  HeartFilledIcon,
-  Logo,
-} from "@/components/icons";
+import { Logo } from "@/components/icons";
+import { useLogout } from "@/lib/logout";
 
 export const Navbar = () => {
+  const { handleSignOut } = useLogout();
+
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-background border-r border-divider p-6 flex flex-col">
       {/* Logo et titre */}
@@ -33,7 +32,7 @@ export const Navbar = () => {
                 className={clsx(
                   linkStyles({ color: "foreground" }),
                   "block px-4 py-3 rounded-lg hover:bg-default-100 transition-colors",
-                  "data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:font-medium",
+                  "data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:font-medium"
                 )}
                 href={item.href}
               >
@@ -44,35 +43,16 @@ export const Navbar = () => {
         </ul>
       </nav>
 
-      {/* Bouton Sponsor */}
-      <div className="mb-6">
+      {/* Bouton Déconnexion */}
+      <div className="mb-3">
         <Button
-          isExternal
-          as={Link}
-          className="w-full text-sm font-normal text-default-600 bg-default-100"
-          href={siteConfig.links.sponsor}
-          startContent={<HeartFilledIcon className="text-danger" />}
+          className="w-full text-sm font-normal text-danger bg-danger-50"
           variant="flat"
+          onPress={handleSignOut}
         >
-          Sponsor
+          <Logout2 weight="Linear" size={20} color="text-danger" />
+          Déconnexion
         </Button>
-      </div>
-
-      {/* Liens sociaux */}
-      <div className="border-t border-divider pt-4">
-        <div className="flex items-center justify-center">
-          <div className="flex gap-3">
-            <Link isExternal aria-label="Twitter" href={siteConfig.links.twitter}>
-              <TwitterIcon className="text-default-500 hover:text-default-700 transition-colors" />
-            </Link>
-            <Link isExternal aria-label="Discord" href={siteConfig.links.discord}>
-              <DiscordIcon className="text-default-500 hover:text-default-700 transition-colors" />
-            </Link>
-            <Link isExternal aria-label="Github" href={siteConfig.links.github}>
-              <GithubIcon className="text-default-500 hover:text-default-700 transition-colors" />
-            </Link>
-          </div>
-        </div>
       </div>
     </aside>
   );
