@@ -1,7 +1,6 @@
 "use client";
 import { Input, Button, Link, Card, CardBody } from "@/components/ui";
 import { useState } from "react";
-import Image from "next/image";
 import { signUp } from "@/lib/auth-client";
 import { addToast, ToastProvider } from "@heroui/toast";
 import { useRouter } from "next/navigation";
@@ -23,8 +22,7 @@ export default function RegisterPage() {
       email,
       password,
       name: `${firstName} ${lastName}`,
-      image: "", // ou image: image ? await convertImageToBase64(image) : ""
-      callbackURL: "/dashboard",
+      callbackURL: "/",
       fetchOptions: {
         onResponse: () => setLoading(false),
         onRequest: () => setLoading(true),
@@ -34,7 +32,7 @@ export default function RegisterPage() {
             description: ctx.error.message,
             variant: "solid",
           }),
-        onSuccess: async () => router.push("/dashboard"),
+        onSuccess: async () => router.push("/"),
       },
     });
   };
@@ -142,13 +140,4 @@ export default function RegisterPage() {
       </Card>
     </div>
   );
-}
-
-async function convertImageToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
 }

@@ -5,12 +5,12 @@ import { useState } from "react";
 import { ArrowUp } from "@solar-icons/react";
 import { signIn } from "@/lib/auth-client";
 import { addToast, ToastProvider } from "@heroui/toast";
-
+import { useRouter } from "next/navigation";
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const router = useRouter();
   return (
     <div className="flex items-center justify-center min-h-screen">
       <Card theme="auth" className="w-full max-w-md">
@@ -50,7 +50,12 @@ export default function LoginPage() {
 
             {/* Bouton mot de passe oublié */}
             <div className="flex justify-end">
-              <Link theme="auth" href="#" size="sm" className="text-sm">
+              <Link
+                theme="auth"
+                href="/forget-password"
+                size="sm"
+                className="text-sm"
+              >
                 Mot de passe oublié ?
               </Link>
             </div>
@@ -62,27 +67,30 @@ export default function LoginPage() {
               fullWidth
               disabled={loading}
               onClick={async () => {
-                const { data, error } = await signIn.email(
+                const { error } = await signIn.email(
                   {
                     email,
                     password,
                   },
                   {
-                    onRequest: (ctx) => {
+                    onRequest: () => {
                       setLoading(true);
                     },
-                    onResponse: (ctx) => {
+                    onResponse: () => {
                       setLoading(false);
+                    },
+                    onError: (ctx) => {
+                      addToast({
+                        title: "Erreur",
+                        description: ctx.error.message,
+                        variant: "solid",
+                      });
+                    },
+                    onSuccess: () => {
+                      router.push("/");
                     },
                   }
                 );
-                if (error) {
-                  addToast({
-                    title: "Erreur",
-                    description: error.message,
-                    variant: "solid",
-                  });
-                }
               }}
             >
               {loading ? (

@@ -43,6 +43,7 @@ const inputThemes = {
 
 interface CustomInputProps {
   label?: string;
+  name?: string;
   placeholder?: string;
   type?: "text" | "email" | "password" | "tel" | "url" | "search";
   value?: string;
@@ -68,6 +69,7 @@ interface CustomInputProps {
 export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
   (
     {
+      name,
       label,
       placeholder,
       type = "text",
@@ -98,6 +100,7 @@ export const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
     return (
       <Input
         ref={ref}
+        name={name}
         label={label}
         placeholder={placeholder}
         type={type}
