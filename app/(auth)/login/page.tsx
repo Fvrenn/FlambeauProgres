@@ -2,15 +2,62 @@
 
 import { Input, Button, Link, Card, CardBody } from "@/components/ui";
 import { useState } from "react";
-import { ArrowUp } from "@solar-icons/react";
+import { ArrowUp, Eye, EyeClosed } from "@solar-icons/react";
 import { signIn } from "@/lib/auth-client";
 import { addToast, ToastProvider } from "@heroui/toast";
 import { useRouter } from "next/navigation";
+import { usePasswordVisibility } from "@/hooks/usePasswordVisibility";
+
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  
+  const passwordVisibility = usePasswordVisibility();
+
+  const PasswordToggle = ({ isVisible, onToggle }: { isVisible: boolean; onToggle: () => void }) => (
+    <button
+      type="button"
+      onClick={onToggle}
+      className=" rounded-sm p-1 hover:bg-gray-100 transition-colors"
+      aria-label={isVisible ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+    >
+      {isVisible ? (
+        <EyeClosed size={20} className="text-gray-500 hover:text-gray-700 transition-colors" />
+      ) : (
+        <Eye size={20} className="text-gray-500 hover:text-gray-700 transition-colors" />
+      )}
+    </button>
+  );
+
+  const handleSignIn = async () => {
+    const { error } = await signIn.email(
+      {
+        email,
+        password,
+      },
+      {
+        onRequest: () => {
+          setLoading(true);
+        },
+        onResponse: () => {
+          setLoading(false);
+        },
+        onError: (ctx) => {
+          addToast({
+            title: "Erreur",
+            description: ctx.error.message,
+            variant: "solid",
+          });
+        },
+        onSuccess: () => {
+          router.push("/");
+        },
+      }
+    );
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen">
       <Card theme="auth" className="w-full max-w-md">
@@ -27,7 +74,7 @@ export default function LoginPage() {
 
           {/* Formulaire */}
           <div className="space-y-6">
-            {/* Input Email */}
+            {/* Input fields */}
             <div className="flex flex-col gap-5">
               <Input
                 theme="default"
@@ -37,14 +84,23 @@ export default function LoginPage() {
                 labelPlacement="outside"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                required
               />
               <Input
                 theme="default"
-                type="password"
+                type={passwordVisibility.type}
                 label="Mot de passe"
                 placeholder="Entrez votre mot de passe"
+                labelPlacement="outside"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
+                endContent={
+                  <PasswordToggle 
+                    isVisible={passwordVisibility.isVisible} 
+                    onToggle={passwordVisibility.toggleVisibility} 
+                  />
+                }
               />
             </div>
 
@@ -66,32 +122,7 @@ export default function LoginPage() {
               type="button"
               fullWidth
               disabled={loading}
-              onClick={async () => {
-                const { error } = await signIn.email(
-                  {
-                    email,
-                    password,
-                  },
-                  {
-                    onRequest: () => {
-                      setLoading(true);
-                    },
-                    onResponse: () => {
-                      setLoading(false);
-                    },
-                    onError: (ctx) => {
-                      addToast({
-                        title: "Erreur",
-                        description: ctx.error.message,
-                        variant: "solid",
-                      });
-                    },
-                    onSuccess: () => {
-                      router.push("/");
-                    },
-                  }
-                );
-              }}
+              onClick={handleSignIn}
             >
               {loading ? (
                 <ArrowUp size={16} className="animate-spin" />
