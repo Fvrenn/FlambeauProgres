@@ -26,7 +26,7 @@ export const Navbar = () => {
       <div className="flex items-center gap-3 mb-8">
         <NextLink className="flex justify-start items-center gap-2" href="/">
           <Logo />
-          <p className="font-bold text-xl text-inherit">ACME</p>
+          <p className=" text-2xl text-inherit leading-7 font-medium mt-2"><span className="text-[#E06511]">Flambeaux </span><br/> <span className="text-[#542C11]">Progres</span></p>
         </NextLink>
       </div>
 
