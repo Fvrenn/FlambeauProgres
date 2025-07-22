@@ -43,7 +43,8 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "resend": "^4.6.0",
-    "three": "^0.178.0"
+    "three": "^0.178.0",
+    "zod": "^4.0.5"
   },
   "devDependencies": {
     "@eslint/compat": "1.2.8",
