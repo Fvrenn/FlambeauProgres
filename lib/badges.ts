@@ -13,4 +13,5 @@ export type BadgeImage = {
   number: string;
   name: string;
   image_src: string;
+  isActive: boolean;
 };

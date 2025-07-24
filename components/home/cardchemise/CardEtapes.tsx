@@ -1,8 +1,8 @@
 "use client";
 
+import "./CardEtapes.css";
 import { useBadges } from "@/hooks/useBadges";
 import { ChemiseModel } from "@/components/home/cardchemise/ChemiseModel";
-
 export const CardChemise = () => {
   const { badges, isLoading, error } = useBadges();
 
@@ -17,12 +17,14 @@ export const CardChemise = () => {
       <div className="bg-light-beige w-full h-2/4 rounded-3xl border border-border-beige p-7">
         <div className="grid grid-cols-3 gap-4 place-items-center">
           {badges.map((badge) => (
-            <img
-              key={badge.number}
-              className="max-w-[67px] max-h-[77px]"
-              src={badge.image_src}
-              alt={`Badge ${badge.name}`}
-            />
+            <div className={`holographic-card${badge.isActive ? " active" : ""}`}>
+              <img
+                key={badge.number}
+                className="max-w-[67px] max-h-[77px]"
+                src={badge.image_src}
+                alt={`Badge ${badge.name}`}
+              />
+            </div>
           ))}
         </div>
       </div>
