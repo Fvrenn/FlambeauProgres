@@ -63,7 +63,6 @@ model Badge {
   name        String
   description String
   image_src   String?
-  couleur     String?
   ordre       Int
   actif       Boolean  @default(true)
   createdAt   DateTime @default(now())
@@ -81,15 +80,9 @@ model Objectif {
   id             String       @id @default(cuid())
   badgeId        String
   code           String // "B1", "B8", "C1"...
-  titre          String // Titre court
   description    String // Description détaillée
   type           TypeObjectif // COMPETENCE | REALISATION
-  ordre          Int
   fichiersRequis Boolean      @default(false) // TRUE pour réalisations généralement
-
-  blockTitle     String?      // Pour les blocs de réalisations ("2 projets sur 3")
-  requiredCount  Int?         // Nombre requis dans un bloc de réalisations
-  parentId       String?      // Pour les options de réalisations (référence vers le bloc parent)
 
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
@@ -98,9 +91,6 @@ model Objectif {
   badge          Badge           @relation(fields: [badgeId], references: [id], onDelete: Cascade)
   justifications Justification[]
 
-  parent         Objectif?       @relation("ObjectifParentEnfant", fields: [parentId], references: [id])
-  children       Objectif[]      @relation("ObjectifParentEnfant")
-  
   // Contrainte unique : Un code unique par badge
   @@unique([badgeId, code])
   @@map("objectifs")
