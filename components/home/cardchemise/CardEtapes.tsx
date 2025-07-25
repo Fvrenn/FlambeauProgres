@@ -17,9 +17,11 @@ export const CardChemise = () => {
       <div className="bg-light-beige w-full h-2/4 rounded-3xl border border-border-beige p-7">
         <div className="grid grid-cols-3 gap-4 place-items-center">
           {badges.map((badge) => (
-            <div className={`holographic-card${badge.isActive ? " active" : ""}`}>
+            <div
+              key={badge.number}
+              className={`holographic-card${badge.isActive ? " active" : ""}`}
+            >
               <img
-                key={badge.number}
                 className="max-w-[67px] max-h-[77px]"
                 src={badge.image_src}
                 alt={`Badge ${badge.name}`}
