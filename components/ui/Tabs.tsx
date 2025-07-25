@@ -9,6 +9,12 @@ const themes = {
     tab: "px-6 h-12 relative",
     tabContent: "group-data-[selected=true]:text-black text-white group-data-[selected=true]:pl-6 transition-all duration-300 ease-in-out",
   },
+progression: {
+  tabList: "gap-8 w-full rounded-full p-0.5 bg-[#F3F2E9]",
+  cursor: "!bg-[#E7FF56] rounded-full  before:content-['•'] before:absolute before:left-3 before:top-1/2 before:-translate-y-1/2 before:text-black before:text-lg before:font-bold",
+  tab: "px-6 h-12 relative",
+  tabContent: "text-black group-data-[selected=true]:pl-6 group-data-[selected=true]:font-semibold font-medium transition-all duration-300 ease-in-out ",
+},
 };
 
 interface TabData {

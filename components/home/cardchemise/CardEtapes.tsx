@@ -3,7 +3,16 @@
 import "./CardEtapes.css";
 import { useBadges } from "@/hooks/useBadges";
 import { ChemiseModel } from "@/components/home/cardchemise/ChemiseModel";
-export const CardChemise = () => {
+
+interface CardChemiseProps {
+  onBadgeSelect: (badgeNumber: string) => void;
+  selectedBadge: string | null;
+}
+
+export const CardChemise = ({
+  onBadgeSelect,
+  selectedBadge,
+}: CardChemiseProps) => {
   const { badges, isLoading, error } = useBadges();
 
   if (isLoading) return <p>Chargement des badges...</p>;
@@ -19,7 +28,8 @@ export const CardChemise = () => {
           {badges.map((badge) => (
             <div
               key={badge.number}
-              className={`holographic-card${badge.isActive ? " active" : ""}`}
+              className={`holographic-card${selectedBadge === badge.number ? " active" : ""}`}
+              onClick={() => onBadgeSelect(badge.number)}
             >
               <img
                 className="max-w-[67px] max-h-[77px]"
