@@ -2,23 +2,22 @@
 
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useGLTF, Center, Bounds } from "@react-three/drei";
-import { Suspense, useRef } from "react";
+import { Suspense, useRef, useLayoutEffect } from "react";
 import * as THREE from "three";
 
 // Composant pour charger et afficher le modèle 3D avec effet mat, rotation et scale animés
-function ChemiseGLB({ isSelected }: { isSelected: boolean }) {
+function ChemiseGLB({ selectedBadge }: { selectedBadge?: string | null }) {
   const { scene } = useGLTF("/chemise/chemise.glb");
   const meshRef = useRef<THREE.Group>(null);
 
   // Animation de rotation, scale et position
   useFrame((state, delta) => {
     if (meshRef.current) {
-      const targetRotation = isSelected ? [0.1, -1.4, 0] : [0, 0, 0];
+      const isSelected = !!selectedBadge;
+      const targetRotation = isSelected ? [0.1, -1.4, 0] : [0, -0.3, 0];
       const targetScale = isSelected ? 2 : 1.0;
-      // Position cible quand sélectionné (ajuste ici selon ton besoin)
-      const targetPosition = isSelected ? [0, -3, 0] : [0, 0, 0];
+      const targetPosition = isSelected ? [-0.2, -3, 0] : [0, 0, 0];
 
-      // Interpolation douce vers la rotation cible
       meshRef.current.rotation.x = THREE.MathUtils.lerp(
         meshRef.current.rotation.x,
         targetRotation[0],
@@ -43,7 +42,6 @@ function ChemiseGLB({ isSelected }: { isSelected: boolean }) {
       );
       meshRef.current.scale.set(newScale, newScale, newScale);
 
-      // Interpolation douce vers la position cible
       meshRef.current.position.x = THREE.MathUtils.lerp(
         meshRef.current.position.x,
         targetPosition[0],
@@ -65,16 +63,47 @@ function ChemiseGLB({ isSelected }: { isSelected: boolean }) {
   // Appliquer un effet mat aux matériaux du modèle
   scene.traverse((child: any) => {
     if (child.isMesh && child.material) {
-      // Réduire la brillance pour un effet plus mat
-      child.material.roughness = 0.8; // Plus rugueux = moins brillant
-      child.material.metalness = 0.1; // Moins métallique = plus mat
-      child.material.envMapIntensity = 0.3; // Réduction des réflections
-
-      // Activer les ombres
+      child.material.roughness = 0.8;
+      child.material.metalness = 0.1;
+      child.material.envMapIntensity = 0.3;
       child.castShadow = true;
       child.receiveShadow = true;
     }
   });
+
+useLayoutEffect(() => {
+  scene.traverse((obj: any) => {
+    if (obj.type === "Group" && obj.name.startsWith("badge_")) {
+      const isActive = selectedBadge && obj.name === `badge_${selectedBadge}`;
+      obj.traverse((child: any) => {
+        if (child.isMesh && child.material) {
+          // CLONAGE DU MATÉRIAU pour éviter les effets de bord
+          child.material = child.material.clone();
+
+          if (isActive) {
+            // Style normal (badge actif)
+            child.material.color.set("#ffffff");
+            child.material.roughness = 0.3;
+            child.material.metalness = 0.2;
+            child.material.envMapIntensity = 1;
+            child.material.opacity = 1;
+            child.material.transparent = false;
+          } else {
+            // Style grisé (badge inactif)
+            child.material.color.set("#9c9c9c");
+            child.material.roughness = 0.3;
+            child.material.metalness = 0;
+            child.material.envMapIntensity = 1;
+            child.material.opacity = 0.4;
+            child.material.transparent = true;
+          }
+          child.castShadow = true;
+          child.receiveShadow = true;
+        }
+      });
+    }
+  });
+}, [scene, selectedBadge]);
 
   return (
     <group ref={meshRef}>
@@ -184,7 +213,7 @@ export const ChemiseModel = ({ selectedBadge }: ChemiseModelProps) => {
         {/* Modèle 3D avec gestion du chargement et animation */}
         <Suspense fallback={null}>
           <Center>
-            <ChemiseGLB isSelected={!!selectedBadge} />
+            <ChemiseGLB selectedBadge={selectedBadge} />
           </Center>
         </Suspense>
       </Canvas>

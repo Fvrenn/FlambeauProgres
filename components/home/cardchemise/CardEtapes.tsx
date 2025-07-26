@@ -19,7 +19,7 @@ export const CardChemise = ({
   if (error) return <p>Erreur lors du chargement des badges.</p>;
 
   return (
-    <section className="bg-dark-beige w-full p-0.5 rounded-3xl h-full">
+    <section className="bg-dark-beige w-[345px] p-0.5 rounded-3xl h-full">
       <div className="flex h-2/4 justify-center">
         {/* Passage de selectedBadge au ChemiseModel */}
         <ChemiseModel selectedBadge={selectedBadge} />
