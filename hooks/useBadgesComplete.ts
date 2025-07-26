@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { BadgeComplete, getBadgesComplete } from '@/lib/badges';
+import { Badge, getBadges } from '@/lib/badges';
 
 export const useBadgesComplete = () => {
-  const [badges, setBadges] = useState<BadgeComplete[]>([]);
+  const [badges, setBadges] = useState<Badge[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -10,7 +10,7 @@ export const useBadgesComplete = () => {
     const fetchBadges = async () => {
       try {
         setIsLoading(true);
-        const data = await getBadgesComplete();
+        const data = await getBadges();
         setBadges(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Erreur inconnue');

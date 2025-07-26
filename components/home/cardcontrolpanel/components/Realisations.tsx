@@ -1,8 +1,8 @@
 import React from "react";
-import { BadgeComplete } from "@/lib/badges";
+import { Badge } from "@/lib/badges";
 
 interface RealisationsProps {
-  badge?: BadgeComplete;
+  badge?: Badge;
 }
 
 export default function Realisations({ badge }: RealisationsProps) {

@@ -1,8 +1,8 @@
 import useSWR from "swr";
-import { getBadges, BadgeImage } from "@/lib/badges";
+import { getBadges, Badge } from "@/lib/badges";
 
 export function useBadges() {
-  const { data, error, isLoading } = useSWR<BadgeImage[]>("badges", getBadges);
+  const { data, error, isLoading } = useSWR<Badge[]>("badges", getBadges);
 
   return {
     badges: data ?? [],

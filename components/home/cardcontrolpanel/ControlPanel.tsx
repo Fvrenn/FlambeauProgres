@@ -1,10 +1,10 @@
 import React from "react";
 import ControlPanelTabs from "./components/ControlPanelTabs";
-import { BadgeComplete } from "@/lib/badges";
+import { Badge } from "@/lib/badges";
 import "./test.css";
 
 interface ControlPanelProps {
-  badges: BadgeComplete[];
+  badges: Badge[];
   selectedBadge: string | null;
 }
 

@@ -26,11 +26,17 @@ export async function GET() {
       // Séparer les compétences et réalisations
       const competences = badge.objectifs
         .filter((obj) => obj.type === TypeObjectif.COMPETENCE)
-        .map((obj) => ({ description: obj.description }));
-
+        .map((obj) => ({
+          code: obj.code,
+          description: obj.description,
+        }));
+        
       const realisations = badge.objectifs
         .filter((obj) => obj.type === TypeObjectif.REALISATION)
-        .map((obj) => ({ description: obj.description }));
+        .map((obj) => ({
+          code: obj.code,
+          description: obj.description,
+        }));
 
       return {
         number: badge.number,

@@ -1,11 +1,11 @@
 import React from "react";
 import TabsComponent, { TabData } from "../../../ui/Tabs";
-import { BadgeComplete } from "@/lib/badges";
+import { Badge } from "@/lib/badges";
 import Realisations from "./Realisations";
 import Competences from "./Competences";
 import "./tab.css";
 interface ControlPanelTabsProps {
-  badges: BadgeComplete[];
+  badges: Badge[];
   selectedBadge: string | null;
 }
 
