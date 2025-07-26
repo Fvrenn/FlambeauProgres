@@ -21,7 +21,8 @@ export const CardChemise = ({
   return (
     <section className="bg-dark-beige w-full p-0.5 rounded-3xl h-full">
       <div className="flex h-2/4 justify-center">
-        <ChemiseModel />
+        {/* Passage de selectedBadge au ChemiseModel */}
+        <ChemiseModel selectedBadge={selectedBadge} />
       </div>
       <div className="bg-light-beige w-full h-2/4 rounded-3xl border border-border-beige p-7">
         <div className="grid grid-cols-3 gap-4 place-items-center">
