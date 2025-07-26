@@ -21,7 +21,7 @@ export default function ControlPanelTabs({
       id: "progression",
       label: "Progression",
       content: (
-        <div className="bg-white border border-border-beige-gris rounded-[23px] p-[14px] h-full tabs-container">
+        <div className="bg-white border border-border-beige-gris rounded-[23px] p-[14px] h-full tabs-container overflow-y-auto">
           <TabsComponent
             tabs={[
               {

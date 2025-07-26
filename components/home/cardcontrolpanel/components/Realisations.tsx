@@ -1,6 +1,6 @@
 import React from "react";
 import { Badge } from "@/lib/badges";
-
+import { Tag } from "@solar-icons/react";
 interface RealisationsProps {
   badge?: Badge;
 }
@@ -8,7 +8,8 @@ interface RealisationsProps {
 export default function Realisations({ badge }: RealisationsProps) {
   if (!badge) {
     return (
-      <div className="text-center py-8">
+      <div className="flex flex-col items-center py-8 gap-3">
+        <Tag weight={"Linear"} size={64} color="#9ca3af" />
         <p className="text-gray-500 text-sm">
           Sélectionnez un badge pour voir ses réalisations
         </p>
@@ -16,25 +17,22 @@ export default function Realisations({ badge }: RealisationsProps) {
     );
   }
 
-  if (badge.realisations.length === 0) {
-    return <p className="text-gray-500 text-sm">Aucune réalisation pour ce badge.</p>;
-  }
-
   return (
-    <div>
-      <h5 className="font-medium mb-3">Réalisations :</h5>
-      <ul className="space-y-3">
-        {badge.realisations.map((realisation, index) => (
-          <li key={index} className="flex items-start gap-3">
-            <div className="flex-shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold mt-0.5">
-              {index + 1}
+    <div className="mt-3">
+      <hr className="border-light-grey" />
+      {badge.realisations.map((realisations, index) => (
+        <div key={index} className="flex flex-col px-6">
+          <div className="flex items-start gap-2 py-6">
+            <div className="flex items-center">
+              <span className="text-xl text-black border border-grey py-3 px-2.5 rounded-full w-12 h-12 flex items-center justify-center mr-2.5">
+                {realisations.code}
+              </span>
+              <span>{realisations.description}</span>
             </div>
-            <span className="text-sm leading-relaxed">
-              {realisation.description}
-            </span>
-          </li>
-        ))}
-      </ul>
+          </div>
+          <hr className="border-light-grey" />
+        </div>
+      ))}
     </div>
   );
 }

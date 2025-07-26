@@ -17,7 +17,7 @@ export default function HomeClient() {
   };
 
   return (
-    <div className="flex items-center h-full gap-4 py-8 md:py-10">
+    <div className="flex items-center h-[97.5dvh] gap-4 py-8 md:py-10">
       <CardChemise 
         onBadgeSelect={handleBadgeSelect}
         selectedBadge={selectedBadge}

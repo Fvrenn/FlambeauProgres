@@ -17,6 +17,7 @@ export type Badge = {
     description: string;
   }>;
   realisations: Array<{
+    code: string;
     description: string;
   }>;
 };

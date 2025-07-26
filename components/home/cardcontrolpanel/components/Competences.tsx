@@ -1,5 +1,6 @@
 import React from "react";
 import { Badge } from "@/lib/badges";
+import { Tag } from "@solar-icons/react";
 
 interface CompetencesProps {
   badge?: Badge;
@@ -8,17 +9,12 @@ interface CompetencesProps {
 export default function Competences({ badge }: CompetencesProps) {
   if (!badge) {
     return (
-      <div className="text-center py-8">
+      <div className="flex flex-col items-center py-8 gap-3">
+        <Tag weight={"Linear"} size={64} color="#9ca3af" />
         <p className="text-gray-500 text-sm">
-          Sélectionnez un badge pour voir ses compétences
+          Sélectionnez un badge pour voir ses compétences{" "}
         </p>
       </div>
-    );
-  }
-
-  if (badge.competences.length === 0) {
-    return (
-      <p className="text-gray-500 text-sm">Aucune compétence pour ce badge.</p>
     );
   }
 
