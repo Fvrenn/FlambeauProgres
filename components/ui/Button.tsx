@@ -45,6 +45,13 @@ const buttonThemes = {
     radius: "md" as const,
     customClasses: "",
   },
+  icon: {
+    variant: "light" as const,
+    color: "primary" as const,
+    size: "sm" as const,
+    radius: "full" as const,
+    customClasses: "p-0 max-w-8 max-h-8 min-w-8 min-w-8 flex items-center justify-center",
+  },
 };
 
 interface CustomButtonProps {
