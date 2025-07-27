@@ -39,6 +39,7 @@ export async function GET() {
         }));
 
       return {
+        id: badge.id,
         number: badge.number,
         name: badge.name,
         description: badge.description,
