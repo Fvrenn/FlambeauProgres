@@ -18,7 +18,9 @@ import { today, getLocalTimeZone } from "@internationalized/date";
 import { CustomTextarea } from "@/components/ui/Textarea";
 import { CustomDatePicker } from "@/components/ui/DatePicker";
 import { CustomSelect } from "@/components/ui/Select";
+import { CustomCheckbox } from "@/components/ui/Checkbox";
 
+import ProgressBar from "@/components/ui/Progress";
 interface MaModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
@@ -28,6 +30,7 @@ interface MaModalProps {
   };
   badge: {
     name: string;
+    image_src: string;
   };
 }
 
@@ -165,8 +168,7 @@ export default function MaModal({
               {/* Message principal */}
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 font-bold">
-                  {/* Initiales ou icône */}
-                  A
+                  {/* Initiales ou icône */}A
                 </div>
                 <div>
                   <span className="font-semibold">Admin Alice</span>
@@ -174,7 +176,8 @@ export default function MaModal({
                 </div>
               </div>
               <div className="ml-12 mb-4 text-gray-800">
-                Voici un commentaire important concernant les nouvelles fonctionnalités.
+                Voici un commentaire important concernant les nouvelles
+                fonctionnalités.
               </div>
               {/* Réponse */}
               <div className="flex items-start gap-3 ml-8 border-l-2 border-gray-100 pl-4">
@@ -184,10 +187,13 @@ export default function MaModal({
                 <div>
                   <div>
                     <span className="font-semibold">User Bob</span>
-                    <span className="ml-2 text-xs text-gray-400">2024-03-16</span>
+                    <span className="ml-2 text-xs text-gray-400">
+                      2024-03-16
+                    </span>
                   </div>
                   <div className="text-gray-700">
-                    Merci pour cette information. Pouvez-vous donner plus de détails&nbsp;?
+                    Merci pour cette information. Pouvez-vous donner plus de
+                    détails&nbsp;?
                   </div>
                 </div>
               </div>
@@ -209,7 +215,56 @@ export default function MaModal({
           </div>
         );
       case "statut":
-        return <div>Statut de la compétence</div>;
+        return (
+          <div>
+            <div className="bg-[#f5f4ed] py-2.5 px-3 rounded-2xl">
+              <div className="flex items-center gap-2">
+                <img
+                  className="max-w-14 h-16"
+                  src={badge.image_src}
+                  alt={`Badge ${badge.name}`}
+                />
+                <ProgressBar percentage={10} label={`Etapes ${badge.name}`} />
+              </div>
+
+              <hr className="border-light-grey mt-4 mb-5 mx-3" />
+
+              <div className="flex flex-col gap-1">
+                <CustomCheckbox
+                  theme="modal"
+                  defaultSelected
+                  disabled
+                  className="text-white"
+                >
+                  Justification rédigée
+                </CustomCheckbox>
+                <CustomCheckbox
+                  theme="modal"
+                  className="text-white"
+                  disabled
+                >
+                  Fichiers joints
+                </CustomCheckbox>
+                <CustomCheckbox
+                  theme="modal"
+                  defaultSelected
+                  disabled
+                  className="text-white"
+                >
+                  Soumission effectuée  
+                </CustomCheckbox>
+                <CustomCheckbox
+                  theme="modal"
+                  disabled
+                  defaultSelected
+                  className="text-white"
+                >
+                  Précisions demandées
+                </CustomCheckbox>
+              </div>
+            </div>
+          </div>
+        );
       default:
         return null;
     }

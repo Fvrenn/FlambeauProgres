@@ -40,7 +40,7 @@ const config = {
             DEFAULT: "#bbd0ff",
           },
           secondary: "#b8c0ff",
-          success: "#d9ed92",
+          success: "#98ab43",
           warning: "#feb38f",
         }
       }
