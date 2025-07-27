@@ -1,36 +1,27 @@
 // app/api/badges/route.ts
-import { NextRequest, NextResponse } from "next/server";
 import { badgeSchema } from "@/schemas/badgeSchema";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { TypeObjectif } from "@prisma/client";
 
-export async function GET() {
+// GET /api/badges : Liste tous les badges avec leurs objectifs
+export async function GET(request: Request) {
   try {
-    // Récupérer tous les badges avec leurs objectifs associés
     const badges = await prisma.badge.findMany({
       include: {
-        objectifs: {
-          orderBy: {
-            code: "asc",
-          },
-        },
+        objectifs: { orderBy: { code: "asc" } },
       },
-      orderBy: {
-        ordre: "asc",
-      },
+      orderBy: { ordre: "asc" },
     });
 
-    // Transformer les données pour correspondre au schéma attendu
-    const transformedBadges = badges.map((badge) => {
-      // Séparer les compétences et réalisations
+    const data = badges.map((badge) => {
       const competences = badge.objectifs
         .filter((obj) => obj.type === TypeObjectif.COMPETENCE)
         .map((obj) => ({
           code: obj.code,
           description: obj.description,
         }));
-        
+
       const realisations = badge.objectifs
         .filter((obj) => obj.type === TypeObjectif.REALISATION)
         .map((obj) => ({
@@ -51,22 +42,20 @@ export async function GET() {
       };
     });
 
-    return NextResponse.json(transformedBadges, { status: 200 });
+    return Response.json(data, { status: 200 });
   } catch (error) {
     console.error("Erreur récupération badges:", error);
-    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
+    return Response.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
 
-export async function POST(req: NextRequest) {
+// POST /api/badges : Création d’un badge avec compétences et réalisations
+export async function POST(request: Request) {
   try {
-    // ÉTAPE 1: Valider les données
-    const body = await req.json();
+    const body = await request.json();
     const validatedData = badgeSchema.parse(body);
 
-    // app/api/badges/route.ts - seulement la partie transaction
     const result = await prisma.$transaction(async (tx) => {
-      // 2a. Créer le badge (inchangé)
       const newBadge = await tx.badge.create({
         data: {
           number: validatedData.number,
@@ -81,49 +70,39 @@ export async function POST(req: NextRequest) {
       const badgeLetter = newBadge.number.replace(/^\d+/, "");
       let currentCodeNumber = 1;
 
-      // 2b. Créer les compétences (inchangé)
+      // Compétences
       let competencesCount = 0;
       if (validatedData.competences.length > 0) {
-        const competencesData = validatedData.competences.map(
-          (comp, index) => ({
-            badgeId: newBadge.id,
-            code: `${badgeLetter}${currentCodeNumber + index}`,
-            description: comp.description,
-            type: TypeObjectif.COMPETENCE,
-            fichiersRequis: false,
-          })
-        );
-
+        const competencesData = validatedData.competences.map((comp, index) => ({
+          badgeId: newBadge.id,
+          code: `${badgeLetter}${currentCodeNumber + index}`,
+          description: comp.description,
+          type: TypeObjectif.COMPETENCE,
+          fichiersRequis: false,
+        }));
         await tx.objectif.createMany({ data: competencesData });
         competencesCount = competencesData.length;
-        currentCodeNumber += competencesCount; // Incrémenter pour les réalisations
+        currentCodeNumber += competencesCount;
       }
 
-      // 2c. NOUVEAU : Créer les réalisations
+      // Réalisations
       let realisationsCount = 0;
       if (validatedData.realisations.length > 0) {
-        const realisationsData = validatedData.realisations.map(
-          (realisation, index) => ({
-            badgeId: newBadge.id,
-            code: `${badgeLetter}${currentCodeNumber + index}`,
-            description: realisation.description,
-            type: TypeObjectif.REALISATION,
-            fichiersRequis: true,
-          })
-        );
-
+        const realisationsData = validatedData.realisations.map((realisation, index) => ({
+          badgeId: newBadge.id,
+          code: `${badgeLetter}${currentCodeNumber + index}`,
+          description: realisation.description,
+          type: TypeObjectif.REALISATION,
+          fichiersRequis: true,
+        }));
         await tx.objectif.createMany({ data: realisationsData });
-
-        realisationsCount += realisationsData.length;
-        currentCodeNumber += realisationsData.length;
+        realisationsCount = realisationsData.length;
       }
 
       return { badge: newBadge, competencesCount, realisationsCount };
     });
 
-    // ÉTAPE 3: Renvoyer la réponse
-    // Dans la réponse, ajouter :
-    return NextResponse.json(
+    return Response.json(
       {
         id: result.badge.id,
         number: result.badge.number,
@@ -139,15 +118,13 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    // ÉTAPE 4: Gérer les erreurs
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
+      return Response.json(
         { error: "Données invalides", details: error.issues },
         { status: 400 }
       );
     }
-
     console.error("Erreur création badge:", error);
-    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
+    return Response.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
