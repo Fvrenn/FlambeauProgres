@@ -1,5 +1,5 @@
 import React from "react";
-import type { Badge } from "@/types/badge";
+import type { Badge } from "@/src/types/badge";
 import { Tag } from "@solar-icons/react";
 interface RealisationsProps {
   badge?: Badge;

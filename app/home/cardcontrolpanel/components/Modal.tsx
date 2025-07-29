@@ -15,12 +15,12 @@ import {
   SelectItem,
 } from "@heroui/react";
 import { today, getLocalTimeZone } from "@internationalized/date";
-import { CustomTextarea } from "@/components/ui/Textarea";
-import { CustomDatePicker } from "@/components/ui/DatePicker";
-import { CustomSelect } from "@/components/ui/Select";
-import { CustomCheckbox } from "@/components/ui/Checkbox";
+import { CustomTextarea } from "@/src/components/ui/Textarea";
+import { CustomDatePicker } from "@/src/components/ui/DatePicker";
+import { CustomSelect } from "@/src/components/ui/Select";
+import { CustomCheckbox } from "@/src/components/ui/Checkbox";
 
-import ProgressBar from "@/components/ui/Progress";
+import ProgressBar from "@/src/components/ui/Progress";
 interface MaModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;

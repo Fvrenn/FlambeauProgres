@@ -1,6 +1,6 @@
 // // app/api/badges/route.ts
 // import { badgeSchema } from "@/schemas/badgeSchema";
-// import { prisma } from "@/lib/prisma";
+// import { prisma } from "@/src/lib/prisma";
 // import { z } from "zod";
 // import { TypeObjectif } from "@prisma/client";
 

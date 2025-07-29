@@ -1,22 +1,6 @@
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/src/lib/prisma";
 import { NextResponse } from "next/server";
-import { z } from "zod";
-
-const BadgeSchema = z.object({
-  number: z.string().min(1),
-  name: z.string().min(1),
-  description: z.string(),
-  image_src: z.string().optional(),
-  ordre: z.number().int().positive(),
-  objectifs: z.array(
-    z.object({
-      code: z.string().min(1),
-      description: z.string(),
-      type: z.enum(["COMPETENCE", "REALISATION"]),
-    })
-  ),
-});
-const UpdateBadgeSchema = BadgeSchema.partial();
+import { UpdateBadgeSchema } from "@/src/schemas/badgeSchema";
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   try {

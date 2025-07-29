@@ -1,6 +1,6 @@
 import React from "react";
-import TabsComponent, { TabData } from "../../../ui/Tabs";
-import type { Badge } from "@/types/badge";
+import TabsComponent, { TabData } from "@/src/components/ui/Tabs";
+import type { Badge } from "@/src/types/badge";
 import Realisations from "./Realisations";
 import Competences from "./Competences";
 import "./tab.css";

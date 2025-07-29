@@ -1,10 +1,10 @@
 "use client";
-import { Input, Button, Link, Card, CardBody } from "@/components/ui";
+import { Input, Button, Link, Card, CardBody } from "@/src/components/ui";
 import { useState } from "react";
-import { signUp } from "@/lib/auth-client";
+import { signUp } from "@/src/lib/auth-client";
 import { addToast, ToastProvider } from "@heroui/toast";
 import { useRouter } from "next/navigation";
-import { usePasswordVisibility } from "@/hooks/usePasswordVisibility";
+import { usePasswordVisibility } from "@/src/hooks/usePasswordVisibility";
 import { Star2, Eye, EyeClosed  } from "@solar-icons/react";
 
 export default function RegisterPage() {

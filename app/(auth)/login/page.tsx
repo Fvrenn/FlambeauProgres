@@ -1,12 +1,12 @@
 "use client";
 
-import { Input, Button, Link, Card, CardBody } from "@/components/ui";
+import { Input, Button, Link, Card, CardBody } from "@/src/components/ui";
 import { useState } from "react";
 import { ArrowUp, Eye, EyeClosed } from "@solar-icons/react";
-import { signIn } from "@/lib/auth-client";
+import { signIn } from "@/src/lib/auth-client";
 import { addToast, ToastProvider } from "@heroui/toast";
 import { useRouter } from "next/navigation";
-import { usePasswordVisibility } from "@/hooks/usePasswordVisibility";
+import { usePasswordVisibility } from "@/src/hooks/usePasswordVisibility";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");

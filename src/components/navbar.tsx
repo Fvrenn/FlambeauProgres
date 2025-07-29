@@ -7,8 +7,8 @@ import NextLink from "next/link";
 import clsx from "clsx";
 import { Logout2 } from "@solar-icons/react";
 import { siteConfig } from "@/config/site";
-import { Logo } from "@/components/icons";
-import { useLogout } from "@/lib/logout";
+import { Logo } from "@/src/components/icons";
+import { useLogout } from "@/src/lib/logout";
 import { Home, User, Dollar, SquareAltArrowRight } from "@solar-icons/react";
 import { usePathname } from "next/navigation";
 const icons = {

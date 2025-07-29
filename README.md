@@ -716,7 +716,7 @@ npm run db:studio    # Ouvre Prisma Studio
 
 #### **Utilisation dans le code :**
 ```typescript
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/src/lib/prisma'
 
 // Exemple : récupérer badges avec progression
 const badges = await prisma.badge.findMany({

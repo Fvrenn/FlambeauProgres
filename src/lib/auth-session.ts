@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth"
+import { auth } from "@/src/lib/auth"
 import { headers } from "next/headers"
 export const getUser = async () =>{
      "use server";

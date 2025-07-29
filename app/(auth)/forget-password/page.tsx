@@ -1,6 +1,6 @@
 "use client";
-import { Input, Button } from "@/components/ui";
-import { authClient } from "@/lib/auth-client";
+import { Input, Button } from "@/src/components/ui";
+import { authClient } from "@/src/lib/auth-client";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { addToast, ToastProvider } from "@heroui/toast";

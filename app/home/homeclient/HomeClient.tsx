@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { CardChemise } from "@/components/home/cardchemise/CardEtapes";
-import ControlPanel from "@/components/home/cardcontrolpanel/ControlPanel";
-import { useBadgesComplete } from "@/hooks/useBadgesComplete";
+import { CardChemise } from "@/app/home/cardchemise/CardEtapes";
+import ControlPanel from "@/app/home/cardcontrolpanel/ControlPanel";
+import { useBadgesComplete } from "@/src/hooks/useBadgesComplete";
 
 export default function HomeClient() {
   const { badges, isLoading, error } = useBadgesComplete();

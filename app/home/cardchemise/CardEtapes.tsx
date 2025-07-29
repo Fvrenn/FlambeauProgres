@@ -1,8 +1,8 @@
 "use client";
 
 import "./CardEtapes.css";
-import { useBadges } from "@/hooks/useBadges";
-import { ChemiseModel } from "@/components/home/cardchemise/ChemiseModel";
+import { useBadges } from "@/src/hooks/useBadges";
+import { ChemiseModel } from "@/app/home/cardchemise/ChemiseModel";
 
 interface CardChemiseProps {
   onBadgeSelect: (badgeNumber: string) => void;

@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import type { Badge } from "@/types/badge";
+import type { Badge } from "@/src/types/badge";
 import { Tag } from "@solar-icons/react";
 import { useDisclosure } from "@heroui/modal";
 import MaModal from "./Modal";
 import { SquareBottomUp } from "@solar-icons/react";
-import { CustomButton } from "@/components/ui/Button";
+import { CustomButton } from "@/src/components/ui/Button";
 interface CompetencesProps {
   badge?: Badge;
 }
