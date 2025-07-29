@@ -30,9 +30,11 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       );
     }
 
+    const { objectifs, ...badgeData } = parsed.data;
+
     const updatedBadge = await prisma.badge.update({
       where: { id: params.id },
-      data: parsed.data,
+      data: badgeData,
     });
     return NextResponse.json(updatedBadge, { status: 200 });
   } catch (error: any) {

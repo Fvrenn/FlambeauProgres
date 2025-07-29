@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Badge, getBadges } from '@/lib/badges';
-
+import { getBadges } from '@/lib/badges';
+import type { Badge } from "@/types/badge";
 export const useBadgesComplete = () => {
   const [badges, setBadges] = useState<Badge[]>([]);
   const [isLoading, setIsLoading] = useState(true);

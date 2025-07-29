@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import type { Badge } from "@/types/badge";
 
 const BadgeSchema = z.object({
   number: z.string().min(1),
@@ -17,18 +18,6 @@ const BadgeSchema = z.object({
   ),
 });
 
-interface CreateBadgeRequest {
-  number: string;
-  name: string;
-  description: string;
-  image_src?: string;
-  ordre: number;
-  objectifs: Array<{
-    code: string;
-    description: string;
-    type: "COMPETENCE" | "REALISATION";
-  }>;
-}
 
 export async function GET(request: Request) {
   try {
@@ -76,7 +65,7 @@ export async function POST(request: Request) {
       image_src,
       ordre,
       objectifs,
-    }: CreateBadgeRequest = parsed.data;
+    }: Badge = parsed.data;
 
     const newBadge = await prisma.badge.create({
       data: {

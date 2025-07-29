@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Badge } from "@/lib/badges";
+import type { Badge } from "@/types/badge";
 import { Tag } from "@solar-icons/react";
 import { useDisclosure } from "@heroui/modal";
 import MaModal from "./Modal";
@@ -24,10 +24,12 @@ export default function Competences({ badge }: CompetencesProps) {
     );
   }
 
+  const competences = badge.objectifs.filter(obj => obj.type === "COMPETENCE");
+
   return (
     <div className="mt-3">
       <hr className="border-light-grey" />
-      {badge.competences.map((competence, index) => (
+      {competences.map((competence, index) => (
         <div key={index} className="flex-col px-6">
           <div className="flex items-start gap-2 py-6">
             <div className="flex items-center w-full">

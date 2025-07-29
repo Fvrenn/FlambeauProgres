@@ -1,6 +1,6 @@
 import React from "react";
 import ControlPanelTabs from "./components/ControlPanelTabs";
-import { Badge } from "@/lib/badges";
+import type { Badge } from "@/types/badge";
 import "./test.css";
 
 interface ControlPanelProps {
