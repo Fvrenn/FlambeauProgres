@@ -27,7 +27,7 @@ export function ConditionalLayout({ children }: ConditionalLayoutProps) {
   return (
     <div className="relative flex flex-col h-screen">
       <Navbar />
-      <main className="ml-64 container mx-auto pt-6 px-6 flex-grow">
+      <main className="ml-72 container mx-auto pt-6 px-6 flex-grow">
         {children}
       </main>
     </div>

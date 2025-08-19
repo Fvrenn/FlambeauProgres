@@ -1,7 +1,7 @@
 import { prisma } from "@/src/lib/prisma";
 import { NextResponse } from "next/server";
 import type { Badge } from "@/src/types/badge";
-import { BadgeSchema } from "@/src/schemas/badgeSchema";
+import { BadgeSchema } from "@/src/schemas/badge.schema";
 
 
 export async function GET(request: Request) {

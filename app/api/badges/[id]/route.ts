@@ -1,6 +1,6 @@
 import { prisma } from "@/src/lib/prisma";
 import { NextResponse } from "next/server";
-import { UpdateBadgeSchema } from "@/src/schemas/badgeSchema";
+import { UpdateBadgeSchema } from "@/src/schemas/badge.schema";
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   try {
