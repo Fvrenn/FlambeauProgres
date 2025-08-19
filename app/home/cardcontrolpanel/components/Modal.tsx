@@ -6,7 +6,13 @@ import {
   ModalFooter,
 } from "@heroui/modal";
 import React, { useState } from "react";
-import { Home, ChatRoundLine, RoundGraph } from "@solar-icons/react";
+import {
+  Home,
+  ChatRoundLine,
+  RoundGraph,
+  Gallery,
+  DocumentText,
+} from "@solar-icons/react";
 import {
   Input,
   Textarea,
@@ -21,12 +27,15 @@ import { CustomSelect } from "@/src/components/ui/Select";
 import { CustomCheckbox } from "@/src/components/ui/Checkbox";
 
 import ProgressBar from "@/src/components/ui/Progress";
+
 interface MaModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   competence: {
     code: string;
     description: string;
+    type: "COMPETENCE" | "REALISATION";
+    fichiersRequis?: boolean;
   };
   badge: {
     name: string;
@@ -43,6 +52,8 @@ export default function MaModal({
   const [activeTab, setActiveTab] = useState<
     "justification" | "commentaire" | "statut"
   >("justification");
+
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
   // Définition des onglets
   const tabs = [
@@ -70,13 +81,36 @@ export default function MaModal({
     { key: "Avancé", label: "Avancé" },
   ];
 
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files) {
+      const newFiles = Array.from(files);
+      setUploadedFiles((prev) => [...prev, ...newFiles]);
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const getFileIcon = (file: File) => {
+    if (file.type.startsWith("image/")) {
+      return <Gallery size={20} color="#6366f1" />;
+    } else if (file.type === "application/pdf") {
+      return <DocumentText size={20} color="#dc2626" />;
+    }
+    return <DocumentText size={20} color="#6b7280" />;
+  };
+
   function renderTabContent() {
     switch (activeTab) {
       case "justification":
         return (
           <div>
             <div className="mb-9">
-              Justification de la compétence (placeholder)
+              {competence.type === "REALISATION"
+                ? "Justification de la réalisation (placeholder)"
+                : "Justification de la compétence (placeholder)"}
             </div>
 
             <div className="flex flex-col gap-7">
@@ -87,18 +121,25 @@ export default function MaModal({
                   label="Description"
                   labelPlacement="inside"
                   placeholder="Entrez la justification ici..."
-                  description="💡 Exemple : Atelier nœuds de 2h avec jeux et défis"
+                  description={
+                    competence.type === "REALISATION"
+                      ? "💡 Exemple : Création d'un projet nature avec recyclage"
+                      : "💡 Exemple : Atelier nœuds de 2h avec jeux et défis"
+                  }
                   minRows={3}
                   maxRows={10}
                 />
               </section>
+
+
+
               <section>
                 <h3 className="font-medium text-base mb-4">Quand&nbsp;?</h3>
                 <div className="flex flex-col gap-4">
                   <CustomDatePicker
                     theme="default"
                     labelPlacement="inside"
-                    label="Date de l’activité"
+                    label="Date de l'activité"
                     minValue={today(getLocalTimeZone())}
                     showMonthAndYearPickers
                   />
@@ -127,7 +168,7 @@ export default function MaModal({
                     />
                     <CustomSelect
                       theme="default"
-                      label="Tranche d’âge"
+                      label="Tranche d'âge"
                       labelPlacement="inside"
                       placeholder="Sélectionnez une tranche"
                       options={Tranche}
@@ -157,9 +198,87 @@ export default function MaModal({
                   maxRows={10}
                 />
               </section>
+
+                            {/* Section d'upload pour les réalisations */}
+              {(competence.type === "REALISATION" || competence.fichiersRequis) && (
+                <section>
+                  <h3 className="font-medium text-base mb-4">
+                    Fichiers justificatifs
+                  </h3>
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                    <div className="text-center">
+                      <Gallery
+                        size={48}
+                        color="#9ca3af"
+                        className="mx-auto mb-4"
+                      />
+                      <div className="mb-4">
+                        <label
+                          htmlFor="file-upload"
+                          className="cursor-pointer bg-blue-50 text-blue-600 hover:bg-blue-100 px-4 py-2 rounded-lg font-medium"
+                        >
+                          Choisir des fichiers
+                        </label>
+                        <input
+                          id="file-upload"
+                          type="file"
+                          multiple
+                          accept="image/*,.pdf,.doc,.docx"
+                          onChange={handleFileUpload}
+                          className="hidden"
+                        />
+                      </div>
+                      <p className="text-sm text-gray-500">
+                        Glissez-déposez vos fichiers ici ou cliquez pour
+                        sélectionner
+                      </p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        Formats acceptés : Images (JPG, PNG), PDF, Documents
+                        Word
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Liste des fichiers uploadés */}
+                  {uploadedFiles.length > 0 && (
+                    <div className="mt-4">
+                      <h4 className="font-medium text-sm mb-3">
+                        Fichiers sélectionnés :
+                      </h4>
+                      <div className="space-y-2">
+                        {uploadedFiles.map((file, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center justify-between bg-gray-50 p-3 rounded-lg"
+                          >
+                            <div className="flex items-center gap-3">
+                              {getFileIcon(file)}
+                              <div>
+                                <p className="text-sm font-medium">
+                                  {file.name}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  {(file.size / 1024 / 1024).toFixed(2)} MB
+                                </p>
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => removeFile(index)}
+                              className="text-red-500 hover:text-red-700 text-sm"
+                            >
+                              Supprimer
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </section>
+             )}
             </div>
           </div>
         );
+      // ...existing code pour les autres tabs...
       case "commentaire":
         // Exemple de structure de messages
         return (
@@ -238,20 +357,23 @@ export default function MaModal({
                 >
                   Justification rédigée
                 </CustomCheckbox>
-                <CustomCheckbox
-                  theme="modal"
-                  className="text-white"
-                  disabled
-                >
-                  Fichiers joints
-                </CustomCheckbox>
+                {competence.type === "REALISATION" && (
+                  <CustomCheckbox
+                    theme="modal"
+                    className="text-white"
+                    defaultSelected={uploadedFiles.length > 0}
+                    disabled
+                  >
+                    Fichiers joints
+                  </CustomCheckbox>
+                )}
                 <CustomCheckbox
                   theme="modal"
                   defaultSelected
                   disabled
                   className="text-white"
                 >
-                  Soumission effectuée  
+                  Soumission effectuée
                 </CustomCheckbox>
                 <CustomCheckbox
                   theme="modal"
@@ -273,12 +395,7 @@ export default function MaModal({
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="5xl">
       <ModalContent>
-        {/* <ModalHeader>
-          <span className="font-bold text-lg">Détail de la compétence</span>
-        </ModalHeader> */}
         <ModalBody className="p-0">
-          {/* Texte au-dessus de la nav */}
-
           <div className="flex min-h-[250px]">
             {/* Bloc aside pour la navigation */}
             <aside className="flex flex-col w-80 border-r border-gray-200 pr-4 bg-background rounded-l-lg px-8 py-11">
@@ -321,14 +438,6 @@ export default function MaModal({
             </div>
           </div>
         </ModalBody>
-        {/* <ModalFooter>
-          <button
-            className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-            onClick={() => onOpenChange(false)}
-          >
-            Fermer
-          </button>
-        </ModalFooter> */}
       </ModalContent>
     </Modal>
   );

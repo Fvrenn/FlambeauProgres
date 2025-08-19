@@ -8,5 +8,6 @@ export type Badge = {
     code: string;
     description: string;
     type: "COMPETENCE" | "REALISATION";
+    fichiersRequis?: boolean;
   }>;
 };
