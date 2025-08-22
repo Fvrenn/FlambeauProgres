@@ -109,16 +109,14 @@ export const Navbar = () => {
                     <ul className="flex flex-col pl-2">
                       {item.items?.map((subItem) =>
                         subItem.href ? (
-                          <li
+                          <NextLink
                             key={subItem.href}
                             className="group flex items-center justify-between px-4 py-3 rounded-full hover:bg-medium-black hover:text-white transition-colors"
+                            href={subItem.href}
                           >
-                            <NextLink
-                              className="flex items-center gap-2"
-                              href={subItem.href}
-                            >
+                            <span className="flex items-center gap-2">
                               {subItem.label}
-                            </NextLink>
+                            </span>
                             <svg
                               width="6"
                               height="10"
@@ -135,7 +133,7 @@ export const Navbar = () => {
                                 strokeLinejoin="round"
                               />
                             </svg>
-                          </li>
+                          </NextLink>
                         ) : null
                       )}
                     </ul>
