@@ -118,7 +118,7 @@ export const Navbar = ({ isAdmin, isReferent }: NavbarProps) => {
                         {item.label}
                       </span>
                     }
-                    className="shadow-none bg-light-beige text-black transition-all duration-200 data-[open=true]:rounded-[25px]"
+                    className="shadow-none text-black bg-transparent transition-all duration-200 data-[open=true]:bg-light-beige data-[open=true]:rounded-[25px]"
                   >
                     <ul className="flex flex-col pl-2">
                       {item.items?.map((subItem) =>
