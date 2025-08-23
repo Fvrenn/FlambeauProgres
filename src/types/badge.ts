@@ -1,4 +1,7 @@
+import type { Referent } from "./referent";
+
 export type Badge = {
+  id: string;
   number: string;
   name: string;
   description: string;
@@ -10,4 +13,5 @@ export type Badge = {
     type: "COMPETENCE" | "REALISATION";
     fichiersRequis?: boolean;
   }>;
+  assignedReferents?: Referent[];
 };

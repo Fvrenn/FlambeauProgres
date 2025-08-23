@@ -3,7 +3,6 @@ import { NextResponse } from "next/server";
 import type { Badge } from "@/src/types/badge";
 import { BadgeSchema } from "@/src/schemas/badge.schema";
 
-
 export async function GET(request: Request) {
   try {
     const badges = await prisma.badge.findMany({
@@ -15,9 +14,20 @@ export async function GET(request: Request) {
             type: true,
           },
         },
+        referents: {
+          include: {
+            referent: true,
+          },
+        },
       },
     });
-    return NextResponse.json(badges, { status: 200 });
+
+    const formattedBadges = badges.map((badge) => ({
+      ...badge,
+      assignedReferents: badge.referents.map((br) => br.referent),
+    }));
+
+    return NextResponse.json(formattedBadges, { status: 200 });
   } catch (error: any) {
     console.error("Badge fetch error:", error);
     return NextResponse.json(
@@ -43,14 +53,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const {
-      number,
-      name,
-      description,
-      image_src,
-      ordre,
-      objectifs,
-    }: Badge = parsed.data;
+    const { number, name, description, image_src, ordre, objectifs } =
+      parsed.data;
 
     const newBadge = await prisma.badge.create({
       data: {
