@@ -27,6 +27,8 @@ import { Magnifer } from "@solar-icons/react";
 import { AltArrowDown } from "@solar-icons/react";
 import { User as UserType } from "@/src/types/user";
 import { useUsers } from "@/src/hooks/use.user";
+import { useUpdateUserRole } from "@/src/hooks/useUpdateUserRole";
+import { useSession } from "@/src/lib/auth-client";
 
 // Icônes utilitaires
 
@@ -100,6 +102,9 @@ const roleOptions = [
 
 export default function UserTable() {
   const { data: users = [], isLoading, error } = useUsers();
+  const updateUserRoleMutation = useUpdateUserRole();
+  const { data: session } = useSession();
+  const currentUser = session?.user;
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState<any>(new Set([]));
   const [roleFilter, setRoleFilter] = React.useState<any>("all");
@@ -168,11 +173,25 @@ export default function UserTable() {
     });
   }, [sortDescriptor, items]);
 
+  const handleRoleChange = React.useCallback(
+    (userId: string, newRole: string) => {
+      if (currentUser?.id === userId) {
+        return;
+      }
+      updateUserRoleMutation.mutate({
+        userId,
+        role: newRole as "ADMIN" | "CHEF" | "REFERENT",
+      });
+    },
+    [updateUserRoleMutation]
+  );
+
   const renderCell = React.useCallback(
     (user: UserType, columnKey: React.Key) => {
       const cellValue = user[columnKey as keyof UserType];
+      const isCurrentUser = currentUser?.id === user.id;
 
-      switch (columnKey) {
+     switch (columnKey) {
         case "name":
           return (
             <User
@@ -181,6 +200,7 @@ export default function UserTable() {
               name={user.name}
             >
               {user.name}
+              {isCurrentUser && " (Vous)"}
             </User>
           );
         case "email":
@@ -191,14 +211,39 @@ export default function UserTable() {
           );
         case "role":
           return (
-            <Chip
-              className="capitalize"
-              color={roleColorMap[user.role]}
-              size="sm"
-              variant="flat"
-            >
-              {user.role.toLowerCase()}
-            </Chip>
+            <Dropdown>
+              <DropdownTrigger>
+                <Chip
+                  className={`capitalize ${isCurrentUser ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}
+                  endContent={!isCurrentUser && <AltArrowDown weight="Outline" size={14} />}
+                  color={roleColorMap[user.role]}
+                  size="sm"
+                  variant="flat"
+                >
+                  {user.role.toLowerCase()}
+                  {isCurrentUser && " (Vous)"}
+                </Chip>
+              </DropdownTrigger>
+              {!isCurrentUser && (
+                <DropdownMenu
+                  aria-label="Changer le rôle"
+                  selectionMode="single"
+                  selectedKeys={new Set([user.role])}
+                  onSelectionChange={(keys) => {
+                    const newRole = Array.from(keys)[0] as string;
+                    if (newRole && newRole !== user.role) {
+                      handleRoleChange(user.id, newRole);
+                    }
+                  }}
+                >
+                  {roleOptions.map((role) => (
+                    <DropdownItem key={role.uid} className="capitalize">
+                      {role.name}
+                    </DropdownItem>
+                  ))}
+                </DropdownMenu>
+              )}
+            </Dropdown>
           );
         case "createdAt":
           return (
@@ -234,6 +279,7 @@ export default function UserTable() {
                     key="delete"
                     className="text-danger"
                     color="danger"
+                    isDisabled={isCurrentUser}
                   >
                     <div className="flex items-center gap-2">
                       <TrashBinTrash weight="Linear" size={16} />
@@ -248,7 +294,7 @@ export default function UserTable() {
           return cellValue;
       }
     },
-    []
+    [handleRoleChange, currentUser?.id]
   );
 
   const onNextPage = React.useCallback(() => {

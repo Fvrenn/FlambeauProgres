@@ -8,3 +8,8 @@ export type User = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type UpdateUserRole = {
+  userId: string;
+  role: "ADMIN" | "CHEF" | "REFERENT";
+};

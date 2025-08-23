@@ -1,4 +1,3 @@
-// filepath: c:\Users\Timothe\FlambeauProgres\src\hooks\useUsers.ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getUsers} from '@/src/lib/user';
 import type { User } from '@/src/types/user';
