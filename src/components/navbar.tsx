@@ -25,7 +25,21 @@ const icons = {
   ShieldUp,
 };
 
-export const Navbar = () => {
+type NavbarProps = {
+  isAdmin?: boolean;
+  isReferent?: boolean;
+};
+
+export const Navbar = ({ isAdmin, isReferent }: NavbarProps) => {
+  const filteredNavItems = siteConfig.navItems.filter((item) => {
+    if (item.type === "accordion" && item.label === "Administration") {
+      return isAdmin;
+    }
+    if (item.type === "accordion" && item.label === "Référent") {
+      return isReferent || isAdmin;
+    }
+    return true;
+  });
   const { handleSignOut } = useLogout();
   const pathname = usePathname();
   return (
@@ -44,7 +58,7 @@ export const Navbar = () => {
       {/* Navigation principale */}
       <nav className="flex-1">
         <ul className="flex flex-col gap-3">
-          {siteConfig.navItems.map((item) => {
+          {filteredNavItems.map((item) => {
             if (item.type === "link" && item.href) {
               const Icon = item.icon
                 ? icons[item.icon as keyof typeof icons]
@@ -88,7 +102,7 @@ export const Navbar = () => {
         </ul>
         <div className="my-4">
           <Accordion variant="splitted" className="px-0">
-            {siteConfig.navItems
+            {filteredNavItems
               .filter((item) => item.type === "accordion")
               .map((item) => {
                 const Icon = item.icon
