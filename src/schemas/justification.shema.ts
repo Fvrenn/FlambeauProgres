@@ -8,7 +8,7 @@ export const JustificationShema = z.object({
   dateActivite: z.string().optional(),
   dureeHeures: z.number().optional(),
   contexte: z.string().optional(),
-  nombreJeunes: z.number().optional(),
+  nombreJeunes: z.string().optional(),
   trancheAge: z.string().optional(),
   niveau: z.string().optional(),
   objectifsAtteints: z.string().optional(),

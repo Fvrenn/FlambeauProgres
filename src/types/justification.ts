@@ -9,7 +9,7 @@ export type Justification = {
   dateActivite?: string; // ou Date si tu utilises des objets Date côté front
   dureeHeures?: number;
   contexte?: string;
-  nombreJeunes?: number;
+  nombreJeunes?: string;
   trancheAge?: string;
   niveau?: string;
   objectifsAtteints?: string;

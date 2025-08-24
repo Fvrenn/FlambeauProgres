@@ -1,9 +1,21 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { saveJustification, submitJustification } from "@/src/lib/justification";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  saveJustification,
+  submitJustification,
+  getJustificationDraft,
+} from "@/src/lib/justification";
 import type { Justification } from "@/src/types/justification";
 
 export function useJustification() {
   const queryClient = useQueryClient();
+
+  function useDraft(badgeId: string, objectifId: string, chefId: string) {
+    return useQuery({
+      queryKey: ["justification-draft", badgeId, objectifId, chefId],
+      queryFn: () => getJustificationDraft(badgeId, objectifId, chefId),
+      enabled: !!badgeId && !!objectifId && !!chefId,
+    });
+  }
 
   // Mutation pour sauvegarder en brouillon
   const saveMutation = useMutation({
@@ -32,5 +44,6 @@ export function useJustification() {
     isSubmitting: submitMutation.status === "pending",
     saveError: saveMutation.error,
     submitError: submitMutation.error,
+    useDraft,
   };
 }

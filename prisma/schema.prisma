@@ -107,7 +107,7 @@ model Justification {
   dateActivite        DateTime? // 📅 Quand ?
   dureeHeures         Float?
   contexte            String? // Où/Occasion
-  nombreJeunes        Int? // 👥 Avec qui ?
+  nombreJeunes        String? // 👥 Avec qui ?
   trancheAge          String? // "8-11 ans", "11-14 ans", "14-17 ans"
   niveau              String? // "Débutant", "Intermédiaire", "Expert"
   objectifsAtteints   String? // 📊 Résultats ?

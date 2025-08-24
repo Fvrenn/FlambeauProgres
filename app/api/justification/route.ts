@@ -72,3 +72,25 @@ export async function PATCH(request: Request) {
     );
   }
 }
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const badgeId = searchParams.get("badgeId");
+  const objectifId = searchParams.get("objectifId");
+  const chefId = searchParams.get("chefId");
+
+  if (!badgeId || !objectifId || !chefId) {
+    return NextResponse.json({ error: "Paramètres manquants" }, { status: 400 });
+  }
+
+  const brouillon = await prisma.justification.findFirst({
+    where: {
+      badgeId,
+      objectifId,
+      chefId,
+      statut: "BROUILLON",
+    },
+  });
+
+  return NextResponse.json(brouillon ?? null, { status: 200 });
+}

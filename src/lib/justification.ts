@@ -38,3 +38,14 @@ export async function updateJustificationStatut(id: string, statut: "BROUILLON" 
   }
   return await res.json();
 }
+
+export async function getJustificationDraft(badgeId: string, objectifId: string, chefId: string) {
+  const res = await fetch(
+    `/api/justification?badgeId=${badgeId}&objectifId=${objectifId}&chefId=${chefId}`,
+    { method: "GET" }
+  );
+  if (!res.ok) {
+    throw new Error("Impossible de charger le brouillon");
+  }
+  return await res.json();
+}
