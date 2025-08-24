@@ -44,7 +44,7 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
   try {
     const body = await request.json();
-    const parsed = JustificationUpdateSchema.safeParse(body);
+    const parsed = JustificationShema.safeParse(body);
 
     if (!parsed.success) {
       return NextResponse.json(
@@ -54,13 +54,23 @@ export async function PATCH(request: Request) {
     }
 
     const data = parsed.data;
-    const updateData: any = { statut: data.statut };
+    const updateData: any = {
+      activiteDescription: data.activiteDescription,
+      dateActivite: data.dateActivite ? new Date(data.dateActivite) : null,
+      dureeHeures: data.dureeHeures ?? null,
+      contexte: data.contexte ?? "",
+      nombreJeunes: data.nombreJeunes ?? "",
+      trancheAge: data.trancheAge ?? "",
+      niveau: data.niveau ?? "",
+      objectifsAtteints: data.objectifsAtteints ?? "",
+      statut: data.statut,
+    };
     if (data.statut === "SOUMISE") {
       updateData.soumiseAt = new Date();
     }
 
     const justification = await prisma.justification.update({
-      where: { id: data.id },
+      where: { id: body.id },
       data: updateData,
     });
 
