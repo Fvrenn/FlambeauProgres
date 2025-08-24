@@ -163,17 +163,13 @@ export default function MaModal({
           dateActivite:
             draft.dateActivite && draft.dateActivite !== ""
               ? (() => {
-                  const parts = draft.dateActivite.split("-");
-                  if (
-                    parts.length === 3 &&
-                    parts.every((p: string) => !isNaN(Number(p)))
-                  ) {
-                    const [year, month, day] = parts.map(Number) as [
-                      number,
-                      number,
-                      number,
-                    ];
-                    return new CalendarDate(year, month, day);
+                  const date = new Date(draft.dateActivite);
+                  if (!isNaN(date.getTime())) {
+                    return new CalendarDate(
+                      date.getFullYear(),
+                      date.getMonth() + 1,
+                      date.getDate()
+                    );
                   }
                   return undefined;
                 })()
