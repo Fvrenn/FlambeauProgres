@@ -20,7 +20,7 @@ import {
   SelectSection,
   SelectItem,
 } from "@heroui/react";
-import { today, getLocalTimeZone } from "@internationalized/date";
+import { today, getLocalTimeZone, CalendarDate } from "@internationalized/date";
 import { CustomTextarea } from "@/src/components/ui/Textarea";
 import { CustomDatePicker } from "@/src/components/ui/DatePicker";
 import { CustomSelect } from "@/src/components/ui/Select";
@@ -29,6 +29,9 @@ import { useJustification } from "@/src/hooks/useJustification";
 import ProgressBar from "@/src/components/ui/Progress";
 import { useSession } from "@/src/lib/auth-client";
 import type { Badge } from "@/src/types/badge";
+import type { DateValue } from "@internationalized/date";
+import { Selection } from "@heroui/react";
+
 interface MaModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
@@ -55,17 +58,18 @@ export default function MaModal({
   const objectif = badge.objectifs.find((o) => o.code === competence.code);
   const objectifId = objectif?.id ?? "";
 
-  
   const { data: session } = useSession();
   const chefId = session?.user?.id ?? "";
+  
+  // État du formulaire avec les bons types
   const [form, setForm] = useState({
     activiteDescription: "",
-    dateActivite: "",
-    dureeHeures: undefined,
+    dateActivite: undefined as DateValue | undefined,
+    dureeHeures: undefined as number | undefined,
     contexte: "",
-    nombreJeunes: undefined,
-    trancheAge: "",
-    niveau: "",
+    nombreJeunes: "" as string,
+    trancheAge: "" as string,
+    niveau: "" as string,
     objectifsAtteints: "",
   });
   const [statut, setStatut] = useState<"BROUILLON" | "SOUMISE">("BROUILLON");
@@ -79,26 +83,49 @@ export default function MaModal({
     submitError,
   } = useJustification();
 
-  const handleSave = () => {
-    saveJustification({
-      ...form,
+  // Fonction pour formater les données avant envoi
+  const formatFormData = () => {
+    return {
+      activiteDescription: form.activiteDescription,
+      dateActivite: form.dateActivite ? form.dateActivite.toString() : "",
+      dureeHeures: form.dureeHeures,
+      contexte: form.contexte,
+      nombreJeunes: form.nombreJeunes ? parseInt(form.nombreJeunes.split('-')[1]) : undefined,
+      trancheAge: form.trancheAge,
+      niveau: form.niveau,
+      objectifsAtteints: form.objectifsAtteints,
       chefId,
       objectifId,
       badgeId: badge.id,
-    });
+    };
+  };
+
+  const handleSave = async () => {
+    const formattedData = formatFormData();
+    await saveJustification(formattedData);
     setStatut("BROUILLON");
   };
 
-  const handleSubmit = () => {
-    submitJustification({
-      ...form,
-      chefId,
-      objectifId,
-      badgeId: badge.id,
-    });
+  const handleSubmit = async () => {
+    const formattedData = formatFormData();
+    await submitJustification(formattedData);
     setStatut("SOUMISE");
   };
-  // Définition des onglets
+
+  // Handlers pour chaque champ
+  const handleFieldChange = (field: string, value: any) => {
+    setForm(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSelectionChange = (field: string, keys: Selection) => {
+    const selectedKey = Array.from(keys)[0] as string;
+    handleFieldChange(field, selectedKey || "");
+  };
+
+  // ...existing code pour les définitions des onglets et options...
   const tabs = [
     { key: "justification", label: "Justification", icon: Home },
     { key: "commentaire", label: "Commentaire", icon: ChatRoundLine },
@@ -114,7 +141,7 @@ export default function MaModal({
   const Tranche = [
     { key: "7-8", label: "7-8 ans" },
     { key: "9-11", label: "9-11 ans" },
-    { key: "11-15 ", label: "11-15 ans" },
+    { key: "11-15", label: "11-15 ans" },
     { key: "15-17", label: "15-17 ans" },
   ];
 
@@ -124,6 +151,7 @@ export default function MaModal({
     { key: "Avancé", label: "Avancé" },
   ];
 
+  // ...existing code pour handleFileUpload, removeFile, getFileIcon...
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files) {
@@ -152,8 +180,8 @@ export default function MaModal({
           <div>
             <div className="mb-9">
               {competence.type === "REALISATION"
-                ? "Justification de la réalisation (placeholder)"
-                : "Justification de la compétence (placeholder)"}
+                ? "Justification de la réalisation"
+                : "Justification de la compétence"}
             </div>
 
             <div className="flex flex-col gap-7">
@@ -171,9 +199,11 @@ export default function MaModal({
                   }
                   minRows={3}
                   maxRows={10}
-                  
+                  value={form.activiteDescription}
+                  onValueChange={(value) => handleFieldChange('activiteDescription', value)}
                 />
               </section>
+              
               <section>
                 <h3 className="font-medium text-base mb-4">Quand&nbsp;?</h3>
                 <div className="flex flex-col gap-4">
@@ -183,6 +213,8 @@ export default function MaModal({
                     label="Date de l'activité"
                     minValue={today(getLocalTimeZone())}
                     showMonthAndYearPickers
+                    value={form.dateActivite}
+                    onChange={(date) => handleFieldChange('dateActivite', date)}
                   />
                   <CustomTextarea
                     theme="default"
@@ -192,9 +224,12 @@ export default function MaModal({
                     description="💡 Exemple : Camp rallye 2025"
                     minRows={3}
                     maxRows={10}
+                    value={form.contexte}
+                    onValueChange={(value) => handleFieldChange('contexte', value)}
                   />
                 </div>
               </section>
+              
               <section>
                 <h3 className="font-medium text-base mb-4">Avec qui&nbsp;?</h3>
                 <div className="flex flex-col gap-4">
@@ -205,7 +240,8 @@ export default function MaModal({
                       labelPlacement="inside"
                       placeholder="Sélectionnez un nombre"
                       options={nbJeunes}
-                      onSelectionChange={(keys) => console.log(keys)}
+                      selectedKeys={form.nombreJeunes ? new Set([form.nombreJeunes]) : new Set()}
+                      onSelectionChange={(keys) => handleSelectionChange('nombreJeunes', keys)}
                     />
                     <CustomSelect
                       theme="default"
@@ -213,7 +249,8 @@ export default function MaModal({
                       labelPlacement="inside"
                       placeholder="Sélectionnez une tranche"
                       options={Tranche}
-                      onSelectionChange={(keys) => console.log(keys)}
+                      selectedKeys={form.trancheAge ? new Set([form.trancheAge]) : new Set()}
+                      onSelectionChange={(keys) => handleSelectionChange('trancheAge', keys)}
                     />
                     <CustomSelect
                       theme="default"
@@ -221,11 +258,13 @@ export default function MaModal({
                       labelPlacement="inside"
                       placeholder="Sélectionnez un niveau"
                       options={niveau}
-                      onSelectionChange={(keys) => console.log(keys)}
+                      selectedKeys={form.niveau ? new Set([form.niveau]) : new Set()}
+                      onSelectionChange={(keys) => handleSelectionChange('niveau', keys)}
                     />
                   </div>
                 </div>
               </section>
+              
               <section>
                 <h3 className="font-medium text-base mb-4">Résultats&nbsp;?</h3>
                 <CustomTextarea
@@ -236,8 +275,11 @@ export default function MaModal({
                   description="💡 Exemple : La plupart des jeunes maîtrisent"
                   minRows={3}
                   maxRows={10}
+                  value={form.objectifsAtteints}
+                  onValueChange={(value) => handleFieldChange('objectifsAtteints', value)}
                 />
               </section>
+              
               {/* Section d'upload pour les réalisations */}
               {(competence.type === "REALISATION" ||
                 competence.fichiersRequis) && (
@@ -315,6 +357,7 @@ export default function MaModal({
                   )}
                 </section>
               )}
+              
               <div className="flex gap-4 mt-8">
                 <button
                   type="button"
@@ -322,7 +365,7 @@ export default function MaModal({
                   onClick={handleSave}
                   disabled={isSaving || statut === "SOUMISE"}
                 >
-                  Sauvegarder en brouillon
+                  {isSaving ? "Sauvegarde..." : "Sauvegarder en brouillon"}
                 </button>
                 <button
                   type="button"
@@ -330,7 +373,7 @@ export default function MaModal({
                   onClick={handleSubmit}
                   disabled={isSubmitting || statut === "SOUMISE"}
                 >
-                  Soumettre
+                  {isSubmitting ? "Soumission..." : "Soumettre"}
                 </button>
               </div>
             </div>
@@ -338,14 +381,13 @@ export default function MaModal({
         );
       // ...existing code pour les autres tabs...
       case "commentaire":
-        // Exemple de structure de messages
         return (
           <div className="max-w-2xl mx-auto">
             <div className="bg-white rounded-xl shadow p-6">
               {/* Message principal */}
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 font-bold">
-                  {/* Initiales ou icône */}A
+                  A
                 </div>
                 <div>
                   <span className="font-semibold">Admin Alice</span>
@@ -409,7 +451,7 @@ export default function MaModal({
               <div className="flex flex-col gap-1">
                 <CustomCheckbox
                   theme="modal"
-                  defaultSelected
+                  defaultSelected={!!form.activiteDescription}
                   disabled
                   className="text-white"
                 >
@@ -427,7 +469,7 @@ export default function MaModal({
                 )}
                 <CustomCheckbox
                   theme="modal"
-                  defaultSelected
+                  defaultSelected={statut === "SOUMISE"}
                   disabled
                   className="text-white"
                 >
@@ -436,7 +478,7 @@ export default function MaModal({
                 <CustomCheckbox
                   theme="modal"
                   disabled
-                  defaultSelected
+                  defaultSelected={false}
                   className="text-white"
                 >
                   Précisions demandées
