@@ -32,6 +32,7 @@ import type { Badge } from "@/src/types/badge";
 import type { DateValue } from "@internationalized/date";
 import { Selection } from "@heroui/react";
 import { addToast } from "@heroui/toast"; // Changement ici !
+import SubmitConfirmModal from "./ConfirmModal";
 
 interface MaModalProps {
   isOpen: boolean;
@@ -58,6 +59,7 @@ export default function MaModal({
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const objectif = badge.objectifs.find((o) => o.code === competence.code);
   const objectifId = objectif?.id ?? "";
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   const { data: session } = useSession();
   const chefId = session?.user?.id ?? "";
@@ -504,7 +506,7 @@ export default function MaModal({
                 <button
                   type="button"
                   className="btn btn-primary"
-                  onClick={handleSubmit}
+                  onClick={() => setIsConfirmOpen(true)}
                   disabled={isSubmitting || statut === "SOUMISE"}
                 >
                   {isSubmitting ? "Soumission..." : "Soumettre"}
@@ -621,35 +623,74 @@ export default function MaModal({
             </div>
           </div>
         );
+
       default:
         return null;
     }
   }
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={handleModalClose} size="5xl">
-      <ModalContent>
-        <ModalBody className="p-0">
-          <div className="flex min-h-[250px]">
-            {/* Bloc aside pour la navigation */}
-            <aside className="flex flex-col w-80 border-r border-gray-200 pr-4 bg-background rounded-l-lg px-8 py-11">
-              <span className="font-medium text-base mb-9">
-                Etapes {badge.name}
-              </span>
+    <>
+      <SubmitConfirmModal
+        isOpen={isConfirmOpen}
+        onOpenChange={setIsConfirmOpen}
+        onConfirm={async () => {
+          const formattedData = formatFormData();
+          try {
+            if (draft && draft.id) {
+              await fetch("/api/justification", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  ...formattedData,
+                  id: draft.id,
+                  statut: "SOUMISE",
+                }),
+              });
+            } else {
+              await submitJustification(formattedData);
+            }
+            setStatut("SOUMISE");
+            addToast({
+              title: "Justification soumise",
+              description: `Justification pour la compétence ${competence.code} du badge ${badge.name} soumise avec succès`,
+              variant: "solid",
+              color: "success",
+            });
+            setIsConfirmOpen(false);
+          } catch (error) {
+            addToast({
+              title: "Erreur de soumission",
+              description: "Impossible de soumettre la justification",
+              variant: "solid",
+              color: "danger",
+            });
+          }
+        }}
+      />
+      <Modal isOpen={isOpen} onOpenChange={handleModalClose} size="5xl">
+        <ModalContent>
+          <ModalBody className="p-0">
+            <div className="flex min-h-[250px]">
+              {/* Bloc aside pour la navigation */}
+              <aside className="flex flex-col w-80 border-r border-gray-200 pr-4 bg-background rounded-l-lg px-8 py-11">
+                <span className="font-medium text-base mb-9">
+                  Etapes {badge.name}
+                </span>
 
-              <div className="pl-2 mb-4">
-                <p className="mb-11 text-base font-medium ">
-                  {competence.code} :&nbsp;
-                  {competence.description}
-                </p>
-              </div>
-              <nav>
-                {tabs.map((tab) => {
-                  const Icon = tab.icon;
-                  return (
-                    <button
-                      key={tab.key}
-                      className={`
+                <div className="pl-2 mb-4">
+                  <p className="mb-11 text-base font-medium ">
+                    {competence.code} :&nbsp;
+                    {competence.description}
+                  </p>
+                </div>
+                <nav>
+                  {tabs.map((tab) => {
+                    const Icon = tab.icon;
+                    return (
+                      <button
+                        key={tab.key}
+                        className={`
           w-full text-left px-4 py-2 mb-2 rounded-xl transition-colors font-normal flex items-center gap-2
           ${
             activeTab === tab.key
@@ -657,22 +698,25 @@ export default function MaModal({
               : "hover:bg-medium-black hover:text-white text-gray-700"
           }
         `}
-                      onClick={() => setActiveTab(tab.key as typeof activeTab)}
-                    >
-                      {Icon && <Icon size={18} />}
-                      {tab.label}
-                    </button>
-                  );
-                })}
-              </nav>
-            </aside>
-            {/* Contenu principal */}
-            <div className="flex-1 px-8 pt-12 pb-6">
-              <div>{renderTabContent()}</div>
+                        onClick={() =>
+                          setActiveTab(tab.key as typeof activeTab)
+                        }
+                      >
+                        {Icon && <Icon size={18} />}
+                        {tab.label}
+                      </button>
+                    );
+                  })}
+                </nav>
+              </aside>
+              {/* Contenu principal */}
+              <div className="flex-1 px-8 pt-12 pb-6">
+                <div>{renderTabContent()}</div>
+              </div>
             </div>
-          </div>
-        </ModalBody>
-      </ModalContent>
-    </Modal>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+    </>
   );
 }
