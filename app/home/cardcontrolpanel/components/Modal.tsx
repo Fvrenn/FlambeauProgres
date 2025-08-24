@@ -25,9 +25,10 @@ import { CustomTextarea } from "@/src/components/ui/Textarea";
 import { CustomDatePicker } from "@/src/components/ui/DatePicker";
 import { CustomSelect } from "@/src/components/ui/Select";
 import { CustomCheckbox } from "@/src/components/ui/Checkbox";
-
+import { useJustification } from "@/src/hooks/useJustification";
 import ProgressBar from "@/src/components/ui/Progress";
-
+import { useSession } from "@/src/lib/auth-client";
+import type { Badge } from "@/src/types/badge";
 interface MaModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
@@ -37,10 +38,7 @@ interface MaModalProps {
     type: "COMPETENCE" | "REALISATION";
     fichiersRequis?: boolean;
   };
-  badge: {
-    name: string;
-    image_src: string;
-  };
+  badge: Badge;
 }
 
 export default function MaModal({
@@ -54,7 +52,52 @@ export default function MaModal({
   >("justification");
 
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const objectif = badge.objectifs.find((o) => o.code === competence.code);
+  const objectifId = objectif?.id ?? "";
 
+  
+  const { data: session } = useSession();
+  const chefId = session?.user?.id ?? "";
+  const [form, setForm] = useState({
+    activiteDescription: "",
+    dateActivite: "",
+    dureeHeures: undefined,
+    contexte: "",
+    nombreJeunes: undefined,
+    trancheAge: "",
+    niveau: "",
+    objectifsAtteints: "",
+  });
+  const [statut, setStatut] = useState<"BROUILLON" | "SOUMISE">("BROUILLON");
+
+  const {
+    saveJustification,
+    submitJustification,
+    isSaving,
+    isSubmitting,
+    saveError,
+    submitError,
+  } = useJustification();
+
+  const handleSave = () => {
+    saveJustification({
+      ...form,
+      chefId,
+      objectifId,
+      badgeId: badge.id,
+    });
+    setStatut("BROUILLON");
+  };
+
+  const handleSubmit = () => {
+    submitJustification({
+      ...form,
+      chefId,
+      objectifId,
+      badgeId: badge.id,
+    });
+    setStatut("SOUMISE");
+  };
   // Définition des onglets
   const tabs = [
     { key: "justification", label: "Justification", icon: Home },
@@ -128,11 +171,9 @@ export default function MaModal({
                   }
                   minRows={3}
                   maxRows={10}
+                  
                 />
               </section>
-
-
-
               <section>
                 <h3 className="font-medium text-base mb-4">Quand&nbsp;?</h3>
                 <div className="flex flex-col gap-4">
@@ -185,7 +226,6 @@ export default function MaModal({
                   </div>
                 </div>
               </section>
-
               <section>
                 <h3 className="font-medium text-base mb-4">Résultats&nbsp;?</h3>
                 <CustomTextarea
@@ -198,9 +238,9 @@ export default function MaModal({
                   maxRows={10}
                 />
               </section>
-
-                            {/* Section d'upload pour les réalisations */}
-              {(competence.type === "REALISATION" || competence.fichiersRequis) && (
+              {/* Section d'upload pour les réalisations */}
+              {(competence.type === "REALISATION" ||
+                competence.fichiersRequis) && (
                 <section>
                   <h3 className="font-medium text-base mb-4">
                     Fichiers justificatifs
@@ -274,7 +314,25 @@ export default function MaModal({
                     </div>
                   )}
                 </section>
-             )}
+              )}
+              <div className="flex gap-4 mt-8">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={handleSave}
+                  disabled={isSaving || statut === "SOUMISE"}
+                >
+                  Sauvegarder en brouillon
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={handleSubmit}
+                  disabled={isSubmitting || statut === "SOUMISE"}
+                >
+                  Soumettre
+                </button>
+              </div>
             </div>
           </div>
         );

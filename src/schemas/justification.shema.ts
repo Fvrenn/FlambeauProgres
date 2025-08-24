@@ -1,15 +1,21 @@
 import { z } from "zod";
 
 export const JustificationShema = z.object({
-  chefId: z.string().min(1, "chefId requis"),
-  objectifId: z.string().min(1, "objectifId requis"),
-  badgeId: z.string().min(1, "badgeId requis"),
-  activiteDescription: z.string().min(1, "Description requise"),
-  dateActivite: z.string().datetime().optional().or(z.literal("").transform(() => undefined)),
+  chefId: z.string(),
+  objectifId: z.string(),
+  badgeId: z.string(),
+  activiteDescription: z.string(),
+  dateActivite: z.string().optional(),
   dureeHeures: z.number().optional(),
   contexte: z.string().optional(),
-  nombreJeunes: z.number().int().optional(),
+  nombreJeunes: z.number().optional(),
   trancheAge: z.string().optional(),
   niveau: z.string().optional(),
   objectifsAtteints: z.string().optional(),
+  statut: z.enum(["BROUILLON", "SOUMISE"]),
+});
+
+export const JustificationUpdateSchema = z.object({
+  id: z.string(),
+  statut: z.enum(["BROUILLON", "SOUMISE"]),
 });

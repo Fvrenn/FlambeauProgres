@@ -1,3 +1,5 @@
+export type StatutJustification = "BROUILLON" | "SOUMISE" | "EN_COURS" | "DEMANDE_PRECISION" | "VALIDEE" | "REFUSEE";
+
 export type Justification = {
   id?: string;
   chefId: string;
@@ -11,7 +13,7 @@ export type Justification = {
   trancheAge?: string;
   niveau?: string;
   objectifsAtteints?: string;
-  statut?: string; // StatutJustification (BROUILLON, SOUMISE, etc.)
+  statut?: StatutJustification; // Typé avec l'énum
   version?: number;
   soumiseAt?: string;
   valideeAt?: string;

@@ -8,6 +8,7 @@ export type Badge = {
   image_src: string;
   ordre: number;
   objectifs: Array<{
+    id: string;
     code: string;
     description: string;
     type: "COMPETENCE" | "REALISATION";

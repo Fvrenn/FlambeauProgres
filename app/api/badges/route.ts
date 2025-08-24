@@ -9,10 +9,12 @@ export async function GET(request: Request) {
       include: {
         objectifs: {
           select: {
+            id: true,        
             code: true,
             description: true,
             type: true,
-          },
+            fichiersRequis: true,
+          }
         },
         referents: {
           include: {
