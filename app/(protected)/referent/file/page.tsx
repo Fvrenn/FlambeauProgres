@@ -29,12 +29,14 @@ import { Justification, StatutJustification } from "@/src/types/justification";
 import { useJustificationsForReferent } from "@/src/hooks/useJustificationsForReferent";
 import { useSession } from "@/src/lib/auth-client";
 import type { JustificationWithRelations } from "@/src/types/justificationWithRelations";
+import JustificationViewModal from "./JustificationViewModal";
+import { useState, useEffect } from "react";
 
 // Colonnes du tableau
 export const columns = [
   { name: "CHEF", uid: "chef", sortable: true },
   { name: "BADGE", uid: "badge", sortable: true },
-  { name: "ID JUSTIFICATION", uid: "id", sortable: true },
+  { name: "ID OBJECTIF", uid: "id", sortable: true },
   { name: "DATE ENVOI", uid: "soumiseAt", sortable: true },
   { name: "STATUT", uid: "statut", sortable: true },
   { name: "ACTIONS", uid: "actions" },
@@ -64,13 +66,15 @@ const statusLabelMap: Record<StatutJustification, string> = {
 export default function FileAttentePage() {
   const { data: session } = useSession();
   const referentId = session?.user?.id;
-
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   const {
     data: justifications = [],
     isLoading,
     error,
   } = useJustificationsForReferent(referentId);
-
 
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState<any>(new Set([]));
@@ -84,7 +88,6 @@ export default function FileAttentePage() {
     React.useState<JustificationWithRelations | null>(null);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
-
 
   const classNames = React.useMemo(
     () => ({
@@ -200,7 +203,9 @@ export default function FileAttentePage() {
         case "id":
           return (
             <div className="flex flex-col">
-              <p className="text-bold text-sm font-mono">{justification.id}</p>
+              <p className="text-bold text-sm font-mono">
+                {justification.objectif.code}
+              </p>
             </div>
           );
         case "soumiseAt":
@@ -289,6 +294,31 @@ export default function FileAttentePage() {
     []
   );
 
+  const formatDate = React.useCallback((dateString: string | undefined) => {
+    if (!dateString) return "Non soumise";
+
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString("fr-FR");
+    } catch {
+      return "Date invalide";
+    }
+  }, []);
+
+  const formatTime = React.useCallback((dateString: string | undefined) => {
+    if (!dateString) return "";
+
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleTimeString("fr-FR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch {
+      return "";
+    }
+  }, []);
+
   const topContent = React.useMemo(() => {
     return (
       <div className="flex flex-col gap-4">
@@ -360,6 +390,21 @@ export default function FileAttentePage() {
     );
   }
 
+  if (!mounted) {
+    return (
+      <div className="p-6">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold mb-2">
+            File d'attente des justifications
+          </h1>
+        </div>
+        <div className="flex justify-center items-center h-64">
+          <Spinner size="lg" />
+        </div>
+      </div>
+    );
+  }
+
   if (error) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -426,6 +471,20 @@ export default function FileAttentePage() {
           )}
         </TableBody>
       </Table>
+      {selectedJustification && (
+        <JustificationViewModal
+          isOpen={isOpen}
+          onOpenChange={(open) => {
+            if (!open) {
+              setSelectedJustification(null);
+              onClose();
+            } else {
+              onOpen();
+            }
+          }}
+          justification={selectedJustification}
+        />
+      )}
     </div>
   );
 }
