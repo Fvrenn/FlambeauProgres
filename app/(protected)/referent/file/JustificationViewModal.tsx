@@ -12,9 +12,11 @@ import {
   RoundGraph,
   Gallery,
   DocumentText,
+  DangerTriangle,
 } from "@solar-icons/react";
 import { CalendarDate } from "@internationalized/date";
 import type { JustificationWithRelations } from "@/src/types/justificationWithRelations";
+import DemandePrecisionModal from "./DemandePrecisionModal";
 
 interface JustificationViewModalProps {
   isOpen: boolean;
@@ -31,6 +33,17 @@ export default function JustificationViewModal({
     "justification" | "commentaire" | "statut"
   >("justification");
 
+  // État pour la modal de demande de précision
+  const [demandePrecisionModal, setDemandePrecisionModal] = useState<{
+    isOpen: boolean;
+    champ: string;
+    champLabel: string;
+  }>({
+    isOpen: false,
+    champ: "",
+    champLabel: "",
+  });
+
   const tabs = [
     { key: "justification", label: "Justification", icon: Home },
     { key: "commentaire", label: "Commentaire", icon: ChatRoundLine },
@@ -45,7 +58,48 @@ export default function JustificationViewModal({
       return "Date invalide";
     }
   };
-  
+
+  const handleDemanderPrecision = (champ: string, champLabel: string) => {
+    setDemandePrecisionModal({
+      isOpen: true,
+      champ,
+      champLabel,
+    });
+  };
+
+  const renderChampAvecBouton = (
+    valeur: string | number | null | undefined,
+    champ: string,
+    champLabel: string,
+    description: string
+  ) => {
+    const isEmpty = !valeur || valeur === "" || valeur === "Non renseigné";
+
+    return (
+      <div className="bg-gray-50 p-4 rounded-lg relative">
+        <div className="flex justify-between items-start">
+          <div className="flex-1">
+            <p className="text-sm text-gray-600 mb-2">{description}</p>
+            <p className={`text-gray-800 ${isEmpty ? "text-gray-400 italic" : ""}`}>
+              {valeur || "Non renseigné"}
+            </p>
+          </div>
+          <button
+            onClick={() => handleDemanderPrecision(champ, champLabel)}
+            className={`ml-2 p-1 rounded transition-colors ${
+              isEmpty
+                ? "text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                : "text-gray-400 hover:text-orange-600 hover:bg-orange-50"
+            }`}
+            title={`Demander une précision sur ${champLabel}`}
+          >
+            <DangerTriangle weight="BoldDuotone" size={16} color={isEmpty ? "#0f4159" : "#aaa"} />
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   function renderTabContent() {
     switch (activeTab) {
       case "justification":
@@ -62,84 +116,76 @@ export default function JustificationViewModal({
             <div className="flex flex-col gap-7">
               <section>
                 <h3 className="font-medium text-base mb-4">Quoi ?</h3>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-600 mb-2">
-                    Description de l'activité
-                  </p>
-                  <p className="text-gray-800">
-                    {justification.activiteDescription || "Non renseigné"}
-                  </p>
-                </div>
+                {renderChampAvecBouton(
+                  justification.activiteDescription,
+                  "activiteDescription",
+                  "Description de l'activité",
+                  "Description de l'activité"
+                )}
               </section>
 
               <section>
                 <h3 className="font-medium text-base mb-4">Quand ?</h3>
                 <div className="flex flex-col gap-4">
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <p className="text-sm text-gray-600 mb-2">
-                      Date de l'activité
-                    </p>
-                    <p className="text-gray-800">
-                      {formatDate(justification.dateActivite)}
-                    </p>
-                  </div>
-
-                  {justification.dureeHeures && (
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <p className="text-sm text-gray-600 mb-2">Durée</p>
-                      <p className="text-gray-800">
-                        {justification.dureeHeures} heure(s)
-                      </p>
-                    </div>
+                  {renderChampAvecBouton(
+                    formatDate(justification.dateActivite),
+                    "dateActivite",
+                    "Date de l'activité",
+                    "Date de l'activité"
                   )}
 
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <p className="text-sm text-gray-600 mb-2">Contexte</p>
-                    <p className="text-gray-800">
-                      {justification.contexte || "Non renseigné"}
-                    </p>
-                  </div>
+                  {renderChampAvecBouton(
+                    justification.dureeHeures
+                      ? `${justification.dureeHeures} heure(s)`
+                      : null,
+                    "dureeHeures",
+                    "Durée",
+                    "Durée"
+                  )}
+
+                  {renderChampAvecBouton(
+                    justification.contexte,
+                    "contexte",
+                    "Contexte",
+                    "Contexte"
+                  )}
                 </div>
               </section>
 
               <section>
                 <h3 className="font-medium text-base mb-4">Avec qui ?</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <p className="text-sm text-gray-600 mb-2">
-                      Nombre de jeunes
-                    </p>
-                    <p className="text-gray-800">
-                      {justification.nombreJeunes || "Non renseigné"}
-                    </p>
-                  </div>
+                  {renderChampAvecBouton(
+                    justification.nombreJeunes,
+                    "nombreJeunes",
+                    "Nombre de jeunes",
+                    "Nombre de jeunes"
+                  )}
 
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <p className="text-sm text-gray-600 mb-2">Tranche d'âge</p>
-                    <p className="text-gray-800">
-                      {justification.trancheAge || "Non renseigné"}
-                    </p>
-                  </div>
+                  {renderChampAvecBouton(
+                    justification.trancheAge,
+                    "trancheAge",
+                    "Tranche d'âge",
+                    "Tranche d'âge"
+                  )}
 
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <p className="text-sm text-gray-600 mb-2">Niveau</p>
-                    <p className="text-gray-800">
-                      {justification.niveau || "Non renseigné"}
-                    </p>
-                  </div>
+                  {renderChampAvecBouton(
+                    justification.niveau,
+                    "niveau",
+                    "Niveau",
+                    "Niveau"
+                  )}
                 </div>
               </section>
 
               <section>
                 <h3 className="font-medium text-base mb-4">Résultats ?</h3>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-600 mb-2">
-                    Objectifs atteints
-                  </p>
-                  <p className="text-gray-800">
-                    {justification.objectifsAtteints || "Non renseigné"}
-                  </p>
-                </div>
+                {renderChampAvecBouton(
+                  justification.objectifsAtteints,
+                  "objectifsAtteints",
+                  "Objectifs atteints",
+                  "Objectifs atteints"
+                )}
               </section>
 
               {/* Section fichiers - à développer plus tard */}
@@ -165,17 +211,6 @@ export default function JustificationViewModal({
                   }}
                 >
                   ✅ Valider
-                </button>
-
-                <button
-                  type="button"
-                  className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
-                  onClick={() => {
-                    // TODO: Implémenter la demande de précisions
-                    console.log("Demander des précisions");
-                  }}
-                >
-                  ⚠️ Demander des précisions
                 </button>
 
                 <button
@@ -261,54 +296,74 @@ export default function JustificationViewModal({
   }
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="5xl">
-      <ModalContent>
-        <ModalBody className="p-0">
-          <div className="flex min-h-[250px]">
-            {/* Bloc aside pour la navigation */}
-            <aside className="flex flex-col w-80 border-r border-gray-200 pr-4 bg-background rounded-l-lg px-8 py-11">
-              <span className="font-medium text-base mb-9">
-                Validation {justification.badge.name}
-              </span>
+    <>
+      {/* Modal de demande de précision - Rendu conditionnel pour éviter l'erreur TypeScript */}
+      {justification.id && (
+        <DemandePrecisionModal
+          isOpen={demandePrecisionModal.isOpen}
+          onOpenChange={(open) =>
+            setDemandePrecisionModal((prev) => ({ ...prev, isOpen: open }))
+          }
+          justificationId={justification.id}
+          champ={demandePrecisionModal.champ}
+          champLabel={demandePrecisionModal.champLabel}
+          onSuccess={() => {
+            console.log("Précision demandée avec succès");
+            // Optionnel : recharger les données
+          }}
+        />
+      )}
 
-              <div className="pl-2 mb-4">
-                <p className="mb-11 text-base font-medium">
-                  {justification.objectif.code} :{" "}
-                  {justification.objectif.description}
-                </p>
+      {/* Modal principale */}
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="5xl">
+        <ModalContent>
+          <ModalBody className="p-0">
+            <div className="flex min-h-[250px]">
+              {/* Bloc aside pour la navigation */}
+              <aside className="flex flex-col w-80 border-r border-gray-200 pr-4 bg-background rounded-l-lg px-8 py-11">
+                <span className="font-medium text-base mb-9">
+                  Validation {justification.badge.name}
+                </span>
+
+                <div className="pl-2 mb-4">
+                  <p className="mb-11 text-base font-medium">
+                    {justification.objectif.code} :{" "}
+                    {justification.objectif.description}
+                  </p>
+                </div>
+
+                <nav>
+                  {tabs.map((tab) => {
+                    const Icon = tab.icon;
+                    return (
+                      <button
+                        key={tab.key}
+                        className={`
+                          w-full text-left px-4 py-2 mb-2 rounded-xl transition-colors font-normal flex items-center gap-2
+                          ${
+                            activeTab === tab.key
+                              ? "bg-light-beige text-black"
+                              : "hover:bg-medium-black hover:text-white text-gray-700"
+                          }
+                        `}
+                        onClick={() => setActiveTab(tab.key as typeof activeTab)}
+                      >
+                        {Icon && <Icon size={18} />}
+                        {tab.label}
+                      </button>
+                    );
+                  })}
+                </nav>
+              </aside>
+
+              {/* Contenu principal */}
+              <div className="flex-1 px-8 pt-12 pb-6">
+                <div>{renderTabContent()}</div>
               </div>
-
-              <nav>
-                {tabs.map((tab) => {
-                  const Icon = tab.icon;
-                  return (
-                    <button
-                      key={tab.key}
-                      className={`
-                        w-full text-left px-4 py-2 mb-2 rounded-xl transition-colors font-normal flex items-center gap-2
-                        ${
-                          activeTab === tab.key
-                            ? "bg-light-beige text-black"
-                            : "hover:bg-medium-black hover:text-white text-gray-700"
-                        }
-                      `}
-                      onClick={() => setActiveTab(tab.key as typeof activeTab)}
-                    >
-                      {Icon && <Icon size={18} />}
-                      {tab.label}
-                    </button>
-                  );
-                })}
-              </nav>
-            </aside>
-
-            {/* Contenu principal */}
-            <div className="flex-1 px-8 pt-12 pb-6">
-              <div>{renderTabContent()}</div>
             </div>
-          </div>
-        </ModalBody>
-      </ModalContent>
-    </Modal>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+    </>
   );
 }
