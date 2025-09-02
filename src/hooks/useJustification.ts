@@ -11,7 +11,7 @@ export function useJustification() {
 
   function useDraft(badgeId: string, objectifId: string, chefId: string) {
     return useQuery({
-      queryKey: ["justification-draft", badgeId, objectifId, chefId],
+      queryKey: ["justification", badgeId, objectifId, chefId], // Changé de "justification-draft"
       queryFn: () => getJustificationDraft(badgeId, objectifId, chefId),
       enabled: !!badgeId && !!objectifId && !!chefId,
     });

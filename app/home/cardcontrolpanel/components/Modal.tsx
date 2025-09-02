@@ -31,7 +31,7 @@ import { useSession } from "@/src/lib/auth-client";
 import type { Badge } from "@/src/types/badge";
 import type { DateValue } from "@internationalized/date";
 import { Selection } from "@heroui/react";
-import { addToast } from "@heroui/toast"; // Changement ici !
+import { addToast } from "@heroui/toast";
 import SubmitConfirmModal from "./ConfirmModal";
 
 interface MaModalProps {
@@ -158,40 +158,38 @@ export default function MaModal({
     if (isOpen) {
       refetch();
     }
-    {
-      if (draft) {
-        setForm({
-          activiteDescription: draft.activiteDescription ?? "",
-          dateActivite:
-            draft.dateActivite && draft.dateActivite !== ""
-              ? (() => {
-                  const date = new Date(draft.dateActivite);
-                  if (!isNaN(date.getTime())) {
-                    return new CalendarDate(
-                      date.getFullYear(),
-                      date.getMonth() + 1,
-                      date.getDate()
-                    );
-                  }
-                  return undefined;
-                })()
-              : undefined,
-          dureeHeures: draft.dureeHeures ?? undefined,
-          contexte: draft.contexte ?? "",
-          nombreJeunes: draft.nombreJeunes ? String(draft.nombreJeunes) : "",
-          trancheAge: draft.trancheAge ?? "",
-          niveau: draft.niveau ?? "",
-          objectifsAtteints: draft.objectifsAtteints ?? "",
-        });
-        setStatut(draft.statut ?? "BROUILLON");
-        // Si tu veux charger les fichiers, il faut les gérer côté backend
-      } else {
-        setForm(initialFormState);
-        setStatut("BROUILLON");
-      }
-      setUploadedFiles([]);
-      setActiveTab("justification");
+    
+    if (draft) {
+      setForm({
+        activiteDescription: draft.activiteDescription ?? "",
+        dateActivite:
+          draft.dateActivite && draft.dateActivite !== ""
+            ? (() => {
+                const date = new Date(draft.dateActivite);
+                if (!isNaN(date.getTime())) {
+                  return new CalendarDate(
+                    date.getFullYear(),
+                    date.getMonth() + 1,
+                    date.getDate()
+                  );
+                }
+                return undefined;
+              })()
+            : undefined,
+        dureeHeures: draft.dureeHeures ?? undefined,
+        contexte: draft.contexte ?? "",
+        nombreJeunes: draft.nombreJeunes ? String(draft.nombreJeunes) : "",
+        trancheAge: draft.trancheAge ?? "",
+        niveau: draft.niveau ?? "",
+        objectifsAtteints: draft.objectifsAtteints ?? "",
+      });
+      setStatut(draft.statut ?? "BROUILLON");
+    } else {
+      setForm(initialFormState);
+      setStatut("BROUILLON");
     }
+    setUploadedFiles([]);
+    setActiveTab("justification");
   }, [isOpen, competence.code, draft]);
 
   const formatFormData = () => {

@@ -93,14 +93,18 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Paramètres manquants" }, { status: 400 });
   }
 
-  const brouillon = await prisma.justification.findFirst({
+  // Récupérer la justification peu importe son statut (BROUILLON ou SOUMISE)
+  const justification = await prisma.justification.findFirst({
     where: {
       badgeId,
       objectifId,
       chefId,
-      statut: "BROUILLON",
+      // Supprimer le filtre sur le statut pour récupérer toutes les justifications
     },
+    orderBy: {
+      updatedAt: 'desc' // Prendre la plus récente en cas de plusieurs versions
+    }
   });
 
-  return NextResponse.json(brouillon ?? null, { status: 200 });
+  return NextResponse.json(justification ?? null, { status: 200 });
 }
