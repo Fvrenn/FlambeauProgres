@@ -63,50 +63,64 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Déterminer le nouveau statut et le type de commentaire
+    // Déterminer le nouveau statut
     const nouveauStatut = action === "VALIDER" ? "VALIDEE" : "REFUSEE";
-    const typeCommentaire = action === "VALIDER" ? "REFERENT_FEEDBACK" : "REFERENT_FEEDBACK";
+    const typeCommentaire = "REFERENT_FEEDBACK";
     const messageNotification = action === "VALIDER" 
       ? `Votre justification pour ${justification.badge.name} a été validée`
       : `Votre justification pour ${justification.badge.name} a été refusée`;
 
-    // Mettre à jour la justification
-    const updatedJustification = await prisma.justification.update({
-      where: { id: justificationId },
-      data: { 
-        statut: nouveauStatut,
-        valideeAt: action === "VALIDER" ? new Date() : null
-      }
-    });
-
-    // Créer un commentaire si fourni
-    if (commentaire && commentaire.trim() !== "") {
-      await prisma.commentaire.create({
-        data: {
-          justificationId,
-          auteurId: session.user.id,
-          contenu: commentaire,
-          type: typeCommentaire
+    // Utiliser une transaction pour s'assurer que toutes les opérations réussissent
+    const result = await prisma.$transaction(async (tx) => {
+      // Mettre à jour la justification
+      const updatedJustification = await tx.justification.update({
+        where: { id: justificationId },
+        data: { 
+          statut: nouveauStatut,
+          valideeAt: action === "VALIDER" ? new Date() : null
         }
       });
-    }
 
-    // Créer une notification pour le chef
-    await prisma.notification.create({
-      data: {
-        destinataireId: justification.chefId,
-        justificationId,
-        type: action === "VALIDER" ? "JUSTIFICATION_VALIDEE" : "JUSTIFICATION_REFUSEE",
-        titre: `Justification ${action === "VALIDER" ? "validée" : "refusée"}`,
-        message: messageNotification
+      // Si l'action est VALIDER, supprimer tous les commentaires existants
+      if (action === "VALIDER") {
+        await tx.commentaire.deleteMany({
+          where: {
+            justificationId: justificationId
+          }
+        });
       }
+
+      // Créer un commentaire si fourni (après la suppression pour VALIDER)
+      if (commentaire && commentaire.trim() !== "") {
+        await tx.commentaire.create({
+          data: {
+            justificationId,
+            auteurId: session.user.id,
+            contenu: commentaire,
+            type: typeCommentaire
+          }
+        });
+      }
+
+      // Créer une notification pour le chef
+      await tx.notification.create({
+        data: {
+          destinataireId: justification.chefId,
+          justificationId,
+          type: action === "VALIDER" ? "JUSTIFICATION_VALIDEE" : "JUSTIFICATION_REFUSEE",
+          titre: `Justification ${action === "VALIDER" ? "validée" : "refusée"}`,
+          message: messageNotification
+        }
+      });
+
+      return updatedJustification;
     });
 
     return NextResponse.json({
       success: true,
       justification: {
-        id: updatedJustification.id,
-        statut: updatedJustification.statut
+        id: result.id,
+        statut: result.statut
       }
     });
 
