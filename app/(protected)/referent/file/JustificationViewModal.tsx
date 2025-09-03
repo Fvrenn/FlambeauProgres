@@ -16,6 +16,9 @@ import {
 } from "@solar-icons/react";
 import { CalendarDate } from "@internationalized/date";
 import type { JustificationWithRelations } from "@/src/types/justificationWithRelations";
+import { CustomButton } from "@/src/components/ui/Button";
+import { useValidateJustification } from "@/src/hooks/useValidateJustification";
+import RefuserJustificationModal from "./RefuserJustificationModal";
 import DemandePrecisionModal from "./DemandePrecisionModal";
 
 interface JustificationViewModalProps {
@@ -44,6 +47,12 @@ export default function JustificationViewModal({
     champLabel: "",
   });
 
+  // État pour la modal de refus
+  const [refuserModal, setRefuserModal] = useState(false);
+
+  // Hook pour la validation
+  const { mutate: validateJustification, isPending: isValidating } = useValidateJustification();
+
   const tabs = [
     { key: "justification", label: "Justification", icon: Home },
     { key: "commentaire", label: "Commentaire", icon: ChatRoundLine },
@@ -64,6 +73,32 @@ export default function JustificationViewModal({
       isOpen: true,
       champ,
       champLabel,
+    });
+  };
+
+  const handleValider = () => {
+    if (!justification?.id) return;
+    validateJustification({
+      justificationId: justification.id,
+      action: "VALIDER",
+    }, {
+      onSuccess: () => {
+        onOpenChange(false);
+      }
+    });
+  };
+
+  const handleRefuser = (commentaire: string) => {
+    if (!justification?.id) return;
+    validateJustification({
+      justificationId: justification.id,
+      action: "REFUSER",
+      commentaire,
+    }, {
+      onSuccess: () => {
+        setRefuserModal(false);
+        onOpenChange(false);
+      }
     });
   };
 
@@ -202,27 +237,24 @@ export default function JustificationViewModal({
 
               {/* Actions de validation pour le référent */}
               <div className="flex gap-4 mt-8 pt-6 border-t">
-                <button
-                  type="button"
-                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
-                  onClick={() => {
-                    // TODO: Implémenter la validation
-                    console.log("Valider la justification");
-                  }}
+                <CustomButton
+                  theme="primary"
+                  onClick={handleValider}
+                  disabled={isValidating}
+                  isLoading={isValidating}
+                  startContent={!isValidating && <span>✅</span>}
                 >
-                  ✅ Valider
-                </button>
+                  Valider
+                </CustomButton>
 
-                <button
-                  type="button"
-                  className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
-                  onClick={() => {
-                    // TODO: Implémenter le refus
-                    console.log("Refuser la justification");
-                  }}
+                <CustomButton
+                  theme="danger"
+                  onClick={() => setRefuserModal(true)}
+                  disabled={isValidating}
                 >
-                  ❌ Refuser
-                </button>
+                  <span className="mr-2">❌</span>
+                  Refuser
+                </CustomButton>
               </div>
             </div>
           </div>
@@ -297,8 +329,16 @@ export default function JustificationViewModal({
 
   return (
     <>
-      {/* Modal de demande de précision - Rendu conditionnel pour éviter l'erreur TypeScript */}
-      {justification.id && (
+      {/* Modal de refus */}
+      <RefuserJustificationModal
+        isOpen={refuserModal}
+        onOpenChange={setRefuserModal}
+        onConfirm={handleRefuser}
+        isLoading={isValidating}
+      />
+
+      {/* Modal de demande de précision */}
+      {justification?.id && (
         <DemandePrecisionModal
           isOpen={demandePrecisionModal.isOpen}
           onOpenChange={(open) =>
@@ -309,7 +349,6 @@ export default function JustificationViewModal({
           champLabel={demandePrecisionModal.champLabel}
           onSuccess={() => {
             console.log("Précision demandée avec succès");
-            // Optionnel : recharger les données
           }}
         />
       )}
