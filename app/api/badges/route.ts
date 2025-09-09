@@ -1,10 +1,12 @@
 import { prisma } from "@/src/lib/prisma";
 import { NextResponse } from "next/server";
-import type { Badge } from "@/src/types/badge";
+import { auth } from "@/src/lib/auth";
 import { BadgeSchema } from "@/src/schemas/badge.schema";
 
 export async function GET(request: Request) {
   try {
+    const session = await auth.api.getSession({ headers: request.headers });
+    
     const badges = await prisma.badge.findMany({
       include: {
         objectifs: {
@@ -14,6 +16,15 @@ export async function GET(request: Request) {
             description: true,
             type: true,
             fichiersRequis: true,
+            justifications: session?.user ? {
+              where: { chefId: session.user.id },
+              select: {
+                id: true,
+                statut: true,
+                soumiseAt: true,
+                valideeAt: true,
+              }
+            } : false
           }
         },
         referents: {

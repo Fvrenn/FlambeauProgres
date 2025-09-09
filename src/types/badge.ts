@@ -1,4 +1,5 @@
 import type { Referent } from "./referent";
+import type { StatutJustification } from "@prisma/client";
 
 export type Badge = {
   id: string;
@@ -12,7 +13,13 @@ export type Badge = {
     code: string;
     description: string;
     type: "COMPETENCE" | "REALISATION";
-    fichiersRequis?: boolean;
+    fichiersRequis: boolean;
+    justifications?: {
+      id: string;
+      statut: StatutJustification;
+      soumiseAt: string | null;
+      valideeAt: string | null;
+    }[];
   }>;
   assignedReferents?: Referent[];
 };
