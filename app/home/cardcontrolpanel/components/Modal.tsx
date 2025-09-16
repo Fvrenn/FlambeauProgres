@@ -33,6 +33,7 @@ import type { DateValue } from "@internationalized/date";
 import { Selection } from "@heroui/react";
 import { addToast } from "@heroui/toast";
 import SubmitConfirmModal from "./ConfirmModal";
+import { saveJustification, updateJustificationStatut } from "@/src/lib/justification";
 
 interface MaModalProps {
   isOpen: boolean;
@@ -120,18 +121,10 @@ export default function MaModal({
       try {
         const formattedData = formatFormData();
         if (draft && draft.id) {
-          // PATCH si le brouillon existe
-          await fetch("/api/justification", {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              ...formattedData,
-              id: draft.id,
-              statut: "BROUILLON",
-            }),
-          });
+          // PATCH via fonction utilitaire
+          await updateJustificationStatut(draft.id, "BROUILLON");
         } else {
-          // POST si pas de brouillon
+          // POST via fonction utilitaire
           await saveJustification(formattedData);
         }
 
@@ -635,19 +628,10 @@ export default function MaModal({
         onConfirm={async () => {
           const formattedData = formatFormData();
           try {
-            if (draft && draft.id) {
-              await fetch("/api/justification", {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  ...formattedData,
-                  id: draft.id,
-                  statut: "SOUMISE",
-                }),
-              });
-            } else {
-              await submitJustification(formattedData);
-            }
+            await submitJustification({
+              ...formattedData,
+              id: draft?.id, 
+            });
             setStatut("SOUMISE");
             addToast({
               title: "Justification soumise",

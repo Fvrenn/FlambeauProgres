@@ -53,3 +53,13 @@ export async function getJustification(badgeId: string, objectifId: string, chef
 
 // Garder l'ancien nom pour la compatibilité
 export const getJustificationDraft = getJustification;
+
+export async function updateJustification(justification: any) {
+  const res = await fetch("/api/justification", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(justification),
+  });
+  if (!res.ok) throw new Error("Erreur update justification");
+  return await res.json();
+}
