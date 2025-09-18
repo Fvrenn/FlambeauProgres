@@ -13,7 +13,6 @@ export default function ControlPanelTabs({
   badges,
   selectedBadge,
 }: ControlPanelTabsProps) {
-  // Trouve le badge sélectionné dans les données complètes
   const currentBadge = badges.find((badge) => badge.number === selectedBadge);
 
   const controlPanelTabs: TabData[] = [
