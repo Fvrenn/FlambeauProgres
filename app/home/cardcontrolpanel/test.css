@@ -1,8 +1,0 @@
-.test > div:nth-child(1) {
-align-self: baseline;
-}
-.test > div:nth-child(2) {
-  height: 100dvh;
-  overflow-y: hidden;
-  padding: 0px;
-}

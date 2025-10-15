@@ -5,37 +5,65 @@ export const siteConfig = {
   description: "Make beautiful websites regardless of your design experience.",
   navItems: [
     {
-      type: "link",
-      label: "Tableau de bord",
+      label: "Home",
       href: "/",
-      icon: "Home",
     },
     {
-      type: "link",
-      label: "Mon profil",
+      label: "Docs",
       href: "/docs",
-      icon: "User",
     },
     {
-      type: "accordion",
-      label: "Administration",
-      icon: "ShieldUp",
-      items: [
-        { label: "Badges", href: "/admin/badges" },
-        { label: "Utilisateurs", href: "/admin/utilisateurs" },
-        { label: "Référents", href: "/admin/assignation" },
-        { label: "Statistiques", href: "/admin/statistiques" },
-      ],
+      label: "Pricing",
+      href: "/pricing",
     },
     {
-      type: "accordion",
-      label: "Référent",
-      icon: null,
-      items: [
-        { label: "Etapes assignés", href: "/referent/badges" },
-        { label: "File d’attente", href: "/referent/file" },
-        // { label: "Statistiques personnelles", href: "/referent/statistiques" },
-      ],
+      label: "Blog",
+      href: "/blog",
+    },
+    {
+      label: "About",
+      href: "/about",
     },
   ],
+  navMenuItems: [
+    {
+      label: "Profile",
+      href: "/profile",
+    },
+    {
+      label: "Dashboard",
+      href: "/dashboard",
+    },
+    {
+      label: "Projects",
+      href: "/projects",
+    },
+    {
+      label: "Team",
+      href: "/team",
+    },
+    {
+      label: "Calendar",
+      href: "/calendar",
+    },
+    {
+      label: "Settings",
+      href: "/settings",
+    },
+    {
+      label: "Help & Feedback",
+      href: "/help-feedback",
+    },
+    {
+      label: "Logout",
+      href: "/logout",
+    },
+  ],
+  links: {
+    github: "https://github.com/heroui-inc/heroui",
+    twitter: "https://twitter.com/hero_ui",
+    docs: "https://heroui.com",
+    discord: "https://discord.gg/9b6yyZKmH4",
+    sponsor: "https://patreon.com/jrgarciadev",
+  },
 };

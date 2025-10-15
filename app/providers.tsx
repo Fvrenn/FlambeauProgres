@@ -1,14 +1,15 @@
 "use client";
 
+import type { ThemeProviderProps } from "next-themes";
+
 import * as React from "react";
 import { HeroUIProvider } from "@heroui/system";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useRouter } from "next/navigation";
-import { ToastProvider } from "@heroui/toast";
+import { ThemeProvider as NextThemesProvider } from "next-themes";
 
 export interface ProvidersProps {
   children: React.ReactNode;
+  themeProps?: ThemeProviderProps;
 }
 
 declare module "@react-types/shared" {
@@ -19,40 +20,12 @@ declare module "@react-types/shared" {
   }
 }
 
-export function Providers({ children }: ProvidersProps) {
+export function Providers({ children, themeProps }: ProvidersProps) {
   const router = useRouter();
 
-  const [queryClient] = React.useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            staleTime: 5 * 60 * 1000, // 5 minutes
-            gcTime: 10 * 60 * 1000, // 10 minutes
-            refetchOnWindowFocus: false,
-            retry: (failureCount, error: any) => {
-              if (error?.status >= 400 && error?.status < 500) {
-                return false;
-              }
-              return failureCount < 3;
-            },
-          },
-          mutations: {
-            retry: 1,
-          },
-        },
-      })
-  );
-
   return (
-    <QueryClientProvider client={queryClient}>
-      <HeroUIProvider navigate={router.push}>
-        <ToastProvider/>{children}
-      </HeroUIProvider>
-      {/* DevTools uniquement en développement */}
-      {process.env.NODE_ENV === "development" && (
-        <ReactQueryDevtools initialIsOpen={false} />
-      )}
-    </QueryClientProvider>
+    <HeroUIProvider navigate={router.push}>
+      <NextThemesProvider {...themeProps}>{children}</NextThemesProvider>
+    </HeroUIProvider>
   );
 }

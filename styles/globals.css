@@ -1,7 +1,3 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-[data-open="true"].bg-light-beige {
-  border-radius: 25px !important;
-}
+@config "../tailwind.config.js"
