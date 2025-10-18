@@ -14,3 +14,4 @@ export const auth = betterAuth({
   // ESSENTIEL pour les Server Actions dans Next.js
   plugins: [nextCookies()],
 });
+
