@@ -47,7 +47,7 @@ enum TypeNotification {
   JUSTIFICATION_REFUSEE
   DEMANDE_PRECISION
   REPONSE_PRECISION
-  BADGE_COMPLETE
+  etape_COMPLETE
   JUSTIFICATION_URGENTE
   NOUVEAU_COMMENTAIRE
 }
@@ -77,11 +77,11 @@ model User {
   troupe        Troupe? @relation("TroupeMembres", fields: [troupeId], references: [id], onDelete: SetNull)
   troupeDirigee Troupe? @relation("TroupeLeader")
 
-  commandesEmises BadgeCommande[] @relation("ChefDeTroupeCommandes")
-  commandesRecues BadgeCommande[] @relation("ChefCommandes")
+  commandesEmises etapeCommande[] @relation("ChefDeTroupeCommandes")
+  commandesRecues etapeCommande[] @relation("ChefCommandes")
 
   justifications        Justification[]
-  assignedBadges        BadgeReferent[]
+  assignedetapes        etapeReferent[]
   commentsWritten       Commentaire[]   @relation("CommentaireAuteur")
   notificationsReceived Notification[]  @relation("NotificationDestinataire")
 
@@ -91,7 +91,7 @@ model User {
   @@map("users")
 }
 
-model Badge {
+model etape {
   id          String   @id @default(cuid())
   number      String   @unique
   name        String
@@ -103,16 +103,16 @@ model Badge {
   updatedAt   DateTime @updatedAt
 
   objectifs        Objectif[]
-  referents        BadgeReferent[]
+  referents        etapeReferent[]
   justifications   Justification[]
-  commandesDeBadge BadgeCommande[]
+  commandesDeetape etapeCommande[]
 
-  @@map("badges")
+  @@map("etapes")
 }
 
 model Objectif {
   id             String       @id @default(cuid())
-  badgeId        String
+  etapeId        String
   code           String
   description    String
   type           TypeObjectif
@@ -120,10 +120,10 @@ model Objectif {
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
-  badge          Badge           @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  etape          etape           @relation(fields: [etapeId], references: [id], onDelete: Cascade)
   justifications Justification[]
 
-  @@unique([badgeId, code])
+  @@unique([etapeId, code])
   @@map("objectifs")
 }
 
@@ -131,7 +131,7 @@ model Justification {
   id         String  @id @default(cuid())
   chefId     String
   objectifId String
-  badgeId    String
+  etapeId    String
   contenu    String?
 
   statut    StatutJustification @default(BROUILLON)
@@ -143,7 +143,7 @@ model Justification {
 
   chef          User           @relation(fields: [chefId], references: [id], onDelete: Cascade)
   objectif      Objectif       @relation(fields: [objectifId], references: [id], onDelete: Cascade)
-  badge         Badge          @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  etape         etape          @relation(fields: [etapeId], references: [id], onDelete: Cascade)
   fichiers      Fichier[]
   commentaires  Commentaire[]
   notifications Notification[]
@@ -152,21 +152,21 @@ model Justification {
   @@map("justifications")
 }
 
-model BadgeCommande {
+model etapeCommande {
   id             String @id @default(cuid())
   chefId         String
-  badgeId        String
+  etapeId        String
   chefDeTroupeId String
 
   completeAt DateTime  @default(now())
   commandeAt DateTime?
 
   chef         User  @relation("ChefCommandes", fields: [chefId], references: [id], onDelete: Cascade)
-  badge        Badge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  etape        etape @relation(fields: [etapeId], references: [id], onDelete: Cascade)
   chefDeTroupe User  @relation("ChefDeTroupeCommandes", fields: [chefDeTroupeId], references: [id], onDelete: Cascade)
 
-  @@unique([chefId, badgeId])
-  @@map("badge_commandes")
+  @@unique([chefId, etapeId])
+  @@map("etape_commandes")
 }
 
 model Fichier {
@@ -199,18 +199,18 @@ model Commentaire {
   @@map("commentaires")
 }
 
-model BadgeReferent {
+model etapeReferent {
   id         String   @id @default(cuid())
   referentId String
-  badgeId    String
+  etapeId    String
   assigneAt  DateTime @default(now())
   assignePar String?
 
   referent User  @relation(fields: [referentId], references: [id], onDelete: Cascade)
-  badge    Badge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  etape    etape @relation(fields: [etapeId], references: [id], onDelete: Cascade)
 
-  @@unique([referentId, badgeId])
-  @@map("badge_referents")
+  @@unique([referentId, etapeId])
+  @@map("etape_referents")
 }
 
 model Notification {

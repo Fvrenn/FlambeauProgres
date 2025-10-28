@@ -14,7 +14,7 @@ CREATE TYPE "TypeFichier" AS ENUM ('IMAGE', 'DOCUMENT', 'AUTRE');
 CREATE TYPE "TypeCommentaire" AS ENUM ('CHEF_REPONSE', 'REFERENT_QUESTION', 'REFERENT_FEEDBACK', 'SYSTEM');
 
 -- CreateEnum
-CREATE TYPE "TypeNotification" AS ENUM ('NOUVELLE_JUSTIFICATION', 'JUSTIFICATION_VALIDEE', 'JUSTIFICATION_REFUSEE', 'DEMANDE_PRECISION', 'REPONSE_PRECISION', 'BADGE_COMPLETE', 'JUSTIFICATION_URGENTE', 'NOUVEAU_COMMENTAIRE');
+CREATE TYPE "TypeNotification" AS ENUM ('NOUVELLE_JUSTIFICATION', 'JUSTIFICATION_VALIDEE', 'JUSTIFICATION_REFUSEE', 'DEMANDE_PRECISION', 'REPONSE_PRECISION', 'etape_COMPLETE', 'JUSTIFICATION_URGENTE', 'NOUVEAU_COMMENTAIRE');
 
 -- CreateTable
 CREATE TABLE "troupes" (
@@ -41,7 +41,7 @@ CREATE TABLE "users" (
 );
 
 -- CreateTable
-CREATE TABLE "badges" (
+CREATE TABLE "etapes" (
     "id" TEXT NOT NULL,
     "number" TEXT NOT NULL,
     "name" TEXT NOT NULL,
@@ -52,13 +52,13 @@ CREATE TABLE "badges" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "badges_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "etapes_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "objectifs" (
     "id" TEXT NOT NULL,
-    "badgeId" TEXT NOT NULL,
+    "etapeId" TEXT NOT NULL,
     "code" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "type" "TypeObjectif" NOT NULL,
@@ -74,7 +74,7 @@ CREATE TABLE "justifications" (
     "id" TEXT NOT NULL,
     "chefId" TEXT NOT NULL,
     "objectifId" TEXT NOT NULL,
-    "badgeId" TEXT NOT NULL,
+    "etapeId" TEXT NOT NULL,
     "contenu" TEXT,
     "statut" "StatutJustification" NOT NULL DEFAULT 'BROUILLON',
     "version" INTEGER NOT NULL DEFAULT 1,
@@ -87,15 +87,15 @@ CREATE TABLE "justifications" (
 );
 
 -- CreateTable
-CREATE TABLE "badge_commandes" (
+CREATE TABLE "etape_commandes" (
     "id" TEXT NOT NULL,
     "chefId" TEXT NOT NULL,
-    "badgeId" TEXT NOT NULL,
+    "etapeId" TEXT NOT NULL,
     "chefDeTroupeId" TEXT NOT NULL,
     "completeAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "commandeAt" TIMESTAMP(3),
 
-    CONSTRAINT "badge_commandes_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "etape_commandes_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -126,14 +126,14 @@ CREATE TABLE "commentaires" (
 );
 
 -- CreateTable
-CREATE TABLE "badge_referents" (
+CREATE TABLE "etape_referents" (
     "id" TEXT NOT NULL,
     "referentId" TEXT NOT NULL,
-    "badgeId" TEXT NOT NULL,
+    "etapeId" TEXT NOT NULL,
     "assigneAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "assignePar" TEXT,
 
-    CONSTRAINT "badge_referents_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "etape_referents_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -203,19 +203,19 @@ CREATE UNIQUE INDEX "troupes_chefDeTroupeId_key" ON "troupes"("chefDeTroupeId");
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "badges_number_key" ON "badges"("number");
+CREATE UNIQUE INDEX "etapes_number_key" ON "etapes"("number");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "objectifs_badgeId_code_key" ON "objectifs"("badgeId", "code");
+CREATE UNIQUE INDEX "objectifs_etapeId_code_key" ON "objectifs"("etapeId", "code");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "justifications_chefId_objectifId_key" ON "justifications"("chefId", "objectifId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "badge_commandes_chefId_badgeId_key" ON "badge_commandes"("chefId", "badgeId");
+CREATE UNIQUE INDEX "etape_commandes_chefId_etapeId_key" ON "etape_commandes"("chefId", "etapeId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "badge_referents_referentId_badgeId_key" ON "badge_referents"("referentId", "badgeId");
+CREATE UNIQUE INDEX "etape_referents_referentId_etapeId_key" ON "etape_referents"("referentId", "etapeId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "session_token_key" ON "session"("token");
@@ -227,7 +227,7 @@ ALTER TABLE "troupes" ADD CONSTRAINT "troupes_chefDeTroupeId_fkey" FOREIGN KEY (
 ALTER TABLE "users" ADD CONSTRAINT "users_troupeId_fkey" FOREIGN KEY ("troupeId") REFERENCES "troupes"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "objectifs" ADD CONSTRAINT "objectifs_badgeId_fkey" FOREIGN KEY ("badgeId") REFERENCES "badges"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "objectifs" ADD CONSTRAINT "objectifs_etapeId_fkey" FOREIGN KEY ("etapeId") REFERENCES "etapes"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "justifications" ADD CONSTRAINT "justifications_chefId_fkey" FOREIGN KEY ("chefId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -236,16 +236,16 @@ ALTER TABLE "justifications" ADD CONSTRAINT "justifications_chefId_fkey" FOREIGN
 ALTER TABLE "justifications" ADD CONSTRAINT "justifications_objectifId_fkey" FOREIGN KEY ("objectifId") REFERENCES "objectifs"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "justifications" ADD CONSTRAINT "justifications_badgeId_fkey" FOREIGN KEY ("badgeId") REFERENCES "badges"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "justifications" ADD CONSTRAINT "justifications_etapeId_fkey" FOREIGN KEY ("etapeId") REFERENCES "etapes"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "badge_commandes" ADD CONSTRAINT "badge_commandes_chefId_fkey" FOREIGN KEY ("chefId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "etape_commandes" ADD CONSTRAINT "etape_commandes_chefId_fkey" FOREIGN KEY ("chefId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "badge_commandes" ADD CONSTRAINT "badge_commandes_badgeId_fkey" FOREIGN KEY ("badgeId") REFERENCES "badges"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "etape_commandes" ADD CONSTRAINT "etape_commandes_etapeId_fkey" FOREIGN KEY ("etapeId") REFERENCES "etapes"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "badge_commandes" ADD CONSTRAINT "badge_commandes_chefDeTroupeId_fkey" FOREIGN KEY ("chefDeTroupeId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "etape_commandes" ADD CONSTRAINT "etape_commandes_chefDeTroupeId_fkey" FOREIGN KEY ("chefDeTroupeId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "fichiers" ADD CONSTRAINT "fichiers_justificationId_fkey" FOREIGN KEY ("justificationId") REFERENCES "justifications"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -257,10 +257,10 @@ ALTER TABLE "commentaires" ADD CONSTRAINT "commentaires_justificationId_fkey" FO
 ALTER TABLE "commentaires" ADD CONSTRAINT "commentaires_auteurId_fkey" FOREIGN KEY ("auteurId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "badge_referents" ADD CONSTRAINT "badge_referents_referentId_fkey" FOREIGN KEY ("referentId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "etape_referents" ADD CONSTRAINT "etape_referents_referentId_fkey" FOREIGN KEY ("referentId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "badge_referents" ADD CONSTRAINT "badge_referents_badgeId_fkey" FOREIGN KEY ("badgeId") REFERENCES "badges"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "etape_referents" ADD CONSTRAINT "etape_referents_etapeId_fkey" FOREIGN KEY ("etapeId") REFERENCES "etapes"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "notifications" ADD CONSTRAINT "notifications_destinataireId_fkey" FOREIGN KEY ("destinataireId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;

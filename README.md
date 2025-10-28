@@ -2,9 +2,9 @@
 
 **Révolutionner le suivi pédagogique des Chefs Flambeaux.**
 
-Flambeau Progrès est une application web privée et motivante conçue pour remplacer l'ancien processus PDF "chiant" de validation des étapes (badges) par un workflow digital simple et efficace.
+Flambeau Progrès est une application web privée et motivante conçue pour remplacer l'ancien processus PDF "chiant" de validation des étapes (etapes) par un workflow digital simple et efficace.
 
-L'objectif n'est pas de "fliquer", mais d'**encourager** et de **motiver** les chefs animateurs à suivre leur formation personnelle pour, à terme, recevoir leur vrai badge physique à coudre sur leur chemise.
+L'objectif n'est pas de "fliquer", mais d'**encourager** et de **motiver** les chefs animateurs à suivre leur formation personnelle pour, à terme, recevoir leur vrai etape physique à coudre sur leur chemise.
 
 ![Maquette de l'application](lien/vers/ton/image_183206.jpg)
 
@@ -12,7 +12,7 @@ L'objectif n'est pas de "fliquer", mais d'**encourager** et de **motiver** les c
 
 ## 🎯 À quoi sert cette application ?
 
-* **Le Problème :** La validation des badges nécessitait de remplir des PDF complexes, de les envoyer par email, et de multiples échanges avec un référent, un processus long et démotivant.
+* **Le Problème :** La validation des etapes nécessitait de remplir des PDF complexes, de les envoyer par email, et de multiples échanges avec un référent, un processus long et démotivant.
 * **La Solution :** Une interface web claire avec une chemise 3D personnelle, un formulaire de justification simplifié, et un dashboard clair pour les référents.
 
 ## 🧑‍🎓 Pour qui ?
@@ -21,16 +21,16 @@ Ce projet s'articule autour de 4 rôles clés :
 
 1.  **🧑‍🎓 Le Chef (Animateur) :** L'utilisateur principal. Il se connecte pour justifier ses `Compétences` (auto-validation) et soumettre ses `Réalisations` (validation par un référent).
 2.  **🧑‍🏫 Le Référent :** Le validateur bienveillant. Il reçoit les soumissions de `Réalisations`, les examine, et donne son "tampon" (validation) ou son feedback.
-3.  **🫡 Le Chef de Troupe :** Le gestionnaire de terrain. Il est notifié (via un dashboard dédié) lorsque les chefs de sa troupe ont complété un badge, afin qu'il puisse commander le badge physique.
-4.  **🧑‍💻 L'Admin :** Le gestionnaire du système. Il crée les badges, les objectifs, gère les troupes et assigne les rôles.
+3.  **🫡 Le Chef de Troupe :** Le gestionnaire de terrain. Il est notifié (via un dashboard dédié) lorsque les chefs de sa troupe ont complété une etape, afin qu'il puisse commander le etape physique.
+4.  **🧑‍💻 L'Admin :** Le gestionnaire du système. Il crée les etapes, les objectifs, gère les troupes et assigne les rôles.
 
 ## ✨ Fonctionnalités Clés
 
-* **Chemise 3D Personnelle :** Un dashboard visuel et privé pour suivre sa progression de badges.
+* **Chemise 3D Personnelle :** Un dashboard visuel et privé pour suivre sa progression de etapes.
 * **Workflow Simplifié :**
     * **Compétences :** Auto-validation via un simple champ de justification textuel.
     * **Réalisations :** Soumission simple (texte + 1 fichier) pour validation par un Référent.
-* **100% Privé :** Ceci n'est **pas** un réseau social. Les profils ne sont pas publics. L'aspect social se passe dans la "vraie vie" quand le Chef montre son vrai badge cousu.
+* **100% Privé :** Ceci n'est **pas** un réseau social. Les profils ne sont pas publics. L'aspect social se passe dans la "vraie vie" quand le Chef montre son vrai etape cousu.
 * **Pas de Mode Hors-Ligne :** Conçu pour être utilisé "au calme chez soi" (PC ou mobile) pour débriefer ses activités, pas sur le terrain.
 * **Dashboards par Rôle :** Des interfaces dédiées et épurées pour les Référents, les Chefs de Troupe et les Admins.
 

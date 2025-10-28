@@ -20,7 +20,7 @@ export default async function Home() {
           Ceci est le contenu de votre page d'accueil.
         </h2>
         {/* Ajoutez ici le contenu spécifique à votre page d'accueil du tableau de bord */}
-        {/* Par exemple, la vue d'ensemble des badges, la progression globale, etc. */}
+        {/* Par exemple, la vue d'ensemble des etapes, la progression globale, etc. */}
       </div>
     </section>
   );

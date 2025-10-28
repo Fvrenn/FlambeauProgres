@@ -2,11 +2,11 @@ openapi: 3.0.3
 info:
   title: Flambeau Progresse API
   description: |
-    API pour l'application Flambeau Progresse - Outil de gestion de progression des chefs scouts dans l'acquisition de badges, compétences et réalisations.
+    API pour l'application Flambeau Progresse - Outil de gestion de progression des chefs scouts dans l'acquisition de etapes, compétences et réalisations.
     
     ## Types d'utilisateurs
     - **ADMIN** : peut tout modifier, valider, créer ou supprimer
-    - **REFERENT** : peut consulter tous les utilisateurs mais ne peut valider que ses badges assignés
+    - **REFERENT** : peut consulter tous les utilisateurs mais ne peut valider que ses etapes assignés
     - **CHEF** : peut consulter sa progression, valider des compétences et soumettre des réalisations
     
     ## Authentification
@@ -151,22 +151,22 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  # ===== BADGES =====
-  /badges:
+  # ===== etapes =====
+  /etapes:
     get:
       tags:
-        - Badges
-      summary: Liste des badges
-      description: Récupère tous les badges disponibles
+        - etapes
+      summary: Liste des etapes
+      description: Récupère tous les etapes disponibles
       responses:
         '200':
-          description: Liste des badges
+          description: Liste des etapes
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Badge'
+                  $ref: '#/components/schemas/etape'
         '401':
           description: Non authentifié
           content:
@@ -176,9 +176,9 @@ paths:
 
     post:
       tags:
-        - Badges
-      summary: Créer un badge
-      description: Crée un nouveau badge (ADMIN uniquement)
+        - etapes
+      summary: Créer une etape
+      description: Crée un nouveau etape (ADMIN uniquement)
       security:
         - cookieAuth: []
       requestBody:
@@ -186,14 +186,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BadgeInput'
+              $ref: '#/components/schemas/etapeInput'
       responses:
         '201':
-          description: Badge créé
+          description: etape créé
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Badge'
+                $ref: '#/components/schemas/etape'
         '400':
           description: Données invalides
           content:
@@ -213,12 +213,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /badges/{id}:
+  /etapes/{id}:
     get:
       tags:
-        - Badges
-      summary: Détails d'un badge
-      description: Récupère un badge avec ses compétences et réalisations
+        - etapes
+      summary: Détails d'une etape
+      description: Récupère une etape avec ses compétences et réalisations
       parameters:
         - name: id
           in: path
@@ -228,13 +228,13 @@ paths:
           example: 1
       responses:
         '200':
-          description: Détails du badge
+          description: Détails du etape
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadgeDetail'
+                $ref: '#/components/schemas/etapeDetail'
         '404':
-          description: Badge non trouvé
+          description: etape non trouvé
           content:
             application/json:
               schema:
@@ -242,9 +242,9 @@ paths:
 
     put:
       tags:
-        - Badges
-      summary: Modifier un badge
-      description: Modifie un badge existant (ADMIN uniquement)
+        - etapes
+      summary: Modifier une etape
+      description: Modifie une etape existant (ADMIN uniquement)
       parameters:
         - name: id
           in: path
@@ -257,14 +257,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BadgeInput'
+              $ref: '#/components/schemas/etapeInput'
       responses:
         '200':
-          description: Badge modifié
+          description: etape modifié
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Badge'
+                $ref: '#/components/schemas/etape'
         '400':
           description: Données invalides
           content:
@@ -278,7 +278,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
-          description: Badge non trouvé
+          description: etape non trouvé
           content:
             application/json:
               schema:
@@ -286,9 +286,9 @@ paths:
 
     delete:
       tags:
-        - Badges
-      summary: Supprimer un badge
-      description: Supprime un badge (ADMIN uniquement)
+        - etapes
+      summary: Supprimer une etape
+      description: Supprime une etape (ADMIN uniquement)
       parameters:
         - name: id
           in: path
@@ -298,7 +298,7 @@ paths:
           example: 1
       responses:
         '204':
-          description: Badge supprimé
+          description: etape supprimé
         '403':
           description: Accès refusé (rôle ADMIN requis)
           content:
@@ -306,7 +306,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
-          description: Badge non trouvé
+          description: etape non trouvé
           content:
             application/json:
               schema:
@@ -460,7 +460,7 @@ paths:
       tags:
         - Validation
       summary: Demander une explication sur une compétence
-      description: Demande une explication pour une compétence cochée sans justification (REFERENT/ADMIN uniquement, badge assigné requis)
+      description: Demande une explication pour une compétence cochée sans justification (REFERENT/ADMIN uniquement, etape assigné requis)
       parameters:
         - name: id
           in: path
@@ -497,7 +497,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '403':
-          description: Accès refusé (rôle REFERENT/ADMIN requis ou badge non assigné)
+          description: Accès refusé (rôle REFERENT/ADMIN requis ou etape non assigné)
           content:
             application/json:
               schema:
@@ -817,7 +817,7 @@ components:
           type: string
           enum: [CHEF, REFERENT, ADMIN]
           example: "CHEF"
-        assignedBadges:
+        assignedetapes:
           type: array
           items:
             type: object
@@ -827,15 +827,15 @@ components:
                 example: 1
               name:
                 type: string
-                example: "Badge Nature"
-          description: "Badges assignés (uniquement pour les REFERENT)"
-          example: [{"id": 1, "name": "Badge Nature"}, {"id": 3, "name": "Badge Cuisine"}]
+                example: "etape Nature"
+          description: "etapes assignés (uniquement pour les REFERENT)"
+          example: [{"id": 1, "name": "etape Nature"}, {"id": 3, "name": "etape Cuisine"}]
         createdAt:
           type: string
           format: date-time
           example: "2024-01-15T10:00:00Z"
 
-    Badge:
+    etape:
       type: object
       properties:
         id:
@@ -849,16 +849,16 @@ components:
           example: "Vie Spirituelle"
         description:
           type: string
-          example: "Badge pour développer les compétences en vie spirituelle"
+          example: "etape pour développer les compétences en vie spirituelle"
         image_src:
           type: string
-          example: "/etape-badges/2n-spe_vie_spi.svg"
+          example: "/etape-etapes/2n-spe_vie_spi.svg"
         createdAt:
           type: string
           format: date-time
           example: "2024-01-15T10:00:00Z"
 
-    BadgeInput:
+    etapeInput:
       type: object
       required:
         - number
@@ -874,10 +874,10 @@ components:
           example: "Vie Spirituelle"
         description:
           type: string
-          example: "Badge pour développer les compétences en vie spirituelle"
+          example: "etape pour développer les compétences en vie spirituelle"
         image_src:
           type: string
-          example: "/etape-badges/2n-spe_vie_spi.svg"
+          example: "/etape-etapes/2n-spe_vie_spi.svg"
         competences:
           type: array
           items:
@@ -910,9 +910,9 @@ components:
                       type: string
                       example: "N8a Organiser un cycle cohérent de Cercle du Feu"
 
-    BadgeDetail:
+    etapeDetail:
       allOf:
-        - $ref: '#/components/schemas/Badge'
+        - $ref: '#/components/schemas/etape'
         - type: object
           properties:
             competences:
@@ -930,7 +930,7 @@ components:
         id:
           type: integer
           example: 1
-        badgeId:
+        etapeId:
           type: integer
           example: 1
         title:
@@ -949,7 +949,7 @@ components:
         id:
           type: integer
           example: 1
-        badgeId:
+        etapeId:
           type: integer
           example: 1
         title:
@@ -989,12 +989,12 @@ components:
     UserProgress:
       type: object
       properties:
-        badgeId:
+        etapeId:
           type: integer
           example: 1
-        badgeName:
+        etapeName:
           type: string
-          example: "Badge Nature"
+          example: "etape Nature"
         competences:
           type: array
           items:
@@ -1003,7 +1003,7 @@ components:
           type: number
           format: float
           example: 0.6
-          description: "Taux de complétion du badge (0.0 à 1.0)"
+          description: "Taux de complétion du etape (0.0 à 1.0)"
 
     CompetenceProgress:
       type: object
@@ -1108,8 +1108,8 @@ components:
 tags:
   - name: Authentification
     description: Endpoints de gestion de l'authentification
-  - name: Badges
-    description: Gestion des badges disponibles
+  - name: etapes
+    description: Gestion des etapes disponibles
   - name: Progression
     description: Suivi de la progression des utilisateurs
   - name: Validation

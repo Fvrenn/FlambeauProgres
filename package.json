@@ -8,12 +8,15 @@
     "start": "next start",
     "lint": "eslint --fix"
   },
+  "prisma": {
+    "seed": "ts-node-dev --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+  },
   "dependencies": {
     "@heroui/accordion": "2.2.24",
     "@heroui/alert": "2.2.27",
     "@heroui/autocomplete": "2.3.29",
     "@heroui/avatar": "2.2.22",
-    "@heroui/badge": "2.2.17",
+    "@heroui/etape": "2.2.17",
     "@heroui/button": "2.2.27",
     "@heroui/card": "2.2.25",
     "@heroui/chip": "2.2.22",
@@ -70,7 +73,7 @@
     "@next/eslint-plugin-next": "15.3.4",
     "@react-types/shared": "3.32.1",
     "@tailwindcss/postcss": "4.1.11",
-    "@types/node": "20.5.7",
+    "@types/node": "^20.5.7",
     "@types/react": "18.3.3",
     "@types/react-dom": "18.3.0",
     "@typescript-eslint/eslint-plugin": "8.34.1",
@@ -91,6 +94,8 @@
     "prisma": "^6.17.1",
     "tailwind-variants": "3.1.1",
     "tailwindcss": "4.1.11",
-    "typescript": "5.6.3"
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.6.3"
   }
 }
