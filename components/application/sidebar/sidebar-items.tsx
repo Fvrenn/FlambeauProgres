@@ -7,7 +7,7 @@ import {type SidebarItem, SidebarItemType} from "./sidebar";
 export const items: SidebarItem[] = [
   {
     key: "Tableau-de-bord",
-    href: "#",
+    href: "/",
     icon: "solar:home-2-linear",
     title: "Tableau de bord",
   },
@@ -41,7 +41,7 @@ export const sectionItems: SidebarItem[] = [
     items: [
       {
         key: "Tableau-de-bord",
-        href: "#",
+        href: "/",
         icon: "solar:home-2-linear",
         title: "Tableau de bord",
       },
@@ -131,7 +131,7 @@ export const brandItems: SidebarItem[] = [
     items: [
       {
         key: "Tableau-de-bord",
-        href: "#",
+        href: "/",
         icon: "solar:home-2-linear",
         title: "Tableau de bord",
       },
@@ -243,7 +243,7 @@ export const sectionLongList: SidebarItem[] = [
 export const sectionNestedItems: SidebarItem[] = [
   {
     key: "Tableau-de-bord",
-    href: "#",
+    href: "/",
     icon: "solar:home-2-linear",
     title: "Tableau de bord",
   },
