@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,9 +6,6 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
-
-// Énumérations
 
 enum UserRole {
   CHEF
@@ -26,6 +20,7 @@ enum TypeObjectif {
 
 enum StatutJustification {
   BROUILLON
+  AUTO_VALIDEE
   SOUMISE
   EN_COURS
   DEMANDE_PRECISION
@@ -57,6 +52,45 @@ enum TypeNotification {
   NOUVEAU_COMMENTAIRE
 }
 
+model Troupe {
+  id             String  @id @default(cuid())
+  nom            String
+  chefDeTroupeId String? @unique
+
+  chefDeTroupe User?  @relation("TroupeLeader", fields: [chefDeTroupeId], references: [id], onDelete: SetNull)
+  membres      User[] @relation("TroupeMembres")
+
+  @@map("troupes")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String
+  image         String?
+  emailVerified Boolean?
+  role          UserRole @default(CHEF)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  troupeId      String?
+  troupe        Troupe? @relation("TroupeMembres", fields: [troupeId], references: [id], onDelete: SetNull)
+  troupeDirigee Troupe? @relation("TroupeLeader")
+
+  commandesEmises BadgeCommande[] @relation("ChefDeTroupeCommandes")
+  commandesRecues BadgeCommande[] @relation("ChefCommandes")
+
+  justifications        Justification[]
+  assignedBadges        BadgeReferent[]
+  commentsWritten       Commentaire[]   @relation("CommentaireAuteur")
+  notificationsReceived Notification[]  @relation("NotificationDestinataire")
+
+  accounts Account[]
+  sessions Session[]
+
+  @@map("users")
+}
+
 model Badge {
   id          String   @id @default(cuid())
   number      String   @unique
@@ -68,10 +102,10 @@ model Badge {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  // Relations (inchangées)
-  objectifs      Objectif[]
-  referents      BadgeReferent[]
-  justifications Justification[]
+  objectifs        Objectif[]
+  referents        BadgeReferent[]
+  justifications   Justification[]
+  commandesDeBadge BadgeCommande[]
 
   @@map("badges")
 }
@@ -79,48 +113,34 @@ model Badge {
 model Objectif {
   id             String       @id @default(cuid())
   badgeId        String
-  code           String // "B1", "B8", "C1"...
-  description    String // Description détaillée
-  type           TypeObjectif // COMPETENCE | REALISATION
-  fichiersRequis Boolean      @default(false) // TRUE pour réalisations généralement
-
+  code           String
+  description    String
+  type           TypeObjectif
+  fichiersRequis Boolean      @default(false)
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
-  // Relations
   badge          Badge           @relation(fields: [badgeId], references: [id], onDelete: Cascade)
   justifications Justification[]
 
-  // Contrainte unique : Un code unique par badge
   @@unique([badgeId, code])
   @@map("objectifs")
 }
 
 model Justification {
-  id         String @id @default(cuid())
+  id         String  @id @default(cuid())
   chefId     String
   objectifId String
   badgeId    String
+  contenu    String?
 
-  // Contenu détaillé de la justification
-  activiteDescription String // 🎯 Quoi ?
-  dateActivite        DateTime? // 📅 Quand ?
-  dureeHeures         Float?
-  contexte            String? // Où/Occasion
-  nombreJeunes        String? // 👥 Avec qui ?
-  trancheAge          String? // "8-11 ans", "11-14 ans", "14-17 ans"
-  niveau              String? // "Débutant", "Intermédiaire", "Expert"
-  objectifsAtteints   String? // 📊 Résultats ?
-
-  // État et workflow
   statut    StatutJustification @default(BROUILLON)
-  version   Int                 @default(1) // Historique modifications
+  version   Int                 @default(1)
   soumiseAt DateTime?
   valideeAt DateTime?
   createdAt DateTime            @default(now())
   updatedAt DateTime            @updatedAt
 
-  // Relations
   chef          User           @relation(fields: [chefId], references: [id], onDelete: Cascade)
   objectif      Objectif       @relation(fields: [objectifId], references: [id], onDelete: Cascade)
   badge         Badge          @relation(fields: [badgeId], references: [id], onDelete: Cascade)
@@ -128,23 +148,38 @@ model Justification {
   commentaires  Commentaire[]
   notifications Notification[]
 
-  // Contrainte unique : Une justification par chef par objectif
   @@unique([chefId, objectifId])
   @@map("justifications")
+}
+
+model BadgeCommande {
+  id             String @id @default(cuid())
+  chefId         String
+  badgeId        String
+  chefDeTroupeId String
+
+  completeAt DateTime  @default(now())
+  commandeAt DateTime?
+
+  chef         User  @relation("ChefCommandes", fields: [chefId], references: [id], onDelete: Cascade)
+  badge        Badge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  chefDeTroupe User  @relation("ChefDeTroupeCommandes", fields: [chefDeTroupeId], references: [id], onDelete: Cascade)
+
+  @@unique([chefId, badgeId])
+  @@map("badge_commandes")
 }
 
 model Fichier {
   id              String      @id @default(cuid())
   justificationId String
-  nomOriginal     String // Nom du fichier utilisateur
-  nomStockage     String // Nom sur serveur
-  cheminFichier   String // Chemin complet
-  type            TypeFichier // IMAGE | DOCUMENT | AUTRE
-  mimeType        String // "image/jpeg", "application/pdf"
-  taille          Int // Taille en bytes
+  nomOriginal     String
+  nomStockage     String
+  cheminFichier   String
+  type            TypeFichier
+  mimeType        String
+  taille          Int
   createdAt       DateTime    @default(now())
 
-  // Relations
   justification Justification @relation(fields: [justificationId], references: [id], onDelete: Cascade)
 
   @@map("fichiers")
@@ -158,7 +193,6 @@ model Commentaire {
   type            TypeCommentaire
   createdAt       DateTime        @default(now())
 
-  // Relations
   justification Justification @relation(fields: [justificationId], references: [id], onDelete: Cascade)
   auteur        User          @relation("CommentaireAuteur", fields: [auteurId], references: [id], onDelete: Cascade)
 
@@ -170,13 +204,11 @@ model BadgeReferent {
   referentId String
   badgeId    String
   assigneAt  DateTime @default(now())
-  assignePar String? // ID admin qui a fait l'assignation
+  assignePar String?
 
-  // Relations
   referent User  @relation(fields: [referentId], references: [id], onDelete: Cascade)
   badge    Badge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
 
-  // Contrainte unique : Un référent ne peut être assigné qu'une fois par badge
   @@unique([referentId, badgeId])
   @@map("badge_referents")
 }
@@ -186,46 +218,22 @@ model Notification {
   destinataireId  String
   justificationId String?
   type            TypeNotification
-  titre           String // Titre court
-  message         String // Message détaillé
+  titre           String
+  message         String
   lue             Boolean          @default(false)
   createdAt       DateTime         @default(now())
   lueAt           DateTime?
 
-  // Relations
   destinataire  User           @relation("NotificationDestinataire", fields: [destinataireId], references: [id], onDelete: Cascade)
   justification Justification? @relation(fields: [justificationId], references: [id], onDelete: Cascade)
 
   @@map("notifications")
 }
 
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String
-  image     String?
-  emailVerified Boolean
-  role      UserRole @default(CHEF)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations personnalisées
-  justifications        Justification[]
-  assignedBadges        BadgeReferent[]
-  commentsWritten       Commentaire[]        @relation("CommentaireAuteur")
-  notificationsReceived Notification[]       @relation("NotificationDestinataire")
-
-  // Relations Better Auth
-  accounts      Account[]
-  sessions      Session[]
-
-  @@map("users")
-}
-
 model Session {
   id        String   @id
   expiresAt DateTime
-  token     String
+  token     String   @unique
   createdAt DateTime
   updatedAt DateTime
   ipAddress String?
@@ -233,7 +241,6 @@ model Session {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([token])
   @@map("session")
 }
 
