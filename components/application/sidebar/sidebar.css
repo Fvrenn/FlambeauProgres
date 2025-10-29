@@ -1,0 +1,13 @@
+li[role="option"]:has([data-open="true"]) {
+  background-color: #E8E7DE;
+}
+
+/* Masquer l'icône par défaut */
+a[role="option"] .icon {
+  opacity: 0;
+}
+
+/* Afficher l'icône au survol */
+a[role="option"]:hover .icon {
+  opacity: 1;
+}

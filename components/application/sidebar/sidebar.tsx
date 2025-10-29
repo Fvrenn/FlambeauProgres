@@ -11,6 +11,7 @@ import React from "react";
 import { Listbox, Tooltip, ListboxItem, ListboxSection } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { cn } from "@heroui/react";
+import "./sidebar.css";
 
 export enum SidebarItemType {
   Nest = "nest",
@@ -146,20 +147,22 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                   )}
                 </div>
               </Tooltip>
-            ) : isNestType ? ( // Utiliser "else if"
-              <Accordion className={"p-0"}>
+            ) : isNestType ? (
+              <Accordion className={"p-0 "}>
                 <AccordionItem
                   key={item.key}
                   aria-label={item.title}
                   classNames={{
                     heading: "pr-3",
                     trigger: "p-0",
-                    content: "py-0 pl-4",
+                    content: "py-0 px-4",
                   }}
                   title={
                     item.icon ? (
                       <div
-                        className={"flex h-11 items-center gap-2 px-2 py-1.5"}
+                        className={
+                          "flex h-11 cursor-pointer items-center gap-2 px-2 py-1.5"
+                        }
                       >
                         <Icon
                           className={cn(
@@ -182,12 +185,15 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                     <Listbox
                       className={"mt-0.5"}
                       classNames={{
-                        list: cn("border-l border-default-200 pl-4"),
+                        list: cn("border-l border-[#c0c0b8] pl-4 test"),
+                      }}
+                      itemClasses={{
+                        base: "flex justify-between data-[hover=true]:bg-black data-[hover=true]:text-white py-3 rounded-full px-4 font-medium",
                       }}
                       items={item.items}
                       variant="flat"
                     >
-                      {item.items.map(renderItem)}
+                      {item.items.map(renderNestListItem)}
                     </Listbox>
                   ) : (
                     renderItem(item)
@@ -202,6 +208,25 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
       // eslint-disable-next-line react-hooks/exhaustive-deps
       [isCompact, hideEndContent, iconClassName, items]
     );
+
+    const renderNestListItem = React.useCallback((item: SidebarItem) => {
+      return (
+        <ListboxItem
+          {...item}
+          key={item.key}
+          endContent={
+            <Icon
+              className="icon transition-opacity"
+              icon="solar:alt-arrow-right-linear"
+              width={16}
+            />
+          }
+          textValue={item.title}
+        >
+          {item.title}
+        </ListboxItem>
+      );
+    }, []);
 
     const renderItem = React.useCallback(
       (item: SidebarItem) => {
@@ -278,11 +303,11 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
         itemClasses={{
           ...itemClasses,
           base: cn(
-            "px-3 min-h-11 rounded-large h-[44px] data-[selected=true]:bg-orange-100 data-[hover=true]:bg-orange-50",
+            "px-3 min-h-11 rounded-large h-[44px] data-[selected=true]:bg-default-100 data-[focus=true]:!bg-transparent data-[selected=true]:data-[focus=true]:!bg-default-100",
             itemClasses?.base
           ),
           title: cn(
-            "text-small font-medium text-default-500 group-data-[selected=true]:text-orange-600 group-data-[hover=true]:text-white",
+            "text-small font-medium text-default-500 group-data-[selected=true]:text-foreground",
             itemClasses?.title
           ),
         }}
