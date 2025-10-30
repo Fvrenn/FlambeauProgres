@@ -26,7 +26,7 @@ export default function ContentAction({
   };
 
   return (
-    <div className="flex-1 h-full flex flex-col gap-4">
+    <div className="flex-1 h-full max-w-7xl flex flex-col gap-4">
       <div>
         <TabsContentAction
           selectedKey={activeTab}

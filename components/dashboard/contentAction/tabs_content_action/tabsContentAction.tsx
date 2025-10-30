@@ -18,7 +18,7 @@ export default function TabsContentAction({
         selectedKey={selectedKey as string}
         onSelectionChange={onSelectionChange}
         classNames={{
-          tabList: "gap-8 w-full max-w-[600px] rounded-full p-0.5 border-b border-divider bg-foreground",
+          tabList: "gap-8 w-full max-w-[550px] rounded-full p-0.5 border-b border-divider bg-foreground",
           cursor: "!bg-white rounded-full border border-black before:content-['•'] before:absolute before:left-3 before:top-1/2 before:-translate-y-1/2 before:text-black before:text-lg before:font-bold",
           tab: "px-6 h-12 relative",
           tabContent: "group-data-[selected=true]:text-black text-white group-data-[selected=true]:pl-6 transition-all duration-300 ease-in-out",

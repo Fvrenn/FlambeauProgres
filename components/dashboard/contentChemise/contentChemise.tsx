@@ -25,6 +25,11 @@ export default function ContentChemise({
   selectedEtape,
   onEtapeSelect,
 }: ContentChemiseProps) {
+  const handleBadgeClick = (etape: EtapeAvecObjectifs) => {
+    const newSelection = selectedEtape?.id === etape.id ? null : etape;
+    onEtapeSelect(newSelection);
+  };
+
   return (
     <div className="bg-content1 h-full w-[345px] flex flex-col justify-between p-0.5 rounded-3xl">
       <div className="flex h-2/4 justify-center">
@@ -35,11 +40,11 @@ export default function ContentChemise({
           {etapes.map((etape) => (
             <button
               key={etape.id}
-              onClick={() =>
-                onEtapeSelect(selectedEtape?.id === etape.id ? null : etape)
-              }
+              onClick={() => handleBadgeClick(etape)}
               aria-label={`Sélectionner l'étape ${etape.name}`}
-              className="cursor-pointer holographic-card"
+              className={`cursor-pointer holographic-card ${
+                selectedEtape?.id === etape.id ? "active" : ""
+              }`}
             >
               <Image
                 src={etape.image_src || ""}
