@@ -5,7 +5,6 @@ import React, { useState, useEffect } from "react";
 import ContentChemise from "./contentChemise/contentChemise";
 import ContentAction from "./contentAction/contentAction";
 
-// On définit un type précis qui inclut la relation et qu'on pourra exporter
 export type EtapeAvecObjectifs = Etape & {
   objectifs: Objectif[];
 };
@@ -20,7 +19,6 @@ export default function DashboardClient({ etapes }: DashboardClientProps) {
   );
   const [activeTab, setActiveTab] = useState<React.Key>("progression");
 
-  // Effet pour changer d'onglet automatiquement quand un badge est sélectionné
   useEffect(() => {
     if (selectedEtape) {
       setActiveTab("objectif");

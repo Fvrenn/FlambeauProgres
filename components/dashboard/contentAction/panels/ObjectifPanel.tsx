@@ -1,5 +1,6 @@
 import React from "react";
 import { Etape, Objectif } from "@prisma/client";
+import { Tabs, Tab } from "@heroui/react";
 
 type EtapeAvecObjectifs = Etape & {
   objectifs: Objectif[];
@@ -27,40 +28,47 @@ export default function ObjectifPanel({ selectedEtape }: ObjectifPanelProps) {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-4">
-        Objectifs de l'étape : {selectedEtape.name}
-      </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <h3 className="text-lg font-semibold mb-2 border-b pb-2">
-            Compétences
-          </h3>
-          <ul className="space-y-2">
-            {competences.map((c) => (
-              <li key={c.id} className="p-2 rounded-md bg-gray-50">
-                <span className="font-mono text-sm bg-gray-200 px-1.5 py-0.5 rounded mr-2">
-                  {c.code}
-                </span>
-                {c.description}
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div>
-          <h3 className="text-lg font-semibold mb-2 border-b pb-2">
-            Réalisations
-          </h3>
-          <ul className="space-y-2">
-            {realisations.map((r) => (
-              <li key={r.id} className="p-2 rounded-md bg-gray-50">
-                <span className="font-mono text-sm bg-gray-200 px-1.5 py-0.5 rounded mr-2">
-                  {r.code}
-                </span>
-                {r.description}
-              </li>
-            ))}
-          </ul>
-        </div>
+      <div className="flex w-full flex-col">
+        <Tabs
+          aria-label="Options"
+          classNames={{
+            tabList: "gap-8 w-full max-w-96 rounded-full p-0.5 bg-[#F3F2E9]",
+            cursor: "!bg-danger-800 rounded-full before:content-['•'] before:absolute before:left-3 before:top-1/2 before:-translate-y-1/2 before:text-black before:text-lg before:font-bold",
+            tab: "px-6 h-12 relative",
+            tabContent: "text-black group-data-[selected=true]:pl-6 group-data-[selected=true]:font-semibold font-medium transition-all duration-300 ease-in-out",
+          }}
+        >
+          <Tab
+            key="competence"
+            title="Compétences"
+          >
+            <ul className="space-y-2 mt-4">
+              {competences.map((c) => (
+                <li key={c.id} className="p-2 rounded-md flex items-center">
+                  <span className="text-xl text-foreground border border-default-800 py-3 px-2.5 rounded-full w-12 h-12 flex items-center justify-center mr-2.5">
+                    {c.code}
+                  </span>
+                  {c.description}
+                </li>
+              ))}
+            </ul>
+          </Tab>
+          <Tab
+            key="realisations"
+            title="Réalisations"
+          >
+            <ul className="space-y-2 mt-4">
+              {realisations.map((r) => (
+                <li key={r.id} className="p-2 rounded-md flex items-center">
+                  <span className="text-xl text-foreground border border-default-800 py-3 px-2.5 rounded-full w-12 h-12 flex items-center justify-center mr-2.5">
+                    {r.code}
+                  </span>
+                  {r.description}
+                </li>
+              ))}
+            </ul>
+          </Tab>
+        </Tabs>
       </div>
     </div>
   );
