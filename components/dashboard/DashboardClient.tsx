@@ -26,7 +26,7 @@ export default function DashboardClient({ etapes }: DashboardClientProps) {
   }, [selectedEtape]);
 
   return (
-    <div className="flex items-center flex-1 gap-4 pt-4">
+    <div className="flex items-stretch flex-1 gap-4 pt-4 min-h-0">
       <ContentChemise
         etapes={etapes}
         selectedEtape={selectedEtape}

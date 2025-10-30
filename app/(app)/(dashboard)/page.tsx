@@ -18,8 +18,8 @@ export default async function Home() {
   });
 
   return (
-    <div className="h-full flex flex-col">
-      <h4 className="text-3xl font-normal">Tableau de bord</h4>
+    <div className="h-full max-h-screen flex flex-col overflow-hidden">
+      <h4 className="text-3xl font-normal flex-shrink-0">Tableau de bord</h4>
       <DashboardClient etapes={etapes} />
     </div>
   );

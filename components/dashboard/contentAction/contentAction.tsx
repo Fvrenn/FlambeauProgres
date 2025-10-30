@@ -26,14 +26,14 @@ export default function ContentAction({
   };
 
   return (
-    <div className="flex-1 h-full max-w-7xl flex flex-col gap-4">
-      <div>
+    <div className="flex-1 h-full max-w-7xl flex flex-col gap-4 min-h-0">
+      <div className="flex-shrink-0">
         <TabsContentAction
           selectedKey={activeTab}
           onSelectionChange={onTabChange}
         />
       </div>
-      <div className="bg-white flex-1 w-full rounded-3xl p-6">
+      <div className="bg-white flex-1 w-full rounded-3xl p-6 overflow-y-auto min-h-0">
         {contentMap[activeTab as string]}
       </div>
     </div>
