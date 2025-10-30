@@ -1,4 +1,6 @@
 import { title, subtitle } from "@/components/primitives";
+import ContentChemise from "@/components/dashboard/contentChemise/contentChemise";
+import ContentAction from "@/components/dashboard/contentAction/contentAction";
 // import { getUser } from "@/src/lib/auth-server"; // Décommenter si nécessaire pour le contenu de la page
 // import { headers } from "next/headers"; // Décommenter si nécessaire pour le contenu de la page
 // import { redirect } from "next/navigation"; // Décommenter si nécessaire pour le contenu de la page
@@ -13,15 +15,12 @@ export default async function Home() {
   //   redirect("/login");
   // }
   return (
-    <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
-      <div className="inline-block max-w-xl text-center justify-center">
-        <h1 className={title()}>Bienvenue sur votre tableau de bord</h1>
-        <h2 className={subtitle({ class: "mt-4" })}>
-          Ceci est le contenu de votre page d'accueil.
-        </h2>
-        {/* Ajoutez ici le contenu spécifique à votre page d'accueil du tableau de bord */}
-        {/* Par exemple, la vue d'ensemble des etapes, la progression globale, etc. */}
+    <div className="h-full flex flex-col">
+      <h4 className="text-3xl font-normal">Tableau de bord</h4>
+      <div className="flex items-center flex-1 gap-4 pt-4">
+        <ContentChemise />
+        <ContentAction />
       </div>
-    </section>
+    </div>
   );
 }

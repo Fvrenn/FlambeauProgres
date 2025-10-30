@@ -107,7 +107,7 @@ const config = {
           background: "#F3F2E9",
           foreground: "#0f1511",
           content1: {
-            DEFAULT: "#f2e8ff",
+            DEFAULT: "#DCDDD8",
             foreground: "#000"
           },
           content2: {
