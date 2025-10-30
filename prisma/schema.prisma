@@ -47,7 +47,7 @@ enum TypeNotification {
   JUSTIFICATION_REFUSEE
   DEMANDE_PRECISION
   REPONSE_PRECISION
-  etape_COMPLETE
+  ETAPE_COMPLETE
   JUSTIFICATION_URGENTE
   NOUVEAU_COMMENTAIRE
 }
@@ -77,11 +77,10 @@ model User {
   troupe        Troupe? @relation("TroupeMembres", fields: [troupeId], references: [id], onDelete: SetNull)
   troupeDirigee Troupe? @relation("TroupeLeader")
 
-  commandesEmises etapeCommande[] @relation("ChefDeTroupeCommandes")
-  commandesRecues etapeCommande[] @relation("ChefCommandes")
-
+  commandesEmises       EtapeCommande[] @relation("ChefDeTroupeCommandes")
+  commandesRecues       EtapeCommande[] @relation("ChefCommandes")
   justifications        Justification[]
-  assignedetapes        etapeReferent[]
+  assigneEtapes         EtapeReferent[]
   commentsWritten       Commentaire[]   @relation("CommentaireAuteur")
   notificationsReceived Notification[]  @relation("NotificationDestinataire")
 
@@ -91,7 +90,7 @@ model User {
   @@map("users")
 }
 
-model etape {
+model Etape {
   id          String   @id @default(cuid())
   number      String   @unique
   name        String
@@ -103,9 +102,9 @@ model etape {
   updatedAt   DateTime @updatedAt
 
   objectifs        Objectif[]
-  referents        etapeReferent[]
+  referents        EtapeReferent[]
   justifications   Justification[]
-  commandesDeetape etapeCommande[]
+  commandesDeEtape EtapeCommande[]
 
   @@map("etapes")
 }
@@ -120,7 +119,7 @@ model Objectif {
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
-  etape          etape           @relation(fields: [etapeId], references: [id], onDelete: Cascade)
+  etape          Etape           @relation(fields: [etapeId], references: [id], onDelete: Cascade)
   justifications Justification[]
 
   @@unique([etapeId, code])
@@ -143,7 +142,7 @@ model Justification {
 
   chef          User           @relation(fields: [chefId], references: [id], onDelete: Cascade)
   objectif      Objectif       @relation(fields: [objectifId], references: [id], onDelete: Cascade)
-  etape         etape          @relation(fields: [etapeId], references: [id], onDelete: Cascade)
+  etape         Etape          @relation(fields: [etapeId], references: [id], onDelete: Cascade)
   fichiers      Fichier[]
   commentaires  Commentaire[]
   notifications Notification[]
@@ -152,7 +151,7 @@ model Justification {
   @@map("justifications")
 }
 
-model etapeCommande {
+model EtapeCommande {
   id             String @id @default(cuid())
   chefId         String
   etapeId        String
@@ -162,7 +161,7 @@ model etapeCommande {
   commandeAt DateTime?
 
   chef         User  @relation("ChefCommandes", fields: [chefId], references: [id], onDelete: Cascade)
-  etape        etape @relation(fields: [etapeId], references: [id], onDelete: Cascade)
+  etape        Etape @relation(fields: [etapeId], references: [id], onDelete: Cascade)
   chefDeTroupe User  @relation("ChefDeTroupeCommandes", fields: [chefDeTroupeId], references: [id], onDelete: Cascade)
 
   @@unique([chefId, etapeId])
@@ -199,7 +198,7 @@ model Commentaire {
   @@map("commentaires")
 }
 
-model etapeReferent {
+model EtapeReferent {
   id         String   @id @default(cuid())
   referentId String
   etapeId    String
@@ -207,7 +206,7 @@ model etapeReferent {
   assignePar String?
 
   referent User  @relation(fields: [referentId], references: [id], onDelete: Cascade)
-  etape    etape @relation(fields: [etapeId], references: [id], onDelete: Cascade)
+  etape    Etape @relation(fields: [etapeId], references: [id], onDelete: Cascade)
 
   @@unique([referentId, etapeId])
   @@map("etape_referents")

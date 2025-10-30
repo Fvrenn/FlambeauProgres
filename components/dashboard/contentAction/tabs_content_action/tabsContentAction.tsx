@@ -1,11 +1,22 @@
 "use client";
 import { Tabs, Tab, Card, CardBody } from "@heroui/react";
+import React from "react";
 
-export default function TabsContentAction() {
+interface TabsContentActionProps {
+  selectedKey: React.Key;
+  onSelectionChange: (key: React.Key) => void;
+}
+
+export default function TabsContentAction({
+  selectedKey,
+  onSelectionChange,
+}: TabsContentActionProps) {
   return (
     <div className="flex w-full flex-col">
       <Tabs
         aria-label="Options"
+        selectedKey={selectedKey as string}
+        onSelectionChange={onSelectionChange}
         classNames={{
           tabList:
             "gap-5 rounded-full p-px border-b border-divider bg-foreground",
