@@ -1,5 +1,5 @@
 import prisma from "@/src/lib/prisma";
-import DashboardClient from "@/components/dashboard/DashboardClient";
+import DashboardClient from "@/app/(app)/(dashboard)/_component/DashboardClient";
 import { getUser } from "@/src/lib/auth-server";
 import { redirect } from "next/navigation";
 
