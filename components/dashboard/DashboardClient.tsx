@@ -1,12 +1,17 @@
 "use client";
 
-import { Etape, Objectif } from "@prisma/client";
+import { Etape, Objectif, Justification } from "@prisma/client";
 import React, { useState, useEffect } from "react";
 import ContentChemise from "./contentChemise/contentChemise";
 import ContentAction from "./contentAction/contentAction";
 
+// Nouveau type pour un objectif qui peut avoir une justification
+export type ObjectifAvecJustification = Objectif & {
+  justifications: Justification[]; // Sera un tableau de 0 ou 1 élément par notre requête
+};
+
 export type EtapeAvecObjectifs = Etape & {
-  objectifs: Objectif[];
+  objectifs: ObjectifAvecJustification[];
 };
 
 interface DashboardClientProps {

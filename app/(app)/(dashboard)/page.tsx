@@ -1,19 +1,28 @@
 import prisma from "@/src/lib/prisma";
 import DashboardClient from "@/components/dashboard/DashboardClient";
+import { getUser } from "@/src/lib/auth-server";
+import { redirect } from "next/navigation";
 
 export default async function Home() {
-  // ...existing code...
-  // if (!user) {
-  //   redirect("/login");
-  // }
+  const user = await getUser();
+  if (!user) {
+    redirect("/login");
+  }
 
   const etapes = await prisma.etape.findMany({
     orderBy: {
       ordre: "asc",
     },
-    // IMPORTANT : On inclut les objectifs directement pour éviter des requêtes en cascade
     include: {
-      objectifs: true,
+      objectifs: {
+        include: {
+          justifications: {
+            where: {
+              chefId: user.id,
+            },
+          },
+        },
+      },
     },
   });
 

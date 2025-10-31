@@ -1003,7 +1003,7 @@ async function main() {
 
   // --- 5. Assignation du Référent ---
   // On assigne 'Martin Référent' au etape 'Construction' (2G)
-  await prisma.etapeReferent.create({
+await prisma.etapeReferent.create({
     data: {
       referentId: referent.id,
       etapeId: etapeConstruction.id, // 'etapeConstruction' est le etape 2G
@@ -1011,6 +1011,44 @@ async function main() {
     },
   });
   console.log("Assigned referent to etape.");
+
+  // --- 6. Création de Justifications de Test ---
+  console.log("Creating test justifications for chef1...");
+
+  // Récupérer quelques objectifs de l'étape "Construction" pour les lier
+  const objectifCompetenceG1 = await prisma.objectif.findFirst({
+    where: { etapeId: etapeConstruction.id, code: "G1" },
+  });
+  const objectifRealisationG8 = await prisma.objectif.findFirst({
+    where: { etapeId: etapeConstruction.id, code: "G8" },
+  });
+
+  if (objectifCompetenceG1) {
+    await prisma.justification.create({
+      data: {
+        contenu: "J'ai lu la documentation et organisé l'atelier sur les outils.",
+        statut: "AUTO_VALIDEE",
+        objectifId: objectifCompetenceG1.id,
+        chefId: chef1.id, 
+        etapeId: etapeConstruction.id,
+      },
+    });
+    console.log(`Created AUTO_VALIDEE justification for objectif ${objectifCompetenceG1.code}`);
+  }
+
+  if (objectifRealisationG8) {
+    await prisma.justification.create({
+      data: {
+        contenu: "Voici mon plan d'installation du camp de Pâques.",
+        statut: "SOUMISE",
+        objectifId: objectifRealisationG8.id,
+        chefId: chef1.id,
+        etapeId: etapeConstruction.id,
+      },
+    });
+    console.log(`Created SOUMISE justification for objectif ${objectifRealisationG8.code}`);
+  }
+
 
   console.log(
     `\nSeeding finished. \nDefault password for all users: "${defaultPassword}"`

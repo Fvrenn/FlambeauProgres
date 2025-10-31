@@ -1,12 +1,11 @@
 import React from "react";
-import { Etape, Objectif } from "@prisma/client";
+import { Etape, Objectif, Justification } from "@prisma/client";
 import { Tabs, Tab } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { Button } from "@heroui/react";
 import { Divider } from "@heroui/divider";
-type EtapeAvecObjectifs = Etape & {
-  objectifs: Objectif[];
-};
+import StatusChip from "./StatusChip"; // Importer le nouveau composant
+import { EtapeAvecObjectifs, ObjectifAvecJustification } from "../../DashboardClient";
 
 interface ObjectifPanelProps {
   selectedEtape: EtapeAvecObjectifs | null;
@@ -23,10 +22,10 @@ export default function ObjectifPanel({ selectedEtape }: ObjectifPanelProps) {
 
   const competences = selectedEtape.objectifs.filter(
     (o) => o.type === "COMPETENCE"
-  );
+  ) as ObjectifAvecJustification[];
   const realisations = selectedEtape.objectifs.filter(
     (o) => o.type === "REALISATION"
-  );
+  ) as ObjectifAvecJustification[];
 
   return (
     <div>
@@ -56,15 +55,17 @@ export default function ObjectifPanel({ selectedEtape }: ObjectifPanelProps) {
                       {c.description}
                     </div>
 
-                    <Button
-                      isIconOnly
-                      aria-label="ouvrir compétence"
-                      color="default"
-                      variant="faded"
-                      className="ml-6"
-                    >
-                      <Icon icon="solar:maximize-square-3-linear" width={24} />
-                    </Button>
+                    <div className="flex items-center gap-4 ml-6">
+                      <StatusChip statut={c.justifications[0]?.statut || null} />
+                      <Button
+                        isIconOnly
+                        aria-label="ouvrir compétence"
+                        color="default"
+                        variant="faded"
+                      >
+                        <Icon icon="solar:maximize-square-3-linear" width={24} />
+                      </Button>
+                    </div>
                   </div>
                   <div className="px-5">
                     <Divider/>
@@ -74,13 +75,33 @@ export default function ObjectifPanel({ selectedEtape }: ObjectifPanelProps) {
             </ul>
           </Tab>
           <Tab key="realisations" title="Réalisations">
+            <Divider className="mt-3" />
             <ul className="space-y-2">
               {realisations.map((r) => (
-                <li key={r.id} className="p-2 rounded-md flex items-center">
-                  <span className="text-xl text-foreground border border-default-800 py-3 px-2.5 rounded-full w-12 h-12 flex items-center justify-center mr-2.5">
-                    {r.code}
-                  </span>
-                  {r.description}
+                <li key={r.id} className="">
+                  <div className="py-6.5 px-5 rounded-md flex items-center">
+                    <div className="flex-1 flex items-center">
+                      <span className="text-xl text-foreground border border-default-800 py-3 px-2.5 rounded-full w-12 h-12 flex items-center justify-center mr-2.5">
+                        {r.code}
+                      </span>
+                      {r.description}
+                    </div>
+
+                    <div className="flex items-center gap-4 ml-6">
+                      <StatusChip statut={r.justifications[0]?.statut || null} />
+                      <Button
+                        isIconOnly
+                        aria-label="ouvrir réalisation"
+                        color="default"
+                        variant="faded"
+                      >
+                        <Icon icon="solar:maximize-square-3-linear" width={24} />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="px-5">
+                    <Divider />
+                  </div>
                 </li>
               ))}
             </ul>
