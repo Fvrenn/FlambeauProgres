@@ -5,6 +5,7 @@ import ProgressionPanel from "./panels/ProgressionPanel";
 import ObjectifPanel from "./panels/ObjectifPanel";
 import NotificationPanel from "./panels/NotificationPanel";
 import { EtapeAvecObjectifs } from "../DashboardClient";
+import { Justification } from "@prisma/client";
 
 // Le type est maintenant importé, plus besoin de le définir localement.
 
@@ -12,16 +13,18 @@ interface ContentActionProps {
   selectedEtape: EtapeAvecObjectifs | null;
   activeTab: React.Key;
   onTabChange: (key: React.Key) => void;
+  onUpdateJustification: (objectifId: string, justification: Partial<Justification>) => void;
 }
 
 export default function ContentAction({
   selectedEtape,
   activeTab,
   onTabChange,
+  onUpdateJustification,
 }: ContentActionProps) {
   const contentMap: Record<string, React.ReactNode> = {
     progression: <ProgressionPanel />,
-    objectif: <ObjectifPanel selectedEtape={selectedEtape} />,
+    objectif: <ObjectifPanel selectedEtape={selectedEtape} onUpdateJustification={onUpdateJustification} />,
     notification: <NotificationPanel />,
   };
 

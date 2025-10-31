@@ -18,7 +18,8 @@ interface DashboardClientProps {
   etapes: EtapeAvecObjectifs[];
 }
 
-export default function DashboardClient({ etapes }: DashboardClientProps) {
+export default function DashboardClient({ etapes: initialEtapes }: DashboardClientProps) {
+  const [etapes, setEtapes] = useState<EtapeAvecObjectifs[]>(initialEtapes);
   const [selectedEtape, setSelectedEtape] = useState<EtapeAvecObjectifs | null>(
     null
   );
@@ -29,6 +30,60 @@ export default function DashboardClient({ etapes }: DashboardClientProps) {
       setActiveTab("objectif");
     }
   }, [selectedEtape]);
+
+  // Fonction pour mettre à jour une justification de manière optimiste
+  const updateJustification = (objectifId: string, justification: Partial<Justification>) => {
+    setEtapes(prevEtapes => 
+      prevEtapes.map(etape => ({
+        ...etape,
+        objectifs: etape.objectifs.map(objectif => {
+          if (objectif.id === objectifId) {
+            // Si une justification existe déjà, la mettre à jour, sinon en créer une nouvelle
+            const existingJustification = objectif.justifications[0];
+            const updatedJustification = existingJustification 
+              ? { ...existingJustification, ...justification }
+              : { 
+                  id: 'temp-' + Date.now(), // ID temporaire
+                  ...justification 
+                } as Justification;
+
+            return {
+              ...objectif,
+              justifications: [updatedJustification]
+            };
+          }
+          return objectif;
+        })
+      }))
+    );
+
+    // Mettre à jour également l'étape sélectionnée si elle existe
+    if (selectedEtape) {
+      setSelectedEtape(prev => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          objectifs: prev.objectifs.map(objectif => {
+            if (objectif.id === objectifId) {
+              const existingJustification = objectif.justifications[0];
+              const updatedJustification = existingJustification 
+                ? { ...existingJustification, ...justification }
+                : { 
+                    id: 'temp-' + Date.now(),
+                    ...justification 
+                  } as Justification;
+
+              return {
+                ...objectif,
+                justifications: [updatedJustification]
+              };
+            }
+            return objectif;
+          })
+        };
+      });
+    }
+  };
 
   return (
     <div className="flex items-stretch flex-1 gap-4 pt-4 min-h-0">
@@ -41,6 +96,7 @@ export default function DashboardClient({ etapes }: DashboardClientProps) {
         selectedEtape={selectedEtape}
         activeTab={activeTab}
         onTabChange={setActiveTab}
+        onUpdateJustification={updateJustification}
       />
     </div>
   );

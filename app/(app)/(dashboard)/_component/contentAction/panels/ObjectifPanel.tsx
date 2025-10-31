@@ -1,17 +1,29 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import { Etape, Objectif, Justification } from "@prisma/client";
-import { Tabs, Tab } from "@heroui/react";
+import { Tabs, Tab, useDisclosure } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { Button } from "@heroui/react";
 import { Divider } from "@heroui/divider";
-import StatusChip from "./StatusChip"; // Importer le nouveau composant
+import StatusChip from "./StatusChip";
+import ObjectifModal from "./ObjectifModal";
 import { EtapeAvecObjectifs, ObjectifAvecJustification } from "../../DashboardClient";
 
 interface ObjectifPanelProps {
   selectedEtape: EtapeAvecObjectifs | null;
+  onUpdateJustification: (objectifId: string, justification: Partial<Justification>) => void;
 }
 
-export default function ObjectifPanel({ selectedEtape }: ObjectifPanelProps) {
+export default function ObjectifPanel({ selectedEtape, onUpdateJustification }: ObjectifPanelProps) {
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [selectedObjectif, setSelectedObjectif] = useState<ObjectifAvecJustification | null>(null);
+
+  const handleOpenModal = (objectif: ObjectifAvecJustification) => {
+    setSelectedObjectif(objectif);
+    onOpen();
+  };
+
   if (!selectedEtape) {
     return (
       <div className="flex items-center justify-center h-full text-gray-500">
@@ -62,6 +74,7 @@ export default function ObjectifPanel({ selectedEtape }: ObjectifPanelProps) {
                         aria-label="ouvrir compétence"
                         color="default"
                         variant="faded"
+                        onPress={() => handleOpenModal(c)}
                       >
                         <Icon icon="solar:maximize-square-3-linear" width={24} />
                       </Button>
@@ -94,6 +107,7 @@ export default function ObjectifPanel({ selectedEtape }: ObjectifPanelProps) {
                         aria-label="ouvrir réalisation"
                         color="default"
                         variant="faded"
+                        onPress={() => handleOpenModal(r)}
                       >
                         <Icon icon="solar:maximize-square-3-linear" width={24} />
                       </Button>
@@ -108,6 +122,13 @@ export default function ObjectifPanel({ selectedEtape }: ObjectifPanelProps) {
           </Tab>
         </Tabs>
       </div>
+
+      <ObjectifModal
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        objectif={selectedObjectif}
+        onUpdateJustification={onUpdateJustification}
+      />
     </div>
   );
 }
