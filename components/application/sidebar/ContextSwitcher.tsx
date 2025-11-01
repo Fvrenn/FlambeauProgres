@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { usePathname } from "next/navigation";
+// --- 1. IMPORTER useSearchParams ---
+import { usePathname, useSearchParams } from "next/navigation";
 import {
   Dropdown,
   DropdownTrigger,
@@ -12,6 +13,7 @@ import {
   Button,
 } from "@heroui/react";
 import Link from "next/link";
+import Image from "next/image"; // <-- 1. IMPORTER LE COMPOSANT IMAGE
 import { signOut } from "@/src/lib/auth-client";
 import { redirect } from "next/navigation";
 
@@ -131,11 +133,23 @@ const DeconnexionIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function ContextSwitcher({ user }: { user: any }) {
   const pathname = usePathname();
+  // --- 2. UTILISER LE HOOK POUR LIRE LES PARAMÈTRES DE L'URL ---
+  const searchParams = useSearchParams();
+  const currentEtapeId = searchParams.get("etapeId");
+
+  // --- 1. TROUVER L'ÉTAPE ACTUELLE ---
+  const currentEtape = user.etapesReferent?.find(
+    (etape: { id: string }) => etape.id === currentEtapeId
+  );
 
   console.log("Role utilisateur dans ContextSwitcher :", user.role);
 
   const getCurrentContext = () => {
     if (pathname.startsWith("/admin")) return "Interface Admin";
+    // --- 2. AFFICHER LE NOM DE L'ÉTAPE SI ELLE EST TROUVÉE ---
+    if (pathname.startsWith("/referent") && currentEtape) {
+      return `Référent : ${currentEtape.name}`;
+    }
     if (pathname.startsWith("/referent")) return "Interface Référent";
     return "Mon Progrès (Chef)";
   };
@@ -152,13 +166,25 @@ export default function ContextSwitcher({ user }: { user: any }) {
             className="h-auto justify-between gap-3 rounded-xl border-1 border-divider bg-default-100 p-2"
             endContent={<DropdownIcon />}
           >
-            <div className="flex flex-col text-left">
-              <p className="text-small font-medium text-foreground">
-                {user.name}
-              </p>
-              <p className="text-tiny text-default-400">
-                {getCurrentContext()}
-              </p>
+            {/* --- 3. AJOUTER LE BADGE ET METTRE À JOUR LE TEXTE --- */}
+            <div className="flex w-full items-center gap-2">
+              {currentEtape?.image_src && (
+                <Image
+                  src={currentEtape.image_src}
+                  alt={`Badge ${currentEtape.name}`}
+                  width={36}
+                  height={36}
+                  className="shrink-0"
+                />
+              )}
+              <div className="flex flex-col text-left">
+                <p className="text-small font-medium text-foreground">
+                  {user.name}
+                </p>
+                <p className="text-tiny text-default-400">
+                  {getCurrentContext()}
+                </p>
+              </div>
             </div>
           </Button>
         </DropdownTrigger>
@@ -187,25 +213,39 @@ export default function ContextSwitcher({ user }: { user: any }) {
               </DropdownItem>
             ) : null}
 
-            {user.role === "REFERENT" && !pathname.startsWith("/referent") ? (
-              <DropdownItem
-                key="referent"
-                as={Link}
-                href={
-                  user.etapesReferent?.length > 0
-                    ? `/referent/dashboard?etapeId=${user.etapesReferent[0].id}`
-                    : "/referent/dashboard"
-                }
-                description={
-                  user.etapesReferent?.length > 0
-                    ? `Gérer l'étape "${user.etapesReferent[0].name}"`
-                    : "Gérer les justifications"
-                }
-                startContent={<DashboardIcon className={iconClasses} />}
-              >
-                Interface Référent
-              </DropdownItem>
-            ) : null}
+            {/* --- 3. MODIFIER LA LOGIQUE DE RENDU --- */}
+            {user.role === "REFERENT" && user.etapesReferent?.length > 0
+              ? user.etapesReferent
+                  .filter((etape: { id: string }) => etape.id !== currentEtapeId) // <-- FILTRER L'ÉTAPE ACTIVE
+                  .map(
+                    (etape: {
+                      id: string;
+                      name: string;
+                      image_src: string | null;
+                    }) => (
+                      <DropdownItem
+                        key={`referent-${etape.id}`}
+                        as={Link}
+                        href={`/referent/dashboard?etapeId=${etape.id}`}
+                        startContent={
+                          etape.image_src ? (
+                            <Image
+                              src={etape.image_src}
+                              alt={`Badge ${etape.name}`}
+                              width={24}
+                              height={24}
+                              className="shrink-0"
+                            />
+                          ) : (
+                            <DashboardIcon className={iconClasses} />
+                          )
+                        }
+                      >
+                        Référent : {etape.name}
+                      </DropdownItem>
+                    )
+                  )
+              : null}
 
             {user.role === "ADMIN" && !pathname.startsWith("/admin") ? (
               <DropdownItem

@@ -32,6 +32,7 @@ export const auth = betterAuth({
                   select: {
                     id: true,
                     name: true,
+                    image_src: true, // <-- AJOUTER CETTE LIGNE
                   },
                 },
               },

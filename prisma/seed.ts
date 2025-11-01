@@ -1010,6 +1010,13 @@ await prisma.etapeReferent.create({
       assignePar: admin.id,
     },
   });
+await prisma.etapeReferent.create({
+    data: {
+      referentId: referent.id,
+      etapeId: etape2F.id, // 'etapeConstruction' est le etape 2G
+      assignePar: admin.id,
+    },
+  });
   console.log("Assigned referent to etape.");
 
   // --- 6. Création de Justifications de Test ---
