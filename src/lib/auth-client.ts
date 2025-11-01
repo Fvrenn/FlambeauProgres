@@ -1,6 +1,14 @@
-import { createAuthClient } from "better-auth/react"
- 
-export const authClient = createAuthClient()
+// lib/auth-client.ts
+import { createAuthClient } from "better-auth/react";
 
-// Vous pouvez aussi exporter directement les fonctions
-export const { signIn, signUp, useSession } = authClient;
+// --- IMPORTE LES NOUVEAUX ÉLÉMENTS ---
+import { customSessionClient } from "better-auth/client/plugins";
+import type { auth } from "@/src/lib/auth"; // Importe 'auth' en tant que TYPE
+
+export const authClient = createAuthClient({
+  // --- AJOUTE CETTE LIGNE ---
+  plugins: [customSessionClient<typeof auth>()],
+});
+
+// Tes exports existants sont parfaits
+export const { signIn, signUp, useSession, signOut } = authClient;

@@ -13,16 +13,15 @@ import { Icon } from "@iconify/react";
 import { cn } from "@heroui/react";
 import "./sidebar.css";
 
-export enum SidebarItemType {
-  Nest = "nest",
-}
+// CHANGEMENT 1: Remplacer l'enum par un type
+export type SidebarItemType = "nest";
 
 export type SidebarItem = {
   key: string;
   title: string;
   icon?: string;
   href?: string;
-  type?: SidebarItemType.Nest;
+  type?: SidebarItemType;
   startContent?: React.ReactNode;
   endContent?: React.ReactNode;
   items?: SidebarItem[];
@@ -85,7 +84,8 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
         const isNestType =
           item.items &&
           item.items?.length > 0 &&
-          item?.type === SidebarItemType.Nest;
+          // CHANGEMENT 2: Utiliser la chaîne de caractères
+          item?.type === "nest";
 
         if (isNestType) {
           // Is a nest type item , so we need to remove the href
@@ -233,7 +233,8 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
         const isNestType =
           item.items &&
           item.items?.length > 0 &&
-          item?.type === SidebarItemType.Nest;
+          // CHANGEMENT 3: Utiliser la chaîne de caractères
+          item?.type === "nest";
 
         if (isNestType) {
           return renderNestItem(item);
@@ -326,7 +327,8 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
         {(item) => {
           return item.items &&
             item.items?.length > 0 &&
-            item?.type === SidebarItemType.Nest ? (
+            // CHANGEMENT 4: Utiliser la chaîne de caractères
+            item?.type === "nest" ? (
             renderNestItem(item)
           ) : item.items && item.items?.length > 0 ? (
             <ListboxSection

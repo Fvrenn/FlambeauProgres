@@ -5,7 +5,7 @@ import React from "react";
 import AppClientLayout from "../AppClientLayout";
 import { type SidebarItem } from "@/components/application/sidebar/sidebar";
 
-export default async function DashboardLayout({
+export default async function ReferentLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -21,29 +21,18 @@ export default async function DashboardLayout({
 
   const user = session.user;
 
-  if (!("role" in user)) {
-    redirect("/login");
+  if (!("role" in user) || user.role !== "REFERENT") {
+    redirect("/dashboard");
   }
 
-  // Sidebar CHEF
+  // Sidebar RÉFÉRENT
   const sidebarItems: SidebarItem[] = [
     {
-      key: "dashboard",
-      href: "/dashboard",
-      icon: "solar:home-2-linear",
-      title: "Tableau de bord",
+      key: "referent-dashboard",
+      href: "/referent/dashboard",
+      icon: "solar:checklist-minimalistic-linear",
+      title: "Justifications à valider",
     },
-    // @ts-ignore
-    ...(user.troupeDirigee
-      ? [
-          {
-            key: "commandes",
-            href: "/troupe/commandes",
-            icon: "solar:box-minimalistic-linear",
-            title: "Commandes de Troupe",
-          },
-        ]
-      : []),
   ];
 
   return (
