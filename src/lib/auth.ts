@@ -23,7 +23,6 @@ export const auth = betterAuth({
           select: {
             role: true,
             troupeId: true,
-            troupeDirigee: true,
             // --- AJOUT ---
             // On récupère les étapes assignées à cet utilisateur
             assigneEtapes: {
@@ -52,7 +51,6 @@ export const auth = betterAuth({
               ...user,
               role: userFromDb.role,
               troupeId: userFromDb.troupeId,
-              troupeDirigee: !!userFromDb.troupeDirigee,
               // --- AJOUT ---
               // On ajoute le nouveau tableau à l'objet utilisateur de la session
               etapesReferent: etapesReferent,

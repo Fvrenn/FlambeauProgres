@@ -4,13 +4,17 @@ import React from "react";
 import { Tabs, Tab } from "@heroui/react";
 import JustificationsTable from "@/components/application/justifications-table/JustificationsTable";
 import type { JustificationAvecRelations } from "@/components/application/justifications-table/JustificationsTableColumns";
+import ChefsAReviserTable from "@/components/application/referent/ChefsAReviserTable";
+import { type User } from "@prisma/client";
 
 type ReferentDashboardClientProps = {
   justificationsAValider: JustificationAvecRelations[];
+  chefsAReviser: User[];
 };
 
 export default function ReferentDashboardClient({
   justificationsAValider,
+  chefsAReviser,
 }: ReferentDashboardClientProps) {
   return (
     <div className="h-full max-h-screen flex flex-col overflow-hidden">
@@ -23,10 +27,7 @@ export default function ReferentDashboardClient({
           <JustificationsTable justifications={justificationsAValider} />
         </Tab>
         <Tab key="a-reviser" title="Badges complets à réviser">
-          {/* Contenu de l'onglet 2 (Phase 4) */}
-          <p className="p-4">
-            Ici s'affichera la liste des chefs ayant complété cette étape.
-          </p>
+          <ChefsAReviserTable chefs={chefsAReviser} />
         </Tab>
       </Tabs>
     </div>

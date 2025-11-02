@@ -25,17 +25,6 @@ export default async function DashboardLayout({
       icon: "solar:home-2-linear",
       title: "Tableau de bord",
     },
-    // @ts-ignore
-    ...(user.troupeDirigee
-      ? [
-          {
-            key: "commandes",
-            href: "/troupe/commandes",
-            icon: "solar:box-minimalistic-linear",
-            title: "Commandes de Troupe",
-          },
-        ]
-      : []),
   ];
 
   return (

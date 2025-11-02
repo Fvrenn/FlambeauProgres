@@ -28,6 +28,14 @@ enum StatutJustification {
   REFUSEE
 }
 
+// --- AJOUT : Nouvel enum pour le statut du badge d'un chef ---
+enum StatutChefEtape {
+  NON_COMMENCE
+  EN_COURS
+  EN_REVISION // Le chef a soumis toutes les justifications
+  VALIDE      // Le référent a validé le badge
+}
+
 enum TypeFichier {
   IMAGE
   DOCUMENT
@@ -78,6 +86,11 @@ model User {
   commentsWritten       Commentaire[]   @relation("CommentaireAuteur")
   notificationsReceived Notification[]  @relation("NotificationDestinataire")
 
+  // --- AJOUT : Relation vers les statuts des étapes ---
+  statutsEtapes         ChefEtapeStatut[] @relation("ChefStatuts")
+  // --- AJOUT : La ligne manquante pour la relation inverse ---
+  validationsEffectuees ChefEtapeStatut[] @relation("ReferentValidations")
+
   accounts Account[]
   sessions Session[]
 
@@ -99,7 +112,30 @@ model Etape {
   referents      EtapeReferent[]
   justifications Justification[]
 
+  // --- AJOUT : Relation vers les statuts des chefs ---
+  statutsChefs     ChefEtapeStatut[]
+
   @@map("etapes")
+}
+
+// --- AJOUT : Nouveau modèle pour suivre la progression ---
+model ChefEtapeStatut {
+  id           String          @id @default(cuid())
+  chefId       String
+  etapeId      String
+  statut       StatutChefEtape @default(EN_COURS)
+  valideeAt    DateTime?
+  valideeParId String? // ID du référent qui a validé
+
+  chef       User   @relation("ChefStatuts", fields: [chefId], references: [id], onDelete: Cascade)
+  etape      Etape  @relation(fields: [etapeId], references: [id], onDelete: Cascade)
+  valideePar User?  @relation("ReferentValidations", fields: [valideeParId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([chefId, etapeId])
+  @@map("chef_etape_statuts")
 }
 
 model Objectif {

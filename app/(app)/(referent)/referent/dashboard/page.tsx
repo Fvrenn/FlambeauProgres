@@ -1,6 +1,7 @@
 import React from "react";
 import prisma from "@/src/lib/prisma";
 import ReferentDashboardClient from "./ReferentDashboardClient";
+import { type User } from "@prisma/client";
 
 type ReferentDashboardPageProps = {
   searchParams: Promise<{
@@ -27,6 +28,95 @@ export default async function ReferentDashboardPage({
     );
   }
 
+  // --- DÉBUT DES AJOUTS ---
+
+  // 1. Récupérer les totaux d'objectifs pour l'étape
+  const objectifsCounts = await prisma.objectif.groupBy({
+    by: ["type"],
+    where: { etapeId: etapeId },
+    _count: {
+      id: true,
+    },
+  });
+
+  const totalCompetences =
+    objectifsCounts.find((c) => c.type === "COMPETENCE")?._count.id || 0;
+  const totalRealisations =
+    objectifsCounts.find((c) => c.type === "REALISATION")?._count.id || 0;
+
+  // 2. Récupérer la progression de tous les chefs pour cette étape
+  const chefsProgress = await prisma.justification.groupBy({
+    by: ["chefId"],
+    where: {
+      etapeId: etapeId,
+      statut: { in: ["AUTO_VALIDEE", "VALIDEE"] },
+    },
+    _count: {
+      id: true,
+    },
+  });
+
+  // 3. Filtrer pour trouver les chefs ayant 100%
+  const chefsCompletsIds = [];
+  for (const chef of chefsProgress) {
+    const [competencesValidees, realisationsValidees] = await Promise.all([
+      prisma.justification.count({
+        where: {
+          chefId: chef.chefId,
+          etapeId: etapeId,
+          statut: "AUTO_VALIDEE",
+          objectif: { type: "COMPETENCE" },
+        },
+      }),
+      prisma.justification.count({
+        where: {
+          chefId: chef.chefId,
+          etapeId: etapeId,
+          statut: "VALIDEE",
+          objectif: { type: "REALISATION" },
+        },
+      }),
+    ]);
+
+    if (
+      competencesValidees === totalCompetences &&
+      realisationsValidees === totalRealisations
+    ) {
+      chefsCompletsIds.push(chef.chefId);
+    }
+  }
+
+  // --- DÉBUT DE LA MODIFICATION ---
+
+  // 4. Récupérer les IDs des chefs dont le badge a déjà été validé
+  const chefsDejaValides = await prisma.chefEtapeStatut.findMany({
+    where: {
+      etapeId: etapeId,
+      statut: "VALIDE",
+      chefId: { in: chefsCompletsIds }, // On ne cherche que parmi les chefs complets
+    },
+    select: {
+      chefId: true,
+    },
+  });
+  const chefsDejaValidesIds = chefsDejaValides.map((statut) => statut.chefId);
+
+  // 5. Filtrer la liste pour ne garder que les chefs qui attendent une révision
+  const chefsEnAttenteDeRevisionIds = chefsCompletsIds.filter(
+    (id) => !chefsDejaValidesIds.includes(id)
+  );
+
+  let chefsAReviser: User[] = [];
+  if (chefsEnAttenteDeRevisionIds.length > 0) {
+    chefsAReviser = await prisma.user.findMany({
+      where: {
+        id: { in: chefsEnAttenteDeRevisionIds },
+      },
+    });
+  }
+
+  // --- FIN DE LA MODIFICATION ---
+
   const justificationsAValider = await prisma.justification.findMany({
     where: {
       etapeId: etapeId,
@@ -42,6 +132,9 @@ export default async function ReferentDashboardPage({
   });
 
   return (
-    <ReferentDashboardClient justificationsAValider={justificationsAValider} />
+    <ReferentDashboardClient
+      justificationsAValider={justificationsAValider}
+      chefsAReviser={chefsAReviser}
+    />
   );
 }
