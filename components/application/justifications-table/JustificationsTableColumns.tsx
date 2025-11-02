@@ -55,7 +55,7 @@ export const renderCell = (
               })
             : "N/A";
     case "actions":
-      return <JustificationsTableActions justificationId={justification.id} />;
+      return <JustificationsTableActions justification={justification} />;
     default:
       // @ts-ignore
       return justification[columnKey] || null;

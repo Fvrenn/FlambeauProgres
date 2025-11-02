@@ -42,7 +42,6 @@ Tout le reste est secondaire.
 
 * **Chemise 3D :** Remplacée par une simple grille 2D pour le MVP.
 * **Dashboard Admin :** Toute la gestion (CRUD Troupes, etapes, Users...) est hors MVP.
-* **Flow Chef de Troupe :** La table `etapeCommande` et la page `/troupe/commandes` ne sont pas implémentées.
 * **Flow "Revue Finale" :** L'onglet 2 du Référent ("etapes complets à réviser") et la page de revue finale sont hors MVP.
 * **Statistiques :** L'onglet "Progression" du Chef est hors MVP.
 * **Commentaires avancés :** La fonctionnalité "Demander Précision" (qui implique un aller-retour de commentaires) peut être laissée pour la V2, le MVP se concentre sur `Valider` / `Refuser`.

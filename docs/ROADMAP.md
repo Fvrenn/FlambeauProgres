@@ -73,12 +73,8 @@ Voici les tâches de développement, classées dans un ordre logique pour constr
 15. **Flow "Revue Finale" (Référent) :**
     * Créer l'**Onglet 2 : "etapes complets à réviser"** (fetch les Chefs 100% complets).
     * Créer la page/vue de "Revue Finale" (qui liste toutes les justifications des `Competences`).
-    * Créer la Server Action `validateetape(chefId, etapeId)` qui crée la `etapeCommande`.
-16. **Flow "Chef de Troupe" :**
-    * Implémenter la logique d'affichage conditionnel du lien "Ma Troupe" dans la sidebar Chef.
-    * Créer la page `/troupe/commandes` (fetch `etapeCommande`).
-    * Créer la Server Action `markAsOrdered(commandeId)`.
-17. **Système de Commentaires :**
+    * Créer la Server Action `validateetape(chefId, etapeId)` qui finalise la validation du etape.
+16. **Système de Commentaires :**
     * Implémenter la Server Action `requestChanges` (Référent) et `submitComment` (Chef/Référent).
     * Afficher le fil de `Commentaire` dans la modal de justification.
 

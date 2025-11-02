@@ -17,12 +17,11 @@ L'objectif n'est pas de "fliquer", mais d'**encourager** et de **motiver** les c
 
 ## 🧑‍🎓 Pour qui ?
 
-Ce projet s'articule autour de 4 rôles clés :
+Ce projet s'articule autour de 3 rôles clés :
 
 1.  **🧑‍🎓 Le Chef (Animateur) :** L'utilisateur principal. Il se connecte pour justifier ses `Compétences` (auto-validation) et soumettre ses `Réalisations` (validation par un référent).
 2.  **🧑‍🏫 Le Référent :** Le validateur bienveillant. Il reçoit les soumissions de `Réalisations`, les examine, et donne son "tampon" (validation) ou son feedback.
-3.  **🫡 Le Chef de Troupe :** Le gestionnaire de terrain. Il est notifié (via un dashboard dédié) lorsque les chefs de sa troupe ont complété une etape, afin qu'il puisse commander le etape physique.
-4.  **🧑‍💻 L'Admin :** Le gestionnaire du système. Il crée les etapes, les objectifs, gère les troupes et assigne les rôles.
+3.  **🧑‍💻 L'Admin :** Le gestionnaire du système. Il crée les etapes, les objectifs, gère les troupes et assigne les rôles.
 
 ## ✨ Fonctionnalités Clés
 
@@ -32,7 +31,7 @@ Ce projet s'articule autour de 4 rôles clés :
     * **Réalisations :** Soumission simple (texte + 1 fichier) pour validation par un Référent.
 * **100% Privé :** Ceci n'est **pas** un réseau social. Les profils ne sont pas publics. L'aspect social se passe dans la "vraie vie" quand le Chef montre son vrai etape cousu.
 * **Pas de Mode Hors-Ligne :** Conçu pour être utilisé "au calme chez soi" (PC ou mobile) pour débriefer ses activités, pas sur le terrain.
-* **Dashboards par Rôle :** Des interfaces dédiées et épurées pour les Référents, les Chefs de Troupe et les Admins.
+* **Dashboards par Rôle :** Des interfaces dédiées et épurées pour les Référents et les Admins.
 
 ## 🛠️ Stack Technique
 

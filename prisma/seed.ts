@@ -23,7 +23,6 @@ async function main() {
   // --- 1. Nettoyage de la base (dans le bon ordre) ---
   console.log("Cleaning database...");
   await prisma.etapeReferent.deleteMany();
-  await prisma.etapeCommande.deleteMany();
   await prisma.notification.deleteMany();
   await prisma.commentaire.deleteMany();
   await prisma.fichier.deleteMany();
@@ -61,30 +60,7 @@ async function main() {
     data: { role: "ADMIN" },
   });
 
-  // Le Chef de Troupe (est aussi un CHEF)
-  const chefDeTroupeResult = await authForSeed.api.signUpEmail({
-    body: {
-      email: "cheftroupe@flambeau.dev",
-      name: "Sylvain Lavoue",
-      password: defaultPassword,
-    },
-  });
-
-  const chefDeTroupe = await prisma.user.update({
-    where: { id: chefDeTroupeResult.user.id },
-    data: {
-      role: "CHEF",
-      troupeId: troupe.id,
-    },
-  });
-
-  // Mettre à jour la troupe avec son chef
-  await prisma.troupe.update({
-    where: { id: troupe.id },
-    data: { chefDeTroupeId: chefDeTroupe.id },
-  });
-
-  // Un Chef simple
+  // Un Chef
   const chef1Result = await authForSeed.api.signUpEmail({
     body: {
       email: "chef@flambeau.dev",

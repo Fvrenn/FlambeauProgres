@@ -13,12 +13,11 @@ L'objectif de ce projet est de **résoudre un problème de motivation**, pas de 
 
 ---
 
-## 2. Les 4 Rôles (Le "Qui")
+## 2. Les 3 Rôles (Le "Qui")
 
 1.  **🧑‍🎓 Le Chef (Animateur) :** L'utilisateur principal. Il justifie ses `Compétences` et soumet ses `Réalisations`.
 2.  **🧑‍🏫 Le Référent :** Le validateur bienveillant. Il valide (tamponne) les `Réalisations` et effectue une "Revue Finale" du etape complet.
-3.  **🫡 Le Chef de Troupe :** Un `CHEF` avec une responsabilité en plus. Il accède à un dashboard pour voir les etapes complétés par les membres de sa `Troupe` afin de commander les etapes physiques.
-4.  **🧑‍💻 L'Admin :** Le gestionnaire du système. Il gère les données (etapes, Troupes, Utilisateurs, Assignations).
+3.  **🧑‍💻 L'Admin :** Le gestionnaire du système. Il gère les données (etapes, Troupes, Utilisateurs, Assignations).
 
 ---
 
@@ -60,24 +59,14 @@ C'est le parcours de validation complet d'une etape.
 5.  Il peut y lire **toutes** les justifications des `Competences` (pour juger du sérieux).
 6.  Il clique sur le bouton final **"Valider le etape Complet"**.
 
-### C. Parcours du Chef de Troupe (Logistique)
-
-1.  L'action (B.6) du Référent a créé une entrée dans la table `etapeCommande`.
-2.  Le Chef de Troupe se connecte (il est un `CHEF` normal).
-3.  Il clique sur le lien "Gestion de ma Troupe" dans sa sidebar (lien qui n'apparaît que pour lui).
-4.  Il arrive sur la page `/troupe/commandes`.
-5.  Il voit la liste des etapes à commander (ex: "etape 'Construction' pour Chef Pierre - Complété le 22/10").
-6.  Il clique sur "Marquer comme commandé" (ce qui met à jour le champ `commandeAt`).
-
 ---
 
 ## 4. Principes d'Architecture
 
 * **Base de Données (Prisma) :** Le schéma est la source de vérité.
     * `Troupe` : Table centrale pour lier les utilisateurs.
-    * `User` : Contient `troupeId` (à quelle troupe il appartient) et `troupeDirigee` (s'il est Chef de Troupe).
+    * `User` : Contient `troupeId` (à quelle troupe il appartient).
     * `Justification` : **Simplifiée.** Le champ `contenu` (String) remplace les 8 anciens champs.
-    * `etapeCommande` : Table dédiée à la logistique du Chef de Troupe, pour un suivi robuste.
 * **Navigation (Sidebar) :**
     * Un **bloc profil** en haut gère l'accès à la page `/profil`.
     * Un **Sélecteur de Contexte** (Chef / Référent / Admin) est disponible pour les utilisateurs à rôles multiples.
