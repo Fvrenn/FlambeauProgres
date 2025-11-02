@@ -2,18 +2,17 @@ import React from "react";
 
 // Types pour les searchParams (bonne pratique)
 type ReferentDashboardPageProps = {
-  searchParams: Promise<{
+  searchParams: { // Ce n'est pas une promesse
     etapeId?: string; // Le paramètre que ta sidebar va envoyer
-  }>;
+  };
 };
 
 // C'est un Server Component (par défaut, pas de 'use client')
 export default async function ReferentDashboardPage({
   searchParams,
 }: ReferentDashboardPageProps) {
-  // --- CORRECTION : Await searchParams avant d'accéder à ses propriétés ---
-  const params = await searchParams;
-  const etapeId = params.etapeId;
+  // --- CORRECTION : Accès direct, sans await ---
+  const etapeId = searchParams.etapeId;
 
   // Pour le débogage : tu verras l'ID de l'étape active dans ton terminal serveur
   console.log("ID de l'étape active (côté serveur) :", etapeId);

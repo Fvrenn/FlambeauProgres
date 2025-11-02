@@ -1,6 +1,4 @@
-import { auth } from "@/src/lib/auth";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { getUser } from "@/src/lib/auth-server";
 import React from "react";
 import AppClientLayout from "../AppClientLayout";
 import { type SidebarItem } from "@/components/application/sidebar/sidebar";
@@ -10,19 +8,13 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const headersList = await headers();
-  const session = await auth.api.getSession({
-    headers: new Headers(headersList),
-  });
+  // On peut maintenant utiliser une fonction plus simple comme getUser()
+  // car app/(app)/layout.tsx a déjà validé la session.
+  const user = await getUser();
 
-  if (!session) {
-    redirect("/login");
-  }
-
-  const user = session.user;
-
-  if (!("role" in user)) {
-    redirect("/login");
+  // La redirection n'est plus nécessaire ici, le layout parent s'en est chargé.
+  if (!user) {
+    return null; // Ou un fallback, mais en théorie ce cas n'arrive jamais.
   }
 
   // Sidebar CHEF

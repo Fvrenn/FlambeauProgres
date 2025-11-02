@@ -1,28 +1,24 @@
-import { auth } from "@/src/lib/auth";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { getUser } from "@/src/lib/auth-server";
 import React from "react";
 import AppClientLayout from "../AppClientLayout";
 import { type SidebarItem } from "@/components/application/sidebar/sidebar";
+import { redirect } from "next/navigation";
 
 export default async function ReferentLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const headersList = await headers();
-  const session = await auth.api.getSession({
-    headers: new Headers(headersList),
-  });
+  // Le layout parent app/(app)/layout.tsx a déjà validé la session.
+  // On récupère simplement l'utilisateur.
+  const user = await getUser();
 
-  if (!session) {
-    redirect("/login");
-  }
-
-  const user = session.user;
-
-  if (!("role" in user) || user.role !== "REFERENT") {
-    redirect("/dashboard");
+  // --- CORRECTION : Vérification de type robuste ---
+  // On vérifie non seulement que l'utilisateur existe, mais aussi que la propriété 'role'
+  // est présente avant de l'utiliser. Cela résout l'erreur TypeScript.
+  // Une fois cette condition passée, TypeScript sait que `user` a bien un rôle et les propriétés associées.
+  if (!user || !("role" in user) || user.role !== "REFERENT") {
+    redirect("/dashboard"); // Rediriger vers une page sûre.
   }
 
   // --- MODIFICATION : Rendre le lien du tableau de bord dynamique ---

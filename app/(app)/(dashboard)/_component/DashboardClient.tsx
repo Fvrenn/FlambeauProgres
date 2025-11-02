@@ -20,30 +20,32 @@ interface DashboardClientProps {
 
 export default function DashboardClient({ etapes: initialEtapes }: DashboardClientProps) {
   const [etapes, setEtapes] = useState<EtapeAvecObjectifs[]>(initialEtapes);
-  const [selectedEtape, setSelectedEtape] = useState<EtapeAvecObjectifs | null>(
-    null
-  );
+  const [selectedEtape, setSelectedEtape] = useState<EtapeAvecObjectifs | null>(null);
   const [activeTab, setActiveTab] = useState<React.Key>("progression");
 
   useEffect(() => {
     if (selectedEtape) {
       setActiveTab("objectif");
+      // Synchroniser l'état de selectedEtape avec la source de vérité "etapes"
+      const updatedSelectedEtape = etapes.find(e => e.id === selectedEtape.id) || null;
+      setSelectedEtape(updatedSelectedEtape);
+    } else {
+      setActiveTab("progression");
     }
-  }, [selectedEtape]);
+  }, [selectedEtape?.id, etapes]); // Dépendre de l'ID et de la liste principale
 
-  // Fonction pour mettre à jour une justification de manière optimiste
+  // La fonction est maintenant plus simple
   const updateJustification = (objectifId: string, justification: Partial<Justification>) => {
     setEtapes(prevEtapes => 
       prevEtapes.map(etape => ({
         ...etape,
         objectifs: etape.objectifs.map(objectif => {
           if (objectif.id === objectifId) {
-            // Si une justification existe déjà, la mettre à jour, sinon en créer une nouvelle
             const existingJustification = objectif.justifications[0];
             const updatedJustification = existingJustification 
               ? { ...existingJustification, ...justification }
               : { 
-                  id: 'temp-' + Date.now(), // ID temporaire
+                  id: 'temp-' + Date.now(),
                   ...justification 
                 } as Justification;
 
@@ -56,33 +58,6 @@ export default function DashboardClient({ etapes: initialEtapes }: DashboardClie
         })
       }))
     );
-
-    // Mettre à jour également l'étape sélectionnée si elle existe
-    if (selectedEtape) {
-      setSelectedEtape(prev => {
-        if (!prev) return null;
-        return {
-          ...prev,
-          objectifs: prev.objectifs.map(objectif => {
-            if (objectif.id === objectifId) {
-              const existingJustification = objectif.justifications[0];
-              const updatedJustification = existingJustification 
-                ? { ...existingJustification, ...justification }
-                : { 
-                    id: 'temp-' + Date.now(),
-                    ...justification 
-                  } as Justification;
-
-              return {
-                ...objectif,
-                justifications: [updatedJustification]
-              };
-            }
-            return objectif;
-          })
-        };
-      });
-    }
   };
 
   return (
