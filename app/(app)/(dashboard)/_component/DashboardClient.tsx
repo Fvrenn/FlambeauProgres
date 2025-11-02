@@ -1,6 +1,6 @@
 "use client";
 
-import { Etape, Objectif, Justification } from "@prisma/client";
+import { Etape, Objectif, Justification, Notification } from "@prisma/client";
 import React, { useState, useEffect } from "react";
 import ContentChemise from "./contentChemise/contentChemise";
 import ContentAction from "./contentAction/contentAction";
@@ -16,9 +16,13 @@ export type EtapeAvecObjectifs = Etape & {
 
 interface DashboardClientProps {
   etapes: EtapeAvecObjectifs[];
+  notifications: Notification[];
 }
 
-export default function DashboardClient({ etapes: initialEtapes }: DashboardClientProps) {
+export default function DashboardClient({
+  etapes: initialEtapes,
+  notifications,
+}: DashboardClientProps) {
   const [etapes, setEtapes] = useState<EtapeAvecObjectifs[]>(initialEtapes);
   const [selectedEtape, setSelectedEtape] = useState<EtapeAvecObjectifs | null>(null);
   const [activeTab, setActiveTab] = useState<React.Key>("progression");
@@ -72,6 +76,7 @@ export default function DashboardClient({ etapes: initialEtapes }: DashboardClie
         activeTab={activeTab}
         onTabChange={setActiveTab}
         onUpdateJustification={updateJustification}
+        notifications={notifications}
       />
     </div>
   );
