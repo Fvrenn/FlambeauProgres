@@ -22,6 +22,16 @@ export default async function Home() {
               where: {
                 chefId: user.id,
               },
+              include: {
+                commentaires: {
+                  include: {
+                    auteur: true,
+                  },
+                  orderBy: {
+                    createdAt: "asc",
+                  },
+                },
+              },
             },
           },
         },

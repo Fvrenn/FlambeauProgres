@@ -91,3 +91,39 @@ export async function markAllNotificationsAsRead() {
     return { success: false, error: "Erreur serveur" };
   }
 }
+
+/**
+ * Marque les notifications non lues d'une justification spécifique comme lues.
+ * Utilisé quand le Référent ouvre la discussion pour une justification.
+ */
+export async function markNotificationsAsReadForJustification(
+  justificationId: string
+) {
+  const user = await getUser();
+  if (!user) return { success: false, error: "Non autorisé" };
+
+  try {
+    await prisma.notification.updateMany({
+      where: {
+        justificationId: justificationId,
+        destinataireId: user.id,
+        lue: false,
+        type: { in: ["NOUVEAU_COMMENTAIRE", "REPONSE_PRECISION"] },
+      },
+      data: {
+        lue: true,
+        lueAt: new Date(),
+      },
+    });
+
+    // Revalider le dashboard du référent pour refetch les données
+    revalidatePath("/referent/dashboard");
+    return { success: true };
+  } catch (error) {
+    console.error(
+      "Erreur lors du marquage des notifications pour la justification:",
+      error
+    );
+    return { success: false, error: "Erreur serveur" };
+  }
+}

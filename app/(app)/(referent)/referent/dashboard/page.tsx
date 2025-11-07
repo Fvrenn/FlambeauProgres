@@ -1,6 +1,7 @@
 import React from "react";
 import prisma from "@/src/lib/prisma";
-import ReferentDashboardClient from "./ReferentDashboardClient";
+import ReferentDashboardClientV2 from "./ReferentDashboardClientV2";
+import { getUser } from "@/src/lib/auth-server";
 import { type User } from "@prisma/client";
 
 type ReferentDashboardPageProps = {
@@ -117,14 +118,88 @@ export default async function ReferentDashboardPage({
 
   // --- FIN DE LA MODIFICATION ---
 
+  // 6. Récupérer l'utilisateur connecté pour compter les notifications non lues
+  const user = await getUser();
+  if (!user || !("role" in user) || user.role !== "REFERENT") {
+    return <div>Accès refusé</div>;
+  }
+
+  // 7. Fetch justifications à valider (SOUMISE)
   const justificationsAValider = await prisma.justification.findMany({
     where: {
       etapeId: etapeId,
       statut: "SOUMISE",
     },
     include: {
-      chef: true,
-      objectif: true,
+      chef: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          image: true,
+        },
+      },
+      objectif: {
+        select: {
+          id: true,
+          code: true,
+          description: true,
+        },
+      },
+    },
+    orderBy: {
+      soumiseAt: "asc",
+    },
+  });
+
+  // 8. Fetch justifications en discussion (DEMANDE_PRECISION) avec count notif non lues
+  const justificationsEnDiscussion = await prisma.justification.findMany({
+    where: {
+      etapeId: etapeId,
+      statut: "DEMANDE_PRECISION",
+    },
+    include: {
+      chef: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          image: true,
+        },
+      },
+      objectif: {
+        select: {
+          id: true,
+          code: true,
+          description: true,
+        },
+      },
+      commentaires: {
+        include: {
+          auteur: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              image: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "asc",
+        },
+      },
+      _count: {
+        select: {
+          notifications: {
+            where: {
+              destinataireId: user.id,
+              lue: false,
+              type: { in: ["NOUVEAU_COMMENTAIRE", "REPONSE_PRECISION"] },
+            },
+          },
+        },
+      },
     },
     orderBy: {
       soumiseAt: "asc",
@@ -132,8 +207,9 @@ export default async function ReferentDashboardPage({
   });
 
   return (
-    <ReferentDashboardClient
+    <ReferentDashboardClientV2
       justificationsAValider={justificationsAValider}
+      justificationsEnDiscussion={justificationsEnDiscussion}
       chefsAReviser={chefsAReviser}
     />
   );
