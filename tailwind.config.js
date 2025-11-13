@@ -23,7 +23,7 @@ const config = {
           default: {
             50: "#f0eff8",
             100: "#E8E7DE",
-            200: "#c7c1e3",
+            200: "#f3f2e9",
             300: "#b2aad9",
             400: "#8b8a81",
             500: "#0f1511",
@@ -46,7 +46,7 @@ const config = {
             800: "#790000",
             900: "#4d0000",
             foreground: "#000",
-            DEFAULT: "#ff0000"
+            DEFAULT: "#FCC226"
           },
           secondary: {
             50: "#fffbdf",

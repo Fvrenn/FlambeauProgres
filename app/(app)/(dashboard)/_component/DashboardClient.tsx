@@ -35,7 +35,7 @@ export default function DashboardClient({
 }: DashboardClientProps) {
   const [etapes, setEtapes] = useState<EtapeAvecObjectifs[]>(initialEtapes);
   const [selectedEtape, setSelectedEtape] = useState<EtapeAvecObjectifs | null>(null);
-  const [activeTab, setActiveTab] = useState<React.Key>("progression");
+  const [activeTab, setActiveTab] = useState<React.Key>("objectif");
 
   useEffect(() => {
     if (selectedEtape) {
@@ -43,8 +43,6 @@ export default function DashboardClient({
       // Synchroniser l'état de selectedEtape avec la source de vérité "etapes"
       const updatedSelectedEtape = etapes.find(e => e.id === selectedEtape.id) || null;
       setSelectedEtape(updatedSelectedEtape);
-    } else {
-      setActiveTab("progression");
     }
   }, [selectedEtape?.id, etapes]); // Dépendre de l'ID et de la liste principale
 

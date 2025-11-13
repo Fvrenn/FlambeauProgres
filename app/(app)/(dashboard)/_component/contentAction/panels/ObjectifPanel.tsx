@@ -31,8 +31,11 @@ export default function ObjectifPanel({ selectedEtape, onUpdateJustification }: 
 
   if (!selectedEtape) {
     return (
-      <div className="flex items-center justify-center h-full text-gray-500">
-        <p>Sélectionnez un badge sur la chemise pour voir ses objectifs.</p>
+      <div className="flex flex-col items-center py-8 gap-3 text-gray-500 text-md">
+        <Icon icon="solar:tag-linear" className="text-6xl mb-4" />
+        <p>
+          Sélectionnez un badge pour voir ses objectifs{" "}
+        </p>
       </div>
     );
   }

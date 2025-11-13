@@ -24,8 +24,8 @@ export default function TabsContentAction({
           tabContent: "group-data-[selected=true]:text-black text-white group-data-[selected=true]:pl-6 transition-all duration-300 ease-in-out",
         }}
       >
-        <Tab key="progression" title="Progression"></Tab>
         <Tab key="objectif" title="Objectif"></Tab>
+        <Tab key="progression" title="Progression"></Tab>
         <Tab key="notification" title="Notifications"></Tab>
       </Tabs>
     </div>

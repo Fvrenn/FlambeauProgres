@@ -25,8 +25,8 @@ export default function ContentAction({
   notifications,
 }: ContentActionProps) {
   const contentMap: Record<string, React.ReactNode> = {
-    progression: <ProgressionPanel />,
     objectif: <ObjectifPanel selectedEtape={selectedEtape} onUpdateJustification={onUpdateJustification} />,
+    progression: <ProgressionPanel />,
     notification: <NotificationPanel notifications={notifications} />,
   };
 
