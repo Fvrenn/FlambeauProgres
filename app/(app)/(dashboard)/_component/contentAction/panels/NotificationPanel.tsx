@@ -11,6 +11,7 @@ import {
 
 type NotificationPanelProps = {
   notifications: Notification[];
+  onNotificationClick: (notification: Notification) => void;
 };
 
 // Configuration pour l'affichage des notifications
@@ -49,6 +50,7 @@ const NOTIFICATION_CONFIG: Record<
 
 export default function NotificationPanel({
   notifications,
+  onNotificationClick,
 }: NotificationPanelProps) {
   const [isPending, startTransition] = useTransition();
 
@@ -102,11 +104,12 @@ export default function NotificationPanel({
             return (
               <li
                 key={notif.id}
-                className={`flex items-start gap-4 p-4 rounded-lg transition-colors ${
+                className={`flex items-start gap-4 p-4 rounded-lg transition-colors cursor-pointer hover:bg-default-100 ${
                   notif.lue
                     ? "bg-default-50"
                     : "bg-primary-50 border border-primary-200"
                 }`}
+                onClick={() => onNotificationClick(notif)}
               >
                 <div
                   className={`mt-1 w-8 h-8 flex-shrink-0 rounded-full flex items-center justify-center bg-${config.color}/10 text-${config.color}`}

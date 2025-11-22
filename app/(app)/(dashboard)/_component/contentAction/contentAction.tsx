@@ -16,6 +16,8 @@ interface ContentActionProps {
   onUpdateJustification: (objectifId: string, justification: Partial<Justification>) => void;
   notifications: Notification[];
   unreadCount: number;
+  onNotificationClick: (notification: Notification) => void;
+  targetSubTab: string | null;
 }
 
 export default function ContentAction({
@@ -25,11 +27,13 @@ export default function ContentAction({
   onUpdateJustification,
   notifications,
   unreadCount,
+  onNotificationClick,
+  targetSubTab,
 }: ContentActionProps) {
   const contentMap: Record<string, React.ReactNode> = {
-    objectif: <ObjectifPanel selectedEtape={selectedEtape} onUpdateJustification={onUpdateJustification} />,
+    objectif: <ObjectifPanel selectedEtape={selectedEtape} onUpdateJustification={onUpdateJustification} targetSubTab={targetSubTab} />,
     progression: <ProgressionPanel />,
-    notification: <NotificationPanel notifications={notifications} />,
+    notification: <NotificationPanel notifications={notifications} onNotificationClick={onNotificationClick} />,
   };
 
   return (

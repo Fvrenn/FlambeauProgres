@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Etape, Objectif, Justification } from "@prisma/client";
 import { Tabs, Tab, useDisclosure } from "@heroui/react";
 import { Icon } from "@iconify/react";
@@ -14,11 +14,20 @@ import ChatPanel from "@/components/application/dashboard-chef/ChatPanel";
 interface ObjectifPanelProps {
   selectedEtape: EtapeAvecObjectifs | null;
   onUpdateJustification: (objectifId: string, justification: Partial<Justification>) => void;
+  targetSubTab?: string | null;
 }
 
-export default function ObjectifPanel({ selectedEtape, onUpdateJustification }: ObjectifPanelProps) {
+export default function ObjectifPanel({ selectedEtape, onUpdateJustification, targetSubTab }: ObjectifPanelProps) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [selectedObjectif, setSelectedObjectif] = useState<ObjectifAvecJustification | null>(null);
+  const [activeTab, setActiveTab] = useState<React.Key>("competence");
+
+  // Effect to switch tab when targetSubTab changes
+  useEffect(() => {
+    if (targetSubTab) {
+      setActiveTab(targetSubTab);
+    }
+  }, [targetSubTab]);
 
   // State pour le ChatPanel
   const { isOpen: isChatOpen, onOpen: onChatOpen, onOpenChange: onChatOpenChange } = useDisclosure();
@@ -68,6 +77,8 @@ export default function ObjectifPanel({ selectedEtape, onUpdateJustification }: 
             tabContent:
               "text-black group-data-[selected=true]:pl-6 group-data-[selected=true]:font-semibold font-medium transition-all duration-300 ease-in-out",
           }}
+          selectedKey={activeTab as string}
+          onSelectionChange={setActiveTab}
         >
           <Tab key="competence" title="Compétences">
             <Divider className="mt-3" />

@@ -4,6 +4,7 @@ import { Etape, Objectif, Justification, Notification, Commentaire, User as User
 import React, { useState, useEffect } from "react";
 import ContentChemise from "./contentChemise/contentChemise";
 import ContentAction from "./contentAction/contentAction";
+import { markNotificationAsRead } from "@/app/actions/notification-actions";
 
 // Type pour un commentaire avec auteur
 type CommentaireAvecAuteur = Commentaire & {
@@ -36,6 +37,7 @@ export default function DashboardClient({
   const [etapes, setEtapes] = useState<EtapeAvecObjectifs[]>(initialEtapes);
   const [selectedEtape, setSelectedEtape] = useState<EtapeAvecObjectifs | null>(null);
   const [activeTab, setActiveTab] = useState<React.Key>("objectif");
+  const [targetSubTab, setTargetSubTab] = useState<string | null>(null);
 
   useEffect(() => {
     if (selectedEtape) {
@@ -73,6 +75,37 @@ export default function DashboardClient({
     );
   };
 
+  const handleNotificationClick = async (notification: Notification) => {
+    // 1. Marquer comme lu
+    if (!notification.lue) {
+      await markNotificationAsRead(notification.id);
+    }
+
+    // 2. Trouver l'étape correspondante si la notification est liée à une justification
+    if (notification.justificationId) {
+      const etapeFound = etapes.find((etape) =>
+        etape.objectifs.some((obj) =>
+          obj.justifications.some((j) => j.id === notification.justificationId)
+        )
+      );
+
+      if (etapeFound) {
+        setSelectedEtape(etapeFound);
+        setActiveTab("objectif");
+        // On force l'onglet "discussion" si c'est une demande de précision ou un commentaire
+        if (
+          notification.type === "DEMANDE_PRECISION" ||
+          notification.type === "NOUVEAU_COMMENTAIRE" ||
+          notification.type === "REPONSE_PRECISION"
+        ) {
+          setTargetSubTab("discussion");
+        } else {
+          setTargetSubTab(null);
+        }
+      }
+    }
+  };
+
   return (
     <div className="flex items-stretch flex-1 gap-4 pt-4 min-h-0">
       <ContentChemise
@@ -87,6 +120,8 @@ export default function DashboardClient({
         onUpdateJustification={updateJustification}
         notifications={notifications}
         unreadCount={notifications.filter((n) => !n.lue).length}
+        onNotificationClick={handleNotificationClick}
+        targetSubTab={targetSubTab}
       />
     </div>
   );
