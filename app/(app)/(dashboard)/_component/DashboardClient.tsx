@@ -12,7 +12,7 @@ type CommentaireAvecAuteur = Commentaire & {
 
 // Type pour une justification avec commentaires
 type JustificationAvecCommentaires = Justification & {
-  commentaires: CommentaireAvecAuteur[];
+  commentaires?: CommentaireAvecAuteur[];
 };
 
 // Nouveau type pour un objectif qui peut avoir une justification

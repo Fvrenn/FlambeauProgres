@@ -184,9 +184,9 @@ export default function ObjectifPanel({ selectedEtape, onUpdateJustification }: 
       <ChatPanel
         isOpen={isChatOpen}
         onClose={onChatOpenChange}
-        objectifId={selectedChatObjectif?.id || ""}
+        // objectifId removed
         justificationId={selectedChatObjectif?.justifications[0]?.id || ""}
-        initialCommentaires={selectedChatObjectif?.justifications[0]?.commentaires || []}
+        // initialCommentaires removed
       />
     </div>
   );

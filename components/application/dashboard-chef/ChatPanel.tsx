@@ -1,204 +1,104 @@
 "use client";
 
-import React, { useEffect, useState, useOptimistic, useTransition } from "react";
+import React, { useEffect, useState, useOptimistic } from "react";
 import {
   Drawer,
   DrawerContent,
   DrawerHeader,
   DrawerBody,
   DrawerFooter,
-  Button,
-  Textarea,
-  Spinner,
-  Divider,
-  Card,
-  CardBody,
-  User,
-  Chip,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useSession } from "@/src/lib/auth-client";
-import { useRouter } from "next/navigation";
-import { Justification, Commentaire, User as UserType } from "@prisma/client";
-import { submitComment } from "@/app/(app)/(dashboard)/_actions/commentaire-actions";
-
-// Type pour une justification complète avec commentaires et auteurs
-type JustificationWithComments = Justification & {
-  commentaires: (Commentaire & {
-    auteur: UserType;
-  })[];
-  chef: UserType;
-  objectif: {
-    code: string;
-    description: string;
-  };
-};
-
-// Type pour un commentaire avec auteur et état optionnel
-type CommentaireAvecAuteur = (Commentaire & {
-  auteur: UserType;
-  isPending?: boolean;
-});
-
-// Type pour un commentaire optimiste (en attente d'envoi)
-type OptimisticComment = Commentaire & {
-  auteur: UserType;
-  isPending?: boolean;
-};
+import { CommentaireAvecAuteur } from "@/src/types/chat";
+import { submitComment, getComments } from "@/app/(app)/(dashboard)/_actions/commentaire-actions";
+import ChatList from "./chat/ChatList";
+import ChatInput from "./chat/ChatInput";
+import { User as UserType } from "@prisma/client";
 
 interface ChatPanelProps {
   isOpen: boolean;
   onClose: () => void;
-  objectifId: string;
   justificationId?: string;
-  initialCommentaires?: CommentaireAvecAuteur[];
+  // initialCommentaires is removed as we load them lazily now
 }
 
 export default function ChatPanel({
   isOpen,
   onClose,
-  objectifId,
   justificationId,
-  initialCommentaires,
 }: ChatPanelProps) {
   const { data: session } = useSession();
   const currentUserId = session?.user?.id;
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
 
-  // État pour la justification avec commentaires
-  const [justification, setJustification] = useState<JustificationWithComments | null>(null);
+  // Local state for real comments
+  const [comments, setComments] = useState<CommentaireAvecAuteur[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // État local pour les commentaires (initial + recharges après envoi)
-  const [localCommentaires, setLocalCommentaires] = useState(
-    initialCommentaires || []
-  );
-
-  // État pour le formulaire
-  const [messageText, setMessageText] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // État optimiste pour les commentaires
-  const [optimisticCommentaires, addOptimisticCommentaire] = useOptimistic(
-    localCommentaires,
-    (state: CommentaireAvecAuteur[], 
-     newComment: CommentaireAvecAuteur) => [
+  // Optimistic state
+  const [optimisticComments, addOptimisticComment] = useOptimistic(
+    comments,
+    (state: CommentaireAvecAuteur[], newComment: CommentaireAvecAuteur) => [
       ...state,
       newComment,
     ]
   );
 
-  // Synchroniser les commentaires initiaux quand ils changent
+  // Lazy load comments when drawer opens
   useEffect(() => {
-    if (initialCommentaires) {
-      console.log("📍 [ChatPanel] Synchronisation des commentaires initiaux:", initialCommentaires.length);
-      setLocalCommentaires(initialCommentaires);
+    if (isOpen && justificationId) {
+      const loadComments = async () => {
+        setIsLoading(true);
+        setError(null);
+        const result = await getComments(justificationId);
+        if (result.success && result.data) {
+          setComments(result.data);
+        } else {
+          setError(result.error || "Erreur lors du chargement des messages");
+        }
+        setIsLoading(false);
+      };
+
+      loadComments();
     }
-  }, [initialCommentaires]);
+  }, [isOpen, justificationId]);
 
-  // Fonction pour recharger les commentaires depuis le serveur (après envoi)
-  const reloadCommentaires = async () => {
-    if (!justificationId) return;
+  const handleSendMessage = async (text: string) => {
+    if (!justificationId || !currentUserId || !session?.user) return;
 
-    console.log("📍 [ChatPanel] Recharge des commentaires depuis le serveur");
-    try {
-      const response = await fetch(
-        `/api/justifications/${justificationId}/comments`
-      );
-
-      if (!response.ok) {
-        console.error("❌ [ChatPanel] Erreur API:", response.status);
-        return;
-      }
-
-      const data = await response.json();
-      console.log("✅ [ChatPanel] Commentaires reçus:", data.commentaires?.length);
-      setLocalCommentaires(data.commentaires || []);
-    } catch (err) {
-      console.error("❌ [ChatPanel] Exception lors du reload:", err);
-    }
-  };
-
-  const handleSendMessage = async () => {
-    if (!messageText.trim() || !justificationId || !currentUserId) {
-      return;
-    }
-
-    // Sauvegarder le texte avant de le vider
-    const textToSend = messageText;
-
-    const newComment: OptimisticComment = {
+    // Create optimistic comment
+    const optimisticComment: CommentaireAvecAuteur = {
       id: `temp-${Date.now()}`,
       justificationId,
       auteurId: currentUserId,
-      contenu: textToSend,
-      type: "CHEF_REPONSE" as const,
+      contenu: text,
+      type: "CHEF_REPONSE",
       createdAt: new Date(),
-      auteur: session?.user as UserType,
+      // updatedAt removed as it's not in the schema
+      auteur: session.user as UserType,
       isPending: true,
     };
 
-    console.log("📍 [ChatPanel] Envoi du message:", textToSend);
-    
-    // Mettre à jour l'UI de manière optimiste
-    addOptimisticCommentaire(newComment);
-    setMessageText("");
+    addOptimisticComment(optimisticComment);
 
-    setIsSubmitting(true);
+    // Call server action
+    const result = await submitComment(justificationId, text);
 
-    startTransition(async () => {
-      try {
-        // Appeler la Server Action pour soumettre le commentaire
-        const result = await submitComment(justificationId, textToSend);
-
-        if (result.success) {
-          console.log("✅ [ChatPanel] Message envoyé, recharge des commentaires");
-          // Attendre un court délai avant de recharger
-          await new Promise(resolve => setTimeout(resolve, 300));
-          await reloadCommentaires();
-        } else {
-          throw new Error(result.error || "Erreur lors de l'envoi du message");
-        }
-      } catch (err) {
-        console.error("❌ [ChatPanel] Erreur lors de l'envoi:", err);
-        // En cas d'erreur, on remet le texte dans la textarea
-        setMessageText(textToSend);
-        setError(
-          err instanceof Error ? err.message : "Erreur lors de l'envoi"
-        );
-      } finally {
-        setIsSubmitting(false);
-      }
-    });
-  };
-
-  const loadComments = async () => {
-    if (!justificationId) return;
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      // Appeler la Server Action pour récupérer les commentaires
-      const response = await fetch(
-        `/api/justifications/${justificationId}/comments`
-      );
-
-      if (!response.ok) {
-        throw new Error("Erreur lors du chargement des commentaires");
-      }
-
-      const data = await response.json();
-      setJustification(data);
-    } catch (err) {
-      console.error("Erreur lors du chargement des commentaires:", err);
-      setError(
-        err instanceof Error ? err.message : "Une erreur est survenue"
-      );
-    } finally {
-      setIsLoading(false);
+    if (result.success && result.data) {
+      // Update local state with the real comment from server
+      // We append it to the existing comments. 
+      // Note: In a real-time app, we'd want to merge carefully or re-fetch, 
+      // but appending is fine for this simple case.
+      setComments((prev) => [...prev, result.data as CommentaireAvecAuteur]);
+    } else {
+      setError(result.error || "Erreur lors de l'envoi");
+      // Ideally we would roll back the optimistic update here, 
+      // but useOptimistic handles the temporary state automatically 
+      // (it only exists for the duration of the transition/action).
+      // However, since we are updating `comments` state on success, 
+      // if we fail, `comments` won't update, so the optimistic one will just disappear.
+      // We might want to show an error toast.
     }
   };
 
@@ -227,112 +127,18 @@ export default function ChatPanel({
         </DrawerHeader>
 
         {/* BODY - Messages */}
-        <DrawerBody className="flex-1 overflow-y-auto py-4 space-y-4">
-          {error ? (
-            <div className="flex items-center justify-center h-full">
-              <Card className="bg-danger-50 border border-danger-200">
-                <CardBody className="text-danger">
-                  <p className="text-sm">{error}</p>
-                </CardBody>
-              </Card>
-            </div>
-          ) : optimisticCommentaires.length > 0 ? (
-            optimisticCommentaires.map((comment) => {
-              const isChef = comment.auteur.id === currentUserId;
-
-              return (
-                <div
-                  key={comment.id}
-                  className={`flex ${isChef ? "justify-end" : "justify-start"}`}
-                >
-                  <div
-                    className={`flex gap-3 max-w-xs ${
-                      isChef ? "flex-row-reverse" : "flex-row"
-                    }`}
-                  >
-                    {/* Avatar */}
-                    <User
-                      avatarProps={{
-                        src: comment.auteur.image || undefined,
-                        name: comment.auteur.name.charAt(0).toUpperCase(),
-                        size: "sm",
-                      }}
-                      name=""
-                      description=""
-                      className="min-w-fit"
-                    />
-
-                    {/* Message Bubble */}
-                    <Card
-                      className={`${
-                        isChef
-                          ? "bg-primary text-white"
-                          : "bg-default-100 text-default-900"
-                      } ${comment.isPending ? "opacity-60" : ""}`}
-                    >
-                      <CardBody className="p-3 gap-1">
-                        <p className="text-xs font-semibold">
-                          {comment.auteur.name}
-                        </p>
-                        <p className="text-sm">{comment.contenu}</p>
-                        <p className="text-xs opacity-70 mt-1">
-                          {new Date(comment.createdAt).toLocaleTimeString(
-                            "fr-FR",
-                            {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            }
-                          )}
-                        </p>
-                        {comment.isPending && (
-                          <div className="flex items-center gap-1 mt-1">
-                            <Spinner size="sm" />
-                            <span className="text-xs">Envoi...</span>
-                          </div>
-                        )}
-                      </CardBody>
-                    </Card>
-                  </div>
-                </div>
-              );
-            })
-          ) : (
-            <div className="flex items-center justify-center h-full text-gray-500">
-              <p>Aucun message pour le moment.</p>
-            </div>
-          )}
+        <DrawerBody className="flex-1 overflow-y-auto py-0 px-0">
+          <ChatList
+            comments={optimisticComments}
+            currentUserId={currentUserId}
+            error={error}
+            isLoading={isLoading}
+          />
         </DrawerBody>
 
         {/* FOOTER - Input */}
         <DrawerFooter className="flex flex-col gap-3 border-t border-divider">
-          {error && (
-            <Card className="bg-warning-50 border border-warning-200">
-              <CardBody className="p-2 text-warning text-xs">{error}</CardBody>
-            </Card>
-          )}
-
-          <div className="flex gap-2">
-            <Textarea
-              placeholder="Écris ton message..."
-              value={messageText}
-              onValueChange={setMessageText}
-              minRows={2}
-              maxRows={4}
-              disabled={isSubmitting}
-              className="flex-1"
-            />
-            <Button
-              isIconOnly
-              color="primary"
-              onPress={handleSendMessage}
-              isLoading={isSubmitting}
-              disabled={!messageText.trim() || isSubmitting}
-              size="lg"
-              className="mt-auto"
-            >
-              <Icon icon="solar:send-linear" width={20} />
-            </Button>
-          </div>
+          <ChatInput onSend={handleSendMessage} disabled={!justificationId || isLoading} />
         </DrawerFooter>
       </DrawerContent>
     </Drawer>

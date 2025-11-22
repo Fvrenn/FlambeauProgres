@@ -3,17 +3,36 @@
 import prisma from "@/src/lib/prisma";
 import { getUser } from "@/src/lib/auth-server";
 import { revalidatePath } from "next/cache";
+import { CommentaireAvecAuteur } from "@/src/types/chat";
 
 /**
- * Envoie une réponse (commentaire) du Chef sur une justification en DEMANDE_PRECISION.
- * 
- * Workflow :
- * 1. Récupère l'utilisateur (auteur du commentaire)
- * 2. Crée le Commentaire avec type: CHEF_REPONSE
- * 3. Le statut de la Justification RESTE DEMANDE_PRECISION
- * 4. Crée une Notification pour les Référents (type: NOUVEAU_COMMENTAIRE)
- * 5. Revalide les dashboards (Chef et Référent)
+ * Récupère les commentaires d'une justification.
+ * Utilisé pour le Lazy Loading du ChatPanel.
  */
+export async function getComments(justificationId: string) {
+  try {
+    const user = await getUser();
+    if (!user) {
+      return { success: false, error: "Non authentifié" };
+    }
+
+    const commentaires = await prisma.commentaire.findMany({
+      where: { justificationId },
+      include: {
+        auteur: true,
+      },
+      orderBy: {
+        createdAt: "asc",
+      },
+    });
+
+    return { success: true, data: commentaires as CommentaireAvecAuteur[] };
+  } catch (error) {
+    console.error("Erreur lors de la récupération des commentaires:", error);
+    return { success: false, error: "Erreur serveur" };
+  }
+}
+
 export async function submitComment(
   justificationId: string,
   message: string
@@ -104,7 +123,7 @@ export async function submitComment(
 
     return {
       success: true,
-      data: newCommentaire,
+      data: newCommentaire as CommentaireAvecAuteur,
     };
   } catch (error) {
     console.error("Erreur lors de l'envoi du commentaire:", error);
