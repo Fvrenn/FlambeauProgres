@@ -1,15 +1,17 @@
 "use client";
-import { Tabs, Tab } from "@heroui/react";
+import { Tabs, Tab, Chip } from "@heroui/react";
 import React from "react";
 
 interface TabsContentActionProps {
   selectedKey: React.Key;
   onSelectionChange: (key: React.Key) => void;
+  unreadCount: number;
 }
 
 export default function TabsContentAction({
   selectedKey,
   onSelectionChange,
+  unreadCount,
 }: TabsContentActionProps) {
   return (
     <div className="flex w-full flex-col">
@@ -26,7 +28,19 @@ export default function TabsContentAction({
       >
         <Tab key="objectif" title="Objectif"></Tab>
         <Tab key="progression" title="Progression"></Tab>
-        <Tab key="notification" title="Notifications"></Tab>
+        <Tab
+          key="notification"
+          title={
+            <div className="flex items-center gap-2">
+              <span>Notifications</span>
+              {unreadCount > 0 && (
+                <Chip size="sm" color="danger" variant="solid">
+                  {unreadCount}
+                </Chip>
+              )}
+            </div>
+          }
+        ></Tab>
       </Tabs>
     </div>
   );

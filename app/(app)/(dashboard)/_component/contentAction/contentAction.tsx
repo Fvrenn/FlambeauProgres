@@ -15,6 +15,7 @@ interface ContentActionProps {
   onTabChange: (key: React.Key) => void;
   onUpdateJustification: (objectifId: string, justification: Partial<Justification>) => void;
   notifications: Notification[];
+  unreadCount: number;
 }
 
 export default function ContentAction({
@@ -23,6 +24,7 @@ export default function ContentAction({
   onTabChange,
   onUpdateJustification,
   notifications,
+  unreadCount,
 }: ContentActionProps) {
   const contentMap: Record<string, React.ReactNode> = {
     objectif: <ObjectifPanel selectedEtape={selectedEtape} onUpdateJustification={onUpdateJustification} />,
@@ -36,6 +38,7 @@ export default function ContentAction({
         <TabsContentAction
           selectedKey={activeTab}
           onSelectionChange={onTabChange}
+          unreadCount={unreadCount}
         />
       </div>
       <div className="bg-white flex-1 w-full rounded-3xl p-6 overflow-y-auto min-h-0">

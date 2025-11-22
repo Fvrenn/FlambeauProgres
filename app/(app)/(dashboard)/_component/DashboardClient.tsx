@@ -86,6 +86,7 @@ export default function DashboardClient({
         onTabChange={setActiveTab}
         onUpdateJustification={updateJustification}
         notifications={notifications}
+        unreadCount={notifications.filter((n) => !n.lue).length}
       />
     </div>
   );
