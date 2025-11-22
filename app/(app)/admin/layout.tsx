@@ -35,12 +35,6 @@ export default async function AdminLayout({
       title: "Etapes",
     },
     {
-      key: "objectifs",
-      href: "/admin/objectifs",
-      icon: "solar:target-linear",
-      title: "Objectifs",
-    },
-    {
       key: "assignations",
       href: "/admin/assignations",
       icon: "solar:link-linear",

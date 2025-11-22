@@ -1,10 +1,29 @@
 import React from "react";
+import prisma from "@/src/lib/prisma";
+import AssignationsClientPage from "./ClientPage";
 
-export default function AdminAssignationsPage() {
-  return (
-    <div className="flex h-full flex-col p-4">
-      <h1 className="text-2xl font-bold">CRUD Assignations</h1>
-      <p className="text-default-500">Page /admin/assignations (lier Referent à etape)</p>
-    </div>
-  );
+export default async function AdminAssignationsPage() {
+  const etapes = await prisma.etape.findMany({
+    include: {
+      referents: {
+        include: {
+          referent: true,
+        },
+      },
+    },
+    orderBy: {
+      ordre: "asc",
+    },
+  });
+
+  const allReferents = await prisma.user.findMany({
+    where: {
+      role: "REFERENT",
+    },
+    orderBy: {
+      name: "asc",
+    },
+  });
+
+  return <AssignationsClientPage etapes={etapes} allReferents={allReferents} />;
 }
