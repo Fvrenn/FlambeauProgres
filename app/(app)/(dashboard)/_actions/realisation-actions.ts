@@ -71,47 +71,43 @@ export async function submitRealisation(
       };
     }
 
-    // TODO: Gérer l'upload du fichier ici
-    // Une fois que l'infrastructure est décidée (Vercel Blob, S3, local, etc.)
-    // 1. Uploader le fichier vers le service choisi
-    // 2. Récupérer l'URL/chemin du fichier uploadé
-    // 3. Créer une entrée dans la table `Fichier` avec ces informations
-    
+    // Gestion de l'upload du fichier
     let fichierUrl: string | null = null;
     let fichierData: any = null;
 
     if (file) {
-      // PLACEHOLDER pour l'upload de fichier
-      // Exemples d'implémentation selon le service :
-      
-      // Option 1: Vercel Blob
-      // const blob = await put(file.name, file, { access: 'public' });
-      // fichierUrl = blob.url;
+      const fs = require("node:fs/promises");
+      const path = require("node:path");
 
-      // Option 2: AWS S3
-      // const uploadResult = await s3.upload({ Bucket: 'bucket', Key: file.name, Body: file });
-      // fichierUrl = uploadResult.Location;
+      // Créer le dossier d'upload s'il n'existe pas
+      const uploadDir = path.join(process.cwd(), "public", "uploads", "justifications");
+      try {
+        await fs.access(uploadDir);
+      } catch {
+        await fs.mkdir(uploadDir, { recursive: true });
+      }
 
-      // Option 3: Local (dev uniquement)
-      // const buffer = await file.arrayBuffer();
-      // await writeFile(`./uploads/${file.name}`, Buffer.from(buffer));
-      // fichierUrl = `/uploads/${file.name}`;
+      // Générer un nom de fichier unique
+      const timestamp = Date.now();
+      const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
+      const fileName = `${timestamp}-${safeName}`;
+      const filePath = path.join(uploadDir, fileName);
 
-      // Pour l'instant, on stocke juste les métadonnées du fichier
+      // Écrire le fichier
+      const buffer = Buffer.from(await file.arrayBuffer());
+      await fs.writeFile(filePath, buffer);
+
+      // URL publique pour l'accès au fichier
+      fichierUrl = `/uploads/justifications/${fileName}`;
+
       fichierData = {
         nomOriginal: file.name,
-        nomStockage: `placeholder-${Date.now()}-${file.name}`, // À remplacer
-        cheminFichier: "TODO: URL après upload", // À remplacer
+        nomStockage: fileName,
+        cheminFichier: fichierUrl,
         type: file.type.startsWith("image/") ? "IMAGE" : "DOCUMENT",
         mimeType: file.type,
         taille: file.size,
       };
-
-      console.warn(
-        "⚠️ Upload de fichier non implémenté. Fichier reçu:",
-        file.name,
-        `(${file.size} bytes)`
-      );
     }
 
     // Vérifier s'il existe déjà une justification pour cet objectif et cet utilisateur

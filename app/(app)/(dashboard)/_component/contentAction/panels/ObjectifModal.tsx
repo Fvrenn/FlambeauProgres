@@ -280,13 +280,7 @@ export default function ObjectifModal({
                       )}
                     </div>
 
-                    <div className="bg-warning-50 border border-warning-200 rounded-lg p-3 flex items-start gap-2">
-                      <Icon icon="solar:info-circle-linear" width={20} className="text-warning-600 flex-shrink-0 mt-0.5" />
-                      <p className="text-xs text-warning-800">
-                        <strong>Note :</strong> L'upload de fichier n'est pas encore configuré. 
-                        Le fichier sera traité une fois l'infrastructure mise en place.
-                      </p>
-                    </div>
+
                   </div>
                 </>
               )}

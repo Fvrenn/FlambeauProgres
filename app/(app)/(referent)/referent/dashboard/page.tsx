@@ -1,7 +1,7 @@
 import React from "react";
-import prisma from "@/src/lib/prisma";
-import ReferentDashboardClientV2 from "./ReferentDashboardClientV2";
 import { getUser } from "@/src/lib/auth-server";
+import prisma from "@/src/lib/prisma"; // Assurez-vous d'importer votre client Prisma
+import ReferentDashboardClientV2 from "./ReferentDashboardClientV2";
 import { type User } from "@prisma/client";
 
 type ReferentDashboardPageProps = {
@@ -124,88 +124,84 @@ export default async function ReferentDashboardPage({
     return <div>Accès refusé</div>;
   }
 
-  // 7. Fetch justifications à valider (SOUMISE)
-  const justificationsAValider = await prisma.justification.findMany({
+  // Récupération des justifications à valider
+  const rawJustificationsAValider = await prisma.justification.findMany({
     where: {
       etapeId: etapeId,
-      statut: "SOUMISE",
+      statut: "SOUMISE", // ou un autre statut pertinent
     },
     include: {
-      chef: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          image: true,
+      chef: true,
+      objectif: true,
+      commentaires: {
+        include: {
+          auteur: true,
+        },
+        orderBy: {
+          createdAt: "asc",
         },
       },
-      objectif: {
-        select: {
-          id: true,
-          code: true,
-          description: true,
-        },
-      },
+      fichiers: true, // <--- AJOUTEZ CETTE LIGNE pour inclure les fichiers
     },
     orderBy: {
       soumiseAt: "asc",
     },
   });
 
-  // 8. Fetch justifications en discussion (DEMANDE_PRECISION) avec count notif non lues
-  const justificationsEnDiscussion = await prisma.justification.findMany({
+  // Mappe les justifications pour ajouter la propriété 'url' à chaque fichier
+  const justificationsAValider = rawJustificationsAValider.map((justification) => ({
+    ...justification,
+    fichiers: justification.fichiers.map((fichier) => ({
+      ...fichier,
+      // Construisez l'URL du fichier. Assurez-vous que '/uploads/' correspond à votre répertoire de fichiers statiques.
+      url: `${fichier.cheminFichier}`,
+    })),
+  }));
+
+  // Faites de même pour d'autres requêtes de justifications, par exemple 'justificationsEnDiscussion'
+  const rawJustificationsEnDiscussion = await prisma.justification.findMany({
     where: {
       etapeId: etapeId,
       statut: "DEMANDE_PRECISION",
     },
     include: {
-      chef: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          image: true,
-        },
-      },
-      objectif: {
-        select: {
-          id: true,
-          code: true,
-          description: true,
-        },
-      },
+      chef: true,
+      objectif: true,
       commentaires: {
         include: {
-          auteur: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              image: true,
-            },
-          },
+          auteur: true,
         },
         orderBy: {
           createdAt: "asc",
         },
       },
+      fichiers: true, // <--- AJOUTEZ CETTE LIGNE
       _count: {
         select: {
           notifications: {
             where: {
               destinataireId: user.id,
               lue: false,
-              type: { in: ["NOUVEAU_COMMENTAIRE", "REPONSE_PRECISION"] },
+              type: "NOUVEAU_COMMENTAIRE",
             },
           },
         },
       },
     },
     orderBy: {
-      soumiseAt: "asc",
+      updatedAt: "desc",
     },
   });
 
+  const justificationsEnDiscussion = rawJustificationsEnDiscussion.map((justification) => ({
+    ...justification,
+    fichiers: justification.fichiers.map((fichier) => ({
+      ...fichier,
+      url: `${fichier.cheminFichier}`,
+    })),
+  }));
+
+  // Transmettez les données mises à jour à votre composant client
   return (
     <ReferentDashboardClientV2
       justificationsAValider={justificationsAValider}

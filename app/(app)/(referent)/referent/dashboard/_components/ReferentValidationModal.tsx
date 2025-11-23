@@ -25,7 +25,12 @@ import { useSession } from "@/src/lib/auth-client";
 import MessageCard from "@/components/application/referent/_components/MessageCard";
 import { approveJustification, requestChanges } from "@/app/actions/justification-actions";
 import { markNotificationsAsReadForJustification } from "@/app/actions/notification-actions";
-import { Justification, Commentaire, User as UserType, Objectif } from "@prisma/client";
+import { Justification, Commentaire, User as UserType, Objectif, Fichier } from "@prisma/client"; // Assurez-vous d'importer 'Fichier'
+
+// Nouveau type pour un Fichier avec son URL calculée
+type FichierAvecUrl = Fichier & {
+  url: string; // L'URL d'accès au fichier (calculée sur le serveur)
+};
 
 type JustificationAvecRelations = Justification & {
   chef: UserType;
@@ -33,7 +38,7 @@ type JustificationAvecRelations = Justification & {
   commentaires: (Commentaire & {
     auteur: UserType;
   })[];
-  fichiers?: Array<{ id: string; nom: string; type: string; url: string }>;
+  fichiers?: FichierAvecUrl[]; // Utilise le nouveau type FichierAvecUrl
 };
 
 interface ReferentValidationModalProps {
@@ -238,6 +243,12 @@ export default function ReferentValidationModal({
 
   if (!justification) return null;
 
+  console.log("📍 [ReferentValidationModal] Justification reçue:", justification.id);
+  console.log("📍 [ReferentValidationModal] Fichiers associés:", justification.fichiers);
+  if (justification.fichiers) {
+    console.log("📍 [ReferentValidationModal] Nombre de fichiers:", justification.fichiers.length);
+  }
+
   return (
     <Modal
       isOpen={isOpen}
@@ -327,38 +338,59 @@ export default function ReferentValidationModal({
                         {justification.fichiers.map((fichier) => (
                           <div
                             key={fichier.id}
-                            className="flex items-center gap-2 p-2 bg-default-50 rounded-lg"
+                            className="flex flex-col gap-2 p-3 bg-default-50 rounded-lg" // Changé en flex-col pour un meilleur agencement
                           >
-                            <Icon
-                              icon={
-                                fichier.type.startsWith("image")
-                                  ? "solar:image-linear"
-                                  : "solar:document-linear"
-                              }
-                              width={20}
-                              className="text-default-500"
-                            />
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium truncate">
-                                {fichier.nom}
-                              </p>
-                              <p className="text-xs text-default-500">
-                                {fichier.type}
-                              </p>
-                            </div>
-                            <Link
-                              href={fichier.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              isExternal
-                              className="flex-shrink-0"
-                            >
+                            {/* Prévisualisation de l'image (conditionnelle) */}
+                            {fichier.mimeType.startsWith("image/") && ( // Utilise mimeType
+                              <div className="relative h-48 w-full overflow-hidden rounded-md">
+                                <img
+                                  src={fichier.url} // Utilise l'URL calculée
+                                  alt={fichier.nomOriginal} // Utilise nomOriginal
+                                  className="object-cover w-full h-full"
+                                />
+                              </div>
+                            )}
+
+                            {/* Détails du fichier et lien de téléchargement */}
+                            <div className="flex items-center gap-2">
+                              {/* Icône basée sur le type de fichier */}
                               <Icon
-                                icon="solar:download-linear"
+                                icon={
+                                  fichier.mimeType.startsWith("image/") // Utilise mimeType
+                                    ? "solar:gallery-linear"
+                                    : fichier.mimeType.includes("pdf") // Utilise mimeType
+                                    ? "solar:file-check-linear"
+                                    : "solar:document-linear"
+                                }
                                 width={20}
-                                className="text-primary cursor-pointer hover:text-primary-700"
+                                className="text-default-500"
                               />
-                            </Link>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium truncate">
+                                  {fichier.nomOriginal} {/* Utilise nomOriginal */}
+                                </p>
+                                <p className="text-xs text-default-500">
+                                  {fichier.mimeType.includes("pdf") // Utilise mimeType
+                                    ? "Document PDF"
+                                    : fichier.mimeType.startsWith("image/") // Utilise mimeType
+                                    ? "Image"
+                                    : "Fichier"}
+                                </p>
+                              </div>
+                              <Link
+                                href={fichier.url} // Utilise l'URL calculée
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                isExternal
+                                className="flex-shrink-0"
+                              >
+                                <Icon
+                                  icon="solar:download-linear"
+                                  width={20}
+                                  className="text-primary cursor-pointer hover:text-primary-700"
+                                />
+                              </Link>
+                            </div>
                           </div>
                         ))}
                       </div>
