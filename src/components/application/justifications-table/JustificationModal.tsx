@@ -14,7 +14,7 @@ import {
   Link,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { approveJustification, rejectJustification } from "@/app/actions/justification-actions";
+import { approveJustification, rejectJustification } from "@/actions/justification/justification.actions";
 import type { JustificationAvecRelations } from "./JustificationsTableColumns";
 
 type JustificationModalProps = {

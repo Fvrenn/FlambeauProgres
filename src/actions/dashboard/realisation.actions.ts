@@ -3,11 +3,16 @@
 import { prisma } from "@/lib/prisma";
 import { getUser } from "@/lib/auth-server";
 import { revalidatePath } from "next/cache";
+import { StorageService } from "@/services/storage.service";
 
 /**
  * Crée ou met à jour une notification pour les référents d'une étape
  */
-async function notifyReferents(etapeId: string, justificationId: string, chefName: string) {
+async function notifyReferents(
+  etapeId: string,
+  justificationId: string,
+  chefName: string
+) {
   try {
     // Récupérer tous les référents assignés à cette étape
     const etapeReferents = await prisma.etapeReferent.findMany({
@@ -34,7 +39,9 @@ async function notifyReferents(etapeId: string, justificationId: string, chefNam
       data: notifications,
     });
 
-    console.log(`${notifications.length} notification(s) créée(s) pour la justification ${justificationId}`);
+    console.log(
+      `${notifications.length} notification(s) créée(s) pour la justification ${justificationId}`
+    );
   } catch (error) {
     console.error("Erreur lors de la création des notifications:", error);
     // On ne fait pas échouer la requête principale si les notifications échouent
@@ -71,43 +78,25 @@ export async function submitRealisation(
       };
     }
 
-    // Gestion de l'upload du fichier
-    let fichierUrl: string | null = null;
+    // Gestion de l'upload du fichier via StorageService
     let fichierData: any = null;
 
     if (file) {
-      const fs = require("node:fs/promises");
-      const path = require("node:path");
-
-      // Créer le dossier d'upload s'il n'existe pas
-      const uploadDir = path.join(process.cwd(), "public", "uploads", "justifications");
       try {
-        await fs.access(uploadDir);
-      } catch {
-        await fs.mkdir(uploadDir, { recursive: true });
+        const result = await StorageService.uploadFile(file, "justifications");
+        
+        fichierData = {
+          nomOriginal: file.name,
+          nomStockage: result.pathname, // On garde le pathname ou l'URL complète selon besoin
+          cheminFichier: result.url,
+          type: file.type.startsWith("image/") ? "IMAGE" : "DOCUMENT",
+          mimeType: file.type || "application/octet-stream",
+          taille: file.size,
+        };
+      } catch (uploadError) {
+        console.error("Erreur d'upload:", uploadError);
+        return { success: false, error: "Erreur lors du téléchargement du fichier" };
       }
-
-      // Générer un nom de fichier unique
-      const timestamp = Date.now();
-      const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
-      const fileName = `${timestamp}-${safeName}`;
-      const filePath = path.join(uploadDir, fileName);
-
-      // Écrire le fichier
-      const buffer = Buffer.from(await file.arrayBuffer());
-      await fs.writeFile(filePath, buffer);
-
-      // URL publique pour l'accès au fichier
-      fichierUrl = `/uploads/justifications/${fileName}`;
-
-      fichierData = {
-        nomOriginal: file.name,
-        nomStockage: fileName,
-        cheminFichier: fichierUrl,
-        type: file.type.startsWith("image/") ? "IMAGE" : "DOCUMENT",
-        mimeType: file.type,
-        taille: file.size,
-      };
     }
 
     // Vérifier s'il existe déjà une justification pour cet objectif et cet utilisateur
@@ -132,7 +121,6 @@ export async function submitRealisation(
       });
       justificationId = updated.id;
 
-      // TODO: Si un fichier existe, le créer dans la table Fichier
       if (fichierData) {
         await prisma.fichier.create({
           data: {
@@ -155,7 +143,6 @@ export async function submitRealisation(
       });
       justificationId = created.id;
 
-      // TODO: Si un fichier existe, le créer dans la table Fichier
       if (fichierData) {
         await prisma.fichier.create({
           data: {
@@ -181,3 +168,4 @@ export async function submitRealisation(
     };
   }
 }
+

@@ -7,7 +7,7 @@ import { Icon } from "@iconify/react";
 import {
   markAllNotificationsAsRead,
   markNotificationAsRead,
-} from "@/app/actions/notification-actions";
+} from "@/actions/notification/notification.actions";
 
 type NotificationPanelProps = {
   notifications: Notification[];

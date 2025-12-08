@@ -11,7 +11,7 @@ import {
   useDisclosure,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { validateEtape } from "@/app/actions/etape-actions";
+import { validateEtape } from "@/actions/etape/etape.actions";
 
 type ValidationFinaleButtonProps = {
   chefId: string;

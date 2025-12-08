@@ -11,7 +11,7 @@ import {
 import { Icon } from "@iconify/react";
 import { useSession } from "@/lib/auth-client";
 import { CommentaireAvecAuteur } from "@/types/chat";
-import { submitComment, getComments } from "@/app/(app)/(dashboard)/_actions/commentaire-actions";
+import { submitComment, getComments } from "@/actions/comment/comment.actions";
 import ChatList from "./chat/ChatList";
 import ChatInput from "./chat/ChatInput";
 import { User as UserType } from "@prisma/client";

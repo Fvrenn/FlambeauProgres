@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma";
 import DashboardClient from "@/app/(app)/(dashboard)/_component/DashboardClient";
 import { getUser } from "@/lib/auth-server";
 import { redirect } from "next/navigation";
-import { getMyNotifications } from "@/app/actions/notification-actions";
+import { getMyNotifications } from "@/actions/notification/notification.actions";
 
 export default async function Home() {
   const user = await getUser();

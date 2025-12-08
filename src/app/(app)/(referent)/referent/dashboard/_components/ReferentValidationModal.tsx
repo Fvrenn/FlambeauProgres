@@ -23,8 +23,8 @@ import { useRouter } from "next/navigation";
 import { useTransition, useOptimistic } from "react";
 import { useSession } from "@/lib/auth-client";
 import MessageCard from "@/components/application/referent/_components/MessageCard";
-import { approveJustification, requestChanges } from "@/app/actions/justification-actions";
-import { markNotificationsAsReadForJustification } from "@/app/actions/notification-actions";
+import { approveJustification, requestChanges } from "@/actions/justification/justification.actions";
+import { markNotificationsAsReadForJustification } from "@/actions/notification/notification.actions";
 import { Justification, Commentaire, User as UserType, Objectif, Fichier } from "@prisma/client"; // Assurez-vous d'importer 'Fichier'
 
 // Nouveau type pour un Fichier avec son URL calculée

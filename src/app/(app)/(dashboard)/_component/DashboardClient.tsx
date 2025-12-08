@@ -4,7 +4,7 @@ import { Etape, Objectif, Justification, Notification, Commentaire, User as User
 import React, { useState, useEffect } from "react";
 import ContentChemise from "./contentChemise/contentChemise";
 import ContentAction from "./contentAction/contentAction";
-import { markNotificationAsRead } from "@/app/actions/notification-actions";
+import { markNotificationAsRead } from "@/actions/notification/notification.actions";
 
 // Type pour un commentaire avec auteur
 type CommentaireAvecAuteur = Commentaire & {
