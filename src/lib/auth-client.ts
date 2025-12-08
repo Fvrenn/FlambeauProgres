@@ -3,7 +3,7 @@ import { createAuthClient } from "better-auth/react";
 
 // --- IMPORTE LES NOUVEAUX ÉLÉMENTS ---
 import { customSessionClient } from "better-auth/client/plugins";
-import type { auth } from "@/src/lib/auth"; // Importe 'auth' en tant que TYPE
+import type { auth } from "@/lib/auth"; // Importe 'auth' en tant que TYPE
 
 export const authClient = createAuthClient({
   // --- AJOUTE CETTE LIGNE ---
