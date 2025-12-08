@@ -131,7 +131,12 @@ const DeconnexionIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-export default function ContextSwitcher({ user }: { user: any }) {
+// ... imports
+import { Tooltip } from "@heroui/react";
+
+// ... icons
+
+export default function ContextSwitcher({ user, isCompact }: { user: any; isCompact?: boolean }) {
   const pathname = usePathname();
   // --- 2. UTILISER LE HOOK POUR LIRE LES PARAMÈTRES DE L'URL ---
   const searchParams = useSearchParams();
@@ -159,34 +164,54 @@ export default function ContextSwitcher({ user }: { user: any }) {
 
   return (
     <div className="flex flex-col">
-      <Dropdown placement="bottom-end">
+      <Dropdown placement={isCompact ? "right-start" : "bottom-end"}>
         <DropdownTrigger>
-          <Button
-            fullWidth
-            className="h-auto justify-between gap-3 rounded-xl border-1 border-divider bg-default-100 p-2"
-            endContent={<DropdownIcon />}
-          >
-            {/* --- 3. AJOUTER LE BADGE ET METTRE À JOUR LE TEXTE --- */}
-            <div className="flex w-full items-center gap-2">
-              {currentEtape?.image_src && (
-                <Image
-                  src={currentEtape.image_src}
-                  alt={`Badge ${currentEtape.name}`}
-                  width={36}
-                  height={36}
-                  className="shrink-0"
-                />
-              )}
-              <div className="flex flex-col text-left">
-                <p className="text-small font-medium text-foreground">
-                  {user.name}
-                </p>
-                <p className="text-tiny text-default-400">
-                  {getCurrentContext()}
-                </p>
-              </div>
-            </div>
-          </Button>
+          {isCompact ? (
+             <Button isIconOnly className="w-10 h-10 rounded-full">
+                {currentEtape?.image_src ? (
+                    <Image
+                      src={currentEtape.image_src}
+                      alt={`Badge ${currentEtape.name}`}
+                      width={32}
+                      height={32}
+                      className="rounded-full"
+                    />
+                ) : (
+                    <div className="flex items-center justify-center w-full h-full bg-default-100 rounded-full">
+                         <span className="text-xs font-medium text-default-600">
+                             {user.name?.charAt(0) || "U"}
+                         </span>
+                    </div>
+                )}
+             </Button>
+          ) : (
+            <Button
+                fullWidth
+                className="h-auto justify-between gap-3 rounded-xl border-1 border-divider bg-default-100 p-2"
+                endContent={<DropdownIcon />}
+            >
+                {/* --- 3. AJOUTER LE BADGE ET METTRE À JOUR LE TEXTE --- */}
+                <div className="flex w-full items-center gap-2">
+                {currentEtape?.image_src && (
+                    <Image
+                    src={currentEtape.image_src}
+                    alt={`Badge ${currentEtape.name}`}
+                    width={36}
+                    height={36}
+                    className="shrink-0"
+                    />
+                )}
+                <div className="flex flex-col text-left">
+                    <p className="text-small font-medium text-foreground">
+                    {user.name}
+                    </p>
+                    <p className="text-tiny text-default-400">
+                    {getCurrentContext()}
+                    </p>
+                </div>
+                </div>
+            </Button>
+          )}
         </DropdownTrigger>
         <DropdownMenu
           aria-label="Menu de Contexte"

@@ -41,12 +41,35 @@ export default function AppClientLayout({
         />
       </SidebarDrawer>
 
-      {/* Desktop Sidebar */}
-      <div className="hidden md:flex h-full w-72 flex-col border-r-small border-divider">
+      {/* Desktop Sidebar: Switches between 3 sizes based on breakpoints */}
+      
+      {/* 1. Compact (icons only) for Tablet/Small Desktop (md -> lg) */}
+      <div className="hidden md:flex lg:hidden h-full w-20 flex-col border-r-small border-divider z-20 bg-background transition-width duration-300">
+        <SidebarContent 
+            user={user} 
+            sidebarItems={sidebarItems} 
+            defaultSelectedKey={defaultSelectedKey}
+            isCompact={true}
+        />
+      </div>
+
+      {/* 2. Intermediate (narrower) for Desktop (lg -> xl) */}
+      <div className="hidden lg:flex xl:hidden h-full w-60 flex-col border-r-small border-divider transition-width duration-300">
+        <SidebarContent 
+            user={user} 
+            sidebarItems={sidebarItems} 
+            defaultSelectedKey={defaultSelectedKey}
+            isCompact={false} 
+        />
+      </div>
+
+      {/* 3. Full Size for Large Desktop (xl+) */}
+      <div className="hidden xl:flex h-full w-72 flex-col border-r-small border-divider transition-width duration-300">
         <SidebarContent 
             user={user} 
             sidebarItems={sidebarItems} 
             defaultSelectedKey={defaultSelectedKey} 
+            isCompact={false}
         />
       </div>
 
