@@ -13,8 +13,8 @@ import {
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { ObjectifAvecJustification } from "../../DashboardClient";
-import { submitCompetence } from "../../../_actions/competence-actions";
-import { submitRealisation } from "../../../_actions/realisation-actions";
+import { submitCompetence } from "@/actions/dashboard/competence.actions";
+import { submitRealisation } from "@/actions/dashboard/realisation.actions";
 import { useRouter } from "next/navigation";
 import { Justification } from "@prisma/client";
 
