@@ -18,7 +18,7 @@ export default function ReferentDashboardClient({
 }: ReferentDashboardClientProps) {
   return (
     <div className="h-full max-h-screen flex flex-col overflow-hidden">
-      <h4 className="text-3xl font-normal flex-shrink-0">
+      <h4 className="text-3xl font-normal flex-shrink-0 hidden md:block ">
         Dashboard Référent
       </h4>
 

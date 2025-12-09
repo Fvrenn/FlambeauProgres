@@ -92,7 +92,6 @@ export default function DashboardClient({
       if (etapeFound) {
         setSelectedEtape(etapeFound);
         setActiveTab("objectif");
-        // On force l'onglet "discussion" si c'est une demande de précision ou un commentaire
         if (
           notification.type === "DEMANDE_PRECISION" ||
           notification.type === "NOUVEAU_COMMENTAIRE" ||

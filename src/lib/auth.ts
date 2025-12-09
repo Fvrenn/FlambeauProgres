@@ -4,13 +4,17 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
 import { prisma } from "./prisma";
 
-// --- IMPORTE LE PLUGIN ---
 import { customSession } from "better-auth/plugins";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, { provider: "postgresql" }),
   emailAndPassword: {
     enabled: true,
+  },
+
+  // a retirer en prod
+  advanced: {
+    disableOriginCheck: true
   },
 
   plugins: [
@@ -23,15 +27,13 @@ export const auth = betterAuth({
           select: {
             role: true,
             troupeId: true,
-            // --- AJOUT ---
-            // On récupère les étapes assignées à cet utilisateur
             assigneEtapes: {
               select: {
                 etape: {
                   select: {
                     id: true,
                     name: true,
-                    image_src: true, // <-- AJOUTER CETTE LIGNE
+                    image_src: true, 
                   },
                 },
               },
@@ -40,7 +42,6 @@ export const auth = betterAuth({
         });
 
         if (userFromDb) {
-          // On transforme les données pour les rendre plus simples à utiliser côté client
           const etapesReferent = userFromDb.assigneEtapes.map(
             (assignation) => assignation.etape
           );
@@ -51,8 +52,6 @@ export const auth = betterAuth({
               ...user,
               role: userFromDb.role,
               troupeId: userFromDb.troupeId,
-              // --- AJOUT ---
-              // On ajoute le nouveau tableau à l'objet utilisateur de la session
               etapesReferent: etapesReferent,
             },
           };
