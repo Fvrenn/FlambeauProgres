@@ -62,7 +62,7 @@ export default function ContentChemise({
               key={etape.id}
               onClick={() => handleBadgeClick(etape)}
               aria-label={`Sélectionner l'étape ${etape.name}`}
-              className={`cursor-pointer !opacity-100 holographic-card flex-shrink-0 ${selectedEtape?.id === etape.id ? "active" : ""
+              className={`cursor-pointer opacity-100 md:opacity-50 holographic-card flex-shrink-0 ${selectedEtape?.id === etape.id ? "active" : ""
                 }`}
             >
               <Image

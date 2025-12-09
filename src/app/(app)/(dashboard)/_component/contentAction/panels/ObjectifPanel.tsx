@@ -73,7 +73,7 @@ export default function ObjectifPanel({ selectedEtape, onUpdateJustification, ta
             tabList: "gap-1 md:gap-8 w-full max-w-xl rounded-full p-0.5 bg-[#F3F2E9]",
             cursor:
               "!bg-danger-800 rounded-full md:before:content-['•'] before:absolute before:left-3 before:top-1/2 before:-translate-y-1/2 before:text-black before:text-lg before:font-bold",
-            tab: "px-1 md:px-6 h-12 relative text-sm md:text-xs",
+            tab: "px-1 md:px-6 h-12 relative md:text-sm text-xs",
             tabContent:
               "text-black md:group-data-[selected=true]:pl-6 group-data-[selected=true]:font-semibold font-medium transition-all duration-300 ease-in-out",
           }}
@@ -86,8 +86,8 @@ export default function ObjectifPanel({ selectedEtape, onUpdateJustification, ta
             <ul className="space-y-2">
               {competences.map((c) => (
                 <li key={c.id} className="">
-                  <div className="py-6.5 px-5 rounded-md md:flex items-center">
-                    <div className="flex mb-4 md:block md:mb-0">
+                  <div className="py-6.5 px-5 rounded-md flex md:block items-center flex-col md:flex-row">
+                    <div className="flex mb-4 md:mb-0 items-center w-full">
                       <div className="flex-1 flex items-center ">
                         <span className="text-xl text-foreground border border-default-800 py-3 px-2.5 rounded-full w-12 h-12 flex items-center justify-center mr-2.5">
                           {c.code}
@@ -98,7 +98,7 @@ export default function ObjectifPanel({ selectedEtape, onUpdateJustification, ta
 
                       </div>
 
-                      <div className="flex items-center gap-4 ml-6">
+                      <div className="flex items-center gap-4 ml-6 ">
                         <StatusChip statut={c.justifications[0]?.statut || null} />
                         <Button
                           isIconOnly
@@ -128,9 +128,9 @@ export default function ObjectifPanel({ selectedEtape, onUpdateJustification, ta
             <ul className="space-y-2">
               {realisations.map((r) => (
                 <li key={r.id} className="">
-                  <div className="py-6.5 px-5 rounded-md md:flex items-center">
-                    <div className="flex mb-4 md:block md:mb-0">
-                      <div className="flex-1 flex items-center">
+                  <div className="py-6.5 px-5 rounded-md flex md:block items-center flex-col md:flex-row">
+                    <div className="flex mb-4 md:mb-0 items-center w-full">
+                      <div className="flex-1 flex items-center ">
                         <span className="text-xl text-foreground border border-default-800 py-3 px-2.5 rounded-full w-12 h-12 flex items-center justify-center mr-2.5">
                           {r.code}
                         </span>
@@ -139,7 +139,7 @@ export default function ObjectifPanel({ selectedEtape, onUpdateJustification, ta
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-4 ml-6">
+                      <div className="flex items-center gap-4 ml-6 ">
                         <StatusChip statut={r.justifications[0]?.statut || null} />
                         <Button
                           isIconOnly

@@ -107,7 +107,7 @@ export default function DashboardClient({
   };
 
   return (
-    <div className="flex items-stretch md:flex-1 gap-0 md:pt-4 min-h-0 flex-auto md:flex-none">
+    <div className="flex items-stretch md:flex-1 gap-0 md:gap-4 md:pt-4 min-h-0 flex-auto md:flex-0">
       <ContentChemise
         etapes={etapes}
         selectedEtape={selectedEtape}
