@@ -32,7 +32,7 @@ export default function ContentAction({
 }: ContentActionProps) {
   const contentMap: Record<string, React.ReactNode> = {
     objectif: <ObjectifPanel selectedEtape={selectedEtape} onUpdateJustification={onUpdateJustification} targetSubTab={targetSubTab} />,
-    progression: <ProgressionPanel />,
+    //TODO progression: <ProgressionPanel />,
     notification: <NotificationPanel notifications={notifications} onNotificationClick={onNotificationClick} />,
   };
 
@@ -45,7 +45,7 @@ export default function ContentAction({
           unreadCount={unreadCount}
         />
       </div>
-      <div className="bg-white flex-1 w-full rounded-3xl p-6 overflow-y-auto min-h-0">
+      <div className="bg-white flex-1 w-full rounded-3xl p-2 md:p-6 overflow-y-auto min-h-0 h-full">
         {contentMap[activeTab as string]}
       </div>
     </div>

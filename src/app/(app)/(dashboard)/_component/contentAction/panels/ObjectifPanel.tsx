@@ -70,12 +70,12 @@ export default function ObjectifPanel({ selectedEtape, onUpdateJustification, ta
         <Tabs
           aria-label="Options"
           classNames={{
-            tabList: "gap-8 w-full max-w-xl rounded-full p-0.5 bg-[#F3F2E9]",
+            tabList: "gap-1 md:gap-8 w-full max-w-xl rounded-full p-0.5 bg-[#F3F2E9]",
             cursor:
-              "!bg-danger-800 rounded-full before:content-['•'] before:absolute before:left-3 before:top-1/2 before:-translate-y-1/2 before:text-black before:text-lg before:font-bold",
-            tab: "px-6 h-12 relative",
+              "!bg-danger-800 rounded-full md:before:content-['•'] before:absolute before:left-3 before:top-1/2 before:-translate-y-1/2 before:text-black before:text-lg before:font-bold",
+            tab: "px-1 md:px-6 h-12 relative text-sm md:text-xs",
             tabContent:
-              "text-black group-data-[selected=true]:pl-6 group-data-[selected=true]:font-semibold font-medium transition-all duration-300 ease-in-out",
+              "text-black md:group-data-[selected=true]:pl-6 group-data-[selected=true]:font-semibold font-medium transition-all duration-300 ease-in-out",
           }}
           selectedKey={activeTab as string}
           onSelectionChange={setActiveTab}
@@ -86,29 +86,38 @@ export default function ObjectifPanel({ selectedEtape, onUpdateJustification, ta
             <ul className="space-y-2">
               {competences.map((c) => (
                 <li key={c.id} className="">
-                  <div className="py-6.5 px-5 rounded-md flex items-center">
-                    <div className="flex-1 flex items-center">
-                      <span className="text-xl text-foreground border border-default-800 py-3 px-2.5 rounded-full w-12 h-12 flex items-center justify-center mr-2.5">
-                        {c.code}
-                      </span>
-                      {c.description}
+                  <div className="py-6.5 px-5 rounded-md md:flex items-center">
+                    <div className="flex mb-4 md:block md:mb-0">
+                      <div className="flex-1 flex items-center ">
+                        <span className="text-xl text-foreground border border-default-800 py-3 px-2.5 rounded-full w-12 h-12 flex items-center justify-center mr-2.5">
+                          {c.code}
+                        </span>
+                        <div className="hidden md:block">
+                          {c.description}
+                        </div>
+
+                      </div>
+
+                      <div className="flex items-center gap-4 ml-6">
+                        <StatusChip statut={c.justifications[0]?.statut || null} />
+                        <Button
+                          isIconOnly
+                          aria-label="ouvrir compétence"
+                          color="default"
+                          variant="faded"
+                          onPress={() => handleOpenModal(c)}
+                        >
+                          <Icon icon="solar:maximize-square-3-linear" width={24} />
+                        </Button>
+                      </div>
                     </div>
 
-                    <div className="flex items-center gap-4 ml-6">
-                      <StatusChip statut={c.justifications[0]?.statut || null} />
-                      <Button
-                        isIconOnly
-                        aria-label="ouvrir compétence"
-                        color="default"
-                        variant="faded"
-                        onPress={() => handleOpenModal(c)}
-                      >
-                        <Icon icon="solar:maximize-square-3-linear" width={24} />
-                      </Button>
+                    <div className="block md:hidden">
+                      {c.description}
                     </div>
                   </div>
                   <div className="px-5">
-                    <Divider/>
+                    <Divider />
                   </div>
                 </li>
               ))}
@@ -119,25 +128,33 @@ export default function ObjectifPanel({ selectedEtape, onUpdateJustification, ta
             <ul className="space-y-2">
               {realisations.map((r) => (
                 <li key={r.id} className="">
-                  <div className="py-6.5 px-5 rounded-md flex items-center">
-                    <div className="flex-1 flex items-center">
-                      <span className="text-xl text-foreground border border-default-800 py-3 px-2.5 rounded-full w-12 h-12 flex items-center justify-center mr-2.5">
-                        {r.code}
-                      </span>
-                      {r.description}
+                  <div className="py-6.5 px-5 rounded-md md:flex items-center">
+                    <div className="flex mb-4 md:block md:mb-0">
+                      <div className="flex-1 flex items-center">
+                        <span className="text-xl text-foreground border border-default-800 py-3 px-2.5 rounded-full w-12 h-12 flex items-center justify-center mr-2.5">
+                          {r.code}
+                        </span>
+                        <div className="hidden md:block">
+                          {r.description}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-4 ml-6">
+                        <StatusChip statut={r.justifications[0]?.statut || null} />
+                        <Button
+                          isIconOnly
+                          aria-label="ouvrir réalisation"
+                          color="default"
+                          variant="faded"
+                          onPress={() => handleOpenModal(r)}
+                        >
+                          <Icon icon="solar:maximize-square-3-linear" width={24} />
+                        </Button>
+                      </div>
                     </div>
 
-                    <div className="flex items-center gap-4 ml-6">
-                      <StatusChip statut={r.justifications[0]?.statut || null} />
-                      <Button
-                        isIconOnly
-                        aria-label="ouvrir réalisation"
-                        color="default"
-                        variant="faded"
-                        onPress={() => handleOpenModal(r)}
-                      >
-                        <Icon icon="solar:maximize-square-3-linear" width={24} />
-                      </Button>
+                    <div className="block md:hidden">
+                      {r.description}
                     </div>
                   </div>
                   <div className="px-5">
@@ -197,7 +214,7 @@ export default function ObjectifPanel({ selectedEtape, onUpdateJustification, ta
         onClose={onChatOpenChange}
         // objectifId removed
         justificationId={selectedChatObjectif?.justifications[0]?.id || ""}
-        // initialCommentaires removed
+      // initialCommentaires removed
       />
     </div>
   );

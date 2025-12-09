@@ -35,7 +35,7 @@ export default async function Home() {
 
   return (
     <div className="h-full max-h-screen flex flex-col overflow-hidden">
-      <h4 className="text-3xl font-normal flex-shrink-0">Tableau de bord</h4>
+      <h4 className="hidden md:block text-3xl font-normal flex-shrink-0">Tableau de bord</h4>
       <DashboardClient etapes={etapes} notifications={notifications} />
     </div>
   );

@@ -50,19 +50,19 @@ export default function DashboardClient({
 
   // La fonction est maintenant plus simple
   const updateJustification = (objectifId: string, justification: Partial<Justification>) => {
-    setEtapes(prevEtapes => 
+    setEtapes(prevEtapes =>
       prevEtapes.map(etape => ({
         ...etape,
         objectifs: etape.objectifs.map(objectif => {
           if (objectif.id === objectifId) {
             const existingJustification = objectif.justifications[0];
-            const updatedJustification = existingJustification 
+            const updatedJustification = existingJustification
               ? { ...existingJustification, ...justification }
-              : { 
-                  id: 'temp-' + Date.now(),
-                  commentaires: [] as CommentaireAvecAuteur[],
-                  ...justification 
-                } as JustificationAvecCommentaires;
+              : {
+                id: 'temp-' + Date.now(),
+                commentaires: [] as CommentaireAvecAuteur[],
+                ...justification
+              } as JustificationAvecCommentaires;
 
             return {
               ...objectif,
@@ -107,14 +107,11 @@ export default function DashboardClient({
   };
 
   return (
-    <div className="flex items-stretch flex-1 gap-4 pt-4 min-h-0">
+    <div className="flex items-stretch md:flex-1 gap-0 md:pt-4 min-h-0 flex-auto md:flex-none">
       <ContentChemise
         etapes={etapes}
         selectedEtape={selectedEtape}
         onEtapeSelect={setSelectedEtape}
-      />
-      <ContentAction
-        selectedEtape={selectedEtape}
         activeTab={activeTab}
         onTabChange={setActiveTab}
         onUpdateJustification={updateJustification}
@@ -123,6 +120,18 @@ export default function DashboardClient({
         onNotificationClick={handleNotificationClick}
         targetSubTab={targetSubTab}
       />
+      <div className="hidden md:flex flex-1 h-full min-h-0">
+        <ContentAction
+          selectedEtape={selectedEtape}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          onUpdateJustification={updateJustification}
+          notifications={notifications}
+          unreadCount={notifications.filter((n) => !n.lue).length}
+          onNotificationClick={handleNotificationClick}
+          targetSubTab={targetSubTab}
+        />
+      </div>
     </div>
   );
 }
