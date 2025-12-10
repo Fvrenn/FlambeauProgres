@@ -7,6 +7,7 @@ interface ReferentTabsProps {
   onSelectionChange: (key: React.Key) => void;
   validationCount: number;
   discussionCount: number;
+  revisionCount: number;
 }
 
 export default function ReferentTabs({
@@ -14,6 +15,7 @@ export default function ReferentTabs({
   onSelectionChange,
   validationCount,
   discussionCount,
+  revisionCount,
 }: ReferentTabsProps) {
   return (
     <div className="w-full flex justify-center md:justify-start">
@@ -65,6 +67,11 @@ export default function ReferentTabs({
             <div className="flex items-center gap-2">
               <span className="md:inline hidden">Badges complets à réviser</span>
               <span className="md:hidden inline">Révisions</span>
+              {revisionCount > 0 && (
+                <Chip size="sm" color="success" variant="solid" className="h-5 min-w-5 px-1 text-[10px]">
+                  {revisionCount}
+                </Chip>
+              )}
             </div>
           }
         />
