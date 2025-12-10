@@ -73,7 +73,7 @@ export default function ReferentValidationModal({
     }
     // Reset tab when opening new modal
     if (isOpen) {
-       setSelectedTab(defaultTab);
+      setSelectedTab(defaultTab);
     }
   }, [justification, isOpen, defaultTab]);
 
@@ -144,7 +144,7 @@ export default function ReferentValidationModal({
     startTransition(async () => {
       addOptimisticCommentaire(optimisticComment);
       setMotif("");
-      
+
       try {
         const result = await requestChanges(justification.id, textToSend);
         setIsSubmitting(false);
@@ -172,59 +172,44 @@ export default function ReferentValidationModal({
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       size="2xl"
-      className="md:max-w-3xl md:h-auto h-[100dvh] !m-0 md:!m-4 !rounded-none md:!rounded-2xl"
-      classNames={{
-        wrapper: "w-full h-full justify-end md:justify-center p-0 md:p-4",
-        base: "bg-white",
-        body: "p-0",
-      }}
       scrollBehavior="inside"
     >
       <ModalContent>
         {/* Header - Simplified & Mobile First */}
-        <ModalHeader className="flex flex-col gap-4 p-4 md:p-6 border-b border-default-100 bg-white/80 backdrop-blur-md sticky top-0 z-20">
+        <ModalHeader className="flex flex-col gap-1">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-center gap-3">
-               <User
-                  avatarProps={{
-                    src: justification.chef.image || undefined,
-                    name: justification.chef.name.charAt(0).toUpperCase(),
-                    className: "w-10 h-10 md:w-12 md:h-12 text-sm"
-                  }}
-                  name={
-                    <span className="text-base font-bold text-foreground">
-                      {justification.chef.name}
-                    </span>
-                  }
-                  description={
-                    <p className="text-xs text-default-500">
-                      {justification.chef.email}
-                    </p>
-                  }
-               />
+              <User
+                avatarProps={{
+                  src: justification.chef.image || undefined,
+                  name: justification.chef.name.charAt(0).toUpperCase(),
+                  className: "w-10 h-10 md:w-12 md:h-12 text-sm"
+                }}
+                name={
+                  <span className="text-base font-bold text-foreground">
+                    {justification.chef.name}
+                  </span>
+                }
+                description={
+                  <p className="text-xs text-default-500">
+                    {justification.chef.email}
+                  </p>
+                }
+              />
             </div>
             {/* Status / Code Badge & Close Button */}
             <div className="flex flex-col items-end gap-2">
-               <Button 
-                 isIconOnly 
-                 variant="light" 
-                 size="sm" 
-                 onPress={onOpenChange} 
-                 className="text-default-400 hover:text-default-700 -mr-2"
-               >
-                 <Icon icon="solar:close-circle-linear" width={24} />
-               </Button>
-               <span className="px-2.5 py-1 rounded-full bg-default-100 border border-default-200 text-xs font-bold text-default-700">
-                 {justification.objectif.code}
-               </span>
+              <span className="px-2.5 py-1 rounded-full bg-default-100 border border-default-200 text-xs font-bold text-default-700">
+                {justification.objectif.code}
+              </span>
             </div>
           </div>
-          
+
           {/* Objectif Description */}
-          <div className="bg-default-50 p-3 rounded-xl border border-default-100">
-             <p className="text-sm text-default-600 line-clamp-2 leading-relaxed">
-               {justification.objectif.description}
-             </p>
+          <div className="bg-default p-3 rounded-xl border border-default-100">
+            <p className="text-sm text-default-600 line-clamp-2 leading-relaxed">
+              {justification.objectif.description}
+            </p>
           </div>
 
           {/* Navigation - Pill Style like Mockup */}
@@ -235,53 +220,53 @@ export default function ReferentValidationModal({
             classNames={{
               base: "w-full",
               tabList: "w-full bg-default-100 p-1 rounded-full gap-2",
-              cursor: "bg-black shadow-lg rounded-full",
+              cursor: "bg-primary shadow-lg rounded-full",
               tab: "h-10 text-xs md:text-sm font-medium",
               tabContent: "group-data-[selected=true]:text-white text-default-500 transition-colors",
             }}
           >
-            <Tab 
-              key="justification" 
+            <Tab
+              key="justification"
               title={
-                 <div className="flex items-center gap-2">
-                   <span>Détails & Preuves</span>
-                 </div>
-              } 
+                <div className="flex items-center gap-2">
+                  <span>Détails & Preuves</span>
+                </div>
+              }
             />
-            <Tab 
-              key="discussion" 
+            <Tab
+              key="discussion"
               title={
-                 <div className="flex items-center gap-2">
-                   <span>Discussion</span>
-                   {optimisticCommentaires.length > 0 && (
-                     <span className="bg-default-200/50 group-data-[selected=true]:bg-white/20 px-1.5 py-0.5 rounded-full text-[10px]">
-                       {optimisticCommentaires.length}
-                     </span>
-                   )}
-                 </div>
-              } 
+                <div className="flex items-center gap-2">
+                  <span>Discussion</span>
+                  {optimisticCommentaires.length > 0 && (
+                    <span className="bg-default-200/50 group-data-[selected=true]:bg-white/20 px-1.5 py-0.5 rounded-full text-[10px]">
+                      {optimisticCommentaires.length}
+                    </span>
+                  )}
+                </div>
+              }
             />
           </Tabs>
         </ModalHeader>
 
-        <ModalBody className="p-0 bg-[#FDFCF8]">
-           <div className="p-4 md:p-6 min-h-[300px]">
-             {selectedTab === "justification" ? (
-               <JustificationContent justification={justification} />
-             ) : (
-               <DiscussionContent 
-                 comments={optimisticCommentaires} 
-                 currentUserId={currentUserId}
-                 motif={motif}
-                 setMotif={setMotif}
-                 isPending={isPending}
-                 isSubmitting={isSubmitting}
-               />
-             )}
-           </div>
+        <ModalBody className="p-0">
+          <div className="p-4 md:p-6 min-h-[300px]">
+            {selectedTab === "justification" ? (
+              <JustificationContent justification={justification} />
+            ) : (
+              <DiscussionContent
+                comments={optimisticCommentaires}
+                currentUserId={currentUserId}
+                motif={motif}
+                setMotif={setMotif}
+                isPending={isPending}
+                isSubmitting={isSubmitting}
+              />
+            )}
+          </div>
         </ModalBody>
 
-        <ModalFooter className="p-4 bg-white border-t border-default-100 z-20">
+        <ModalFooter className="p-4 border-t border-default-100 z-20">
           <Button
             variant="light"
             onPress={onOpenChange}
@@ -292,23 +277,25 @@ export default function ReferentValidationModal({
           </Button>
 
           {selectedTab === "justification" ? (
-             <Button
-               className="bg-black text-white font-medium shadow-xl shadow-black/20"
-               isLoading={isPending || isSubmitting}
-               startContent={!isPending && !isSubmitting ? <Icon icon="solar:check-read-linear" width={20} /> : null}
-               onPress={handleApprove}
-             >
-               Valider
-             </Button>
+            <Button
+              className="text-white font-medium"
+              isLoading={isPending || isSubmitting}
+              startContent={!isPending && !isSubmitting ? <Icon icon="solar:check-read-linear" width={20} /> : null}
+              onPress={handleApprove}
+              color="primary"
+
+            >
+              Valider
+            </Button>
           ) : (
-             <Button
-               className="bg-[#DDFE02] text-black font-semibold shadow-lg shadow-[#DDFE02]/20"
-               isLoading={isPending || isSubmitting}
-               startContent={!isPending && !isSubmitting ? <Icon icon="solar:plain-linear" width={20} /> : null}
-               onPress={handleRequestChanges}
-             >
-               Envoyer
-             </Button>
+            <Button
+              className="bg-primary text-black font-semibold shadow-lg shadow-[#DDFE02]/20"
+              isLoading={isPending || isSubmitting}
+              startContent={!isPending && !isSubmitting ? <Icon icon="solar:plain-linear" width={20} /> : null}
+              onPress={handleRequestChanges}
+            >
+              Envoyer
+            </Button>
           )}
         </ModalFooter>
       </ModalContent>
