@@ -172,7 +172,8 @@ export default function ReferentValidationModal({
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       size="2xl"
-      scrollBehavior="inside"
+      scrollBehavior="outside"
+      placement="center"
     >
       <ModalContent>
         {/* Header - Simplified & Mobile First */}

@@ -23,7 +23,7 @@ export default function DiscussionContent({
   isSubmitting,
 }: DiscussionContentProps) {
   return (
-    <div className="flex flex-col h-[500px] md:h-[450px]">
+    <div className="flex flex-col h-[500px] overflow-y-auto">
       {/* Messages Scroll Area */}
       <div className="flex-1 overflow-y-auto px-1 py-2 space-y-4">
         {comments && comments.length > 0 ? (
@@ -46,7 +46,7 @@ export default function DiscussionContent({
         )}
       </div>
 
-      <div className="pt-4 mt-2 z-10">
+      <div className="pt-4 mt-2">
         <Textarea
           label="Votre message"
           placeholder="Écrivez votre message ici..."

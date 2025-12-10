@@ -54,7 +54,7 @@ export default function ObjectifModal({
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
-      
+
       // Créer une preview pour les images
       if (file.type.startsWith("image/")) {
         const reader = new FileReader();
@@ -87,7 +87,7 @@ export default function ObjectifModal({
     }
 
     setIsSubmitting(true);
-    
+
     // Mise à jour optimiste immédiate de l'UI
     onUpdateJustification(objectif.id, {
       contenu,
@@ -134,11 +134,12 @@ export default function ObjectifModal({
   const isEditing = !!existingJustification;
 
   return (
-    <Modal 
-      isOpen={isOpen} 
+    <Modal
+      isOpen={isOpen}
       onOpenChange={onOpenChange}
       size="2xl"
-      scrollBehavior="inside"
+      scrollBehavior="outside"
+      placement="center"
     >
       <ModalContent>
         {(onClose) => (
@@ -156,7 +157,7 @@ export default function ObjectifModal({
               {isCompetence ? (
                 <>
                   <p className="text-sm text-default-600 mb-4">
-                    Décris comment tu as acquis ou démontré cette compétence. 
+                    Décris comment tu as acquis ou démontré cette compétence.
                     Ta justification sera automatiquement validée.
                   </p>
 
@@ -195,7 +196,7 @@ export default function ObjectifModal({
                       <label className="block text-sm font-medium mb-2">
                         Fichier de preuve *
                       </label>
-                      
+
                       {!selectedFile ? (
                         <div className="border-2 border-dashed border-default-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
                           <input
@@ -209,9 +210,9 @@ export default function ObjectifModal({
                             htmlFor="file-upload"
                             className="cursor-pointer flex flex-col items-center gap-2"
                           >
-                            <Icon 
-                              icon="solar:cloud-upload-linear" 
-                              width={48} 
+                            <Icon
+                              icon="solar:cloud-upload-linear"
+                              width={48}
                               className="text-default-400"
                             />
                             <p className="text-sm text-default-600">
@@ -287,15 +288,15 @@ export default function ObjectifModal({
             </ModalBody>
 
             <ModalFooter>
-              <Button 
-                color="danger" 
-                variant="light" 
+              <Button
+                color="danger"
+                variant="light"
                 onPress={onClose}
                 isDisabled={isSubmitting}
               >
                 Annuler
               </Button>
-              
+
               {isCompetence && (
                 <Button
                   color="primary"
