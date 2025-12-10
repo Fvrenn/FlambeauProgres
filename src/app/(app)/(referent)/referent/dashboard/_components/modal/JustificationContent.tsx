@@ -13,9 +13,9 @@ interface JustificationContentProps {
 
 export default function JustificationContent({ justification }: JustificationContentProps) {
   return (
-    <div className="space-y-6 pt-2">
+    <div className="space-y-6">
       {/* 1. Meta Info & Contenu Principal - Clean Look without heavy Cards */}
-      <div className="space-y-3">
+      <div className="space-y-5">
         <label className="text-xs font-semibold text-default-500 uppercase tracking-wider">
           Contenu de la justification
         </label>

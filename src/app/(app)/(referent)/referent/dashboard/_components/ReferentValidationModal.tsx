@@ -176,8 +176,8 @@ export default function ReferentValidationModal({
     >
       <ModalContent>
         {/* Header - Simplified & Mobile First */}
-        <ModalHeader className="flex flex-col gap-1">
-          <div className="flex items-start justify-between gap-4">
+        <ModalHeader className="flex flex-col gap-4">
+          <div className="flex gap-4 items-center">
             <div className="flex items-center gap-3">
               <User
                 avatarProps={{
@@ -220,7 +220,7 @@ export default function ReferentValidationModal({
             classNames={{
               base: "w-full",
               tabList: "w-full bg-default-100 p-1 rounded-full gap-2",
-              cursor: "bg-primary shadow-lg rounded-full",
+              cursor: "bg-primary rounded-full",
               tab: "h-10 text-xs md:text-sm font-medium",
               tabContent: "group-data-[selected=true]:text-white text-default-500 transition-colors",
             }}

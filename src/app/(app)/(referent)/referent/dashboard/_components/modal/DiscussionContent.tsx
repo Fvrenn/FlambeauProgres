@@ -47,27 +47,15 @@ export default function DiscussionContent({
       </div>
 
       <div className="pt-4 mt-2 z-10">
-        <label className="text-xs font-semibold text-default-500 uppercase tracking-wider mb-2 block">
-          Votre message
-        </label>
-        <div className="relative">
-          <Textarea
-            placeholder="Écrivez votre message ici..."
-            value={motif}
-            onValueChange={setMotif}
-            disabled={isPending || isSubmitting}
-            minRows={2}
-            maxRows={4}
-            classNames={{
-              inputWrapper: "bg-default hover:bg-default-100 focus-within:bg-white pr-12 transition-colors duration-200 shadow-none",
-              input: "text-sm",
-            }}
-          />
-          {/* The send button could be conceptually part of the main modal footer, 
-                but often chat interfaces have it near the input. 
-                However, for this specific flow 'Demander des précisions' acts as the submit in the main footer.
-                So we just leave the input here. */}
-        </div>
+        <Textarea
+          label="Votre message"
+          placeholder="Écrivez votre message ici..."
+          value={motif}
+          onValueChange={setMotif}
+          isDisabled={isPending || isSubmitting}
+          minRows={2}
+          maxRows={4}
+        />
       </div>
     </div>
   );
