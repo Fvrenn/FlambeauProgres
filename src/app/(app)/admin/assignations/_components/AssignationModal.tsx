@@ -48,7 +48,7 @@ export default function AssignationModal({
 
   const handleToggle = async (referentId: string, isSelected: boolean) => {
     setPendingIds((prev) => new Set(prev).add(referentId));
-    
+
     // Optimistic update
     setOptimisticAssignments((prev) => {
       const next = new Set(prev);
@@ -100,7 +100,7 @@ export default function AssignationModal({
               <p className="text-small text-default-500 mb-2">
                 Sélectionnez les référents qui peuvent valider cette étape.
               </p>
-              <ScrollShadow className="h-[400px]">
+              <ScrollShadow className="h-[400px] w-full overflow-x-hidden">
                 <div className="flex flex-col gap-2">
                   {allReferents.map((referent) => {
                     const assigned = isAssigned(referent.id);
