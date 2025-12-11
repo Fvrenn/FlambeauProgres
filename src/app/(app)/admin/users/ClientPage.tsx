@@ -3,7 +3,7 @@
 import React from "react";
 import AdminDataTable, { Column } from "@/components/admin/AdminDataTable";
 import { User, UserRole } from "@prisma/client";
-import { User as UserIcon, Chip, Tooltip, Button, Avatar } from "@heroui/react";
+import { User as UserIcon, Chip, Tooltip, Button, Avatar, Card, CardBody } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import UserModal from "./_components/UserModal";
 
@@ -41,7 +41,7 @@ export default function UsersClientPage({ users, troupes }: UsersClientPageProps
       case "user":
         return (
           <div className="flex items-center gap-3">
-            <Avatar src={user.image} name={user.name} size="sm" />
+            <Avatar src={user.image || undefined} name={user.name} size="sm" />
             <div className="flex flex-col">
               <p className="text-bold text-small capitalize">{user.name}</p>
               <p className="text-bold text-tiny capitalize text-default-400">
@@ -71,7 +71,7 @@ export default function UsersClientPage({ users, troupes }: UsersClientPageProps
         );
       case "actions":
         return (
-          <div className="relative flex items-center gap-2">
+          <div className="flex items-center justify-end w-full pr-8">
             <Tooltip content="Modifier l'utilisateur">
               <span
                 className="text-lg text-default-400 cursor-pointer active:opacity-50"
@@ -92,13 +92,47 @@ export default function UsersClientPage({ users, troupes }: UsersClientPageProps
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Gestion des Utilisateurs</h1>
       </div>
-      
-      <AdminDataTable
-        columns={columns}
-        data={users}
-        renderCell={renderCell}
-        searchPlaceholder="Rechercher un utilisateur..."
-      />
+
+      {/* Desktop Table View */}
+      <div className="hidden sm:block">
+        <AdminDataTable
+          columns={columns}
+          data={users}
+          renderCell={renderCell}
+          searchPlaceholder="Rechercher un utilisateur..."
+        />
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="flex flex-col gap-3 sm:hidden">
+        {users.map((user) => (
+          <Card key={user.id} className="w-full" isPressable onPress={() => handleEdit(user)}>
+            <CardBody className="flex flex-row justify-between items-center gap-4">
+              <div className="flex items-center gap-3 overflow-hidden">
+                <Avatar src={user.image || undefined} name={user.name} size="md" />
+                <div className="flex flex-col overflow-hidden">
+                  <span className="text-medium font-semibold truncate">{user.name}</span>
+                  <span className="text-tiny text-default-400 truncate">{user.email}</span>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Chip size="sm" color={roleColorMap[user.role as UserRole]} variant="flat" className="h-5 text-tiny px-1">
+                      {user.role}
+                    </Chip>
+                    {user.troupe && (
+                      <span className="text-tiny text-default-500 flex items-center gap-1">
+                        <Icon icon="solar:users-group-rounded-linear" width={12} />
+                        {user.troupe.nom}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="text-default-400">
+                <Icon icon="solar:pen-linear" width={20} />
+              </div>
+            </CardBody>
+          </Card>
+        ))}
+      </div>
 
       {selectedUser && (
         <UserModal
