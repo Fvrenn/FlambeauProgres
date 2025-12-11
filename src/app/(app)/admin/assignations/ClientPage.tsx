@@ -43,14 +43,13 @@ export default function AssignationsClientPage({
         {etapes.map((etape) => (
           <Card key={etape.id} className="p-4 shadow-small hover:shadow-medium transition-shadow">
             <CardHeader className="flex gap-4 items-center pb-2">
-              <div className="relative w-12 h-12 rounded-lg bg-default-100 flex items-center justify-center overflow-hidden">
+              <div className="relative w-12 h-12 rounded-lg flex items-center justify-center overflow-hidden">
                 {etape.image_src ? (
                   <Image
                     src={etape.image_src}
                     alt={etape.name}
                     width={48}
                     height={48}
-                    className="object-cover"
                   />
                 ) : (
                   <span className="text-lg font-bold text-default-400">
