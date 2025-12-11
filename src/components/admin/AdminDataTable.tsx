@@ -123,7 +123,7 @@ export default function AdminDataTable<T extends { id: string | number }>({
           onChange={setPage}
         />
         <div className="hidden sm:flex w-[30%] justify-end gap-2">
-           <span className="text-default-400 text-small">
+          <span className="text-default-400 text-small">
             Total {data.length} items
           </span>
         </div>
@@ -138,7 +138,7 @@ export default function AdminDataTable<T extends { id: string | number }>({
       bottomContent={bottomContent}
       bottomContentPlacement="outside"
       classNames={{
-        wrapper: "max-h-[382px]",
+        wrapper: "min-h-[222px]",
       }}
       sortDescriptor={sortDescriptor}
       topContent={topContent}
