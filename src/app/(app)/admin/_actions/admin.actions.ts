@@ -27,6 +27,7 @@ export async function updateUserTroupe(userId: string, troupeId: string | null) 
       data: { troupeId },
     });
     revalidatePath("/admin/users");
+    revalidatePath("/admin/troupes");
     return { success: true };
   } catch (error) {
     console.error("Error updating user troupe:", error);

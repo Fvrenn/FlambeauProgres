@@ -9,18 +9,18 @@ import {
   ModalFooter,
   Button,
   Input,
-  Select,
-  SelectItem,
+  User,
+  Tooltip,
 } from "@heroui/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { createTroupe, updateTroupe } from "../../_actions/admin.actions";
+import { createTroupe, updateTroupe, updateUserTroupe } from "../../_actions/admin.actions";
 import { useRouter } from "next/navigation";
+import { Icon } from "@iconify/react";
 
 const troupeSchema = z.object({
   nom: z.string().min(1, "Le nom est requis"),
-  chefId: z.string().optional(),
 });
 
 type TroupeFormData = z.infer<typeof troupeSchema>;
@@ -29,14 +29,13 @@ type TroupeModalProps = {
   isOpen: boolean;
   onClose: () => void;
   troupe?: any; // If provided, edit mode
-  users: any[]; // Potential chefs (all users or filtered)
+  users?: any[]; // Keep for compatibility if passed, but unused for dropdown now
 };
 
 export default function TroupeModal({
   isOpen,
   onClose,
   troupe,
-  users,
 }: TroupeModalProps) {
   const router = useRouter();
   const [isPending, setIsPending] = React.useState(false);
@@ -45,14 +44,12 @@ export default function TroupeModal({
     register,
     handleSubmit,
     setValue,
-    watch,
     reset,
     formState: { errors },
   } = useForm<TroupeFormData>({
     resolver: zodResolver(troupeSchema),
     defaultValues: {
       nom: "",
-      chefId: undefined,
     },
   });
 
@@ -60,12 +57,8 @@ export default function TroupeModal({
     if (isOpen) {
       if (troupe) {
         setValue("nom", troupe.nom);
-        // Try to find a member who might be the "chef" or just leave empty
-        // For this implementation, we don't pre-fill chef unless we have logic for it.
-        // But the prompt implies we can assign a chef.
-        setValue("chefId", undefined); 
       } else {
-        reset({ nom: "", chefId: undefined });
+        reset({ nom: "" });
       }
     }
   }, [isOpen, troupe, setValue, reset]);
@@ -74,9 +67,9 @@ export default function TroupeModal({
     setIsPending(true);
     try {
       if (troupe) {
-        await updateTroupe(troupe.id, data.nom, data.chefId);
+        await updateTroupe(troupe.id, data.nom);
       } else {
-        await createTroupe(data.nom, data.chefId);
+        await createTroupe(data.nom);
       }
       onClose();
       router.refresh();
@@ -84,6 +77,17 @@ export default function TroupeModal({
       console.error("Failed to save troupe", error);
     } finally {
       setIsPending(false);
+    }
+  };
+
+  const handleRemoveMember = async (memberId: string) => {
+    if (!confirm("Voulez-vous vraiment retirer ce membre de la troupe ?")) return;
+
+    try {
+      await updateUserTroupe(memberId, null);
+      router.refresh();
+    } catch (error) {
+      console.error("Failed to remove member", error);
     }
   };
 
@@ -104,22 +108,35 @@ export default function TroupeModal({
                 errorMessage={errors.nom?.message}
               />
 
-              <Select
-                label="Assigner un Chef/Membre"
-                placeholder="Sélectionner un utilisateur"
-                selectedKeys={watch("chefId") ? [watch("chefId") as string] : []}
-                onChange={(e) => setValue("chefId", e.target.value)}
-                description="L'utilisateur sélectionné sera ajouté à cette troupe."
-              >
-                {users.map((user) => (
-                  <SelectItem key={user.id} textValue={user.name}>
-                    <div className="flex gap-2 items-center">
-                        <span className="text-small">{user.name}</span>
-                        <span className="text-tiny text-default-400">({user.email})</span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </Select>
+              {troupe && troupe.membres && troupe.membres.length > 0 && (
+                <div className="flex flex-col gap-2 mt-4">
+                  <span className="text-small font-bold">Membres ({troupe.membres.length})</span>
+                  <div className="flex flex-col gap-2 max-h-[200px] overflow-y-auto pr-1">
+                    {troupe.membres.map((member: any) => (
+                      <div key={member.id} className="flex justify-between items-center bg-default-100 p-2 rounded-lg">
+                        <User
+                          name={member.name}
+                          description={member.email}
+                          avatarProps={{
+                            src: member.image
+                          }}
+                        />
+                        <Tooltip content="Retirer de la troupe" color="danger">
+                          <Button
+                            isIconOnly
+                            size="sm"
+                            color="danger"
+                            variant="light"
+                            onPress={() => handleRemoveMember(member.id)}
+                          >
+                            <Icon icon="solar:trash-bin-trash-linear" width={20} />
+                          </Button>
+                        </Tooltip>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </ModalBody>
             <ModalFooter>
               <Button color="danger" variant="light" onPress={onClose}>
