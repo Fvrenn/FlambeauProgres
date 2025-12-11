@@ -9,6 +9,7 @@ type SidebarContentProps = {
   sidebarItems: SidebarItem[];
   defaultSelectedKey: string;
   isCompact?: boolean;
+  onItemSelect?: (key: string) => void;
 };
 
 export const SidebarContent = ({
@@ -16,6 +17,7 @@ export const SidebarContent = ({
   sidebarItems,
   defaultSelectedKey,
   isCompact,
+  onItemSelect,
 }: SidebarContentProps) => {
   return (
     <div className={`flex h-full w-full flex-col ${isCompact ? "p-2 items-center" : "p-6"}`}>
@@ -29,9 +31,9 @@ export const SidebarContent = ({
           className="rounded-full"
         />
         {!isCompact && (
-            <span className="text-2xl font-medium text-[#E06511] leading-7">
+          <span className="text-2xl font-medium text-[#E06511] leading-7">
             Flambeau <span className="text-[#542C11]">Progrès</span>
-            </span>
+          </span>
         )}
       </div>
 
@@ -42,7 +44,7 @@ export const SidebarContent = ({
 
       {/* Sidebar List */}
       <ScrollShadow className={`-mr-6 h-full max-h-full py-6 pr-6 ${isCompact ? "w-full" : ""}`}>
-        <Sidebar defaultSelectedKey={defaultSelectedKey} items={sidebarItems} isCompact={isCompact} />
+        <Sidebar defaultSelectedKey={defaultSelectedKey} items={sidebarItems} isCompact={isCompact} onItemSelect={onItemSelect} />
       </ScrollShadow>
     </div>
   );

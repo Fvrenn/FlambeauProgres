@@ -36,14 +36,13 @@ export default function EtapesClientPage({ etapes }: EtapesClientPageProps) {
     switch (columnKey) {
       case "badge":
         return (
-          <div className="w-12 h-12 rounded-lg bg-default-100 flex items-center justify-center overflow-hidden">
+          <div className="w-12 h-12 rounded-lg flex items-center justify-center overflow-hidden">
             {etape.image_src ? (
               <Image
                 src={etape.image_src}
                 alt={etape.name}
                 width={48}
                 height={48}
-                className="object-cover"
               />
             ) : (
               <span className="text-lg font-bold text-default-400">

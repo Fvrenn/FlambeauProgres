@@ -36,7 +36,7 @@ export type SidebarProps = Omit<ListboxProps<SidebarItem>, "children"> & {
   sectionClasses?: ListboxSectionProps["classNames"];
   classNames?: ListboxProps["classNames"];
   defaultSelectedKey: string;
-  onSelect?: (key: string) => void;
+  onItemSelect?: (key: string) => void;
 };
 
 const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
@@ -45,7 +45,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
       items,
       isCompact,
       defaultSelectedKey,
-      onSelect,
+      onItemSelect,
       hideEndContent,
       sectionClasses: sectionClassesProp = {},
       itemClasses: itemClassesProp = {},
@@ -58,6 +58,10 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
   ) => {
     const [selected, setSelected] =
       React.useState<React.Key>(defaultSelectedKey);
+
+    React.useEffect(() => {
+      setSelected(defaultSelectedKey);
+    }, [defaultSelectedKey]);
 
     const sectionClasses = {
       ...sectionClassesProp,
@@ -316,11 +320,12 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
         selectedKeys={[selected] as unknown as Selection}
         selectionMode="single"
         variant="flat"
+        onAction={(key) => {
+          onItemSelect?.(key as string);
+        }}
         onSelectionChange={(keys) => {
           const key = Array.from(keys)[0];
-
           setSelected(key as React.Key);
-          onSelect?.(key as string);
         }}
         {...props}
       >

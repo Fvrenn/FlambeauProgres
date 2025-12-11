@@ -23,7 +23,31 @@ export default function AppClientLayout({
 
   // Trouve la clé de la page actuelle pour la sidebar
   const pathname = usePathname();
-  const defaultSelectedKey = pathname.split('/')[1] || 'dashboard'; // ex: /dashboard -> 'dashboard'
+
+  // Find the active key by matching the pathname with sidebar items href
+  // We assume deeper paths should match longer hrefs, but here we likely have exact or prefix matches.
+  // Admin items: /admin/users -> key: users
+  const activeItem = React.useMemo(() => {
+    // Flatten items for search if needed, but for now top level seems enough or we recurse?
+    // Admin items are flat. Referent items might be nested?
+    // Let's implement a recursive search helper.
+    const findMatch = (items: SidebarItem[]): string | undefined => {
+      for (const item of items) {
+        if (item.href && (pathname === item.href || pathname.startsWith(`${item.href}/`))) {
+          return item.key;
+        }
+        if (item.items) {
+          const nestedMatch = findMatch(item.items);
+          if (nestedMatch) return nestedMatch;
+        }
+      }
+      return undefined;
+    };
+
+    return findMatch(sidebarItems);
+  }, [pathname, sidebarItems]);
+
+  const defaultSelectedKey = activeItem || pathname.split('/')[1] || 'dashboard';
 
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
@@ -38,6 +62,7 @@ export default function AppClientLayout({
           user={user}
           sidebarItems={sidebarItems}
           defaultSelectedKey={defaultSelectedKey}
+          onItemSelect={() => setIsMenuOpen(false)}
         />
       </SidebarDrawer>
 
