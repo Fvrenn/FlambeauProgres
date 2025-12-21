@@ -5,7 +5,7 @@ import { useGLTF, Center } from "@react-three/drei";
 import { Suspense, useRef, useLayoutEffect } from "react";
 import * as THREE from "three";
 
-// Configuration des lumières centralisée
+
 const LIGHTING_CONFIG = {
   ambient: { intensity: 0.8, color: "#ffffff" },
   directional: { position: [10, 10, 7] as [number, number, number], intensity: 2.0 },
@@ -28,7 +28,7 @@ const ANIMATION_CONFIG = {
   lerpSpeed: 5,
 };
 
-// Configuration des matériaux
+
 const MATERIAL_CONFIG = {
   base: { roughness: 0.8, metalness: 0.1, envMapIntensity: 0.3 },
   badgeActive: { color: "#ffffff", roughness: 0.3, metalness: 0.2, opacity: 1 },
@@ -62,7 +62,7 @@ function ChemiseGLB({ selectedBadge }: { selectedBadge?: string | null }) {
     meshRef.current.position.z = THREE.MathUtils.lerp(meshRef.current.position.z, target.position[2], lerpFactor);
   });
 
-  // Appliquer un effet mat aux matériaux du modèle
+  
   useLayoutEffect(() => {
     scene.traverse((child: any) => {
       if (child.isMesh && child.material) {

@@ -16,7 +16,7 @@ export class EtapeService {
     referentId: string,
     etapeId: string
   ): Promise<ServiceResult> {
-    // 1. Vérification des existences et droits
+    
     const [etape, assignation] = await Promise.all([
       prisma.etape.findUnique({ where: { id: etapeId } }),
       prisma.etapeReferent.findFirst({

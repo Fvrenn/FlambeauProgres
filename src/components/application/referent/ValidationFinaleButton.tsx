@@ -28,8 +28,8 @@ export default function ValidationFinaleButton({
   const handleConfirmValidate = async () => {
     setIsLoading(true);
     await validateEtape(chefId, etapeId);
-    // La redirection est gérée par la server action, pas besoin de gérer le succès ici.
-    // En cas d'erreur, on arrête simplement le chargement.
+    
+    
     setIsLoading(false);
   };
 

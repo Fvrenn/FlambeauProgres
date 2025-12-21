@@ -5,7 +5,7 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 // Initialisation du client Prisma
 const prisma = new PrismaClient();
 
-// Créer une instance de Better Auth sans le plugin Next.js pour le seed
+
 const authForSeed = betterAuth({
   database: prismaAdapter(prisma, { provider: "postgresql" }),
   emailAndPassword: {
@@ -14,7 +14,7 @@ const authForSeed = betterAuth({
   // Pas de plugin nextCookies() ici
 });
 
-// Mot de passe par défaut pour tous les utilisateurs de test
+
 const defaultPassword = "password123";
 
 async function main() {
@@ -35,7 +35,7 @@ async function main() {
   await prisma.troupe.deleteMany();
   console.log("Database cleaned.");
 
-  // --- 2. Création de la Troupe ---
+  
   const troupe = await prisma.troupe.create({
     data: {
       nom: "Troupe de Paris 11e",
@@ -43,9 +43,9 @@ async function main() {
   });
   console.log(`Created troupe: ${troupe.nom}`);
 
-  // --- 3. Création des Utilisateurs via Better Auth API ---
+  
 
-  // L'Admin (n'appartient à aucune troupe)
+  
   const adminResult = await authForSeed.api.signUpEmail({
     body: {
       email: "admin@flambeau.dev",
@@ -54,7 +54,7 @@ async function main() {
     },
   });
 
-  // Mettre à jour le rôle de l'admin
+  
   const admin = await prisma.user.update({
     where: { id: adminResult.user.id },
     data: { role: "ADMIN" },
@@ -77,7 +77,7 @@ async function main() {
     },
   });
 
-  // Un Référent
+  
   const referentResult = await authForSeed.api.signUpEmail({
     body: {
       email: "referent@flambeau.dev",
@@ -96,8 +96,8 @@ async function main() {
 
   console.log("Users created.");
 
-  // --- 4. Création des etapes & Objectifs ---
-  // (Section entièrement mise à jour avec tes 11 etapes)
+  
+  
 
   const etape2B = await prisma.etape.create({
     data: {
@@ -383,7 +383,7 @@ async function main() {
   });
   console.log(`Created etape: ${etape2F.name}`);
 
-  // J'assigne celui-ci à la variable `etapeConstruction` pour la fin du script
+  
   const etapeConstruction = await prisma.etape.create({
     data: {
       number: "2g",
@@ -977,8 +977,8 @@ async function main() {
   });
   console.log(`Created etape: ${etape2N.name}`);
 
-  // --- 5. Assignation du Référent ---
-  // On assigne 'Martin Référent' au etape 'Construction' (2G)
+  
+  
 await prisma.etapeReferent.create({
     data: {
       referentId: referent.id,
@@ -995,10 +995,10 @@ await prisma.etapeReferent.create({
   });
   console.log("Assigned referent to etape.");
 
-  // --- 6. Création de Justifications de Test ---
+  
   console.log("Creating test justifications for chef1...");
 
-  // Récupérer quelques objectifs de l'étape "Construction" pour les lier
+  
   const objectifCompetenceG1 = await prisma.objectif.findFirst({
     where: { etapeId: etapeConstruction.id, code: "G1" },
   });

@@ -32,13 +32,11 @@ export default function DashboardClient({
   useEffect(() => {
     if (selectedEtape) {
       setActiveTab("objectif");
-      // Synchroniser l'état de selectedEtape avec la source de vérité "etapes"
       const updatedSelectedEtape = etapes.find(e => e.id === selectedEtape.id) || null;
       setSelectedEtape(updatedSelectedEtape);
     }
-  }, [selectedEtape?.id, etapes]); // Dépendre de l'ID et de la liste principale
+  }, [selectedEtape?.id, etapes]);
 
-  // La fonction est maintenant plus simple
   const updateJustification = (objectifId: string, justification: Partial<Justification>) => {
     setEtapes(prevEtapes =>
       prevEtapes.map(etape => ({
@@ -66,12 +64,10 @@ export default function DashboardClient({
   };
 
   const handleNotificationClick = async (notification: Notification) => {
-    // 1. Marquer comme lu
     if (!notification.lue) {
       await markNotificationAsRead(notification.id);
     }
 
-    // 2. Trouver l'étape correspondante si la notification est liée à une justification
     if (notification.justificationId) {
       const etapeFound = etapes.find((etape) =>
         etape.objectifs.some((obj) =>

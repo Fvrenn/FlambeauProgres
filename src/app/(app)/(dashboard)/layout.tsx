@@ -8,16 +8,12 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // On peut maintenant utiliser une fonction plus simple comme getUser()
-  // car app/(app)/layout.tsx a déjà validé la session.
   const user = await getUser();
 
-  // La redirection n'est plus nécessaire ici, le layout parent s'en est chargé.
   if (!user) {
-    return null; // Ou un fallback, mais en théorie ce cas n'arrive jamais.
+    return null;
   }
 
-  // Sidebar CHEF
   const sidebarItems: SidebarItem[] = [
     {
       key: "dashboard",

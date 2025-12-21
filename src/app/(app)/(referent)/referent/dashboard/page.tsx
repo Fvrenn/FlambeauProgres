@@ -28,9 +28,9 @@ export default async function ReferentDashboardPage({
     );
   }
 
-  // --- DÉBUT DES AJOUTS ---
+  
 
-  // 1. Récupérer les totaux d'objectifs pour l'étape
+  
   const objectifsCounts = await prisma.objectif.groupBy({
     by: ["type"],
     where: { etapeId: etapeId },
@@ -44,7 +44,7 @@ export default async function ReferentDashboardPage({
   const totalRealisations =
     objectifsCounts.find((c) => c.type === "REALISATION")?._count.id || 0;
 
-  // 2. Récupérer la progression de tous les chefs pour cette étape
+  
   const chefsProgress = await prisma.justification.groupBy({
     by: ["chefId"],
     where: {
@@ -86,9 +86,9 @@ export default async function ReferentDashboardPage({
     }
   }
 
-  // --- DÉBUT DE LA MODIFICATION ---
+  
 
-  // 4. Récupérer les IDs des chefs dont le badge a déjà été validé
+  
   const chefsDejaValides = await prisma.chefEtapeStatut.findMany({
     where: {
       etapeId: etapeId,
@@ -101,7 +101,7 @@ export default async function ReferentDashboardPage({
   });
   const chefsDejaValidesIds = chefsDejaValides.map((statut) => statut.chefId);
 
-  // 5. Filtrer la liste pour ne garder que les chefs qui attendent une révision
+  
   const chefsEnAttenteDeRevisionIds = chefsCompletsIds.filter(
     (id) => !chefsDejaValidesIds.includes(id)
   );
@@ -117,13 +117,13 @@ export default async function ReferentDashboardPage({
 
   // --- FIN DE LA MODIFICATION ---
 
-  // 6. Récupérer l'utilisateur connecté pour compter les notifications non lues
+  
   const user = await getUser();
   if (!user || !("role" in user) || user.role !== "REFERENT") {
     return <div>Accès refusé</div>;
   }
 
-  // Récupération des justifications à valider
+  
   const rawJustificationsAValider = await prisma.justification.findMany({
     where: {
       etapeId: etapeId,
@@ -147,17 +147,17 @@ export default async function ReferentDashboardPage({
     },
   });
 
-  // Mappe les justifications pour ajouter la propriété 'url' à chaque fichier
+  
   const justificationsAValider = rawJustificationsAValider.map((justification) => ({
     ...justification,
     fichiers: justification.fichiers.map((fichier) => ({
       ...fichier,
-      // Construisez l'URL du fichier. Assurez-vous que '/uploads/' correspond à votre répertoire de fichiers statiques.
+      
       url: `${fichier.cheminFichier}`,
     })),
   }));
 
-  // Faites de même pour d'autres requêtes de justifications, par exemple 'justificationsEnDiscussion'
+  
   const rawJustificationsEnDiscussion = await prisma.justification.findMany({
     where: {
       etapeId: etapeId,
@@ -200,7 +200,7 @@ export default async function ReferentDashboardPage({
     })),
   }));
 
-  // Transmettez les données mises à jour à votre composant client
+  
   return (
     <ReferentDashboardClientV2
       justificationsAValider={justificationsAValider}

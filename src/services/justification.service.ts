@@ -39,7 +39,7 @@ export class JustificationService {
       return { success: false, error: "Vous n'êtes pas référent de cette étape" };
     }
 
-    // 2. Mise à jour DB
+    
     await prisma.justification.update({
       where: { id: justificationId },
       data: {

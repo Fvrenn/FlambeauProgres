@@ -7,7 +7,6 @@ import NotificationPanel from "./panels/NotificationPanel";
 import { EtapeAvecObjectifs } from "../DashboardClient";
 import { Justification, Notification } from "@prisma/client";
 
-// Le type est maintenant importé, plus besoin de le définir localement.
 
 interface ContentActionProps {
   selectedEtape: EtapeAvecObjectifs | null;

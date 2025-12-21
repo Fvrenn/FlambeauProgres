@@ -46,7 +46,7 @@ const STATUS_CONFIG = {
 } as const;
 
 export default function StatusChip({ statut }: StatusChipProps) {
-  // Si pas de justification créée, c'est "Non fait"
+  
   if (!statut) {
     return (
       <Chip color="default" variant="flat" size="sm">

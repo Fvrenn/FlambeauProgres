@@ -17,7 +17,7 @@ import type { User, Etape, Justification, Objectif } from "@prisma/client";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 
-// On définit un type plus précis pour nos justifications avec la relation incluse
+
 type JustificationAvecObjectif = Justification & {
   objectif: Objectif;
 };

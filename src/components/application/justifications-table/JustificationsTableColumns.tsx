@@ -5,13 +5,13 @@ import { User } from "@heroui/react";
 import { type Justification, type User as UserType, type Objectif } from "@prisma/client";
 import JustificationsTableActions from "./JustificationsTableActions";
 
-// On étend le type Justification pour inclure les relations chargées par Prisma
+
 export type JustificationAvecRelations = Justification & {
   chef: UserType;
   objectif: Objectif;
 };
 
-// Définition des colonnes de notre table
+
 export const columns = [
   { key: "chef", name: "Chef" },
   { key: "objectif", name: "Objectif" },
@@ -19,7 +19,7 @@ export const columns = [
   { key: "actions", name: "Actions" },
 ];
 
-// Fonction qui détermine comment afficher le contenu de chaque cellule
+
 export const renderCell = (
   justification: JustificationAvecRelations,
   columnKey: React.Key
@@ -46,7 +46,7 @@ export const renderCell = (
         </div>
       );
     case "soumiseAt":
-        // Gère le cas où la date est null (même si peu probable pour une 'SOUMISE')
+        
         return justification.soumiseAt 
             ? new Date(justification.soumiseAt).toLocaleDateString("fr-FR", {
                 day: "2-digit",

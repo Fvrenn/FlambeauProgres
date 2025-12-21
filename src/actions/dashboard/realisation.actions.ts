@@ -5,16 +5,12 @@ import { getUser } from "@/lib/auth-server";
 import { revalidatePath } from "next/cache";
 import { StorageService } from "@/services/storage.service";
 
-/**
- * Crée ou met à jour une notification pour les référents d'une étape
- */
 async function notifyReferents(
   etapeId: string,
   justificationId: string,
   chefName: string
 ) {
   try {
-    // Récupérer tous les référents assignés à cette étape
     const etapeReferents = await prisma.etapeReferent.findMany({
       where: { etapeId },
       include: { referent: true, etape: true },
@@ -25,7 +21,6 @@ async function notifyReferents(
       return;
     }
 
-    // Créer une notification pour chaque référent
     const notifications = etapeReferents.map((er) => ({
       destinataireId: er.referent.id,
       justificationId,
@@ -41,7 +36,6 @@ async function notifyReferents(
 
   } catch (error) {
     console.error("Erreur lors de la création des notifications:", error);
-    // On ne fait pas échouer la requête principale si les notifications échouent
   }
 }
 
@@ -51,14 +45,12 @@ export async function submitRealisation(
   file?: File
 ) {
   try {
-    // Récupérer l'utilisateur connecté
     const user = await getUser();
 
     if (!user) {
       return { success: false, error: "Non authentifié" };
     }
 
-    // Vérifier que l'objectif existe et est bien de type REALISATION
     const objectif = await prisma.objectif.findUnique({
       where: { id: objectifId },
       include: { etape: true },
@@ -75,7 +67,6 @@ export async function submitRealisation(
       };
     }
 
-    // Gestion de l'upload du fichier via StorageService
     let fichierData: any = null;
 
     if (file) {
@@ -84,7 +75,7 @@ export async function submitRealisation(
         
         fichierData = {
           nomOriginal: file.name,
-          nomStockage: result.pathname, // On garde le pathname ou l'URL complète selon besoin
+          nomStockage: result.pathname,
           cheminFichier: result.url,
           type: file.type.startsWith("image/") ? "IMAGE" : "DOCUMENT",
           mimeType: file.type || "application/octet-stream",
@@ -96,7 +87,6 @@ export async function submitRealisation(
       }
     }
 
-    // Vérifier s'il existe déjà une justification pour cet objectif et cet utilisateur
     const existingJustification = await prisma.justification.findFirst({
       where: {
         objectifId,
@@ -107,7 +97,6 @@ export async function submitRealisation(
     let justificationId: string;
 
     if (existingJustification) {
-      // Mettre à jour la justification existante
       const updated = await prisma.justification.update({
         where: { id: existingJustification.id },
         data: {
@@ -127,7 +116,6 @@ export async function submitRealisation(
         });
       }
     } else {
-      // Créer une nouvelle justification avec statut SOUMISE
       const created = await prisma.justification.create({
         data: {
           objectifId,
@@ -150,10 +138,8 @@ export async function submitRealisation(
       }
     }
 
-    // Créer les notifications pour les référents
     await notifyReferents(objectif.etapeId, justificationId, user.name);
 
-    // Revalider la page dashboard pour rafraîchir les données
     revalidatePath("/dashboard");
 
     return { success: true };

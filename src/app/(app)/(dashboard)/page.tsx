@@ -23,7 +23,6 @@ export default async function Home() {
                 chefId: user.id,
               },
               include: {
-                // commentaires: { ... } -> Removed for Lazy Loading
               },
             },
           },

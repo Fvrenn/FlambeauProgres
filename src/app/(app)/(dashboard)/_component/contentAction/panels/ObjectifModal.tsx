@@ -37,25 +37,25 @@ export default function ObjectifModal({
   const [filePreview, setFilePreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Réinitialiser le contenu et le fichier quand on ouvre la modal avec un nouvel objectif
+  
   React.useEffect(() => {
     if (isOpen && objectif) {
-      // Si une justification existe déjà, pré-remplir le champ
+      
       const existingJustification = objectif.justifications[0];
       setContenu(existingJustification?.contenu || "");
-      // Réinitialiser le fichier
+      
       setSelectedFile(null);
       setFilePreview(null);
     }
   }, [isOpen, objectif]);
 
-  // Gérer la sélection de fichier
+  
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
 
-      // Créer une preview pour les images
+      
       if (file.type.startsWith("image/")) {
         const reader = new FileReader();
         reader.onloadend = () => {
@@ -68,7 +68,7 @@ export default function ObjectifModal({
     }
   };
 
-  // Supprimer le fichier sélectionné
+  
   const handleRemoveFile = () => {
     setSelectedFile(null);
     setFilePreview(null);
@@ -80,7 +80,7 @@ export default function ObjectifModal({
     const isCompetence = objectif.type === "COMPETENCE";
     const isRealisation = objectif.type === "REALISATION";
 
-    // Pour les réalisations, vérifier qu'un fichier est sélectionné
+    
     if (isRealisation && !selectedFile) {
       alert("Veuillez sélectionner un fichier pour votre réalisation");
       return;
@@ -88,7 +88,7 @@ export default function ObjectifModal({
 
     setIsSubmitting(true);
 
-    // Mise à jour optimiste immédiate de l'UI
+    
     onUpdateJustification(objectif.id, {
       contenu,
       statut: isCompetence ? "AUTO_VALIDEE" : "SOUMISE",
@@ -108,14 +108,14 @@ export default function ObjectifModal({
       if (result.success) {
         // Fermer la modal
         onOpenChange();
-        // Rafraîchir la page en arrière-plan pour synchroniser avec le serveur
+        
         router.refresh();
-        // Réinitialiser le contenu et le fichier
+        
         setContenu("");
         setSelectedFile(null);
         setFilePreview(null);
       } else {
-        // En cas d'erreur, on pourrait rollback la mise à jour optimiste
+        
         // Pour l'instant, on affiche juste l'erreur
         alert(result.error || "Une erreur est survenue");
       }

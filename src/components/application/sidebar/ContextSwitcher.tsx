@@ -17,7 +17,7 @@ import Image from "next/image"; // <-- 1. IMPORTER LE COMPOSANT IMAGE
 import { signOut } from "@/lib/auth-client";
 import { redirect } from "next/navigation";
 
-// --- Icônes pour le menu ---
+
 
 function DropdownIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -138,18 +138,18 @@ import { Tooltip } from "@heroui/react";
 
 export default function ContextSwitcher({ user, isCompact }: { user: any; isCompact?: boolean }) {
   const pathname = usePathname();
-  // --- 2. UTILISER LE HOOK POUR LIRE LES PARAMÈTRES DE L'URL ---
+  
   const searchParams = useSearchParams();
   const currentEtapeId = searchParams.get("etapeId");
 
-  // --- 1. TROUVER L'ÉTAPE ACTUELLE ---
+  
   const currentEtape = user.etapesReferent?.find(
     (etape: { id: string }) => etape.id === currentEtapeId
   );
 
   const getCurrentContext = () => {
     if (pathname.startsWith("/admin")) return "Interface Admin";
-    // --- 2. AFFICHER LE NOM DE L'ÉTAPE SI ELLE EST TROUVÉE ---
+    
     if (pathname.startsWith("/referent") && currentEtape) {
       return `Référent : ${currentEtape.name}`;
     }
@@ -157,7 +157,7 @@ export default function ContextSwitcher({ user, isCompact }: { user: any; isComp
     return "Mon Progrès (Chef)";
   };
 
-  // Classes communes pour les icônes
+  
   const iconClasses = "text-xl text-default-500 pointer-events-none shrink-0";
 
   return (

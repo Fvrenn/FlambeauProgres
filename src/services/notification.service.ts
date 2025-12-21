@@ -29,7 +29,7 @@ export class NotificationService {
    */
   static async markAsRead(notificationId: string, userId: string): Promise<boolean> {
     try {
-      // Sécurité : Vérifier que la notification appartient bien à l'utilisateur
+      
       const notif = await prisma.notification.findUnique({
         where: { id: notificationId },
       });

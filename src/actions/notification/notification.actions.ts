@@ -4,14 +4,10 @@ import { getUser } from "@/lib/auth-server";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
-/**
- * Récupère les notifications pour l'utilisateur actuellement connecté.
- */
 export async function getMyNotifications() {
   const user = await getUser();
 
   if (!user) {
-    // Devrait être géré par le layout parent, mais sécurité d'abord.
     return [];
   }
 
@@ -22,7 +18,6 @@ export async function getMyNotifications() {
     orderBy: {
       createdAt: "desc",
     },
-    // On inclut la justification et son objectif pour pouvoir créer des liens pertinents plus tard
     include: {
       justification: {
         select: {
@@ -41,9 +36,6 @@ export async function getMyNotifications() {
   return notifications;
 }
 
-/**
- * Marque une notification spécifique comme lue.
- */
 export async function markNotificationAsRead(notificationId: string) {
   try {
     await prisma.notification.update({
@@ -63,9 +55,6 @@ export async function markNotificationAsRead(notificationId: string) {
   }
 }
 
-/**
- * Marque toutes les notifications non lues de l'utilisateur comme lues.
- */
 export async function markAllNotificationsAsRead() {
   const user = await getUser();
   if (!user) return { success: false, error: "Non autorisé" };
@@ -92,10 +81,6 @@ export async function markAllNotificationsAsRead() {
   }
 }
 
-/**
- * Marque les notifications non lues d'une justification spécifique comme lues.
- * Utilisé quand le Référent ouvre la discussion pour une justification.
- */
 export async function markNotificationsAsReadForJustification(
   justificationId: string
 ) {
@@ -116,7 +101,6 @@ export async function markNotificationsAsReadForJustification(
       },
     });
 
-    // Revalider le dashboard du référent pour refetch les données
     revalidatePath("/referent/dashboard");
     return { success: true };
   } catch (error) {

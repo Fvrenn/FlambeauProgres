@@ -14,7 +14,6 @@ type NotificationPanelProps = {
   onNotificationClick: (notification: Notification) => void;
 };
 
-// Configuration pour l'affichage des notifications
 const NOTIFICATION_CONFIG: Record<
   TypeNotification,
   { icon: string; color: "success" | "danger" | "warning" | "primary" }
@@ -32,7 +31,6 @@ const NOTIFICATION_CONFIG: Record<
     icon: "solar:question-circle-linear",
     color: "warning",
   },
-  // Types futurs ou non utilisés par le Chef pour l'instant
   NOUVELLE_JUSTIFICATION: {
     icon: "solar:document-add-linear",
     color: "primary",

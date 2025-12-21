@@ -88,7 +88,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
         const isNestType =
           item.items &&
           item.items?.length > 0 &&
-          // CHANGEMENT 2: Utiliser la chaîne de caractères
+          
           item?.type === "nest";
 
         if (isNestType) {
@@ -237,7 +237,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
         const isNestType =
           item.items &&
           item.items?.length > 0 &&
-          // CHANGEMENT 3: Utiliser la chaîne de caractères
+          
           item?.type === "nest";
 
         if (isNestType) {
@@ -332,7 +332,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
         {(item) => {
           return item.items &&
             item.items?.length > 0 &&
-            // CHANGEMENT 4: Utiliser la chaîne de caractères
+            
             item?.type === "nest" ? (
             renderNestItem(item)
           ) : item.items && item.items?.length > 0 ? (

@@ -6,14 +6,12 @@ import { revalidatePath } from "next/cache";
 
 export async function submitCompetence(objectifId: string, contenu: string) {
   try {
-    // Récupérer l'utilisateur connecté
     const user = await getUser();
     
     if (!user) {
       return { success: false, error: "Non authentifié" };
     }
 
-    // Vérifier que l'objectif existe et est bien de type COMPETENCE
     const objectif = await prisma.objectif.findUnique({
       where: { id: objectifId },
     });
@@ -26,7 +24,6 @@ export async function submitCompetence(objectifId: string, contenu: string) {
       return { success: false, error: "Cet objectif n'est pas une compétence" };
     }
 
-    // Vérifier s'il existe déjà une justification pour cet objectif et cet utilisateur
     const existingJustification = await prisma.justification.findFirst({
       where: {
         objectifId,
@@ -35,7 +32,6 @@ export async function submitCompetence(objectifId: string, contenu: string) {
     });
 
     if (existingJustification) {
-      // Mettre à jour la justification existante
       await prisma.justification.update({
         where: { id: existingJustification.id },
         data: {
@@ -45,7 +41,6 @@ export async function submitCompetence(objectifId: string, contenu: string) {
         },
       });
     } else {
-      // Créer une nouvelle justification avec statut AUTO_VALIDEE
       await prisma.justification.create({
         data: {
           objectifId,
@@ -58,7 +53,6 @@ export async function submitCompetence(objectifId: string, contenu: string) {
       });
     }
 
-    // Revalider la page dashboard pour rafraîchir les données
     revalidatePath("/dashboard");
 
     return { success: true };

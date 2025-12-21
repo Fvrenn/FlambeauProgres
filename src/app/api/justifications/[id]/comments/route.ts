@@ -17,7 +17,7 @@ export async function GET(
       );
     }
 
-    // Récupérer la justification avec tous les commentaires et leurs auteurs
+    
     const justification = await prisma.justification.findUnique({
       where: { id },
       include: {
@@ -46,8 +46,8 @@ export async function GET(
       );
     }
 
-    // Vérifier que l'utilisateur a accès à cette justification
-    // (soit c'est le chef, soit c'est un référent assigné à cette étape)
+    
+    
     if (justification.chefId !== user.id && (!("role" in user) || user.role !== "REFERENT")) {
       return NextResponse.json(
         { error: "Accès refusé" },
@@ -55,7 +55,7 @@ export async function GET(
       );
     }
 
-    // Si c'est un référent, vérifier qu'il est assigné à cette étape
+    
     if ("role" in user && user.role === "REFERENT") {
       const etapeReferent = await prisma.etapeReferent.findFirst({
         where: {
@@ -106,7 +106,7 @@ export async function POST(
       );
     }
 
-    // Récupérer la justification
+    
     const justification = await prisma.justification.findUnique({
       where: { id },
     });
@@ -118,7 +118,7 @@ export async function POST(
       );
     }
 
-    // Vérifier que l'utilisateur est soit le chef, soit un référent assigné
+    
     if (justification.chefId !== user.id && (!("role" in user) || user.role !== "REFERENT")) {
       return NextResponse.json(
         { error: "Accès refusé" },
@@ -142,7 +142,7 @@ export async function POST(
       }
     }
 
-    // Créer le commentaire
+    
     const newComment = await prisma.commentaire.create({
       data: {
         justificationId: id,
