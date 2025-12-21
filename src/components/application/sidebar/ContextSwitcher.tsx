@@ -147,8 +147,6 @@ export default function ContextSwitcher({ user, isCompact }: { user: any; isComp
     (etape: { id: string }) => etape.id === currentEtapeId
   );
 
-  console.log("Role utilisateur dans ContextSwitcher :", user.role);
-
   const getCurrentContext = () => {
     if (pathname.startsWith("/admin")) return "Interface Admin";
     // --- 2. AFFICHER LE NOM DE L'ÉTAPE SI ELLE EST TROUVÉE ---
@@ -218,8 +216,6 @@ export default function ContextSwitcher({ user, isCompact }: { user: any; isComp
           variant="faded"
           itemClasses={{
             base: [
-              // Applique ces classes à chaque item survolé
-              
               "data-[hover=true]:border-divider"
             ],
           }}
@@ -238,10 +234,9 @@ export default function ContextSwitcher({ user, isCompact }: { user: any; isComp
               </DropdownItem>
             ) : null}
 
-            {/* --- 3. MODIFIER LA LOGIQUE DE RENDU --- */}
             {user.role === "REFERENT" && user.etapesReferent?.length > 0
               ? user.etapesReferent
-                  .filter((etape: { id: string }) => etape.id !== currentEtapeId) // <-- FILTRER L'ÉTAPE ACTIVE
+                  .filter((etape: { id: string }) => etape.id !== currentEtapeId)
                   .map(
                     (etape: {
                       id: string;
@@ -286,14 +281,14 @@ export default function ContextSwitcher({ user, isCompact }: { user: any; isComp
           </DropdownSection>
 
           <DropdownSection title="Compte">
-            <DropdownItem
+            {/* <DropdownItem
               key="profil"
               as={Link}
               href="/profil"
               startContent={<ProfilIcon className={iconClasses} />}
             >
               Mon Profil
-            </DropdownItem>
+            </DropdownItem> */}
                         <DropdownItem
               key="logout"
               className="text-danger"

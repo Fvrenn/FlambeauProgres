@@ -39,9 +39,6 @@ async function notifyReferents(
       data: notifications,
     });
 
-    console.log(
-      `${notifications.length} notification(s) créée(s) pour la justification ${justificationId}`
-    );
   } catch (error) {
     console.error("Erreur lors de la création des notifications:", error);
     // On ne fait pas échouer la requête principale si les notifications échouent

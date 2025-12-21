@@ -39,7 +39,6 @@ export default function LoginForm() {
   });
 
   async function onSubmit(values: z.infer<typeof LoginFormSchema>) {
-    console.log(values);
 
     await signIn.email(
       {

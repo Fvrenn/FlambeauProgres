@@ -47,7 +47,6 @@ export class StorageService {
       // 5. Écriture du fichier sur le disque
       await writeFile(finalPath, buffer);
 
-      console.log(`[StorageService] Fichier uploadé avec succès: ${finalPath}`);
 
       // 6. Retourner l'URL publique
       // Next.js sert les fichiers du dossier 'public' à la racine

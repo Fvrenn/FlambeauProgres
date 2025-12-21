@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { CommentaireAvecAuteur } from "@/types/chat";
+import { CommentaireAvecAuteur } from "@/types";
 import MessageBubble from "./MessageBubble";
 import { Card, CardBody } from "@heroui/react";
 

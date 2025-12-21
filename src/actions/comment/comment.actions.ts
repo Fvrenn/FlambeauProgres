@@ -3,7 +3,7 @@
 import prisma from "@/lib/prisma";
 import { getUser } from "@/lib/auth-server";
 import { revalidatePath } from "next/cache";
-import { CommentaireAvecAuteur } from "@/types/chat";
+import { CommentaireAvecAuteur } from "@/types";
 import { CommentService } from "@/services/comment.service";
 
 /**

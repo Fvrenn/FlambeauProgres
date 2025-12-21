@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Card, CardBody, User, Spinner } from "@heroui/react";
-import { CommentaireAvecAuteur } from "@/types/chat";
+import { CommentaireAvecAuteur } from "@/types";
 
 interface MessageBubbleProps {
   comment: CommentaireAvecAuteur;

@@ -12,11 +12,6 @@ export const auth = betterAuth({
     enabled: true,
   },
 
-  // a retirer en prod
-  advanced: {
-    disableOriginCheck: true
-  },
-
   plugins: [
     nextCookies(),
 

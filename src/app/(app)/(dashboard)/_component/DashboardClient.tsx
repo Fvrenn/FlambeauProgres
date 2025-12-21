@@ -1,24 +1,14 @@
 "use client";
 
-import { Etape, Objectif, Justification, Notification, Commentaire, User as UserType } from "@prisma/client";
+import { Etape, Objectif, Justification, Notification } from "@prisma/client";
 import React, { useState, useEffect } from "react";
 import ContentChemise from "./contentChemise/contentChemise";
 import ContentAction from "./contentAction/contentAction";
 import { markNotificationAsRead } from "@/actions/notification/notification.actions";
+import { CommentaireAvecAuteur, JustificationAvecCommentaires } from "@/types";
 
-// Type pour un commentaire avec auteur
-type CommentaireAvecAuteur = Commentaire & {
-  auteur: UserType;
-};
-
-// Type pour une justification avec commentaires
-type JustificationAvecCommentaires = Justification & {
-  commentaires?: CommentaireAvecAuteur[];
-};
-
-// Nouveau type pour un objectif qui peut avoir une justification
 export type ObjectifAvecJustification = Objectif & {
-  justifications: JustificationAvecCommentaires[]; // Sera un tableau de 0 ou 1 élément par notre requête
+  justifications: JustificationAvecCommentaires[];
 };
 
 export type EtapeAvecObjectifs = Etape & {

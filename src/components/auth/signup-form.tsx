@@ -45,7 +45,6 @@ export default function SignupForm() {
   });
 
   async function onSubmit(values: z.infer<typeof SignupFormSchema>) {
-    console.log(values);
 
     await signUp.email(
       {

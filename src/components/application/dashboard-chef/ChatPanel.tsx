@@ -10,7 +10,7 @@ import {
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useSession } from "@/lib/auth-client";
-import { CommentaireAvecAuteur } from "@/types/chat";
+import { CommentaireAvecAuteur } from "@/types";
 import { submitComment, getComments } from "@/actions/comment/comment.actions";
 import ChatList from "./chat/ChatList";
 import ChatInput from "./chat/ChatInput";

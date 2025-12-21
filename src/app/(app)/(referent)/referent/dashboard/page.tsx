@@ -17,7 +17,6 @@ export default async function ReferentDashboardPage({
   const params = await searchParams;
   const etapeId = params.etapeId;
 
-  console.log("ID de l'étape active (côté serveur) :", etapeId);
 
   if (!etapeId) {
     return (
