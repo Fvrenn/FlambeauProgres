@@ -1,85 +1,61 @@
-# Flambeau Progrès 🏕️✨
+# Flambeau Progrès
 
-**Révolutionner le suivi pédagogique des Chefs Flambeaux.**
+Application web de suivi pédagogique pour les Chefs Flambeaux. Permet aux animateurs de valider leurs compétences et réalisations pour obtenir leurs badges, avec un système de validation par référents.
 
-Flambeau Progrès est une application web privée et motivante conçue pour remplacer l'ancien processus PDF "chiant" de validation des étapes (etapes) par un workflow digital simple et efficace.
-
-L'objectif n'est pas de "fliquer", mais d'**encourager** et de **motiver** les chefs animateurs à suivre leur formation personnelle pour, à terme, recevoir leur vrai etape physique à coudre sur leur chemise.
-
-![Maquette de l'application](lien/vers/ton/image_183206.jpg)
+**Stack :** Next.js 15, MySQL, Prisma, TypeScript
 
 ---
 
-## 🎯 À quoi sert cette application ?
+## Installation
 
-* **Le Problème :** La validation des etapes nécessitait de remplir des PDF complexes, de les envoyer par email, et de multiples échanges avec un référent, un processus long et démotivant.
-* **La Solution :** Une interface web claire avec une chemise 3D personnelle, un formulaire de justification simplifié, et un dashboard clair pour les référents.
+### Prérequis
+- Node.js 20+
+- MySQL 8.0+ (XAMPP recommandé)
+- Git
 
-## 🧑‍🎓 Pour qui ?
+### Étapes
 
-Ce projet s'articule autour de 3 rôles clés :
+```bash
+# 1. Cloner le projet
+git clone https://github.com/Fvrenn/FlambeauProgres.git
+cd FlambeauProgres
 
-1.  **🧑‍🎓 Le Chef (Animateur) :** L'utilisateur principal. Il se connecte pour justifier ses `Compétences` (auto-validation) et soumettre ses `Réalisations` (validation par un référent).
-2.  **🧑‍🏫 Le Référent :** Le validateur bienveillant. Il reçoit les soumissions de `Réalisations`, les examine, et donne son "tampon" (validation) ou son feedback.
-3.  **🧑‍💻 L'Admin :** Le gestionnaire du système. Il crée les etapes, les objectifs, gère les troupes et assigne les rôles.
+# 2. Installer les dépendances
+npm install
 
-## ✨ Fonctionnalités Clés
+# 3. Configurer MySQL
+# Avec XAMPP : Démarrez MySQL et créez la base "flambeau_progres" dans phpMyAdmin
+# Ou en CLI : mysql -u root -p puis CREATE DATABASE flambeau_progres;
 
-* **Chemise 3D Personnelle :** Un dashboard visuel et privé pour suivre sa progression de etapes.
-* **Workflow Simplifié :**
-    * **Compétences :** Auto-validation via un simple champ de justification textuel.
-    * **Réalisations :** Soumission simple (texte + 1 fichier) pour validation par un Référent.
-* **100% Privé :** Ceci n'est **pas** un réseau social. Les profils ne sont pas publics. L'aspect social se passe dans la "vraie vie" quand le Chef montre son vrai etape cousu.
-* **Pas de Mode Hors-Ligne :** Conçu pour être utilisé "au calme chez soi" (PC ou mobile) pour débriefer ses activités, pas sur le terrain.
-* **Dashboards par Rôle :** Des interfaces dédiées et épurées pour les Référents et les Admins.
+# 4. Créer le fichier .env
+# Copiez-collez ceci dans un fichier .env à la racine :
+DATABASE_URL="mysql://root:@localhost:3306/flambeau_progres"
+BETTER_AUTH_SECRET="votre-cle-secrete-aleatoire"
+BETTER_AUTH_URL="http://localhost:3000"
 
-## 🛠️ Stack Technique
+# 5. Initialiser la base de données
+npx prisma migrate dev
 
-* **Framework :** Next.js (Full-Stack)
-* **Base de Données :** PostgreSQL
-* **ORM :** Prisma
-* **Authentification :** Better Auth
-* **UI :** Tailwind CSS
-* **3D :** Three.js / React Three Fiber
+# 6. (Optionnel) Ajouter des données de test
+npx prisma db seed
 
-## 🚀 Démarrage Rapide
+# 7. Lancer le serveur
+npm run dev
+```
 
-Instructions pour lancer le projet en local.
+**Accès :** http://localhost:3000
 
-1.  **Cloner le dépôt**
-    ```bash
-    git clone [https://github.com/ton-nom/flambeau-progres.git](https://github.com/ton-nom/flambeau-progres.git)
-    cd flambeau-progres
-    ```
+**Comptes de test :**
+- Chef : `chef1@example.com` / `password123`
+- Référent : `referent1@example.com` / `password123`
+- Admin : `admin@example.com` / `password123`
 
-2.  **Installer les dépendances**
-    ```bash
-    npm install
-    ```
+---
 
-3.  **Configurer l'environnement**
-    * Copiez `.env.example` en `.env`
-    * Remplissez la variable `DATABASE_URL` (PostgreSQL).
-    ```bash
-    cp .env.example .env
-    ```
+## Scripts
 
-4.  **Lancer la migration de la base de données**
-    ```bash
-    npx prisma migrate dev
-    ```
-
-5.  **Démarrer le serveur de développement**
-    ```bash
-    npm run dev
-    ```
-
-Le projet est maintenant accessible sur `http://localhost:3000`.
-
-## 🏛️ Documentation Approfondie
-
-Ce README est un résumé. Pour une compréhension complète de l'architecture, des parcours utilisateurs et du schéma de base de données, veuillez consulter notre documentation détaillée :
-
-* **[📁 Dossier de Documentation Principal](./docs/README.md)**
-* **[🗺️ Parcours Utilisateurs & Workflows](./docs/WORKFLOWS.md)**
-* **[💾 Architecture & Schéma de BDD](./docs/ARCHITECTURE.md)**
+```bash
+npm run dev    # Développement
+npm run build  # Build production
+npm start      # Lancer en production
+```
