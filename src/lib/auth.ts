@@ -7,7 +7,7 @@ import { prisma } from "./prisma";
 import { customSession } from "better-auth/plugins";
 
 export const auth = betterAuth({
-  database: prismaAdapter(prisma, { provider: "postgresql" }),
+  database: prismaAdapter(prisma, { provider: "mysql" }),
   emailAndPassword: {
     enabled: true,
   },
