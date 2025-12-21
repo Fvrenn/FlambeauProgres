@@ -27,11 +27,6 @@ npm install
 # Avec XAMPP : Démarrez MySQL et créez la base "flambeau_progres" dans phpMyAdmin
 # Ou en CLI : mysql -u root -p puis CREATE DATABASE flambeau_progres;
 
-# 4. Créer le fichier .env
-# Copiez-collez ceci dans un fichier .env à la racine :
-DATABASE_URL="mysql://root:@localhost:3306/flambeau_progres"
-BETTER_AUTH_SECRET="votre-cle-secrete-aleatoire"
-BETTER_AUTH_URL="http://localhost:3000"
 
 # 5. Initialiser la base de données
 npx prisma migrate dev
