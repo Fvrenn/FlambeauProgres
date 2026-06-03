@@ -1,5 +1,5 @@
 import "@/styles/globals.css";
-import { Metadata, Viewport } from "next";
+import { Metadata } from "next";
 import clsx from "clsx";
 
 import { Providers } from "./providers";
@@ -11,8 +11,9 @@ export const metadata: Metadata = {
     default: "Flambeau Progrès",
     template: `%s - Flambeau Progrès`,
   },
-  description: "Application de suivi pédagogique des Chefs Flambeaux pour l'acquisition de badges, compétences et réalisations.",
-icons: {
+  description:
+    "Application de suivi pédagogique des Chefs Flambeaux pour l'acquisition de badges, compétences et réalisations.",
+  icons: {
     icon: [
       { url: "/favicon/favicon.ico", sizes: "any" },
       { url: "/favicon/favicon.svg", type: "image/svg+xml" },
@@ -29,12 +30,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html suppressHydrationWarning lang="en">
+    <html suppressHydrationWarning lang="fr">
       <head />
       <body
         className={clsx(
           "min-h-screen text-foreground bg-background font-sans antialiased",
-          fontSans.variable
+          fontSans.variable,
         )}
       >
         <Providers>

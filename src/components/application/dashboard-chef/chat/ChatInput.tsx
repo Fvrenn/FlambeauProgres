@@ -15,8 +15,9 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
 
   const handleSend = () => {
     if (!message.trim()) return;
-    
+
     const textToSend = message;
+
     setMessage(""); // Clear immediately for better UX
 
     startTransition(async () => {
@@ -40,23 +41,23 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
   return (
     <div className="flex gap-2 items-end">
       <Textarea
+        className="flex-1"
+        disabled={disabled || isPending}
+        maxRows={4}
+        minRows={1}
         placeholder="Écris ton message..."
         value={message}
-        onValueChange={setMessage}
-        minRows={1}
-        maxRows={4}
-        disabled={disabled || isPending}
-        className="flex-1"
         onKeyDown={handleKeyDown}
+        onValueChange={setMessage}
       />
       <Button
         isIconOnly
-        color="primary"
-        onPress={handleSend}
-        isLoading={isPending}
-        disabled={!message.trim() || disabled || isPending}
-        size="lg"
         className="mb-[2px]" // Align with textarea bottom
+        color="primary"
+        disabled={!message.trim() || disabled || isPending}
+        isLoading={isPending}
+        size="lg"
+        onPress={handleSend}
       >
         <Icon icon="solar:send-linear" width={20} />
       </Button>

@@ -2,7 +2,9 @@
 import React from "react";
 import { Avatar, Chip, Button, Divider } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { Justification, Objectif } from "@prisma/client";
+import { Justification } from "@prisma/client";
+
+import { clickable } from "@/lib/a11y";
 
 // Reusing types from parent or defining interface locally if simple
 // Ideally types should be shared, but for now defining what we need
@@ -29,7 +31,10 @@ interface ValidationPanelProps {
   onJustificationClick: (justification: JustificationAValider) => void;
 }
 
-export default function ValidationPanel({ justifications, onJustificationClick }: ValidationPanelProps) {
+export default function ValidationPanel({
+  justifications,
+  onJustificationClick,
+}: ValidationPanelProps) {
   if (justifications.length === 0) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -45,15 +50,15 @@ export default function ValidationPanel({ justifications, onJustificationClick }
           <li key={justification.id}>
             <div
               className="py-4 px-3 md:py-6 md:px-5 rounded-md flex flex-col md:flex-row items-start md:items-center cursor-pointer hover:bg-default-100 transition-colors gap-3 md:gap-0"
-              onClick={() => onJustificationClick(justification)}
+              {...clickable(() => onJustificationClick(justification))}
             >
               {/* Row 1 Mobile: Chef + Avatar */}
               <div className="flex items-center gap-3 w-full md:w-1/4">
                 <Avatar
-                  src={justification.chef.image || undefined}
+                  className="w-8 h-8 md:w-10 md:h-10 text-tiny md:text-small"
                   name={justification.chef.name.charAt(0).toUpperCase()}
                   size="sm"
-                  className="w-8 h-8 md:w-10 md:h-10 text-tiny md:text-small"
+                  src={justification.chef.image || undefined}
                 />
                 <div className="flex flex-col min-w-0 flex-1">
                   <p className="text-sm font-semibold truncate text-foreground">
@@ -83,26 +88,32 @@ export default function ValidationPanel({ justifications, onJustificationClick }
               {/* Row 3 Mobile: Status & Button */}
               <div className="flex items-center justify-between w-full md:w-auto md:ml-6 mt-1 md:mt-0">
                 <Chip
-                  size="sm"
-                  variant="flat"
-                  color="warning"
                   classNames={{
                     base: "h-6 text-[10px] md:text-xs",
                     content: "px-2",
                   }}
-                  startContent={<Icon icon="solar:clock-circle-linear" width={12} />}
+                  color="warning"
+                  size="sm"
+                  startContent={
+                    <Icon icon="solar:clock-circle-linear" width={12} />
+                  }
+                  variant="flat"
                 >
                   En attente
                 </Chip>
                 <Button
                   isIconOnly
                   aria-label="Ouvrir"
+                  className="bg-transparent data-[hover=true]:bg-default/20 w-8 h-8 md:w-10 md:h-10 min-w-8"
                   color="default"
                   variant="light"
-                  className="bg-transparent data-[hover=true]:bg-default/20 w-8 h-8 md:w-10 md:h-10 min-w-8"
                   onPress={() => onJustificationClick(justification)}
                 >
-                  <Icon icon="solar:arrow-right-linear" width={20} className="md:w-6 md:h-6" />
+                  <Icon
+                    className="md:w-6 md:h-6"
+                    icon="solar:arrow-right-linear"
+                    width={20}
+                  />
                 </Button>
               </div>
             </div>

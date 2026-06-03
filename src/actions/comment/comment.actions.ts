@@ -1,10 +1,12 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+
 import prisma from "@/lib/prisma";
 import { getUser } from "@/lib/auth-server";
-import { revalidatePath } from "next/cache";
 import { CommentaireAvecAuteur } from "@/types";
 import { CommentService } from "@/services/comment.service";
+import { canAccessJustification } from "@/lib/auth-guards";
 
 /**
  * Récupère les commentaires d'une justification.
@@ -13,8 +15,20 @@ import { CommentService } from "@/services/comment.service";
 export async function getComments(justificationId: string) {
   try {
     const user = await getUser();
+
     if (!user) {
       return { success: false, error: "Non authentifié" };
+    }
+
+    const role = "role" in user ? user.role : undefined;
+    const allowed = await canAccessJustification(
+      user.id,
+      role,
+      justificationId,
+    );
+
+    if (!allowed) {
+      return { success: false, error: "Accès refusé" };
     }
 
     const commentaires = await prisma.commentaire.findMany({
@@ -30,16 +44,15 @@ export async function getComments(justificationId: string) {
     return { success: true, data: commentaires as CommentaireAvecAuteur[] };
   } catch (error) {
     console.error("Erreur lors de la récupération des commentaires:", error);
+
     return { success: false, error: "Erreur serveur" };
   }
 }
 
-export async function submitComment(
-  justificationId: string,
-  message: string
-) {
+export async function submitComment(justificationId: string, message: string) {
   try {
     const user = await getUser();
+
     if (!user) {
       return { success: false, error: "Non authentifié" };
     }
@@ -48,7 +61,7 @@ export async function submitComment(
       authorId: user.id,
       justificationId,
       content: message,
-      type: "CHEF_REPONSE"
+      type: "CHEF_REPONSE",
     });
 
     if (!result.success) {
@@ -64,6 +77,7 @@ export async function submitComment(
     };
   } catch (error) {
     console.error("Erreur lors de l'envoi du commentaire:", error);
+
     return {
       success: false,
       error: "Une erreur est survenue lors de l'envoi du commentaire",

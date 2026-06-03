@@ -51,8 +51,8 @@ export default function AdminDataTable<T extends { id: string | number }>({
     if (hasSearch && filterValue) {
       filtered = filtered.filter((item) =>
         Object.values(item).some((value) =>
-          String(value).toLowerCase().includes(filterValue.toLowerCase())
-        )
+          String(value).toLowerCase().includes(filterValue.toLowerCase()),
+        ),
       );
     }
 
@@ -69,9 +69,11 @@ export default function AdminDataTable<T extends { id: string | number }>({
   }, [page, filteredItems, rowsPerPage]);
 
   const sortedItems = React.useMemo(() => {
-    return [...items].sort((a: any, b: any) => {
-      const first = a[sortDescriptor.column as keyof T];
-      const second = b[sortDescriptor.column as keyof T];
+    return [...items].sort((a, b) => {
+      // Cast volontaire : le tri générique repose sur la comparaison JS native,
+      // quel que soit le type réel de la colonne.
+      const first = a[sortDescriptor.column as keyof T] as unknown as number;
+      const second = b[sortDescriptor.column as keyof T] as unknown as number;
       const cmp = first < second ? -1 : first > second ? 1 : 0;
 
       return sortDescriptor.direction === "descending" ? -cmp : cmp;
@@ -133,8 +135,8 @@ export default function AdminDataTable<T extends { id: string | number }>({
 
   return (
     <Table
-      aria-label="Admin Data Table"
       isHeaderSticky
+      aria-label="Admin Data Table"
       bottomContent={bottomContent}
       bottomContentPlacement="outside"
       classNames={{
@@ -149,8 +151,8 @@ export default function AdminDataTable<T extends { id: string | number }>({
         {(column) => (
           <TableColumn
             key={column.key}
-            allowsSorting={column.sortable}
             align={column.key === "actions" ? "center" : "start"}
+            allowsSorting={column.sortable}
           >
             {column.label}
           </TableColumn>

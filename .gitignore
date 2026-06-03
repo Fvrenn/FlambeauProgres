@@ -44,6 +44,9 @@ bun.lockb
 /public/uploads/*
 !/public/uploads/.gitkeep
 
+# Dossier d'upload privé (servi via /api/files/[id], hors de /public)
+/uploads
+
 .vscode/
 .idea/
 *.swp

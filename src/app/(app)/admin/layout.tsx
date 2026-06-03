@@ -1,8 +1,10 @@
-import { getUser } from "@/lib/auth-server";
 import React from "react";
-import AppClientLayout from "../AppClientLayout";
-import { type SidebarItem } from "@/components/application/sidebar/sidebar";
 import { redirect } from "next/navigation";
+
+import AppClientLayout from "../AppClientLayout";
+
+import { getUser } from "@/lib/auth-server";
+import { type SidebarItem } from "@/components/application/sidebar/sidebar";
 
 export default async function AdminLayout({
   children,
@@ -12,7 +14,7 @@ export default async function AdminLayout({
   const user = await getUser();
 
   if (!user || !("role" in user) || user.role !== "ADMIN") {
-    redirect("/"); 
+    redirect("/");
   }
 
   const sidebarItems: SidebarItem[] = [
@@ -43,7 +45,7 @@ export default async function AdminLayout({
   ];
 
   return (
-    <AppClientLayout user={user} sidebarItems={sidebarItems}>
+    <AppClientLayout sidebarItems={sidebarItems} user={user}>
       {children}
     </AppClientLayout>
   );

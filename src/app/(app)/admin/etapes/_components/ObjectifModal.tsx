@@ -17,9 +17,10 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { createObjectif, updateObjectif } from "../../_actions/admin.actions";
 import { useRouter } from "next/navigation";
-import { TypeObjectif } from "@prisma/client";
+import { TypeObjectif, type Objectif } from "@prisma/client";
+
+import { createObjectif, updateObjectif } from "../../_actions/admin.actions";
 
 const objectifSchema = z.object({
   code: z.string().min(1, "Le code est requis"),
@@ -33,7 +34,7 @@ type ObjectifFormData = z.infer<typeof objectifSchema>;
 type ObjectifModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  objectif?: any;
+  objectif?: Objectif | null;
   etapeId: string;
 };
 
@@ -109,19 +110,21 @@ export default function ObjectifModal({
             <ModalBody>
               <div className="flex gap-4">
                 <Input
+                  className="w-1/3"
                   label="Code"
                   placeholder="Ex: C1"
-                  className="w-1/3"
                   {...register("code")}
-                  isInvalid={!!errors.code}
                   errorMessage={errors.code?.message}
+                  isInvalid={!!errors.code}
                 />
                 <Select
+                  className="w-2/3"
                   label="Type"
                   placeholder="Choisir un type"
-                  className="w-2/3"
                   selectedKeys={[watch("type")]}
-                  onChange={(e) => setValue("type", e.target.value as TypeObjectif)}
+                  onChange={(e) =>
+                    setValue("type", e.target.value as TypeObjectif)
+                  }
                 >
                   <SelectItem key={TypeObjectif.COMPETENCE}>
                     Compétence
@@ -136,12 +139,14 @@ export default function ObjectifModal({
                 label="Description"
                 placeholder="Description de l'objectif..."
                 {...register("description")}
-                isInvalid={!!errors.description}
                 errorMessage={errors.description?.message}
+                isInvalid={!!errors.description}
               />
 
               <div className="flex items-center justify-between py-2">
-                <span className="text-small text-default-500">Fichiers requis pour valider ?</span>
+                <span className="text-small text-default-500">
+                  Fichiers requis pour valider ?
+                </span>
                 <Switch
                   isSelected={watch("fichiersRequis")}
                   onValueChange={(val) => setValue("fichiersRequis", val)}
@@ -152,7 +157,7 @@ export default function ObjectifModal({
               <Button color="danger" variant="light" onPress={onClose}>
                 Annuler
               </Button>
-              <Button color="primary" type="submit" isLoading={isPending}>
+              <Button color="primary" isLoading={isPending} type="submit">
                 {objectif ? "Mettre à jour" : "Créer"}
               </Button>
             </ModalFooter>

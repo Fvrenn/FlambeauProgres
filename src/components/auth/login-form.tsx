@@ -7,13 +7,14 @@ import { Form } from "@heroui/form";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { Icon } from "@iconify/react";
-import FlambeauProgres from "@/public/logo/logo-flambeau-progres.svg";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, FormProvider } from "react-hook-form";
-import { signIn } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { addToast } from "@heroui/toast";
+
+import { signIn } from "@/lib/auth-client";
+import FlambeauProgres from "@/public/logo/logo-flambeau-progres.svg";
 
 const LoginFormSchema = z.object({
   email: z
@@ -39,7 +40,6 @@ export default function LoginForm() {
   });
 
   async function onSubmit(values: z.infer<typeof LoginFormSchema>) {
-
     await signIn.email(
       {
         email: values.email,
@@ -56,7 +56,7 @@ export default function LoginForm() {
             color: "danger",
           });
         },
-      }
+      },
     );
   }
 
@@ -64,10 +64,10 @@ export default function LoginForm() {
     <div className="rounded-large bg-content1 shadow-small flex w-full max-w-sm flex-col gap-4 px-8 pt-6 pb-10">
       <div className="flex flex-col items-center pb-6">
         <Image
-          src={FlambeauProgres}
           alt="Logo Flambeau Progrès"
-          width={60}
           height={60}
+          src={FlambeauProgres}
+          width={60}
         />
         <p className="text-xl font-medium">Se connecter</p>
         <p className="text-small text-default-500">
@@ -87,8 +87,8 @@ export default function LoginForm() {
             type="email"
             variant="faded"
             {...form.register("email")}
-            isInvalid={!!form.formState.errors.email}
             errorMessage={form.formState.errors.email?.message}
+            isInvalid={!!form.formState.errors.email}
           />
           <Input
             isRequired
@@ -112,8 +112,8 @@ export default function LoginForm() {
             type={isVisible ? "text" : "password"}
             variant="faded"
             {...form.register("motDePasse")}
-            isInvalid={!!form.formState.errors.motDePasse}
             errorMessage={form.formState.errors.motDePasse?.message}
+            isInvalid={!!form.formState.errors.motDePasse}
           />
           <Button className="w-full" color="primary" type="submit">
             Se connecter

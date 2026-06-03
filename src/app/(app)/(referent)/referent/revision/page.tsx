@@ -1,7 +1,9 @@
 import React from "react";
-import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
+
 import RevisionClient from "./RevisionClient";
+
+import prisma from "@/lib/prisma";
 
 type RevisionPageProps = {
   searchParams: Promise<{
@@ -10,7 +12,9 @@ type RevisionPageProps = {
   }>;
 };
 
-export default async function RevisionPage({ searchParams }: RevisionPageProps) {
+export default async function RevisionPage({
+  searchParams,
+}: RevisionPageProps) {
   const params = await searchParams;
   const { chefId, etapeId } = params;
 

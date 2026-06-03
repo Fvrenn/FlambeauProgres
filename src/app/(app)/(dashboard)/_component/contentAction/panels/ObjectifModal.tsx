@@ -9,20 +9,24 @@ import {
   ModalFooter,
   Button,
   Textarea,
-  Input,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { ObjectifAvecJustification } from "../../DashboardClient";
-import { submitCompetence } from "@/actions/dashboard/competence.actions";
-import { submitRealisation } from "@/actions/dashboard/realisation.actions";
 import { useRouter } from "next/navigation";
 import { Justification } from "@prisma/client";
+
+import { ObjectifAvecJustification } from "../../DashboardClient";
+
+import { submitCompetence } from "@/actions/dashboard/competence.actions";
+import { submitRealisation } from "@/actions/dashboard/realisation.actions";
 
 interface ObjectifModalProps {
   isOpen: boolean;
   onOpenChange: () => void;
   objectif: ObjectifAvecJustification | null;
-  onUpdateJustification: (objectifId: string, justification: Partial<Justification>) => void;
+  onUpdateJustification: (
+    objectifId: string,
+    justification: Partial<Justification>,
+  ) => void;
 }
 
 export default function ObjectifModal({
@@ -37,27 +41,26 @@ export default function ObjectifModal({
   const [filePreview, setFilePreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  
   React.useEffect(() => {
     if (isOpen && objectif) {
-      
       const existingJustification = objectif.justifications[0];
+
       setContenu(existingJustification?.contenu || "");
-      
+
       setSelectedFile(null);
       setFilePreview(null);
     }
   }, [isOpen, objectif]);
 
-  
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+
     if (file) {
       setSelectedFile(file);
 
-      
       if (file.type.startsWith("image/")) {
         const reader = new FileReader();
+
         reader.onloadend = () => {
           setFilePreview(reader.result as string);
         };
@@ -68,7 +71,6 @@ export default function ObjectifModal({
     }
   };
 
-  
   const handleRemoveFile = () => {
     setSelectedFile(null);
     setFilePreview(null);
@@ -80,15 +82,14 @@ export default function ObjectifModal({
     const isCompetence = objectif.type === "COMPETENCE";
     const isRealisation = objectif.type === "REALISATION";
 
-    
     if (isRealisation && !selectedFile) {
       alert("Veuillez sélectionner un fichier pour votre réalisation");
+
       return;
     }
 
     setIsSubmitting(true);
 
-    
     onUpdateJustification(objectif.id, {
       contenu,
       statut: isCompetence ? "AUTO_VALIDEE" : "SOUMISE",
@@ -102,20 +103,23 @@ export default function ObjectifModal({
       if (isCompetence) {
         result = await submitCompetence(objectif.id, contenu);
       } else {
-        result = await submitRealisation(objectif.id, contenu, selectedFile || undefined);
+        result = await submitRealisation(
+          objectif.id,
+          contenu,
+          selectedFile || undefined,
+        );
       }
 
       if (result.success) {
         // Fermer la modal
         onOpenChange();
-        
+
         router.refresh();
-        
+
         setContenu("");
         setSelectedFile(null);
         setFilePreview(null);
       } else {
-        
         // Pour l'instant, on affiche juste l'erreur
         alert(result.error || "Une erreur est survenue");
       }
@@ -136,10 +140,10 @@ export default function ObjectifModal({
   return (
     <Modal
       isOpen={isOpen}
-      onOpenChange={onOpenChange}
-      size="2xl"
-      scrollBehavior="outside"
       placement="center"
+      scrollBehavior="outside"
+      size="2xl"
+      onOpenChange={onOpenChange}
     >
       <ModalContent>
         {(onClose) => (
@@ -157,63 +161,64 @@ export default function ObjectifModal({
               {isCompetence ? (
                 <>
                   <p className="text-sm text-default-600 mb-4">
-                    Décris comment tu as acquis ou démontré cette compétence.
-                    Ta justification sera automatiquement validée.
+                    Décris comment tu as acquis ou démontré cette compétence. Ta
+                    justification sera automatiquement validée.
                   </p>
 
                   <Textarea
+                    isRequired
+                    description={`${contenu.length} caractères`}
                     label="Ta justification"
+                    maxRows={12}
+                    minRows={6}
                     placeholder="Explique comment tu as travaillé cette compétence..."
                     value={contenu}
                     onValueChange={setContenu}
-                    minRows={6}
-                    maxRows={12}
-                    isRequired
-                    description={`${contenu.length} caractères`}
                   />
                 </>
               ) : (
                 <>
                   <p className="text-sm text-default-600 mb-4">
-                    Décris ta réalisation et ajoute une preuve (photo, PDF, document).
-                    Ta soumission sera envoyée au référent pour validation.
+                    Décris ta réalisation et ajoute une preuve (photo, PDF,
+                    document). Ta soumission sera envoyée au référent pour
+                    validation.
                   </p>
 
                   <Textarea
+                    isRequired
+                    className="mb-4"
+                    description={`${contenu.length} caractères`}
                     label="Description de ta réalisation"
+                    maxRows={8}
+                    minRows={4}
                     placeholder="Explique ce que tu as réalisé, comment et avec qui..."
                     value={contenu}
                     onValueChange={setContenu}
-                    minRows={4}
-                    maxRows={8}
-                    isRequired
-                    description={`${contenu.length} caractères`}
-                    className="mb-4"
                   />
 
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium mb-2">
+                      <p className="block text-sm font-medium mb-2">
                         Fichier de preuve *
-                      </label>
+                      </p>
 
                       {!selectedFile ? (
                         <div className="border-2 border-dashed border-default-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
                           <input
-                            type="file"
-                            id="file-upload"
-                            className="hidden"
-                            onChange={handleFileChange}
                             accept="image/*,.pdf,.doc,.docx"
+                            className="hidden"
+                            id="file-upload"
+                            type="file"
+                            onChange={handleFileChange}
                           />
                           <label
-                            htmlFor="file-upload"
                             className="cursor-pointer flex flex-col items-center gap-2"
+                            htmlFor="file-upload"
                           >
                             <Icon
+                              className="text-default-400"
                               icon="solar:cloud-upload-linear"
                               width={48}
-                              className="text-default-400"
                             />
                             <p className="text-sm text-default-600">
                               Clique pour sélectionner un fichier
@@ -227,14 +232,18 @@ export default function ObjectifModal({
                         <div className="border border-default-300 rounded-lg p-4">
                           {filePreview ? (
                             <div className="space-y-3">
+                              {/* eslint-disable-next-line @next/next/no-img-element -- aperçu local (data/blob URL) : non optimisable par next/image */}
                               <img
-                                src={filePreview}
                                 alt="Preview"
                                 className="w-full h-48 object-cover rounded-lg"
+                                src={filePreview}
                               />
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                  <Icon icon="solar:gallery-linear" width={20} />
+                                  <Icon
+                                    icon="solar:gallery-linear"
+                                    width={20}
+                                  />
                                   <span className="text-sm font-medium truncate max-w-[200px]">
                                     {selectedFile.name}
                                   </span>
@@ -244,12 +253,15 @@ export default function ObjectifModal({
                                 </div>
                                 <Button
                                   isIconOnly
-                                  size="sm"
                                   color="danger"
+                                  size="sm"
                                   variant="flat"
                                   onPress={handleRemoveFile}
                                 >
-                                  <Icon icon="solar:trash-bin-minimalistic-linear" width={18} />
+                                  <Icon
+                                    icon="solar:trash-bin-minimalistic-linear"
+                                    width={18}
+                                  />
                                 </Button>
                               </div>
                             </div>
@@ -268,20 +280,21 @@ export default function ObjectifModal({
                               </div>
                               <Button
                                 isIconOnly
-                                size="sm"
                                 color="danger"
+                                size="sm"
                                 variant="flat"
                                 onPress={handleRemoveFile}
                               >
-                                <Icon icon="solar:trash-bin-minimalistic-linear" width={18} />
+                                <Icon
+                                  icon="solar:trash-bin-minimalistic-linear"
+                                  width={18}
+                                />
                               </Button>
                             </div>
                           )}
                         </div>
                       )}
                     </div>
-
-
                   </div>
                 </>
               )}
@@ -290,9 +303,9 @@ export default function ObjectifModal({
             <ModalFooter>
               <Button
                 color="danger"
+                isDisabled={isSubmitting}
                 variant="light"
                 onPress={onClose}
-                isDisabled={isSubmitting}
               >
                 Annuler
               </Button>
@@ -300,9 +313,9 @@ export default function ObjectifModal({
               {isCompetence && (
                 <Button
                   color="primary"
-                  onPress={handleSubmit}
-                  isLoading={isSubmitting}
                   isDisabled={!contenu.trim() || isSubmitting}
+                  isLoading={isSubmitting}
+                  onPress={handleSubmit}
                 >
                   {isEditing ? "Mettre à jour" : "Valider la compétence"}
                 </Button>
@@ -311,12 +324,18 @@ export default function ObjectifModal({
               {!isCompetence && (
                 <Button
                   color="warning"
-                  onPress={handleSubmit}
-                  isLoading={isSubmitting}
                   isDisabled={!contenu.trim() || !selectedFile || isSubmitting}
-                  startContent={!isSubmitting && <Icon icon="solar:send-linear" width={20} />}
+                  isLoading={isSubmitting}
+                  startContent={
+                    !isSubmitting && (
+                      <Icon icon="solar:send-linear" width={20} />
+                    )
+                  }
+                  onPress={handleSubmit}
                 >
-                  {isEditing ? "Resoummettre au référent" : "Soumettre au référent"}
+                  {isEditing
+                    ? "Resoummettre au référent"
+                    : "Soumettre au référent"}
                 </Button>
               )}
             </ModalFooter>

@@ -2,9 +2,9 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
-import { prisma } from "./prisma";
-
 import { customSession } from "better-auth/plugins";
+
+import { prisma } from "./prisma";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, { provider: "mysql" }),
@@ -28,7 +28,7 @@ export const auth = betterAuth({
                   select: {
                     id: true,
                     name: true,
-                    image_src: true, 
+                    image_src: true,
                   },
                 },
               },
@@ -38,7 +38,7 @@ export const auth = betterAuth({
 
         if (userFromDb) {
           const etapesReferent = userFromDb.assigneEtapes.map(
-            (assignation) => assignation.etape
+            (assignation) => assignation.etape,
           );
 
           return {
@@ -52,6 +52,7 @@ export const auth = betterAuth({
           };
         }
       }
+
       return { user, session };
     }),
   ],

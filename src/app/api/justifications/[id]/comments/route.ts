@@ -1,23 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import prisma from "@/lib/prisma";
 import { getUser } from "@/lib/auth-server";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
     const user = await getUser();
 
     if (!user) {
-      return NextResponse.json(
-        { error: "Non authentifié" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
 
-    
     const justification = await prisma.justification.findUnique({
       where: { id },
       include: {
@@ -42,20 +39,17 @@ export async function GET(
     if (!justification) {
       return NextResponse.json(
         { error: "Justification non trouvée" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
-    
-    
-    if (justification.chefId !== user.id && (!("role" in user) || user.role !== "REFERENT")) {
-      return NextResponse.json(
-        { error: "Accès refusé" },
-        { status: 403 }
-      );
+    if (
+      justification.chefId !== user.id &&
+      (!("role" in user) || user.role !== "REFERENT")
+    ) {
+      return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
     }
 
-    
     if ("role" in user && user.role === "REFERENT") {
       const etapeReferent = await prisma.etapeReferent.findFirst({
         where: {
@@ -65,36 +59,28 @@ export async function GET(
       });
 
       if (!etapeReferent) {
-        return NextResponse.json(
-          { error: "Accès refusé" },
-          { status: 403 }
-        );
+        return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
       }
     }
 
     return NextResponse.json(justification);
   } catch (error) {
     console.error("Erreur lors de la récupération des commentaires:", error);
-    return NextResponse.json(
-      { error: "Erreur serveur" },
-      { status: 500 }
-    );
+
+    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
     const user = await getUser();
 
     if (!user) {
-      return NextResponse.json(
-        { error: "Non authentifié" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
 
     const { contenu, type } = await request.json();
@@ -102,11 +88,10 @@ export async function POST(
     if (!contenu || !type) {
       return NextResponse.json(
         { error: "Contenu et type sont requis" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    
     const justification = await prisma.justification.findUnique({
       where: { id },
     });
@@ -114,16 +99,15 @@ export async function POST(
     if (!justification) {
       return NextResponse.json(
         { error: "Justification non trouvée" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
-    
-    if (justification.chefId !== user.id && (!("role" in user) || user.role !== "REFERENT")) {
-      return NextResponse.json(
-        { error: "Accès refusé" },
-        { status: 403 }
-      );
+    if (
+      justification.chefId !== user.id &&
+      (!("role" in user) || user.role !== "REFERENT")
+    ) {
+      return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
     }
 
     if ("role" in user && user.role === "REFERENT") {
@@ -135,14 +119,10 @@ export async function POST(
       });
 
       if (!etapeReferent) {
-        return NextResponse.json(
-          { error: "Accès refusé" },
-          { status: 403 }
-        );
+        return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
       }
     }
 
-    
     const newComment = await prisma.commentaire.create({
       data: {
         justificationId: id,
@@ -158,9 +138,7 @@ export async function POST(
     return NextResponse.json(newComment, { status: 201 });
   } catch (error) {
     console.error("Erreur lors de la création du commentaire:", error);
-    return NextResponse.json(
-      { error: "Erreur serveur" },
-      { status: 500 }
-    );
+
+    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

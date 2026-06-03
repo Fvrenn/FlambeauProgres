@@ -1,9 +1,11 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { CommentaireAvecAuteur } from "@/types";
-import MessageBubble from "./MessageBubble";
 import { Card, CardBody } from "@heroui/react";
+
+import MessageBubble from "./MessageBubble";
+
+import { CommentaireAvecAuteur } from "@/types";
 
 interface ChatListProps {
   comments: CommentaireAvecAuteur[];

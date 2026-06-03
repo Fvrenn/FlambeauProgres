@@ -1,5 +1,7 @@
 "use client";
 
+import type { SessionUser } from "@/types";
+
 import React from "react";
 // --- 1. IMPORTER useSearchParams ---
 import { usePathname, useSearchParams } from "next/navigation";
@@ -14,10 +16,9 @@ import {
 } from "@heroui/react";
 import Link from "next/link";
 import Image from "next/image"; // <-- 1. IMPORTER LE COMPOSANT IMAGE
-import { signOut } from "@/lib/auth-client";
 import { redirect } from "next/navigation";
 
-
+import { signOut } from "@/lib/auth-client";
 
 function DropdownIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -58,26 +59,26 @@ const DashboardIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <path
       d="M2 13.04V11C2 5 4 3 10 3h4c6 0 8 2 8 8v2.04c0 .92-.41 1.79-1.11 2.33L13.5 22.58c-.63.49-1.37.49-2 0l-7.39-7.21A3.02 3.02 0 0 1 2 13.04Z"
       stroke="currentColor"
-      strokeWidth={1.5}
-      strokeMiterlimit={10}
       strokeLinecap="round"
       strokeLinejoin="round"
+      strokeMiterlimit={10}
+      strokeWidth={1.5}
     />
     <path
       d="M12 8v5"
       stroke="currentColor"
-      strokeWidth={1.5}
-      strokeMiterlimit={10}
       strokeLinecap="round"
       strokeLinejoin="round"
+      strokeMiterlimit={10}
+      strokeWidth={1.5}
     />
     <path
       d="M8.5 11.5h7"
       stroke="currentColor"
-      strokeWidth={1.5}
-      strokeMiterlimit={10}
       strokeLinecap="round"
       strokeLinejoin="round"
+      strokeMiterlimit={10}
+      strokeWidth={1.5}
     />
   </svg>
 );
@@ -96,9 +97,9 @@ const ProfilIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <path
       d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10ZM20.59 22c0-3.87-3.85-7-8.59-7s-8.59 3.13-8.59 7"
       stroke="currentColor"
-      strokeWidth={1.5}
       strokeLinecap="round"
       strokeLinejoin="round"
+      strokeWidth={1.5}
     />
   </svg>
 );
@@ -117,186 +118,177 @@ const DeconnexionIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <path
       d="M12.95 21.99h-3.9c-4 0-5-1-5-5v-8c0-4 1-5 5-5h3.9c4 0 5 1 5 5v1"
       stroke="currentColor"
-      strokeWidth={1.5}
       strokeLinecap="round"
       strokeLinejoin="round"
+      strokeWidth={1.5}
     />
     <path
       d="M16.95 12h-6.9M18.95 15l3-3-3-3"
       stroke="currentColor"
-      strokeWidth={1.5}
       strokeLinecap="round"
       strokeLinejoin="round"
+      strokeWidth={1.5}
     />
   </svg>
 );
 
 // ... imports
-import { Tooltip } from "@heroui/react";
 
 // ... icons
 
-export default function ContextSwitcher({ user, isCompact }: { user: any; isCompact?: boolean }) {
+export default function ContextSwitcher({
+  user,
+  isCompact,
+}: {
+  user: SessionUser;
+  isCompact?: boolean;
+}) {
   const pathname = usePathname();
-  
+
   const searchParams = useSearchParams();
   const currentEtapeId = searchParams.get("etapeId");
 
-  
   const currentEtape = user.etapesReferent?.find(
-    (etape: { id: string }) => etape.id === currentEtapeId
+    (etape: { id: string }) => etape.id === currentEtapeId,
   );
 
   const getCurrentContext = () => {
     if (pathname.startsWith("/admin")) return "Interface Admin";
-    
+
     if (pathname.startsWith("/referent") && currentEtape) {
       return `Référent : ${currentEtape.name}`;
     }
     if (pathname.startsWith("/referent")) return "Interface Référent";
+
     return "Mon Progrès (Chef)";
   };
 
-  
   const iconClasses = "text-xl text-default-500 pointer-events-none shrink-0";
+
+  const viewItems = [
+    ...(pathname === "/" || pathname.startsWith("/troupe")
+      ? []
+      : [
+          <DropdownItem
+            key="chef"
+            as={Link}
+            description="Accéder à votre progression"
+            href="/"
+            startContent={<DashboardIcon className={iconClasses} />}
+          >
+            Mon Progrès (Chef)
+          </DropdownItem>,
+        ]),
+    ...(user.role === "REFERENT" && user.etapesReferent
+      ? user.etapesReferent
+          .filter((etape) => etape.id !== currentEtapeId)
+          .map((etape) => (
+            <DropdownItem
+              key={`referent-${etape.id}`}
+              as={Link}
+              href={`/referent/dashboard?etapeId=${etape.id}`}
+              startContent={
+                etape.image_src ? (
+                  <Image
+                    alt={`Badge ${etape.name}`}
+                    className="shrink-0"
+                    height={24}
+                    src={etape.image_src}
+                    width={24}
+                  />
+                ) : (
+                  <DashboardIcon className={iconClasses} />
+                )
+              }
+            >
+              Référent : {etape.name}
+            </DropdownItem>
+          ))
+      : []),
+    ...(user.role === "ADMIN" && !pathname.startsWith("/admin")
+      ? [
+          <DropdownItem
+            key="admin"
+            as={Link}
+            description="Administrer la plateforme"
+            href="/admin/dashboard"
+            startContent={<DashboardIcon className={iconClasses} />}
+          >
+            Interface Admin
+          </DropdownItem>,
+        ]
+      : []),
+  ];
 
   return (
     <div className="flex flex-col">
       <Dropdown placement={isCompact ? "right-start" : "bottom-end"}>
         <DropdownTrigger>
           {isCompact ? (
-             <Button isIconOnly className="w-10 h-10 rounded-full">
-                {currentEtape?.image_src ? (
-                    <Image
-                      src={currentEtape.image_src}
-                      alt={`Badge ${currentEtape.name}`}
-                      width={32}
-                      height={32}
-                      className="rounded-full"
-                    />
-                ) : (
-                    <div className="flex items-center justify-center w-full h-full bg-default-100 rounded-full">
-                         <span className="text-xs font-medium text-default-600">
-                             {user.name?.charAt(0) || "U"}
-                         </span>
-                    </div>
-                )}
-             </Button>
+            <Button isIconOnly className="w-10 h-10 rounded-full">
+              {currentEtape?.image_src ? (
+                <Image
+                  alt={`Badge ${currentEtape.name}`}
+                  className="rounded-full"
+                  height={32}
+                  src={currentEtape.image_src}
+                  width={32}
+                />
+              ) : (
+                <div className="flex items-center justify-center w-full h-full bg-default-100 rounded-full">
+                  <span className="text-xs font-medium text-default-600">
+                    {user.name?.charAt(0) || "U"}
+                  </span>
+                </div>
+              )}
+            </Button>
           ) : (
             <Button
-                fullWidth
-                className="h-auto justify-between gap-3 rounded-xl border-1 border-divider bg-default-100 p-2"
-                endContent={<DropdownIcon />}
+              fullWidth
+              className="h-auto justify-between gap-3 rounded-xl border-1 border-divider bg-default-100 p-2"
+              endContent={<DropdownIcon />}
             >
-                {/* --- 3. AJOUTER LE BADGE ET METTRE À JOUR LE TEXTE --- */}
-                <div className="flex w-full items-center gap-2">
+              {/* --- 3. AJOUTER LE BADGE ET METTRE À JOUR LE TEXTE --- */}
+              <div className="flex w-full items-center gap-2">
                 {currentEtape?.image_src && (
-                    <Image
-                    src={currentEtape.image_src}
+                  <Image
                     alt={`Badge ${currentEtape.name}`}
-                    width={36}
-                    height={36}
                     className="shrink-0"
-                    />
+                    height={36}
+                    src={currentEtape.image_src}
+                    width={36}
+                  />
                 )}
                 <div className="flex flex-col text-left">
-                    <p className="text-small font-medium text-foreground">
+                  <p className="text-small font-medium text-foreground">
                     {user.name}
-                    </p>
-                    <p className="text-tiny text-default-400">
+                  </p>
+                  <p className="text-tiny text-default-400">
                     {getCurrentContext()}
-                    </p>
+                  </p>
                 </div>
-                </div>
+              </div>
             </Button>
           )}
         </DropdownTrigger>
         <DropdownMenu
           aria-label="Menu de Contexte"
-          variant="faded"
           itemClasses={{
-            base: [
-              "data-[hover=true]:border-divider"
-            ],
+            base: ["data-[hover=true]:border-divider"],
           }}
+          variant="faded"
         >
           <DropdownSection showDivider title="Changer de vue">
-            {/* --- MODIFICATION ICI --- */}
-            {!(pathname === "/" || pathname.startsWith("/troupe")) ? (
-              <DropdownItem
-                key="chef"
-                as={Link}
-                href="/"
-                description="Accéder à votre progression"
-                startContent={<DashboardIcon className={iconClasses} />}
-              >
-                Mon Progrès (Chef)
-              </DropdownItem>
-            ) : null}
-
-            {user.role === "REFERENT" && user.etapesReferent?.length > 0
-              ? user.etapesReferent
-                  .filter((etape: { id: string }) => etape.id !== currentEtapeId)
-                  .map(
-                    (etape: {
-                      id: string;
-                      name: string;
-                      image_src: string | null;
-                    }) => (
-                      <DropdownItem
-                        key={`referent-${etape.id}`}
-                        as={Link}
-                        href={`/referent/dashboard?etapeId=${etape.id}`}
-                        startContent={
-                          etape.image_src ? (
-                            <Image
-                              src={etape.image_src}
-                              alt={`Badge ${etape.name}`}
-                              width={24}
-                              height={24}
-                              className="shrink-0"
-                            />
-                          ) : (
-                            <DashboardIcon className={iconClasses} />
-                          )
-                        }
-                      >
-                        Référent : {etape.name}
-                      </DropdownItem>
-                    )
-                  )
-              : null}
-
-            {user.role === "ADMIN" && !pathname.startsWith("/admin") ? (
-              <DropdownItem
-                key="admin"
-                as={Link}
-                href="/admin/dashboard"
-                description="Administrer la plateforme"
-                startContent={<DashboardIcon className={iconClasses} />}
-              >
-                Interface Admin
-              </DropdownItem>
-            ) : null}
+            {viewItems}
           </DropdownSection>
 
           <DropdownSection title="Compte">
-            {/* <DropdownItem
-              key="profil"
-              as={Link}
-              href="/profil"
-              startContent={<ProfilIcon className={iconClasses} />}
-            >
-              Mon Profil
-            </DropdownItem> */}
-                        <DropdownItem
+            <DropdownItem
               key="logout"
               className="text-danger"
               color="danger"
               startContent={
-                <DeconnexionIcon
-                  className={`${iconClasses} text-danger`}
-                />
+                <DeconnexionIcon className={`${iconClasses} text-danger`} />
               }
               onPress={async () => {
                 await signOut();

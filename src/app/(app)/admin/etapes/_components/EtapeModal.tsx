@@ -1,5 +1,7 @@
 "use client";
 
+import type { AdminEtapeListItem } from "@/types";
+
 import React from "react";
 import {
   Modal,
@@ -21,10 +23,11 @@ import {
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { createEtape, updateEtape } from "../../_actions/admin.actions";
 import { useRouter } from "next/navigation";
 import { TypeObjectif } from "@prisma/client";
 import { Icon } from "@iconify/react";
+
+import { createEtape, updateEtape } from "../../_actions/admin.actions";
 
 const etapeSchema = z.object({
   number: z.string().min(1, "Le numéro est requis"),
@@ -37,7 +40,7 @@ const etapeSchema = z.object({
       description: z.string().min(1, "Description requise"),
       type: z.nativeEnum(TypeObjectif),
       fichiersRequis: z.boolean(),
-    })
+    }),
   ),
 });
 
@@ -46,10 +49,14 @@ type EtapeFormData = z.infer<typeof etapeSchema>;
 type EtapeModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  etape?: any; // If provided, edit mode (but objectives are managed separately in edit mode)
+  etape?: AdminEtapeListItem | null; // If provided, edit mode (but objectives are managed separately in edit mode)
 };
 
-export default function EtapeModal({ isOpen, onClose, etape }: EtapeModalProps) {
+export default function EtapeModal({
+  isOpen,
+  onClose,
+  etape,
+}: EtapeModalProps) {
   const router = useRouter();
   const [isPending, setIsPending] = React.useState(false);
 
@@ -95,7 +102,12 @@ export default function EtapeModal({ isOpen, onClose, etape }: EtapeModalProps) 
           ordre: 1,
           objectifs: [
             // Add one default objective to start with
-            { code: "", description: "", type: TypeObjectif.COMPETENCE, fichiersRequis: false }
+            {
+              code: "",
+              description: "",
+              type: TypeObjectif.COMPETENCE,
+              fichiersRequis: false,
+            },
           ],
         });
       }
@@ -125,7 +137,7 @@ export default function EtapeModal({ isOpen, onClose, etape }: EtapeModalProps) 
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="3xl" scrollBehavior="inside">
+    <Modal isOpen={isOpen} scrollBehavior="inside" size="3xl" onClose={onClose}>
       <ModalContent>
         {(onClose) => (
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -133,33 +145,33 @@ export default function EtapeModal({ isOpen, onClose, etape }: EtapeModalProps) 
               {etape ? "Modifier l'Étape" : "Créer une Étape"}
             </ModalHeader>
             <ModalBody>
-              <Tabs aria-label="Etape Options" fullWidth>
+              <Tabs fullWidth aria-label="Etape Options">
                 <Tab key="infos" title="Informations">
                   <div className="flex flex-col gap-4 py-2">
                     <div className="flex flex-col sm:flex-row gap-4">
                       <Input
+                        className="w-full sm:w-1/4"
                         label="Numéro"
                         placeholder="Ex: 2b"
-                        className="w-full sm:w-1/4"
                         {...register("number")}
-                        isInvalid={!!errors.number}
                         errorMessage={errors.number?.message}
+                        isInvalid={!!errors.number}
                       />
                       <Input
+                        className="w-full sm:w-1/4"
                         label="Ordre"
                         type="number"
-                        className="w-full sm:w-1/4"
                         {...register("ordre", { valueAsNumber: true })}
-                        isInvalid={!!errors.ordre}
                         errorMessage={errors.ordre?.message}
+                        isInvalid={!!errors.ordre}
                       />
                       <Input
+                        className="w-full sm:w-1/2"
                         label="Nom"
                         placeholder="Ex: Branche Petits Flambeaux"
-                        className="w-full sm:w-1/2"
                         {...register("name")}
-                        isInvalid={!!errors.name}
                         errorMessage={errors.name?.message}
+                        isInvalid={!!errors.name}
                       />
                     </div>
 
@@ -167,8 +179,8 @@ export default function EtapeModal({ isOpen, onClose, etape }: EtapeModalProps) 
                       label="Description"
                       placeholder="Description de l'étape..."
                       {...register("description")}
-                      isInvalid={!!errors.description}
                       errorMessage={errors.description?.message}
+                      isInvalid={!!errors.description}
                     />
                   </div>
                 </Tab>
@@ -181,10 +193,10 @@ export default function EtapeModal({ isOpen, onClose, etape }: EtapeModalProps) 
                           Définissez les objectifs initiaux pour cette étape.
                         </span>
                         <Button
-                          size="sm"
                           color="secondary"
-                          variant="flat"
+                          size="sm"
                           startContent={<Icon icon="solar:add-circle-linear" />}
+                          variant="flat"
                           onPress={() =>
                             append({
                               code: "",
@@ -200,44 +212,57 @@ export default function EtapeModal({ isOpen, onClose, etape }: EtapeModalProps) 
 
                       <div className="flex flex-col gap-3">
                         {fields.map((field, index) => (
-                          <Card key={field.id} className="border-none bg-default-200 shadow-none">
+                          <Card
+                            key={field.id}
+                            className="border-none bg-default-200 shadow-none"
+                          >
                             <CardBody className="p-3 gap-3">
                               <div className="flex justify-between items-start">
                                 <div className="flex flex-wrap gap-2 items-center w-full pr-8">
                                   <Input
+                                    className="w-20"
                                     label="Code"
                                     placeholder="C1"
                                     size="sm"
-                                    className="w-20"
                                     {...register(`objectifs.${index}.code`)}
-                                    isInvalid={!!errors.objectifs?.[index]?.code}
+                                    isInvalid={
+                                      !!errors.objectifs?.[index]?.code
+                                    }
                                   />
                                   <Select
-                                    label="Type"
-                                    size="sm"
                                     className="w-32"
                                     defaultSelectedKeys={[field.type]}
+                                    label="Type"
+                                    size="sm"
                                     {...register(`objectifs.${index}.type`)}
                                   >
-                                    <SelectItem key={TypeObjectif.COMPETENCE}>Compétence</SelectItem>
-                                    <SelectItem key={TypeObjectif.REALISATION}>Réalisation</SelectItem>
+                                    <SelectItem key={TypeObjectif.COMPETENCE}>
+                                      Compétence
+                                    </SelectItem>
+                                    <SelectItem key={TypeObjectif.REALISATION}>
+                                      Réalisation
+                                    </SelectItem>
                                   </Select>
                                   <div className="flex items-center">
                                     <Switch
-                                      size="sm"
                                       defaultSelected={field.fichiersRequis}
-                                      {...register(`objectifs.${index}.fichiersRequis`)}
+                                      size="sm"
+                                      {...register(
+                                        `objectifs.${index}.fichiersRequis`,
+                                      )}
                                     >
-                                      <span className="text-tiny">Fichiers</span>
+                                      <span className="text-tiny">
+                                        Fichiers
+                                      </span>
                                     </Switch>
                                   </div>
                                 </div>
                                 <Button
                                   isIconOnly
-                                  color="danger"
-                                  variant="light"
-                                  size="sm"
                                   className="absolute top-2 right-2"
+                                  color="danger"
+                                  size="sm"
+                                  variant="light"
                                   onPress={() => remove(index)}
                                 >
                                   <Icon icon="solar:trash-bin-trash-linear" />
@@ -245,11 +270,13 @@ export default function EtapeModal({ isOpen, onClose, etape }: EtapeModalProps) 
                               </div>
                               <Textarea
                                 label="Description"
-                                placeholder="Description de l'objectif..."
                                 minRows={1}
+                                placeholder="Description de l'objectif..."
                                 size="sm"
                                 {...register(`objectifs.${index}.description`)}
-                                isInvalid={!!errors.objectifs?.[index]?.description}
+                                isInvalid={
+                                  !!errors.objectifs?.[index]?.description
+                                }
                               />
                             </CardBody>
                           </Card>
@@ -270,7 +297,7 @@ export default function EtapeModal({ isOpen, onClose, etape }: EtapeModalProps) 
               <Button color="danger" variant="light" onPress={onClose}>
                 Annuler
               </Button>
-              <Button color="primary" type="submit" isLoading={isPending}>
+              <Button color="primary" isLoading={isPending} type="submit">
                 {etape ? "Mettre à jour" : "Créer l'étape"}
               </Button>
             </ModalFooter>

@@ -1,6 +1,7 @@
 import React from "react";
-import ChefsAReviserList from "@/components/application/referent/ChefsAReviserList";
 import { User } from "@prisma/client";
+
+import ChefsAReviserList from "@/components/application/referent/ChefsAReviserList";
 
 interface RevisionPanelProps {
   chefs: User[];

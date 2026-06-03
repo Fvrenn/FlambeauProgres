@@ -46,10 +46,9 @@ const STATUS_CONFIG = {
 } as const;
 
 export default function StatusChip({ statut }: StatusChipProps) {
-  
   if (!statut) {
     return (
-      <Chip color="default" variant="flat" size="sm">
+      <Chip color="default" size="sm" variant="flat">
         Non fait
       </Chip>
     );
@@ -60,9 +59,9 @@ export default function StatusChip({ statut }: StatusChipProps) {
   return (
     <Chip
       color={config.color}
-      variant="flat"
       size="sm"
       startContent={<Icon icon={config.icon} width={16} />}
+      variant="flat"
     >
       {config.label}
     </Chip>

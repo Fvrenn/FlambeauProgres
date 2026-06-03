@@ -1,5 +1,7 @@
 "use client";
 
+import type { JustificationAvecRelations } from "./JustificationsTableColumns";
+
 import React, { useState } from "react";
 import {
   Modal,
@@ -14,8 +16,11 @@ import {
   Link,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { approveJustification, rejectJustification } from "@/actions/justification/justification.actions";
-import type { JustificationAvecRelations } from "./JustificationsTableColumns";
+
+import {
+  approveJustification,
+  rejectJustification,
+} from "@/actions/justification/justification.actions";
 
 type JustificationModalProps = {
   justification: JustificationAvecRelations;
@@ -35,6 +40,7 @@ export default function JustificationModal({
   const handleApprove = async () => {
     setIsLoading(true);
     const result = await approveJustification(justification.id);
+
     setIsLoading(false);
 
     if (result.success) {
@@ -47,11 +53,13 @@ export default function JustificationModal({
   const handleReject = async () => {
     if (!motifRefus.trim()) {
       alert("Veuillez saisir un motif de refus");
+
       return;
     }
 
     setIsLoading(true);
     const result = await rejectJustification(justification.id, motifRefus);
+
     setIsLoading(false);
 
     if (result.success) {
@@ -64,16 +72,13 @@ export default function JustificationModal({
   };
 
   return (
-    <Modal 
-      isOpen={isOpen} 
-      onClose={onClose} 
-      size="2xl"
-      scrollBehavior="inside"
-    >
+    <Modal isOpen={isOpen} scrollBehavior="inside" size="2xl" onClose={onClose}>
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1">
           <div className="flex items-center justify-between">
-            <h3 className="text-xl font-semibold">Détails de la justification</h3>
+            <h3 className="text-xl font-semibold">
+              Détails de la justification
+            </h3>
             <Chip color="warning" variant="flat">
               En attente
             </Chip>
@@ -89,8 +94,8 @@ export default function JustificationModal({
                   src: justification.chef.image || undefined,
                   name: justification.chef.name.charAt(0).toUpperCase(),
                 }}
-                name={justification.chef.name}
                 description={justification.chef.email}
+                name={justification.chef.name}
               />
             </div>
 
@@ -98,7 +103,9 @@ export default function JustificationModal({
             <div>
               <p className="text-sm text-default-500 mb-2">Objectif</p>
               <div className="rounded-lg bg-default-100 p-3">
-                <p className="font-semibold text-sm">{justification.objectif.code}</p>
+                <p className="font-semibold text-sm">
+                  {justification.objectif.code}
+                </p>
                 <p className="text-sm text-default-600 mt-1">
                   {justification.objectif.description}
                 </p>
@@ -108,15 +115,20 @@ export default function JustificationModal({
             {/* Date de soumission */}
             {justification.soumiseAt && (
               <div>
-                <p className="text-sm text-default-500 mb-2">Date de soumission</p>
+                <p className="text-sm text-default-500 mb-2">
+                  Date de soumission
+                </p>
                 <p className="text-sm">
-                  {new Date(justification.soumiseAt).toLocaleDateString("fr-FR", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
+                  {new Date(justification.soumiseAt).toLocaleDateString(
+                    "fr-FR",
+                    {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    },
+                  )}
                 </p>
               </div>
             )}
@@ -136,19 +148,24 @@ export default function JustificationModal({
               <div>
                 <p className="text-sm text-default-500 mb-2">Fichier joint</p>
                 <div className="rounded-lg border-2 border-dashed border-default-300 p-4 flex items-center gap-3">
-                  <Icon icon="solar:document-linear" className="text-2xl text-default-400" />
+                  <Icon
+                    className="text-2xl text-default-400"
+                    icon="solar:document-linear"
+                  />
                   <div className="flex-1">
                     <p className="text-sm font-medium">document.pdf</p>
-                    <p className="text-xs text-default-400">Cliquez pour télécharger</p>
+                    <p className="text-xs text-default-400">
+                      Cliquez pour télécharger
+                    </p>
                   </div>
                   <Button
+                    isIconOnly
                     as={Link}
                     href="#"
-                    isIconOnly
                     size="sm"
                     variant="light"
                   >
-                    <Icon icon="solar:download-linear" className="text-xl" />
+                    <Icon className="text-xl" icon="solar:download-linear" />
                   </Button>
                 </div>
               </div>
@@ -159,12 +176,12 @@ export default function JustificationModal({
           {showRejectForm && (
             <div className="mt-4">
               <Textarea
+                isRequired
                 label="Motif du refus"
+                minRows={3}
                 placeholder="Expliquez pourquoi vous refusez cette justification..."
                 value={motifRefus}
                 onValueChange={setMotifRefus}
-                minRows={3}
-                isRequired
               />
             </div>
           )}
@@ -177,17 +194,17 @@ export default function JustificationModal({
               </Button>
               <Button
                 color="danger"
+                isDisabled={isLoading}
                 variant="flat"
                 onPress={() => setShowRejectForm(true)}
-                isDisabled={isLoading}
               >
                 Refuser
               </Button>
               <Button
                 color="success"
-                onPress={handleApprove}
                 isLoading={isLoading}
                 startContent={<Icon icon="solar:check-circle-linear" />}
+                onPress={handleApprove}
               >
                 Valider
               </Button>
@@ -195,19 +212,19 @@ export default function JustificationModal({
           ) : (
             <>
               <Button
+                isDisabled={isLoading}
                 variant="light"
                 onPress={() => {
                   setShowRejectForm(false);
                   setMotifRefus("");
                 }}
-                isDisabled={isLoading}
               >
                 Annuler
               </Button>
               <Button
                 color="danger"
-                onPress={handleReject}
                 isLoading={isLoading}
+                onPress={handleReject}
               >
                 Confirmer le refus
               </Button>

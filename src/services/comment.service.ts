@@ -1,5 +1,6 @@
+import { Prisma, type Commentaire } from "@prisma/client";
+
 import prisma from "@/lib/prisma";
-import { type Commentaire } from "@prisma/client";
 
 export type AddCommentInput = {
   authorId: string;
@@ -8,7 +9,7 @@ export type AddCommentInput = {
   type: "CHEF_REPONSE" | "REFERENT_QUESTION" | "REFERENT_FEEDBACK" | "SYSTEM";
 };
 
-export type ServiceResult<T> = 
+export type ServiceResult<T> =
   | { success: true; data: T }
   | { success: false; error: string };
 
@@ -16,7 +17,9 @@ export class CommentService {
   /**
    * Adds a comment to a justification and handles side effects (notifications).
    */
-  static async addComment(input: AddCommentInput): Promise<ServiceResult<Commentaire>> {
+  static async addComment(
+    input: AddCommentInput,
+  ): Promise<ServiceResult<Commentaire>> {
     const { authorId, justificationId, content, type } = input;
 
     if (!content.trim()) {
@@ -47,10 +50,16 @@ export class CommentService {
 
       if (type === "CHEF_REPONSE") {
         if (justification.chefId !== authorId) {
-             return { success: false, error: "Vous n'êtes pas autorisé à commenter cette justification" };
+          return {
+            success: false,
+            error: "Vous n'êtes pas autorisé à commenter cette justification",
+          };
         }
         if (justification.statut !== "DEMANDE_PRECISION") {
-            return { success: false, error: "Cette justification n'est pas en demande de précisions" };
+          return {
+            success: false,
+            error: "Cette justification n'est pas en demande de précisions",
+          };
         }
       }
 
@@ -63,8 +72,8 @@ export class CommentService {
           type,
         },
         include: {
-            auteur: true
-        }
+          auteur: true,
+        },
       });
 
       // 3. Handle Notifications (Side Effect)
@@ -74,32 +83,43 @@ export class CommentService {
       return { success: true, data: newCommentaire };
     } catch (error) {
       console.error("Error in CommentService.addComment:", error);
-      return { success: false, error: "Une erreur est survenue lors de l'ajout du commentaire" };
+
+      return {
+        success: false,
+        error: "Une erreur est survenue lors de l'ajout du commentaire",
+      };
     }
   }
 
-  private static async handleNotifications(justification: any, authorId: string, type: string, content: string) {
-       // Logic moved from action
-       if (type === "CHEF_REPONSE") {
-            const etapeReferents = await prisma.etapeReferent.findMany({
-                where: { etapeId: justification.objectif.etape.id },
-                include: { referent: true },
-            });
-    
-            if (etapeReferents.length > 0) {
-                const notifications = etapeReferents.map((er) => ({
-                    destinataireId: er.referent.id,
-                    justificationId: justification.id,
-                    type: "NOUVEAU_COMMENTAIRE" as const,
-                    titre: "Nouveau commentaire du Chef",
-                    message: "Un chef a répondu à votre demande de précisions.", // Simplification, fetching name requires extra query or passing it
-                    lue: false,
-                }));
-        
-                await prisma.notification.createMany({
-                    data: notifications,
-                });
-            }
-       }
+  private static async handleNotifications(
+    justification: Prisma.JustificationGetPayload<{
+      include: { objectif: { include: { etape: true } } };
+    }>,
+    authorId: string,
+    type: string,
+    content: string,
+  ) {
+    // Logic moved from action
+    if (type === "CHEF_REPONSE") {
+      const etapeReferents = await prisma.etapeReferent.findMany({
+        where: { etapeId: justification.objectif.etape.id },
+        include: { referent: true },
+      });
+
+      if (etapeReferents.length > 0) {
+        const notifications = etapeReferents.map((er) => ({
+          destinataireId: er.referent.id,
+          justificationId: justification.id,
+          type: "NOUVEAU_COMMENTAIRE" as const,
+          titre: "Nouveau commentaire du Chef",
+          message: "Un chef a répondu à votre demande de précisions.", // Simplification, fetching name requires extra query or passing it
+          lue: false,
+        }));
+
+        await prisma.notification.createMany({
+          data: notifications,
+        });
+      }
+    }
   }
 }

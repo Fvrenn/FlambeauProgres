@@ -1,37 +1,30 @@
-import { getUser } from "@/lib/auth-server";
 import React from "react";
-import AppClientLayout from "../AppClientLayout";
-import { type SidebarItem } from "@/components/application/sidebar/sidebar";
 import { redirect } from "next/navigation";
+
+import AppClientLayout from "../AppClientLayout";
+
+import { getUser } from "@/lib/auth-server";
+import { type SidebarItem } from "@/components/application/sidebar/sidebar";
 
 export default async function ReferentLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  
-  
   const user = await getUser();
 
-  
-  
-  
-  
   if (!user || !("role" in user) || user.role !== "REFERENT") {
-    redirect("/dashboard"); 
+    redirect("/dashboard");
   }
 
   // --- MODIFICATION : Rendre le lien du tableau de bord dynamique ---
-  
+
   let dashboardHref = "/referent/dashboard";
 
-  
-  
   if (user.etapesReferent && user.etapesReferent.length > 0) {
     dashboardHref = `/referent/dashboard?etapeId=${user.etapesReferent[0].id}`;
   }
 
-  
   const sidebarItems: SidebarItem[] = [
     {
       key: "referent", // <-- MODIFICATION ICI
@@ -42,7 +35,7 @@ export default async function ReferentLayout({
   ];
 
   return (
-    <AppClientLayout user={user} sidebarItems={sidebarItems}>
+    <AppClientLayout sidebarItems={sidebarItems} user={user}>
       {children}
     </AppClientLayout>
   );

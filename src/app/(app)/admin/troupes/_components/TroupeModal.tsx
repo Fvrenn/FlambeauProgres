@@ -1,5 +1,7 @@
 "use client";
 
+import type { AdminTroupeListItem, AdminUserOption } from "@/types";
+
 import React from "react";
 import {
   Modal,
@@ -15,9 +17,14 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { createTroupe, updateTroupe, updateUserTroupe } from "../../_actions/admin.actions";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
+
+import {
+  createTroupe,
+  updateTroupe,
+  updateUserTroupe,
+} from "../../_actions/admin.actions";
 
 const troupeSchema = z.object({
   nom: z.string().min(1, "Le nom est requis"),
@@ -28,8 +35,8 @@ type TroupeFormData = z.infer<typeof troupeSchema>;
 type TroupeModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  troupe?: any; // If provided, edit mode
-  users?: any[]; // Keep for compatibility if passed, but unused for dropdown now
+  troupe?: AdminTroupeListItem | null; // If provided, edit mode
+  users?: AdminUserOption[]; // Keep for compatibility if passed, but unused for dropdown now
 };
 
 export default function TroupeModal({
@@ -81,7 +88,8 @@ export default function TroupeModal({
   };
 
   const handleRemoveMember = async (memberId: string) => {
-    if (!confirm("Voulez-vous vraiment retirer ce membre de la troupe ?")) return;
+    if (!confirm("Voulez-vous vraiment retirer ce membre de la troupe ?"))
+      return;
 
     try {
       await updateUserTroupe(memberId, null);
@@ -104,32 +112,40 @@ export default function TroupeModal({
                 label="Nom de la troupe"
                 placeholder="Ex: Troupe du Phénix"
                 {...register("nom")}
-                isInvalid={!!errors.nom}
                 errorMessage={errors.nom?.message}
+                isInvalid={!!errors.nom}
               />
 
               {troupe && troupe.membres && troupe.membres.length > 0 && (
                 <div className="flex flex-col gap-2 mt-4">
-                  <span className="text-small font-bold">Membres ({troupe.membres.length})</span>
+                  <span className="text-small font-bold">
+                    Membres ({troupe.membres.length})
+                  </span>
                   <div className="flex flex-col gap-2 max-h-[200px] overflow-y-auto pr-1">
-                    {troupe.membres.map((member: any) => (
-                      <div key={member.id} className="flex justify-between items-center bg-default-100 p-2 rounded-lg">
+                    {troupe.membres.map((member) => (
+                      <div
+                        key={member.id}
+                        className="flex justify-between items-center bg-default-100 p-2 rounded-lg"
+                      >
                         <User
-                          name={member.name}
-                          description={member.email}
                           avatarProps={{
-                            src: member.image
+                            src: member.image || undefined,
                           }}
+                          description={member.email}
+                          name={member.name}
                         />
-                        <Tooltip content="Retirer de la troupe" color="danger">
+                        <Tooltip color="danger" content="Retirer de la troupe">
                           <Button
                             isIconOnly
-                            size="sm"
                             color="danger"
+                            size="sm"
                             variant="light"
                             onPress={() => handleRemoveMember(member.id)}
                           >
-                            <Icon icon="solar:trash-bin-trash-linear" width={20} />
+                            <Icon
+                              icon="solar:trash-bin-trash-linear"
+                              width={20}
+                            />
                           </Button>
                         </Tooltip>
                       </div>
@@ -142,7 +158,7 @@ export default function TroupeModal({
               <Button color="danger" variant="light" onPress={onClose}>
                 Annuler
               </Button>
-              <Button color="primary" type="submit" isLoading={isPending}>
+              <Button color="primary" isLoading={isPending} type="submit">
                 {troupe ? "Mettre à jour" : "Créer"}
               </Button>
             </ModalFooter>

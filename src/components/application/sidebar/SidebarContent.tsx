@@ -1,11 +1,14 @@
+import type { SessionUser } from "@/types";
+
 import React from "react";
 import { ScrollShadow, Spacer } from "@heroui/react";
-import Sidebar, { SidebarItem } from "./sidebar";
 import Image from "next/image";
+
+import Sidebar, { SidebarItem } from "./sidebar";
 import ContextSwitcher from "./ContextSwitcher";
 
 type SidebarContentProps = {
-  user: any;
+  user: SessionUser;
   sidebarItems: SidebarItem[];
   defaultSelectedKey: string;
   isCompact?: boolean;
@@ -20,15 +23,19 @@ export const SidebarContent = ({
   onItemSelect,
 }: SidebarContentProps) => {
   return (
-    <div className={`flex h-full w-full flex-col ${isCompact ? "p-2 items-center" : "p-6"}`}>
+    <div
+      className={`flex h-full w-full flex-col ${isCompact ? "p-2 items-center" : "p-6"}`}
+    >
       {/* Logo */}
-      <div className={`flex items-center gap-2 ${isCompact ? "justify-center" : "px-2"}`}>
+      <div
+        className={`flex items-center gap-2 ${isCompact ? "justify-center" : "px-2"}`}
+      >
         <Image
-          src="/logo/logo-flambeau-progres.svg"
           alt="Flambeau Progrès Logo"
-          width={isCompact ? 40 : 50}
-          height={isCompact ? 53 : 67}
           className="rounded-full"
+          height={isCompact ? 53 : 67}
+          src="/logo/logo-flambeau-progres.svg"
+          width={isCompact ? 40 : 50}
         />
         {!isCompact && (
           <span className="text-2xl font-medium text-[#E06511] leading-7">
@@ -40,11 +47,18 @@ export const SidebarContent = ({
       <Spacer y={8} />
 
       {/* ContextSwitcher */}
-      <ContextSwitcher user={user} isCompact={isCompact} />
+      <ContextSwitcher isCompact={isCompact} user={user} />
 
       {/* Sidebar List */}
-      <ScrollShadow className={`-mr-6 h-full max-h-full py-6 pr-6 ${isCompact ? "w-full" : ""}`}>
-        <Sidebar defaultSelectedKey={defaultSelectedKey} items={sidebarItems} isCompact={isCompact} onItemSelect={onItemSelect} />
+      <ScrollShadow
+        className={`-mr-6 h-full max-h-full py-6 pr-6 ${isCompact ? "w-full" : ""}`}
+      >
+        <Sidebar
+          defaultSelectedKey={defaultSelectedKey}
+          isCompact={isCompact}
+          items={sidebarItems}
+          onItemSelect={onItemSelect}
+        />
       </ScrollShadow>
     </div>
   );

@@ -1,6 +1,11 @@
 "use client";
 
-import React, { useEffect, useState, useTransition, useOptimistic } from "react";
+import React, {
+  useEffect,
+  useState,
+  useTransition,
+  useOptimistic,
+} from "react";
 import {
   Modal,
   ModalContent,
@@ -14,20 +19,32 @@ import {
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
-import { useSession } from "@/lib/auth-client";
-import { approveJustification, requestChanges } from "@/actions/justification/justification.actions";
-import { markNotificationsAsReadForJustification } from "@/actions/notification/notification.actions";
-import { Justification, Commentaire, User as UserType, Objectif, Fichier } from "@prisma/client";
+import {
+  Justification,
+  Commentaire,
+  User as UserType,
+  Objectif,
+  Fichier,
+} from "@prisma/client";
 
-// Sub-components
 import JustificationContent from "./modal/JustificationContent";
 import DiscussionContent from "./modal/DiscussionContent";
+
+import { useSession } from "@/lib/auth-client";
+import { CommentaireAvecAuteur } from "@/types";
+import {
+  approveJustification,
+  requestChanges,
+} from "@/actions/justification/justification.actions";
+import { markNotificationsAsReadForJustification } from "@/actions/notification/notification.actions";
+
+// Sub-components
 
 type FichierAvecUrl = Fichier & {
   url: string;
 };
 
-type JustificationAvecRelations = Justification & {
+export type JustificationAvecRelations = Justification & {
   chef: UserType;
   objectif: Objectif;
   commentaires: (Commentaire & {
@@ -57,13 +74,20 @@ export default function ReferentValidationModal({
   // State
   const [motif, setMotif] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedTab, setSelectedTab] = useState<"justification" | "discussion">(defaultTab);
+  const [selectedTab, setSelectedTab] = useState<
+    "justification" | "discussion"
+  >(defaultTab);
 
   // Comments State
-  const [localCommentaires, setLocalCommentaires] = useState(justification?.commentaires || []);
+  const [localCommentaires, setLocalCommentaires] = useState(
+    justification?.commentaires || [],
+  );
   const [optimisticCommentaires, addOptimisticCommentaire] = useOptimistic(
     localCommentaires,
-    (state: any[], newCommentaire: any) => [...state, newCommentaire]
+    (state: CommentaireAvecAuteur[], newCommentaire: CommentaireAvecAuteur) => [
+      ...state,
+      newCommentaire,
+    ],
   );
 
   // Sync state when justification changes
@@ -89,9 +113,13 @@ export default function ReferentValidationModal({
   const reloadCommentaires = async () => {
     if (!justification?.id) return;
     try {
-      const response = await fetch(`/api/justifications/${justification.id}/comments`);
+      const response = await fetch(
+        `/api/justifications/${justification.id}/comments`,
+      );
+
       if (response.ok) {
         const data = await response.json();
+
         setLocalCommentaires(data.commentaires || []);
       }
     } catch (error) {
@@ -104,6 +132,7 @@ export default function ReferentValidationModal({
     setIsSubmitting(true);
     startTransition(async () => {
       const result = await approveJustification(justification.id);
+
       setIsSubmitting(false);
       if (result.success) {
         onOpenChange();
@@ -117,26 +146,19 @@ export default function ReferentValidationModal({
   const handleRequestChanges = async () => {
     if (!justification || !motif.trim() || !currentUserId || !session?.user) {
       alert("Veuillez saisir un message valide");
+
       return;
     }
 
     const textToSend = motif;
-    const optimisticComment = {
+    const optimisticComment: CommentaireAvecAuteur = {
       id: `temp-${Date.now()}`,
       justificationId: justification.id,
       auteurId: currentUserId,
       contenu: textToSend,
       type: "REFERENT_QUESTION",
       createdAt: new Date(),
-      auteur: {
-        id: currentUserId,
-        name: session.user.name || "Référent",
-        email: session.user.email || "",
-        image: session.user.image || null,
-        role: "REFERENT",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      } as any,
+      auteur: session.user as unknown as UserType,
       isPending: true,
     };
 
@@ -147,16 +169,18 @@ export default function ReferentValidationModal({
 
       try {
         const result = await requestChanges(justification.id, textToSend);
+
         setIsSubmitting(false);
 
         if (!result.success) {
           alert(result.error);
           setMotif(textToSend); // Restore on error
+
           return;
         }
 
         router.refresh();
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise((resolve) => setTimeout(resolve, 500));
         await reloadCommentaires();
       } catch (err) {
         setMotif(textToSend);
@@ -170,10 +194,10 @@ export default function ReferentValidationModal({
   return (
     <Modal
       isOpen={isOpen}
-      onOpenChange={onOpenChange}
-      size="2xl"
-      scrollBehavior="outside"
       placement="center"
+      scrollBehavior="outside"
+      size="2xl"
+      onOpenChange={onOpenChange}
     >
       <ModalContent>
         {/* Header - Simplified & Mobile First */}
@@ -184,17 +208,17 @@ export default function ReferentValidationModal({
                 avatarProps={{
                   src: justification.chef.image || undefined,
                   name: justification.chef.name.charAt(0).toUpperCase(),
-                  className: "w-10 h-10 md:w-12 md:h-12 text-sm"
+                  className: "w-10 h-10 md:w-12 md:h-12 text-sm",
                 }}
-                name={
-                  <span className="text-base font-bold text-foreground">
-                    {justification.chef.name}
-                  </span>
-                }
                 description={
                   <p className="text-xs text-default-500">
                     {justification.chef.email}
                   </p>
+                }
+                name={
+                  <span className="text-base font-bold text-foreground">
+                    {justification.chef.name}
+                  </span>
                 }
               />
             </div>
@@ -216,15 +240,18 @@ export default function ReferentValidationModal({
           {/* Navigation - Pill Style like Mockup */}
           <Tabs
             aria-label="Mode d'affichage"
-            selectedKey={selectedTab}
-            onSelectionChange={(key) => setSelectedTab(key as "justification" | "discussion")}
             classNames={{
               base: "w-full",
               tabList: "w-full bg-default-100 p-1 rounded-full gap-2",
               cursor: "bg-primary rounded-full",
               tab: "h-10 text-xs md:text-sm font-medium",
-              tabContent: "group-data-[selected=true]:text-white text-default-500 transition-colors",
+              tabContent:
+                "group-data-[selected=true]:text-white text-default-500 transition-colors",
             }}
+            selectedKey={selectedTab}
+            onSelectionChange={(key) =>
+              setSelectedTab(key as "justification" | "discussion")
+            }
           >
             <Tab
               key="justification"
@@ -258,10 +285,10 @@ export default function ReferentValidationModal({
               <DiscussionContent
                 comments={optimisticCommentaires}
                 currentUserId={currentUserId}
-                motif={motif}
-                setMotif={setMotif}
                 isPending={isPending}
                 isSubmitting={isSubmitting}
+                motif={motif}
+                setMotif={setMotif}
               />
             )}
           </div>
@@ -269,10 +296,10 @@ export default function ReferentValidationModal({
 
         <ModalFooter className="p-4 border-t border-default-100 z-20">
           <Button
+            className="font-medium text-default-500 hover:text-default-900"
+            isDisabled={isPending || isSubmitting}
             variant="light"
             onPress={onOpenChange}
-            isDisabled={isPending || isSubmitting}
-            className="font-medium text-default-500 hover:text-default-900"
           >
             Fermer
           </Button>
@@ -280,11 +307,14 @@ export default function ReferentValidationModal({
           {selectedTab === "justification" ? (
             <Button
               className="text-white font-medium"
-              isLoading={isPending || isSubmitting}
-              startContent={!isPending && !isSubmitting ? <Icon icon="solar:check-read-linear" width={20} /> : null}
-              onPress={handleApprove}
               color="primary"
-
+              isLoading={isPending || isSubmitting}
+              startContent={
+                !isPending && !isSubmitting ? (
+                  <Icon icon="solar:check-read-linear" width={20} />
+                ) : null
+              }
+              onPress={handleApprove}
             >
               Valider
             </Button>
@@ -292,7 +322,11 @@ export default function ReferentValidationModal({
             <Button
               className="bg-primary text-black font-semibold shadow-lg shadow-[#DDFE02]/20"
               isLoading={isPending || isSubmitting}
-              startContent={!isPending && !isSubmitting ? <Icon icon="solar:plain-linear" width={20} /> : null}
+              startContent={
+                !isPending && !isSubmitting ? (
+                  <Icon icon="solar:plain-linear" width={20} />
+                ) : null
+              }
               onPress={handleRequestChanges}
             >
               Envoyer
@@ -303,4 +337,3 @@ export default function ReferentValidationModal({
     </Modal>
   );
 }
-

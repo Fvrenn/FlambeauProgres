@@ -1,12 +1,13 @@
 "use client";
 import React from "react";
-import { Card, CardBody, Divider, Textarea, Button } from "@heroui/react";
+import { Textarea } from "@heroui/react";
 import { Icon } from "@iconify/react";
+
 import MessageCard from "@/components/application/referent/_components/MessageCard";
-import { Commentaire, User as UserType } from "@prisma/client";
+import { CommentaireAvecAuteur } from "@/types";
 
 interface DiscussionContentProps {
-  comments: any[]; // Using any to match existing optimistic structure temporary, ideally typed
+  comments: CommentaireAvecAuteur[];
   currentUserId: string | undefined;
   motif: string;
   setMotif: (val: string) => void;
@@ -40,21 +41,25 @@ export default function DiscussionContent({
             <div className="w-12 h-12 rounded-full bg-default-100 flex items-center justify-center mb-3 text-default-400">
               <Icon icon="solar:chat-line-linear" width={24} />
             </div>
-            <p className="text-sm font-medium text-default-600">Aucune discussion</p>
-            <p className="text-xs text-default-400 max-w-[200px] mt-1">Commencez l'échange en demandant des précisions ci-dessous.</p>
+            <p className="text-sm font-medium text-default-600">
+              Aucune discussion
+            </p>
+            <p className="text-xs text-default-400 max-w-[200px] mt-1">
+              Commencez l'échange en demandant des précisions ci-dessous.
+            </p>
           </div>
         )}
       </div>
 
       <div className="pt-4 mt-2">
         <Textarea
+          isDisabled={isPending || isSubmitting}
           label="Votre message"
+          maxRows={4}
+          minRows={2}
           placeholder="Écrivez votre message ici..."
           value={motif}
           onValueChange={setMotif}
-          isDisabled={isPending || isSubmitting}
-          minRows={2}
-          maxRows={4}
         />
       </div>
     </div>

@@ -9,12 +9,14 @@ import {
   DrawerFooter,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
+import { User as UserType } from "@prisma/client";
+
+import ChatList from "./chat/ChatList";
+import ChatInput from "./chat/ChatInput";
+
 import { useSession } from "@/lib/auth-client";
 import { CommentaireAvecAuteur } from "@/types";
 import { submitComment, getComments } from "@/actions/comment/comment.actions";
-import ChatList from "./chat/ChatList";
-import ChatInput from "./chat/ChatInput";
-import { User as UserType } from "@prisma/client";
 
 interface ChatPanelProps {
   isOpen: boolean;
@@ -42,26 +44,40 @@ export default function ChatPanel({
     (state: CommentaireAvecAuteur[], newComment: CommentaireAvecAuteur) => [
       ...state,
       newComment,
-    ]
+    ],
   );
 
-  // Lazy load comments when drawer opens
+  // Lazy load comments when drawer opens.
+  // `getComments` est une Server Action : on ne peut pas l'abort comme un fetch,
+  // donc on ignore son résultat si l'effet a été nettoyé entre-temps (drawer
+  // refermé ou justification changée) → évite les race conditions.
   useEffect(() => {
-    if (isOpen && justificationId) {
-      const loadComments = async () => {
-        setIsLoading(true);
-        setError(null);
-        const result = await getComments(justificationId);
-        if (result.success && result.data) {
-          setComments(result.data);
-        } else {
-          setError(result.error || "Erreur lors du chargement des messages");
-        }
-        setIsLoading(false);
-      };
+    if (!isOpen || !justificationId) return;
 
-      loadComments();
-    }
+    let cancelled = false;
+
+    const loadComments = async () => {
+      setIsLoading(true);
+      setError(null);
+
+      const result = await getComments(justificationId);
+
+      if (cancelled) return;
+
+      if (result.success && result.data) {
+        setComments(result.data);
+      } else {
+        setError(result.error || "Erreur lors du chargement des messages");
+      }
+
+      setIsLoading(false);
+    };
+
+    loadComments();
+
+    return () => {
+      cancelled = true;
+    };
   }, [isOpen, justificationId]);
 
   const handleSendMessage = async (text: string) => {
@@ -87,16 +103,16 @@ export default function ChatPanel({
 
     if (result.success && result.data) {
       // Update local state with the real comment from server
-      // We append it to the existing comments. 
-      // Note: In a real-time app, we'd want to merge carefully or re-fetch, 
+      // We append it to the existing comments.
+      // Note: In a real-time app, we'd want to merge carefully or re-fetch,
       // but appending is fine for this simple case.
       setComments((prev) => [...prev, result.data as CommentaireAvecAuteur]);
     } else {
       setError(result.error || "Erreur lors de l'envoi");
-      // Ideally we would roll back the optimistic update here, 
-      // but useOptimistic handles the temporary state automatically 
+      // Ideally we would roll back the optimistic update here,
+      // but useOptimistic handles the temporary state automatically
       // (it only exists for the duration of the transition/action).
-      // However, since we are updating `comments` state on success, 
+      // However, since we are updating `comments` state on success,
       // if we fail, `comments` won't update, so the optimistic one will just disappear.
       // We might want to show an error toast.
     }
@@ -104,11 +120,11 @@ export default function ChatPanel({
 
   return (
     <Drawer
-      isOpen={isOpen}
-      onClose={onClose}
-      size="lg"
-      placement="right"
       backdrop="blur"
+      isOpen={isOpen}
+      placement="right"
+      size="lg"
+      onClose={onClose}
     >
       <DrawerContent className="flex flex-col h-full">
         {/* HEADER */}
@@ -118,9 +134,9 @@ export default function ChatPanel({
               <h4 className="text-lg font-semibold">Discussion</h4>
             </div>
             <Icon
+              className="cursor-pointer text-default-400 hover:text-default-600"
               icon="solar:close-circle-linear"
               width={24}
-              className="cursor-pointer text-default-400 hover:text-default-600"
               onClick={onClose}
             />
           </div>
@@ -138,7 +154,10 @@ export default function ChatPanel({
 
         {/* FOOTER - Input */}
         <DrawerFooter className="flex flex-col gap-3 border-t border-divider">
-          <ChatInput onSend={handleSendMessage} disabled={!justificationId || isLoading} />
+          <ChatInput
+            disabled={!justificationId || isLoading}
+            onSend={handleSendMessage}
+          />
         </DrawerFooter>
       </DrawerContent>
     </Drawer>

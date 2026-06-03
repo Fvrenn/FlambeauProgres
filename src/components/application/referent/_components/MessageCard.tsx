@@ -63,9 +63,9 @@ export default function MessageCard({
           name: commentaire.auteur.name.charAt(0).toUpperCase(),
           size: "sm",
         }}
-        name=""
-        description=""
         className="flex-shrink-0"
+        description=""
+        name=""
       />
 
       {/* Message bubble */}
@@ -78,16 +78,12 @@ export default function MessageCard({
           <CardBody className="gap-2 p-3">
             {/* Header : Nom + Type */}
             <div className="flex items-center justify-between gap-2">
-              <p className="text-sm font-semibold">
-                {commentaire.auteur.name}
-              </p>
+              <p className="text-sm font-semibold">{commentaire.auteur.name}</p>
               <Chip
-                size="sm"
-                variant="flat"
                 color={typeConfig.color}
-                startContent={
-                  <Icon icon={typeConfig.icon} width={12} />
-                }
+                size="sm"
+                startContent={<Icon icon={typeConfig.icon} width={12} />}
+                variant="flat"
               >
                 {typeConfig.label}
               </Chip>

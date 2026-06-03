@@ -1,8 +1,10 @@
 import React from "react";
+import { type User } from "@prisma/client";
+
+import ReferentDashboardClientV2 from "./ReferentDashboardClientV2";
+
 import { getUser } from "@/lib/auth-server";
 import prisma from "@/lib/prisma"; // Assurez-vous d'importer votre client Prisma
-import ReferentDashboardClientV2 from "./ReferentDashboardClientV2";
-import { type User } from "@prisma/client";
 
 type ReferentDashboardPageProps = {
   searchParams: Promise<{
@@ -17,7 +19,6 @@ export default async function ReferentDashboardPage({
   const params = await searchParams;
   const etapeId = params.etapeId;
 
-
   if (!etapeId) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -28,9 +29,6 @@ export default async function ReferentDashboardPage({
     );
   }
 
-  
-
-  
   const objectifsCounts = await prisma.objectif.groupBy({
     by: ["type"],
     where: { etapeId: etapeId },
@@ -44,7 +42,6 @@ export default async function ReferentDashboardPage({
   const totalRealisations =
     objectifsCounts.find((c) => c.type === "REALISATION")?._count.id || 0;
 
-  
   const chefsProgress = await prisma.justification.groupBy({
     by: ["chefId"],
     where: {
@@ -58,6 +55,7 @@ export default async function ReferentDashboardPage({
 
   // 3. Filtrer pour trouver les chefs ayant 100%
   const chefsCompletsIds = [];
+
   for (const chef of chefsProgress) {
     const [competencesValidees, realisationsValidees] = await Promise.all([
       prisma.justification.count({
@@ -86,9 +84,6 @@ export default async function ReferentDashboardPage({
     }
   }
 
-  
-
-  
   const chefsDejaValides = await prisma.chefEtapeStatut.findMany({
     where: {
       etapeId: etapeId,
@@ -101,12 +96,12 @@ export default async function ReferentDashboardPage({
   });
   const chefsDejaValidesIds = chefsDejaValides.map((statut) => statut.chefId);
 
-  
   const chefsEnAttenteDeRevisionIds = chefsCompletsIds.filter(
-    (id) => !chefsDejaValidesIds.includes(id)
+    (id) => !chefsDejaValidesIds.includes(id),
   );
 
   let chefsAReviser: User[] = [];
+
   if (chefsEnAttenteDeRevisionIds.length > 0) {
     chefsAReviser = await prisma.user.findMany({
       where: {
@@ -117,13 +112,12 @@ export default async function ReferentDashboardPage({
 
   // --- FIN DE LA MODIFICATION ---
 
-  
   const user = await getUser();
+
   if (!user || !("role" in user) || user.role !== "REFERENT") {
     return <div>Accès refusé</div>;
   }
 
-  
   const rawJustificationsAValider = await prisma.justification.findMany({
     where: {
       etapeId: etapeId,
@@ -147,17 +141,17 @@ export default async function ReferentDashboardPage({
     },
   });
 
-  
-  const justificationsAValider = rawJustificationsAValider.map((justification) => ({
-    ...justification,
-    fichiers: justification.fichiers.map((fichier) => ({
-      ...fichier,
-      
-      url: `${fichier.cheminFichier}`,
-    })),
-  }));
+  const justificationsAValider = rawJustificationsAValider.map(
+    (justification) => ({
+      ...justification,
+      fichiers: justification.fichiers.map((fichier) => ({
+        ...fichier,
 
-  
+        url: `/api/files/${fichier.id}`,
+      })),
+    }),
+  );
+
   const rawJustificationsEnDiscussion = await prisma.justification.findMany({
     where: {
       etapeId: etapeId,
@@ -192,20 +186,21 @@ export default async function ReferentDashboardPage({
     },
   });
 
-  const justificationsEnDiscussion = rawJustificationsEnDiscussion.map((justification) => ({
-    ...justification,
-    fichiers: justification.fichiers.map((fichier) => ({
-      ...fichier,
-      url: `${fichier.cheminFichier}`,
-    })),
-  }));
+  const justificationsEnDiscussion = rawJustificationsEnDiscussion.map(
+    (justification) => ({
+      ...justification,
+      fichiers: justification.fichiers.map((fichier) => ({
+        ...fichier,
+        url: `/api/files/${fichier.id}`,
+      })),
+    }),
+  );
 
-  
   return (
     <ReferentDashboardClientV2
+      chefsAReviser={chefsAReviser}
       justificationsAValider={justificationsAValider}
       justificationsEnDiscussion={justificationsEnDiscussion}
-      chefsAReviser={chefsAReviser}
     />
   );
 }

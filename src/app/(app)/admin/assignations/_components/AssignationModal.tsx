@@ -1,5 +1,8 @@
 "use client";
 
+import type { User } from "@prisma/client";
+import type { AdminEtapeWithReferents } from "@/types";
+
 import React from "react";
 import {
   Modal,
@@ -12,14 +15,20 @@ import {
   Checkbox,
   ScrollShadow,
 } from "@heroui/react";
-import { assignReferentToEtape, removeReferentFromEtape } from "../../_actions/admin.actions";
 import { useRouter } from "next/navigation";
+
+import {
+  assignReferentToEtape,
+  removeReferentFromEtape,
+} from "../../_actions/admin.actions";
+
+import { clickable } from "@/lib/a11y";
 
 type AssignationModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  etape: any;
-  allReferents: any[];
+  etape: AdminEtapeWithReferents;
+  allReferents: User[];
 };
 
 export default function AssignationModal({
@@ -31,12 +40,17 @@ export default function AssignationModal({
   const router = useRouter();
   const [pendingIds, setPendingIds] = React.useState<Set<string>>(new Set());
   // Optimistic state to track assignments
-  const [optimisticAssignments, setOptimisticAssignments] = React.useState<Set<string>>(new Set());
+  const [optimisticAssignments, setOptimisticAssignments] = React.useState<
+    Set<string>
+  >(new Set());
 
   // Initialize optimistic state when modal opens or etape changes
   React.useEffect(() => {
     if (etape) {
-      const assignedIds = new Set<string>(etape.referents.map((r: any) => r.referentId));
+      const assignedIds = new Set<string>(
+        etape.referents.map((r) => r.referentId),
+      );
+
       setOptimisticAssignments(assignedIds);
     }
   }, [etape]);
@@ -52,11 +66,13 @@ export default function AssignationModal({
     // Optimistic update
     setOptimisticAssignments((prev) => {
       const next = new Set(prev);
+
       if (isSelected) {
         next.add(referentId);
       } else {
         next.delete(referentId);
       }
+
       return next;
     });
 
@@ -72,24 +88,28 @@ export default function AssignationModal({
       // Revert optimistic update on error
       setOptimisticAssignments((prev) => {
         const next = new Set(prev);
+
         if (isSelected) {
           next.delete(referentId);
         } else {
           next.add(referentId);
         }
+
         return next;
       });
     } finally {
       setPendingIds((prev) => {
         const next = new Set(prev);
+
         next.delete(referentId);
+
         return next;
       });
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} scrollBehavior="inside">
+    <Modal isOpen={isOpen} scrollBehavior="inside" onClose={onClose}>
       <ModalContent>
         {(onClose) => (
           <>
@@ -110,20 +130,22 @@ export default function AssignationModal({
                       <div
                         key={referent.id}
                         className="flex items-center justify-between p-2 rounded-lg hover:bg-default-100 transition-colors cursor-pointer"
-                        onClick={() => !isPending && handleToggle(referent.id, !assigned)}
+                        {...clickable(() => {
+                          if (!isPending) handleToggle(referent.id, !assigned);
+                        })}
                       >
                         <UserComponent
-                          name={referent.name}
-                          description={referent.email}
                           avatarProps={{
-                            src: referent.image,
+                            src: referent.image || undefined,
                             size: "sm",
                           }}
+                          description={referent.email}
+                          name={referent.name}
                         />
                         <Checkbox
-                          isSelected={assigned}
-                          isDisabled={isPending}
                           isReadOnly
+                          isDisabled={isPending}
+                          isSelected={assigned}
                         />
                       </div>
                     );

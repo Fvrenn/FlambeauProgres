@@ -1,5 +1,7 @@
 "use client";
 
+import type { AdminUserWithTroupe } from "@/types";
+
 import React from "react";
 import {
   Modal,
@@ -12,12 +14,13 @@ import {
   SelectItem,
   Avatar,
 } from "@heroui/react";
-import { UserRole } from "@prisma/client";
+import { UserRole, Troupe } from "@prisma/client";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { updateUserRole, updateUserTroupe } from "../../_actions/admin.actions";
 import { useRouter } from "next/navigation";
+
+import { updateUserRole, updateUserTroupe } from "../../_actions/admin.actions";
 
 const userSchema = z.object({
   role: z.nativeEnum(UserRole),
@@ -29,8 +32,8 @@ type UserFormData = z.infer<typeof userSchema>;
 type UserModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  user: any; // Type User from Prisma
-  troupes: any[]; // Type Troupe from Prisma
+  user: AdminUserWithTroupe;
+  troupes: Troupe[];
 };
 
 export default function UserModal({
@@ -91,7 +94,11 @@ export default function UserModal({
             </ModalHeader>
             <ModalBody>
               <div className="flex items-center gap-4 mb-4">
-                <Avatar src={user?.image} name={user?.name} size="lg" />
+                <Avatar
+                  name={user?.name}
+                  size="lg"
+                  src={user?.image || undefined}
+                />
                 <div>
                   <p className="font-bold">{user?.name}</p>
                   <p className="text-small text-default-500">{user?.email}</p>
@@ -99,28 +106,26 @@ export default function UserModal({
               </div>
 
               <Select
+                defaultSelectedKeys={[watch("role")]}
                 label="Rôle"
                 placeholder="Sélectionner un rôle"
-                defaultSelectedKeys={[watch("role")]}
                 onChange={(e) => setValue("role", e.target.value as UserRole)}
               >
                 {Object.values(UserRole).map((role) => (
-                  <SelectItem key={role}>
-                    {role}
-                  </SelectItem>
+                  <SelectItem key={role}>{role}</SelectItem>
                 ))}
               </Select>
 
               <Select
+                defaultSelectedKeys={
+                  watch("troupeId") ? [watch("troupeId") as string] : []
+                }
                 label="Troupe"
                 placeholder="Sélectionner une troupe"
-                defaultSelectedKeys={watch("troupeId") ? [watch("troupeId") as string] : []}
                 onChange={(e) => setValue("troupeId", e.target.value || null)}
               >
                 {troupes.map((troupe) => (
-                  <SelectItem key={troupe.id}>
-                    {troupe.nom}
-                  </SelectItem>
+                  <SelectItem key={troupe.id}>{troupe.nom}</SelectItem>
                 ))}
               </Select>
             </ModalBody>
@@ -128,7 +133,7 @@ export default function UserModal({
               <Button color="danger" variant="light" onPress={onClose}>
                 Annuler
               </Button>
-              <Button color="primary" type="submit" isLoading={isPending}>
+              <Button color="primary" isLoading={isPending} type="submit">
                 Enregistrer
               </Button>
             </ModalFooter>

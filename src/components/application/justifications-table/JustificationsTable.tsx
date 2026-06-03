@@ -9,6 +9,7 @@ import {
   TableRow,
   TableCell,
 } from "@heroui/react";
+
 import {
   columns,
   renderCell,
@@ -25,13 +26,11 @@ export default function JustificationsTable({
   return (
     <Table aria-label="Tableau des justifications à valider">
       <TableHeader columns={columns}>
-        {(column) => (
-          <TableColumn key={column.key}>{column.name}</TableColumn>
-        )}
+        {(column) => <TableColumn key={column.key}>{column.name}</TableColumn>}
       </TableHeader>
       <TableBody
-        items={justifications}
         emptyContent={"Aucune justification à valider pour le moment."}
+        items={justifications}
       >
         {(item) => (
           <TableRow key={item.id}>

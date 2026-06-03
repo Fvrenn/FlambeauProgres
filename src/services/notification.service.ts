@@ -1,5 +1,6 @@
+import { type TypeNotification } from "@prisma/client";
+
 import { prisma } from "@/lib/prisma";
-import { type TypeNotification, type Notification } from "@prisma/client";
 
 export class NotificationService {
   /**
@@ -25,43 +26,93 @@ export class NotificationService {
   }
 
   /**
-   * Marque une notification comme lue.
+   * Toutes les notifications d'un utilisateur (avec le lien vers la justification).
    */
-  static async markAsRead(notificationId: string, userId: string): Promise<boolean> {
-    try {
-      
-      const notif = await prisma.notification.findUnique({
-        where: { id: notificationId },
-      });
-
-      if (!notif || notif.destinataireId !== userId) {
-        return false;
-      }
-
-      await prisma.notification.update({
-        where: { id: notificationId },
-        data: { lue: true, lueAt: new Date() },
-      });
-      return true;
-    } catch (error) {
-      console.error("Error marking notification as read", error);
-      return false;
-    }
+  static async getForUser(userId: string) {
+    return prisma.notification.findMany({
+      where: { destinataireId: userId },
+      orderBy: { createdAt: "desc" },
+      include: {
+        justification: {
+          select: {
+            id: true,
+            objectif: { select: { id: true, etapeId: true } },
+          },
+        },
+      },
+    });
   }
 
   /**
-   * Marque toutes les notifications comme lues pour un utilisateur.
+   * Marque UNE notification comme lue, scopée au destinataire (pas d'IDOR).
+   */
+  static async markAsRead(notificationId: string, userId: string) {
+    await prisma.notification.updateMany({
+      where: { id: notificationId, destinataireId: userId },
+      data: { lue: true, lueAt: new Date() },
+    });
+  }
+
+  /**
+   * Marque toutes les notifications non lues d'un utilisateur comme lues.
    */
   static async markAllAsRead(userId: string) {
     await prisma.notification.updateMany({
+      where: { destinataireId: userId, lue: false },
+      data: { lue: true, lueAt: new Date() },
+    });
+  }
+
+  /**
+   * Marque comme lues les notifications de discussion liées à une justification.
+   */
+  static async markAsReadForJustification(
+    userId: string,
+    justificationId: string,
+  ) {
+    await prisma.notification.updateMany({
       where: {
+        justificationId,
         destinataireId: userId,
         lue: false,
+        type: { in: ["NOUVEAU_COMMENTAIRE", "REPONSE_PRECISION"] },
       },
-      data: {
-        lue: true,
-        lueAt: new Date(),
-      },
+      data: { lue: true, lueAt: new Date() },
     });
+  }
+
+  /**
+   * Notifie tous les référents d'une étape qu'une nouvelle réalisation est à valider.
+   */
+  static async notifyReferentsOfNewJustification(
+    etapeId: string,
+    justificationId: string,
+    chefName: string,
+  ) {
+    try {
+      const etapeReferents = await prisma.etapeReferent.findMany({
+        where: { etapeId },
+        include: { referent: true, etape: true },
+      });
+
+      if (etapeReferents.length === 0) {
+        console.warn(`Aucun référent trouvé pour l'étape ${etapeId}`);
+
+        return;
+      }
+
+      const notifications = etapeReferents.map((er) => ({
+        destinataireId: er.referent.id,
+        justificationId,
+        type: "NOUVELLE_JUSTIFICATION" as const,
+        titre: "Nouvelle réalisation à valider",
+        message: `${chefName} a soumis une nouvelle réalisation pour l'étape "${er.etape.name}".`,
+        lue: false,
+      }));
+
+      await prisma.notification.createMany({ data: notifications });
+    } catch (error) {
+      console.error("Erreur lors de la création des notifications:", error);
+    }
   }
 }

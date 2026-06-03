@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Card, CardBody, User, Spinner } from "@heroui/react";
+
 import { CommentaireAvecAuteur } from "@/types";
 
 interface MessageBubbleProps {
@@ -24,9 +25,9 @@ export default function MessageBubble({ comment, isChef }: MessageBubbleProps) {
             name: comment.auteur.name.charAt(0).toUpperCase(),
             size: "sm",
           }}
-          name=""
-          description=""
           className="min-w-fit"
+          description=""
+          name=""
         />
 
         {/* Message Bubble */}
@@ -47,7 +48,7 @@ export default function MessageBubble({ comment, isChef }: MessageBubbleProps) {
               </p>
               {comment.isPending && (
                 <div className="flex items-center gap-1">
-                  <Spinner size="sm" color="current" />
+                  <Spinner color="current" size="sm" />
                 </div>
               )}
             </div>

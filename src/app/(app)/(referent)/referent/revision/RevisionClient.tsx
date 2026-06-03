@@ -1,5 +1,7 @@
 "use client";
 
+import type { User, Etape, Justification, Objectif } from "@prisma/client";
+
 import React from "react";
 import {
   User as UserAvatar,
@@ -9,14 +11,11 @@ import {
   Divider,
   Button,
   Chip,
-  Accordion,
-  AccordionItem,
 } from "@heroui/react";
-import ValidationFinaleButton from "@/components/application/referent/ValidationFinaleButton";
-import type { User, Etape, Justification, Objectif } from "@prisma/client";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 
+import ValidationFinaleButton from "@/components/application/referent/ValidationFinaleButton";
 
 type JustificationAvecObjectif = Justification & {
   objectif: Objectif;
@@ -40,11 +39,11 @@ export default function RevisionClient({
         <div className="flex items-center gap-2 text-default-500 mb-4 md:mb-6">
           <Button
             as={Link}
+            className="pl-0 min-w-0"
             href={`/referent/dashboard?etapeId=${etape.id}&tab=a-reviser`}
-            variant="light"
             size="sm"
             startContent={<Icon icon="solar:arrow-left-linear" />}
-            className="pl-0 min-w-0"
+            variant="light"
           >
             Retour
           </Button>
@@ -56,7 +55,7 @@ export default function RevisionClient({
           <div>
             <h4 className="text-2xl md:text-3xl font-semibold flex items-center gap-3">
               Revue Finale
-              <Chip color="success" variant="flat" size="sm">
+              <Chip color="success" size="sm" variant="flat">
                 Badge Complet
               </Chip>
             </h4>
@@ -70,8 +69,6 @@ export default function RevisionClient({
 
           <div className="bg-content1 rounded-xl p-3 border border-default-200">
             <UserAvatar
-              name={chef.name}
-              description={chef.email}
               avatarProps={{
                 src: chef.image || undefined,
                 name: chef.name.charAt(0).toUpperCase(),
@@ -81,6 +78,8 @@ export default function RevisionClient({
               classNames={{
                 name: "font-semibold text-lg",
               }}
+              description={chef.email}
+              name={chef.name}
             />
           </div>
         </div>
@@ -91,17 +90,28 @@ export default function RevisionClient({
       {/* Content */}
       <div className="flex-1 overflow-y-auto px-4 md:px-0 md:pr-2 pb-24 md:pb-4 space-y-4 scrollbar-hide">
         <div className="flex items-center gap-2 mb-2">
-          <Icon icon="solar:document-text-bold" className="text-xl text-primary" />
+          <Icon
+            className="text-xl text-primary"
+            icon="solar:document-text-bold"
+          />
           <h5 className="text-lg font-semibold">Justifications validées</h5>
         </div>
 
         <div className="grid grid-cols-1 gap-4">
           {justifications.map((justification) => (
-            <Card key={justification.id} shadow="sm" className="border border-default-100">
+            <Card
+              key={justification.id}
+              className="border border-default-100"
+              shadow="sm"
+            >
               <CardHeader className="flex gap-3 bg-default-50/50 pb-2">
                 <div className="flex flex-col">
-                  <p className="text-small text-default-500">Objectif {justification.objectif.code}</p>
-                  <p className="text-medium font-semibold">{justification.objectif.description}</p>
+                  <p className="text-small text-default-500">
+                    Objectif {justification.objectif.code}
+                  </p>
+                  <p className="text-medium font-semibold">
+                    {justification.objectif.description}
+                  </p>
                 </div>
               </CardHeader>
               <Divider />
@@ -120,13 +130,15 @@ export default function RevisionClient({
         <div className="flex items-center justify-between gap-4 md:bg-content1 md:p-4 md:rounded-2xl md:border md:border-default-200">
           <div className="hidden md:flex flex-col">
             <span className="font-semibold">Tout semble correct ?</span>
-            <span className="text-xs text-default-500">Validez le badge pour notifier le chef.</span>
+            <span className="text-xs text-default-500">
+              Validez le badge pour notifier le chef.
+            </span>
           </div>
           <div className="w-full md:w-auto">
             <ValidationFinaleButton chefId={chef.id} etapeId={etape.id} />
           </div>
         </div>
       </div>
-    </div >
+    </div>
   );
 }

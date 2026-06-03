@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint --fix"
+    "lint": "eslint --fix",
+    "test": "vitest run"
   },
   "prisma": {
     "seed": "ts-node-dev --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
@@ -59,13 +60,10 @@
     "@react-aria/visually-hidden": "3.8.28",
     "@react-three/drei": "^10.7.6",
     "@react-three/fiber": "^9.4.0",
-    "@vercel/blob": "^2.0.0",
     "better-auth": "^1.6.9",
     "clsx": "2.1.1",
     "framer-motion": "11.18.2",
-    "intl-messageformat": "10.7.16",
     "next": "^16.2.4",
-    "next-themes": "0.4.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.65.0",
@@ -73,6 +71,7 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@eslint/compat": "^2.1.0",
     "@iconify/react": "^6.0.2",
     "@next/eslint-plugin-next": "15.3.4",
     "@react-types/shared": "3.32.1",
@@ -100,9 +99,10 @@
     "tailwindcss": "4.1.11",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "vitest": "^4.1.8"
   },
   "overrides": {
-   "postcss": "^8.5.12"
+    "postcss": "^8.5.12"
   }
 }

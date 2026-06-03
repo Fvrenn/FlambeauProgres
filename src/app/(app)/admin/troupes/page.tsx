@@ -1,6 +1,8 @@
 import React from "react";
-import prisma from "@/lib/prisma";
+
 import TroupesClientPage from "./ClientPage";
+
+import prisma from "@/lib/prisma";
 
 export default async function AdminTroupesPage() {
   const troupes = await prisma.troupe.findMany({
@@ -8,10 +10,11 @@ export default async function AdminTroupesPage() {
       membres: {
         take: 5, // Limit members fetched for display
         select: {
-            id: true,
-            name: true,
-            image: true,
-        }
+          id: true,
+          name: true,
+          image: true,
+          email: true,
+        },
       },
       _count: {
         select: { membres: true },
@@ -26,13 +29,13 @@ export default async function AdminTroupesPage() {
   // We might want to filter this list in a real app, but for now fetch all
   const users = await prisma.user.findMany({
     select: {
-        id: true,
-        name: true,
-        email: true,
+      id: true,
+      name: true,
+      email: true,
     },
     orderBy: {
-        name: "asc",
-    }
+      name: "asc",
+    },
   });
 
   return <TroupesClientPage troupes={troupes} users={users} />;

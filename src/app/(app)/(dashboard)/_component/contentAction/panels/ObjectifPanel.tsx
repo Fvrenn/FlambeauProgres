@@ -1,25 +1,40 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Etape, Objectif, Justification } from "@prisma/client";
+import { Justification } from "@prisma/client";
 import { Tabs, Tab, useDisclosure } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { Button } from "@heroui/react";
 import { Divider } from "@heroui/divider";
+
+import {
+  EtapeAvecObjectifs,
+  ObjectifAvecJustification,
+} from "../../DashboardClient";
+
 import StatusChip from "./StatusChip";
 import ObjectifModal from "./ObjectifModal";
-import { EtapeAvecObjectifs, ObjectifAvecJustification } from "../../DashboardClient";
+
 import ChatPanel from "@/components/application/dashboard-chef/ChatPanel";
+import { clickable } from "@/lib/a11y";
 
 interface ObjectifPanelProps {
   selectedEtape: EtapeAvecObjectifs | null;
-  onUpdateJustification: (objectifId: string, justification: Partial<Justification>) => void;
+  onUpdateJustification: (
+    objectifId: string,
+    justification: Partial<Justification>,
+  ) => void;
   targetSubTab?: string | null;
 }
 
-export default function ObjectifPanel({ selectedEtape, onUpdateJustification, targetSubTab }: ObjectifPanelProps) {
+export default function ObjectifPanel({
+  selectedEtape,
+  onUpdateJustification,
+  targetSubTab,
+}: ObjectifPanelProps) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [selectedObjectif, setSelectedObjectif] = useState<ObjectifAvecJustification | null>(null);
+  const [selectedObjectif, setSelectedObjectif] =
+    useState<ObjectifAvecJustification | null>(null);
   const [activeTab, setActiveTab] = useState<React.Key>("competence");
 
   // Effect to switch tab when targetSubTab changes
@@ -30,8 +45,13 @@ export default function ObjectifPanel({ selectedEtape, onUpdateJustification, ta
   }, [targetSubTab]);
 
   // State pour le ChatPanel
-  const { isOpen: isChatOpen, onOpen: onChatOpen, onOpenChange: onChatOpenChange } = useDisclosure();
-  const [selectedChatObjectif, setSelectedChatObjectif] = useState<ObjectifAvecJustification | null>(null);
+  const {
+    isOpen: isChatOpen,
+    onOpen: onChatOpen,
+    onOpenChange: onChatOpenChange,
+  } = useDisclosure();
+  const [selectedChatObjectif, setSelectedChatObjectif] =
+    useState<ObjectifAvecJustification | null>(null);
 
   const handleOpenModal = (objectif: ObjectifAvecJustification) => {
     setSelectedObjectif(objectif);
@@ -41,22 +61,20 @@ export default function ObjectifPanel({ selectedEtape, onUpdateJustification, ta
   if (!selectedEtape) {
     return (
       <div className="flex flex-col items-center py-8 gap-3 text-gray-500 text-md">
-        <Icon icon="solar:tag-linear" className="text-6xl mb-4" />
-        <p>
-          Sélectionnez un badge pour voir ses objectifs{" "}
-        </p>
+        <Icon className="text-6xl mb-4" icon="solar:tag-linear" />
+        <p>Sélectionnez un badge pour voir ses objectifs </p>
       </div>
     );
   }
 
   const competences = selectedEtape.objectifs.filter(
-    (o) => o.type === "COMPETENCE"
+    (o) => o.type === "COMPETENCE",
   ) as ObjectifAvecJustification[];
   const realisations = selectedEtape.objectifs.filter(
-    (o) => o.type === "REALISATION"
+    (o) => o.type === "REALISATION",
   ) as ObjectifAvecJustification[];
   const discussions = selectedEtape.objectifs.filter(
-    (o) => o.justifications[0]?.statut === "DEMANDE_PRECISION"
+    (o) => o.justifications[0]?.statut === "DEMANDE_PRECISION",
   ) as ObjectifAvecJustification[];
 
   const handleOpenChat = (objectif: ObjectifAvecJustification) => {
@@ -70,7 +88,8 @@ export default function ObjectifPanel({ selectedEtape, onUpdateJustification, ta
         <Tabs
           aria-label="Options"
           classNames={{
-            tabList: "gap-1 md:gap-8 w-full max-w-xl rounded-full p-0.5 bg-[#F3F2E9]",
+            tabList:
+              "gap-1 md:gap-8 w-full max-w-xl rounded-full p-0.5 bg-[#F3F2E9]",
             cursor:
               "!bg-danger-800 rounded-full md:before:content-['•'] before:absolute before:left-3 before:top-1/2 before:-translate-y-1/2 before:text-black before:text-lg before:font-bold",
             tab: "px-1 md:px-6 h-12 relative md:text-sm text-xs",
@@ -92,14 +111,13 @@ export default function ObjectifPanel({ selectedEtape, onUpdateJustification, ta
                         <span className="text-xl text-foreground border border-default-800 py-3 px-2.5 rounded-full w-12 h-12 flex items-center justify-center mr-2.5">
                           {c.code}
                         </span>
-                        <div className="hidden md:block">
-                          {c.description}
-                        </div>
-
+                        <div className="hidden md:block">{c.description}</div>
                       </div>
 
                       <div className="flex items-center gap-4 ml-6 ">
-                        <StatusChip statut={c.justifications[0]?.statut || null} />
+                        <StatusChip
+                          statut={c.justifications[0]?.statut || null}
+                        />
                         <Button
                           isIconOnly
                           aria-label="ouvrir compétence"
@@ -107,14 +125,15 @@ export default function ObjectifPanel({ selectedEtape, onUpdateJustification, ta
                           variant="faded"
                           onPress={() => handleOpenModal(c)}
                         >
-                          <Icon icon="solar:maximize-square-3-linear" width={24} />
+                          <Icon
+                            icon="solar:maximize-square-3-linear"
+                            width={24}
+                          />
                         </Button>
                       </div>
                     </div>
 
-                    <div className="block md:hidden">
-                      {c.description}
-                    </div>
+                    <div className="block md:hidden">{c.description}</div>
                   </div>
                   <div className="px-5">
                     <Divider />
@@ -134,13 +153,13 @@ export default function ObjectifPanel({ selectedEtape, onUpdateJustification, ta
                         <span className="text-xl text-foreground border border-default-800 py-3 px-2.5 rounded-full w-12 h-12 flex items-center justify-center mr-2.5">
                           {r.code}
                         </span>
-                        <div className="hidden md:block">
-                          {r.description}
-                        </div>
+                        <div className="hidden md:block">{r.description}</div>
                       </div>
 
                       <div className="flex items-center gap-4 ml-6 ">
-                        <StatusChip statut={r.justifications[0]?.statut || null} />
+                        <StatusChip
+                          statut={r.justifications[0]?.statut || null}
+                        />
                         <Button
                           isIconOnly
                           aria-label="ouvrir réalisation"
@@ -148,14 +167,15 @@ export default function ObjectifPanel({ selectedEtape, onUpdateJustification, ta
                           variant="faded"
                           onPress={() => handleOpenModal(r)}
                         >
-                          <Icon icon="solar:maximize-square-3-linear" width={24} />
+                          <Icon
+                            icon="solar:maximize-square-3-linear"
+                            width={24}
+                          />
                         </Button>
                       </div>
                     </div>
 
-                    <div className="block md:hidden">
-                      {r.description}
-                    </div>
+                    <div className="block md:hidden">{r.description}</div>
                   </div>
                   <div className="px-5">
                     <Divider />
@@ -177,7 +197,7 @@ export default function ObjectifPanel({ selectedEtape, onUpdateJustification, ta
                   <li
                     key={d.id}
                     className="cursor-pointer transition-colors hover:bg-gray-50"
-                    onClick={() => handleOpenChat(d)}
+                    {...clickable(() => handleOpenChat(d))}
                   >
                     <div className="py-6.5 px-5 rounded-md flex items-center">
                       <div className="flex-1 flex items-center">
@@ -188,7 +208,9 @@ export default function ObjectifPanel({ selectedEtape, onUpdateJustification, ta
                       </div>
 
                       <div className="flex items-center gap-4 ml-6">
-                        <StatusChip statut={d.justifications[0]?.statut || null} />
+                        <StatusChip
+                          statut={d.justifications[0]?.statut || null}
+                        />
                       </div>
                     </div>
                     <div className="px-5">
@@ -204,8 +226,8 @@ export default function ObjectifPanel({ selectedEtape, onUpdateJustification, ta
 
       <ObjectifModal
         isOpen={isOpen}
-        onOpenChange={onOpenChange}
         objectif={selectedObjectif}
+        onOpenChange={onOpenChange}
         onUpdateJustification={onUpdateJustification}
       />
 
@@ -214,7 +236,7 @@ export default function ObjectifPanel({ selectedEtape, onUpdateJustification, ta
         onClose={onChatOpenChange}
         // objectifId removed
         justificationId={selectedChatObjectif?.justifications[0]?.id || ""}
-      // initialCommentaires removed
+        // initialCommentaires removed
       />
     </div>
   );

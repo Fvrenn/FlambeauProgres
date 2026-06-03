@@ -1,8 +1,9 @@
 "use server";
 
-import { getUser } from "@/lib/auth-server";
-import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+
+import { getUser } from "@/lib/auth-server";
+import { NotificationService } from "@/services/notification.service";
 
 export async function getMyNotifications() {
   const user = await getUser();
@@ -11,103 +12,73 @@ export async function getMyNotifications() {
     return [];
   }
 
-  const notifications = await prisma.notification.findMany({
-    where: {
-      destinataireId: user.id,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-    include: {
-      justification: {
-        select: {
-          id: true,
-          objectif: {
-            select: {
-              id: true,
-              etapeId: true,
-            },
-          },
-        },
-      },
-    },
-  });
-
-  return notifications;
+  return NotificationService.getForUser(user.id);
 }
 
 export async function markNotificationAsRead(notificationId: string) {
+  const user = await getUser();
+
+  if (!user) {
+    return { success: false, error: "Non autorisé" };
+  }
+
   try {
-    await prisma.notification.update({
-      where: {
-        id: notificationId,
-      },
-      data: {
-        lue: true,
-        lueAt: new Date(),
-      },
-    });
+    await NotificationService.markAsRead(notificationId, user.id);
     revalidatePath("/dashboard");
+
     return { success: true };
   } catch (error) {
     console.error("Erreur lors de la mise à jour de la notification:", error);
+
     return { success: false, error: "Erreur serveur" };
   }
 }
 
 export async function markAllNotificationsAsRead() {
   const user = await getUser();
-  if (!user) return { success: false, error: "Non autorisé" };
+
+  if (!user) {
+    return { success: false, error: "Non autorisé" };
+  }
 
   try {
-    await prisma.notification.updateMany({
-      where: {
-        destinataireId: user.id,
-        lue: false,
-      },
-      data: {
-        lue: true,
-        lueAt: new Date(),
-      },
-    });
+    await NotificationService.markAllAsRead(user.id);
     revalidatePath("/dashboard");
+
     return { success: true };
   } catch (error) {
     console.error(
       "Erreur lors du marquage de toutes les notifications comme lues:",
-      error
+      error,
     );
+
     return { success: false, error: "Erreur serveur" };
   }
 }
 
 export async function markNotificationsAsReadForJustification(
-  justificationId: string
+  justificationId: string,
 ) {
   const user = await getUser();
-  if (!user) return { success: false, error: "Non autorisé" };
+
+  if (!user) {
+    return { success: false, error: "Non autorisé" };
+  }
 
   try {
-    await prisma.notification.updateMany({
-      where: {
-        justificationId: justificationId,
-        destinataireId: user.id,
-        lue: false,
-        type: { in: ["NOUVEAU_COMMENTAIRE", "REPONSE_PRECISION"] },
-      },
-      data: {
-        lue: true,
-        lueAt: new Date(),
-      },
-    });
-
+    await NotificationService.markAsReadForJustification(
+      user.id,
+      justificationId,
+    );
     revalidatePath("/referent/dashboard");
+
     return { success: true };
   } catch (error) {
     console.error(
       "Erreur lors du marquage des notifications pour la justification:",
-      error
+      error,
     );
+
     return { success: false, error: "Erreur serveur" };
   }
 }

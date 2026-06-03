@@ -11,6 +11,7 @@ import {
   useDisclosure,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
+
 import { validateEtape } from "@/actions/etape/etape.actions";
 
 type ValidationFinaleButtonProps = {
@@ -28,8 +29,7 @@ export default function ValidationFinaleButton({
   const handleConfirmValidate = async () => {
     setIsLoading(true);
     await validateEtape(chefId, etapeId);
-    
-    
+
     setIsLoading(false);
   };
 
@@ -37,9 +37,9 @@ export default function ValidationFinaleButton({
     <>
       <Button
         color="success"
-        onPress={onOpen}
         isLoading={isLoading}
         startContent={!isLoading && <Icon icon="solar:verified-check-linear" />}
+        onPress={onOpen}
       >
         Valider le Badge Complet
       </Button>

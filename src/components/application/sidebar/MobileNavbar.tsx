@@ -1,5 +1,10 @@
 import React from "react";
-import { Navbar, NavbarContent, NavbarMenuToggle, NavbarBrand } from "@heroui/react";
+import {
+  Navbar,
+  NavbarContent,
+  NavbarMenuToggle,
+  NavbarBrand,
+} from "@heroui/react";
 import Image from "next/image";
 
 type MobileNavbarProps = {
@@ -7,14 +12,17 @@ type MobileNavbarProps = {
   onMenuOpenChange: (isOpen: boolean) => void;
 };
 
-export const MobileNavbar = ({ isMenuOpen, onMenuOpenChange }: MobileNavbarProps) => {
+export const MobileNavbar = ({
+  isMenuOpen,
+  onMenuOpenChange,
+}: MobileNavbarProps) => {
   return (
     <Navbar
       isBordered
       className="md:hidden"
-      onMenuOpenChange={onMenuOpenChange}
       isMenuOpen={isMenuOpen}
       maxWidth="full"
+      onMenuOpenChange={onMenuOpenChange}
     >
       <NavbarContent>
         <NavbarMenuToggle
@@ -23,11 +31,11 @@ export const MobileNavbar = ({ isMenuOpen, onMenuOpenChange }: MobileNavbarProps
         />
         <NavbarBrand className="gap-2">
           <Image
-            src="/logo/logo-flambeau-progres.svg"
             alt="Flambeau Progrès Logo"
-            width={32}
-            height={43}
             className="rounded-full"
+            height={43}
+            src="/logo/logo-flambeau-progres.svg"
+            width={32}
           />
           <span className="text-lg font-medium text-[#E06511] leading-7">
             Flambeau <span className="text-[#542C11]">Progrès</span>

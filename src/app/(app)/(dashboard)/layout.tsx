@@ -1,6 +1,8 @@
-import { getUser } from "@/lib/auth-server";
 import React from "react";
+
 import AppClientLayout from "../AppClientLayout";
+
+import { getUser } from "@/lib/auth-server";
 import { type SidebarItem } from "@/components/application/sidebar/sidebar";
 
 export default async function DashboardLayout({
@@ -24,7 +26,7 @@ export default async function DashboardLayout({
   ];
 
   return (
-    <AppClientLayout user={user} sidebarItems={sidebarItems}>
+    <AppClientLayout sidebarItems={sidebarItems} user={user}>
       {children}
     </AppClientLayout>
   );

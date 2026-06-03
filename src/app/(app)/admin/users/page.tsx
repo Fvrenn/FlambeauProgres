@@ -1,6 +1,8 @@
 import React from "react";
-import prisma from "@/lib/prisma";
+
 import UsersClientPage from "./ClientPage";
+
+import prisma from "@/lib/prisma";
 
 export default async function AdminUsersPage() {
   const users = await prisma.user.findMany({
@@ -18,5 +20,5 @@ export default async function AdminUsersPage() {
     },
   });
 
-  return <UsersClientPage users={users} troupes={troupes} />;
+  return <UsersClientPage troupes={troupes} users={users} />;
 }

@@ -88,9 +88,11 @@ export default defineConfig([globalIgnores([
     rules: {
         "no-console": "warn",
         "react/prop-types": "off",
+        // Application francophone : les apostrophes/guillemets dans le JSX sont volontaires.
+        "react/no-unescaped-entities": "off",
         "react/jsx-uses-react": "off",
         "react/react-in-jsx-scope": "off",
-        "react-hooks/exhaustive-deps": "off",
+        "react-hooks/exhaustive-deps": "warn",
         "jsx-a11y/click-events-have-key-events": "warn",
         "jsx-a11y/interactive-supports-focus": "warn",
         "prettier/prettier": "warn",

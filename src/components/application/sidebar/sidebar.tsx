@@ -54,7 +54,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
       className,
       ...props
     },
-    ref
+    ref,
   ) => {
     const [selected, setSelected] =
       React.useState<React.Key>(defaultSelectedKey);
@@ -86,10 +86,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
     const renderNestItem = React.useCallback(
       (item: SidebarItem) => {
         const isNestType =
-          item.items &&
-          item.items?.length > 0 &&
-          
-          item?.type === "nest";
+          item.items && item.items?.length > 0 && item?.type === "nest";
 
         if (isNestType) {
           // Is a nest type item , so we need to remove the href
@@ -107,7 +104,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                 },
                 {
                   "inline-block w-11": isCompact && isNestType,
-                }
+                },
               ),
             }}
             endContent={
@@ -120,7 +117,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                 <Icon
                   className={cn(
                     "text-default-500 group-data-[selected=true]:text-foreground",
-                    iconClassName
+                    iconClassName,
                   )}
                   icon={item.icon}
                   width={24}
@@ -141,7 +138,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                     <Icon
                       className={cn(
                         "text-default-500 group-data-[selected=true]:text-foreground",
-                        iconClassName
+                        iconClassName,
                       )}
                       icon={item.icon}
                       width={24}
@@ -171,7 +168,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                         <Icon
                           className={cn(
                             "text-default-500 group-data-[selected=true]:text-foreground",
-                            iconClassName
+                            iconClassName,
                           )}
                           icon={item.icon}
                           width={24}
@@ -210,7 +207,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
         );
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      [isCompact, hideEndContent, iconClassName, items]
+      [isCompact, hideEndContent, iconClassName, items],
     );
 
     const renderNestListItem = React.useCallback((item: SidebarItem) => {
@@ -235,10 +232,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
     const renderItem = React.useCallback(
       (item: SidebarItem) => {
         const isNestType =
-          item.items &&
-          item.items?.length > 0 &&
-          
-          item?.type === "nest";
+          item.items && item.items?.length > 0 && item?.type === "nest";
 
         if (isNestType) {
           return renderNestItem(item);
@@ -256,7 +250,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                 <Icon
                   className={cn(
                     "text-default-500 group-data-[selected=true]:text-foreground",
-                    iconClassName
+                    iconClassName,
                   )}
                   icon={item.icon}
                   width={24}
@@ -275,7 +269,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                     <Icon
                       className={cn(
                         "text-default-500 group-data-[selected=true]:text-foreground",
-                        iconClassName
+                        iconClassName,
                       )}
                       icon={item.icon}
                       width={24}
@@ -290,7 +284,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
         );
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      [isCompact, hideEndContent, iconClassName, itemClasses?.base]
+      [isCompact, hideEndContent, iconClassName, itemClasses?.base],
     );
 
     return (
@@ -309,11 +303,11 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
           ...itemClasses,
           base: cn(
             "px-3 min-h-11 rounded-large h-[44px] data-[selected=true]:bg-default-100 data-[focus=true]:!bg-transparent data-[selected=true]:data-[focus=true]:!bg-default-100",
-            itemClasses?.base
+            itemClasses?.base,
           ),
           title: cn(
             "text-small font-medium text-default-500 group-data-[selected=true]:text-foreground",
-            itemClasses?.title
+            itemClasses?.title,
           ),
         }}
         items={items}
@@ -325,6 +319,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
         }}
         onSelectionChange={(keys) => {
           const key = Array.from(keys)[0];
+
           setSelected(key as React.Key);
         }}
         {...props}
@@ -332,7 +327,6 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
         {(item) => {
           return item.items &&
             item.items?.length > 0 &&
-            
             item?.type === "nest" ? (
             renderNestItem(item)
           ) : item.items && item.items?.length > 0 ? (
@@ -350,7 +344,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
         }}
       </Listbox>
     );
-  }
+  },
 );
 
 Sidebar.displayName = "Sidebar";

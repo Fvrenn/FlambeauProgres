@@ -1,8 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import { type User, type Justification, type Objectif, type Commentaire } from "@prisma/client";
-import ReferentValidationModal from "./_components/ReferentValidationModal";
+import { type User, type Justification } from "@prisma/client";
+
+import { type CommentaireAvecAuteur } from "@/types";
+
+import ReferentValidationModal, {
+  type JustificationAvecRelations,
+} from "./_components/ReferentValidationModal";
 import ReferentTabs from "./_components/ReferentTabs";
 import ValidationPanel from "./_components/panels/ValidationPanel";
 import DiscussionPanel from "./_components/panels/DiscussionPanel";
@@ -50,17 +55,21 @@ export default function ReferentDashboardClientV2({
   const [activeTab, setActiveTab] = useState<React.Key>("a-valider");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedJustification, setSelectedJustification] = useState<
-    (JustificationAValider | JustificationEnDiscussion) & { commentaires?: any[] }
+    | ((JustificationAValider | JustificationEnDiscussion) & {
+        commentaires?: CommentaireAvecAuteur[];
+      })
     | null
   >(null);
 
   // This helps default the tab in the modal when opening from different lists
-  const [modalDefaultTab, setModalDefaultTab] = useState<"justification" | "discussion">("justification");
+  const [modalDefaultTab, setModalDefaultTab] = useState<
+    "justification" | "discussion"
+  >("justification");
 
   // Handlers
   const handleJustificationClick = (
     justification: JustificationAValider | JustificationEnDiscussion,
-    tab: "justification" | "discussion"
+    tab: "justification" | "discussion",
   ) => {
     setSelectedJustification(justification);
     setModalDefaultTab(tab);
@@ -77,18 +86,18 @@ export default function ReferentDashboardClientV2({
     "a-valider": (
       <ValidationPanel
         justifications={justificationsAValider}
-        onJustificationClick={(j) => handleJustificationClick(j, "justification")}
+        onJustificationClick={(j) =>
+          handleJustificationClick(j, "justification")
+        }
       />
     ),
-    "discussions": (
+    discussions: (
       <DiscussionPanel
         justifications={justificationsEnDiscussion}
         onJustificationClick={(j) => handleJustificationClick(j, "discussion")}
       />
     ),
-    "a-reviser": (
-      <RevisionPanel chefs={chefsAReviser} />
-    )
+    "a-reviser": <RevisionPanel chefs={chefsAReviser} />,
   };
 
   return (
@@ -99,11 +108,11 @@ export default function ReferentDashboardClientV2({
 
       <div className="flex-shrink-0 mb-4">
         <ReferentTabs
-          selectedKey={activeTab}
-          onSelectionChange={setActiveTab}
-          validationCount={justificationsAValider.length}
           discussionCount={justificationsEnDiscussion.length}
           revisionCount={chefsAReviser.length}
+          selectedKey={activeTab}
+          validationCount={justificationsAValider.length}
+          onSelectionChange={setActiveTab}
         />
       </div>
 
@@ -112,12 +121,13 @@ export default function ReferentDashboardClientV2({
       </div>
 
       <ReferentValidationModal
-        isOpen={isModalOpen}
-        onOpenChange={handleCloseModal}
-        justification={selectedJustification as any}
         defaultTab={modalDefaultTab}
+        isOpen={isModalOpen}
+        justification={
+          selectedJustification as unknown as JustificationAvecRelations | null
+        }
+        onOpenChange={handleCloseModal}
       />
     </div>
   );
 }
-

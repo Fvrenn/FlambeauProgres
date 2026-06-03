@@ -1,0 +1,13 @@
+# Normalise les fins de ligne en LF dans le dépôt (évite le bruit CRLF/Prettier).
+* text=auto eol=lf
+
+# Fichiers binaires (pas de normalisation)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.glb binary
+*.woff binary
+*.woff2 binary

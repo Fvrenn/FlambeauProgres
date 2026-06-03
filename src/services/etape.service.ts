@@ -14,20 +14,28 @@ export class EtapeService {
   static async validateBadge(
     chefId: string,
     referentId: string,
-    etapeId: string
+    etapeId: string,
   ): Promise<ServiceResult> {
-    
-    const [etape, assignation] = await Promise.all([
+    const [etape, chef, assignation] = await Promise.all([
       prisma.etape.findUnique({ where: { id: etapeId } }),
+      prisma.user.findUnique({ where: { id: chefId } }),
       prisma.etapeReferent.findFirst({
         where: { referentId: referentId, etapeId: etapeId },
       }),
     ]);
 
-    if (!etape) return { success: false, error: "Étape introuvable" };
-    if (!assignation) return { success: false, error: "Vous n'êtes pas référent de cette étape" };
+    if (!etape || !chef) {
+      return { success: false, error: "Étape ou Chef introuvable" };
+    }
 
-    // 2. Upsert du statut
+    if (!assignation) {
+      return {
+        success: false,
+        error: "Vous n'êtes pas référent de cette étape",
+      };
+    }
+
+    // Upsert du statut
     await prisma.chefEtapeStatut.upsert({
       where: {
         chefId_etapeId: {
@@ -49,12 +57,12 @@ export class EtapeService {
       },
     });
 
-    // 3. Notification
+    // Notification
     await NotificationService.createNotification({
       destinataireId: chefId,
       type: "ETAPE_COMPLETE",
       titre: "Badge validé !",
-      message: `Félicitations ! Votre badge "${etape.name}" a été officiellement validé par votre référent.`,
+      message: `Félicitations ! Votre badge "${etape.name}" a été officiellement validé par votre référent. Vous pouvez le coudre sur votre chemise !`,
     });
 
     return { success: true };

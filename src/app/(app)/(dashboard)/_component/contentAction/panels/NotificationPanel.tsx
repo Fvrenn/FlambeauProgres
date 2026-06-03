@@ -2,12 +2,14 @@
 
 import React, { useTransition } from "react";
 import { type Notification, TypeNotification } from "@prisma/client";
-import { Button, Chip } from "@heroui/react";
+import { Button } from "@heroui/react";
 import { Icon } from "@iconify/react";
+
 import {
   markAllNotificationsAsRead,
   markNotificationAsRead,
 } from "@/actions/notification/notification.actions";
+import { clickable } from "@/lib/a11y";
 
 type NotificationPanelProps = {
   notifications: Notification[];
@@ -72,13 +74,11 @@ export default function NotificationPanel({
         <h2 className="text-xl font-bold">Notifications</h2>
         {unreadCount > 0 && (
           <Button
+            isLoading={isPending}
             size="sm"
+            startContent={!isPending && <Icon icon="solar:check-read-linear" />}
             variant="flat"
             onPress={handleMarkAllAsRead}
-            isLoading={isPending}
-            startContent={
-              !isPending && <Icon icon="solar:check-read-linear" />
-            }
           >
             Tout marquer comme lu ({unreadCount})
           </Button>
@@ -87,11 +87,9 @@ export default function NotificationPanel({
 
       {notifications.length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center text-center text-default-500">
-          <Icon icon="solar:bell-off-linear" className="text-6xl mb-4" />
+          <Icon className="text-6xl mb-4" icon="solar:bell-off-linear" />
           <p className="font-semibold">Aucune notification</p>
-          <p className="text-sm">
-            Les nouvelles importantes apparaîtront ici.
-          </p>
+          <p className="text-sm">Les nouvelles importantes apparaîtront ici.</p>
         </div>
       ) : (
         <ul className="space-y-3">
@@ -99,6 +97,7 @@ export default function NotificationPanel({
             const config =
               NOTIFICATION_CONFIG[notif.type] ||
               NOTIFICATION_CONFIG.NOUVEAU_COMMENTAIRE;
+
             return (
               <li
                 key={notif.id}
@@ -107,12 +106,12 @@ export default function NotificationPanel({
                     ? "bg-default-50"
                     : "bg-primary-50 border border-primary-200"
                 }`}
-                onClick={() => onNotificationClick(notif)}
+                {...clickable(() => onNotificationClick(notif))}
               >
                 <div
                   className={`mt-1 w-8 h-8 flex-shrink-0 rounded-full flex items-center justify-center bg-${config.color}/10 text-${config.color}`}
                 >
-                  <Icon icon={config.icon} className="text-xl" />
+                  <Icon className="text-xl" icon={config.icon} />
                 </div>
                 <div className="flex-1">
                   <p className="font-semibold">{notif.titre}</p>
@@ -130,13 +129,16 @@ export default function NotificationPanel({
                 {!notif.lue && (
                   <Button
                     isIconOnly
+                    aria-label="Marquer comme lu"
+                    isLoading={isPending}
                     size="sm"
                     variant="light"
-                    aria-label="Marquer comme lu"
                     onPress={() => handleMarkOneAsRead(notif.id)}
-                    isLoading={isPending}
                   >
-                    <Icon icon="solar:check-circle-linear" className="text-xl" />
+                    <Icon
+                      className="text-xl"
+                      icon="solar:check-circle-linear"
+                    />
                   </Button>
                 )}
               </li>

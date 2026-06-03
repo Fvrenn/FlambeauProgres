@@ -1,6 +1,8 @@
 import React from "react";
-import prisma from "@/lib/prisma";
+
 import AssignationsClientPage from "./ClientPage";
+
+import prisma from "@/lib/prisma";
 
 export default async function AdminAssignationsPage() {
   const etapes = await prisma.etape.findMany({
@@ -25,5 +27,5 @@ export default async function AdminAssignationsPage() {
     },
   });
 
-  return <AssignationsClientPage etapes={etapes} allReferents={allReferents} />;
+  return <AssignationsClientPage allReferents={allReferents} etapes={etapes} />;
 }
