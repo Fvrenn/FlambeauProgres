@@ -3,7 +3,6 @@ import React from "react";
 import { Icon } from "@iconify/react";
 import { User as UserType, Justification, Fichier } from "@prisma/client";
 
-// Define local type for Fichier if needed or import
 type FichierAvecUrl = Fichier & { url: string };
 
 interface JustificationContentProps {
@@ -18,7 +17,6 @@ export default function JustificationContent({
 }: JustificationContentProps) {
   return (
     <div className="space-y-6">
-      {/* 1. Meta Info & Contenu Principal - Clean Look without heavy Cards */}
       <div className="space-y-5">
         <p className="text-xs font-semibold text-default-500 uppercase tracking-wider">
           Contenu de la justification
@@ -43,7 +41,6 @@ export default function JustificationContent({
         </div>
       </div>
 
-      {/* 2. Fichiers - Grid Layout for Images */}
       {justification.fichiers && justification.fichiers.length > 0 && (
         <div className="space-y-3">
           <p className="text-xs font-semibold text-default-500 uppercase tracking-wider flex items-center gap-2">
@@ -57,7 +54,6 @@ export default function JustificationContent({
                 key={fichier.id}
                 className="group relative flex flex-col overflow-hidden rounded-xl border border-default-200 bg-white hover:border-default-300 transition-colors"
               >
-                {/* Preview Area */}
                 <div className="relative aspect-video w-full bg-default-100 flex items-center justify-center overflow-hidden">
                   {fichier.mimeType.startsWith("image/") ? (
                     // eslint-disable-next-line @next/next/no-img-element -- fichier servi par la route authentifiée /api/files/[id] (no-store) : next/image le refetcherait sans session → 403
@@ -74,7 +70,6 @@ export default function JustificationContent({
                     />
                   )}
 
-                  {/* Overlay action */}
                   <a
                     className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100"
                     href={fichier.url}
@@ -91,7 +86,6 @@ export default function JustificationContent({
                   </a>
                 </div>
 
-                {/* Footer Info */}
                 <div className="p-3 flex items-center justify-between gap-2 bg-default-50/50">
                   <div className="min-w-0">
                     <p

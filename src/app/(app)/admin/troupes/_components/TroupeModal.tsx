@@ -35,8 +35,8 @@ type TroupeFormData = z.infer<typeof troupeSchema>;
 type TroupeModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  troupe?: AdminTroupeListItem | null; // If provided, edit mode
-  users?: AdminUserOption[]; // Keep for compatibility if passed, but unused for dropdown now
+  troupe?: AdminTroupeListItem | null;
+  users?: AdminUserOption[];
 };
 
 export default function TroupeModal({

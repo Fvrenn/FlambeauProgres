@@ -49,7 +49,7 @@ type EtapeFormData = z.infer<typeof etapeSchema>;
 type EtapeModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  etape?: AdminEtapeListItem | null; // If provided, edit mode (but objectives are managed separately in edit mode)
+  etape?: AdminEtapeListItem | null;
 };
 
 export default function EtapeModal({
@@ -87,12 +87,10 @@ export default function EtapeModal({
   React.useEffect(() => {
     if (isOpen) {
       if (etape) {
-        // In edit mode, we only edit the main etape info
         setValue("number", etape.number);
         setValue("name", etape.name);
         setValue("description", etape.description);
         setValue("ordre", etape.ordre);
-        // We don't load objectives here because they are managed in the detail view
         setValue("objectifs", []);
       } else {
         reset({
@@ -101,7 +99,6 @@ export default function EtapeModal({
           description: "",
           ordre: 1,
           objectifs: [
-            // Add one default objective to start with
             {
               code: "",
               description: "",

@@ -37,14 +37,12 @@ export default function ObjectifPanel({
     useState<ObjectifAvecJustification | null>(null);
   const [activeTab, setActiveTab] = useState<React.Key>("competence");
 
-  // Effect to switch tab when targetSubTab changes
   useEffect(() => {
     if (targetSubTab) {
       setActiveTab(targetSubTab);
     }
   }, [targetSubTab]);
 
-  // State pour le ChatPanel
   const {
     isOpen: isChatOpen,
     onOpen: onChatOpen,
@@ -233,10 +231,8 @@ export default function ObjectifPanel({
 
       <ChatPanel
         isOpen={isChatOpen}
-        onClose={onChatOpenChange}
-        // objectifId removed
         justificationId={selectedChatObjectif?.justifications[0]?.id || ""}
-        // initialCommentaires removed
+        onClose={onChatOpenChange}
       />
     </div>
   );

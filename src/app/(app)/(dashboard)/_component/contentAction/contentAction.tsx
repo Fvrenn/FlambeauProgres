@@ -40,7 +40,6 @@ export default function ContentAction({
         onUpdateJustification={onUpdateJustification}
       />
     ),
-    //TODO progression: <ProgressionPanel />,
     notification: (
       <NotificationPanel
         notifications={notifications}

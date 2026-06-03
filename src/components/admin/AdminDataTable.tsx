@@ -70,8 +70,6 @@ export default function AdminDataTable<T extends { id: string | number }>({
 
   const sortedItems = React.useMemo(() => {
     return [...items].sort((a, b) => {
-      // Cast volontaire : le tri générique repose sur la comparaison JS native,
-      // quel que soit le type réel de la colonne.
       const first = a[sortDescriptor.column as keyof T] as unknown as number;
       const second = b[sortDescriptor.column as keyof T] as unknown as number;
       const cmp = first < second ? -1 : first > second ? 1 : 0;

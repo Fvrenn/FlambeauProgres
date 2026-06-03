@@ -5,9 +5,6 @@ import { revalidatePath } from "next/cache";
 import { getUser } from "@/lib/auth-server";
 import { JustificationService } from "@/services/justification.service";
 
-/**
- * Valide une justification soumise par un Chef
- */
 export async function approveJustification(justificationId: string) {
   try {
     const user = await getUser();
@@ -35,9 +32,6 @@ export async function approveJustification(justificationId: string) {
   }
 }
 
-/**
- * Refuse une justification avec un motif
- */
 export async function rejectJustification(
   justificationId: string,
   motif: string,
@@ -69,9 +63,6 @@ export async function rejectJustification(
   }
 }
 
-/**
- * Demande des précisions sur une justification
- */
 export async function requestChanges(justificationId: string, motif: string) {
   try {
     const user = await getUser();

@@ -28,10 +28,6 @@ export default function DashboardClient({
 }: DashboardClientProps) {
   const [etapes, setEtapes] = useState<EtapeAvecObjectifs[]>(initialEtapes);
 
-  // Resynchronise l'état local quand le serveur renvoie de nouvelles données
-  // (ex. après un revalidatePath). Sans ça, useState(initialEtapes) figerait les
-  // étapes au montage et les mises à jour serveur seraient ignorées.
-  // Pattern officiel React : ajuster l'état pendant le rendu.
   const [lastInitialEtapes, setLastInitialEtapes] = useState(initialEtapes);
 
   if (initialEtapes !== lastInitialEtapes) {
@@ -54,8 +50,6 @@ export default function DashboardClient({
 
       setSelectedEtape(updatedSelectedEtape);
     }
-    // `selectedEtape` est volontairement hors des deps (seul son id compte) :
-    // l'ajouter créerait une boucle infinie puisqu'on appelle setSelectedEtape.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedEtape?.id, etapes]);
 

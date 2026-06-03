@@ -53,7 +53,6 @@ export default function DiscussionPanel({
               className="py-4 px-3 md:py-6 md:px-5 rounded-md flex flex-col md:flex-row items-start md:items-center cursor-pointer hover:bg-default-100 transition-colors gap-3 md:gap-0"
               {...clickable(() => onJustificationClick(justification))}
             >
-              {/* Chef Info */}
               <div className="flex items-center gap-3 w-full md:w-1/4">
                 <Avatar
                   className="w-8 h-8 md:w-10 md:h-10 text-tiny md:text-small"
@@ -71,7 +70,6 @@ export default function DiscussionPanel({
                 </div>
               </div>
 
-              {/* Objectif Info */}
               <div className="flex-1 flex items-center w-full md:w-auto mt-1 md:mt-0">
                 <span className="text-sm md:text-xl font-medium text-foreground border border-default-300 bg-white md:bg-transparent py-1 px-2 md:py-3 md:px-2.5 rounded-lg md:rounded-full md:w-12 md:h-12 flex items-center justify-center mr-3 md:mr-4 flex-shrink-0 shadow-sm md:shadow-none">
                   {justification.objectif.code}
@@ -86,7 +84,6 @@ export default function DiscussionPanel({
                 </div>
               </div>
 
-              {/* Status & Action */}
               <div className="flex items-center justify-between w-full md:w-auto md:ml-6 mt-1 md:mt-0">
                 <div className="flex items-center gap-2">
                   <Chip

@@ -22,7 +22,6 @@ export default function ChatList({
 }: ChatListProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom when comments change
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [comments]);

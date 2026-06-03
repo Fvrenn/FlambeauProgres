@@ -18,7 +18,6 @@ export const SidebarDrawer = ({
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-50 flex md:hidden">
-          {/* Backdrop */}
           <motion.div
             animate={{ opacity: 1 }}
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
@@ -28,7 +27,6 @@ export const SidebarDrawer = ({
             onClick={onClose}
           />
 
-          {/* Drawer Content */}
           <motion.div
             animate={{ x: 0 }}
             className="relative flex h-full w-72 max-w-[80vw] flex-col bg-background border-r-small border-divider z-10"

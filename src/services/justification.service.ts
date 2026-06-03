@@ -17,14 +17,10 @@ type FichierData = {
 };
 
 export class JustificationService {
-  /**
-   * Valide une justification et notifie le chef.
-   */
   static async approveJustification(
     justificationId: string,
     referentId: string,
   ): Promise<ServiceResult> {
-    // 1. Validation des droits et existence
     const justification = await prisma.justification.findUnique({
       where: { id: justificationId },
       include: {
@@ -58,7 +54,6 @@ export class JustificationService {
       },
     });
 
-    // 3. Notification (Side Effect)
     await NotificationService.createNotification({
       destinataireId: justification.chefId,
       justificationId: justificationId,
@@ -73,9 +68,6 @@ export class JustificationService {
     return { success: true };
   }
 
-  /**
-   * Refuse une justification, ajoute un commentaire et notifie le chef.
-   */
   static async rejectJustification(
     justificationId: string,
     referentId: string,
@@ -125,9 +117,6 @@ export class JustificationService {
     return { success: true };
   }
 
-  /**
-   * Demande des précisions (statut DEMANDE_PRECISION + Commentaire Question).
-   */
   static async requestChanges(
     justificationId: string,
     referentId: string,
@@ -177,9 +166,6 @@ export class JustificationService {
     return { success: true };
   }
 
-  /**
-   * Soumet (ou met à jour) une compétence en auto-validation pour un Chef.
-   */
   static async submitCompetence(
     chefId: string,
     objectifId: string,
@@ -222,10 +208,6 @@ export class JustificationService {
     return { success: true };
   }
 
-  /**
-   * Soumet (ou met à jour) une réalisation, attache un fichier éventuel,
-   * puis notifie les référents de l'étape.
-   */
   static async submitRealisation(input: {
     chefId: string;
     chefName: string;

@@ -8,10 +8,6 @@ import { CommentaireAvecAuteur } from "@/types";
 import { CommentService } from "@/services/comment.service";
 import { canAccessJustification } from "@/lib/auth-guards";
 
-/**
- * Récupère les commentaires d'une justification.
- * Utilisé pour le Lazy Loading du ChatPanel.
- */
 export async function getComments(justificationId: string) {
   try {
     const user = await getUser();

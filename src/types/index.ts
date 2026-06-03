@@ -20,10 +20,6 @@ export type JustificationAvecCommentaires = Justification & {
   commentaires?: CommentaireAvecAuteur[];
 };
 
-// --- Session (better-auth + customSession) ---
-// role/troupeId/etapesReferent sont optionnels car la session brute peut être
-// passée sans narrowing (cf. (dashboard)/layout.tsx).
-
 export type SessionUser = {
   id: string;
   name: string;
@@ -33,8 +29,6 @@ export type SessionUser = {
   troupeId?: string | null;
   etapesReferent?: { id: string; name: string; image_src: string | null }[];
 };
-
-// --- Payloads admin : forme exacte renvoyée par les requêtes Prisma des pages ---
 
 export type AdminUserWithTroupe = Prisma.UserGetPayload<{
   include: { troupe: true };

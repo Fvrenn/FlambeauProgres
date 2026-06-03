@@ -17,8 +17,6 @@ export default async function ReferentLayout({
     redirect("/dashboard");
   }
 
-  // --- MODIFICATION : Rendre le lien du tableau de bord dynamique ---
-
   let dashboardHref = "/referent/dashboard";
 
   if (user.etapesReferent && user.etapesReferent.length > 0) {
@@ -27,7 +25,7 @@ export default async function ReferentLayout({
 
   const sidebarItems: SidebarItem[] = [
     {
-      key: "referent", // <-- MODIFICATION ICI
+      key: "referent",
       href: dashboardHref,
       icon: "solar:checklist-minimalistic-linear",
       title: "Justifications à valider",

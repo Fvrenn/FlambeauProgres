@@ -2,7 +2,6 @@ import { PrismaClient } from "@prisma/client";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 
-// Initialisation du client Prisma
 const prisma = new PrismaClient();
 
 
@@ -11,7 +10,6 @@ const authForSeed = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
-  // Pas de plugin nextCookies() ici
 });
 
 
@@ -20,7 +18,6 @@ const defaultPassword = "password123";
 async function main() {
   console.log("Start seeding...");
 
-  // --- 1. Nettoyage de la base (dans le bon ordre) ---
   console.log("Cleaning database...");
   await prisma.etapeReferent.deleteMany();
   await prisma.notification.deleteMany();
@@ -60,7 +57,6 @@ async function main() {
     data: { role: "ADMIN" },
   });
 
-  // Un Chef
   const chef1Result = await authForSeed.api.signUpEmail({
     body: {
       email: "chef@flambeau.dev",
@@ -982,14 +978,14 @@ async function main() {
 await prisma.etapeReferent.create({
     data: {
       referentId: referent.id,
-      etapeId: etapeConstruction.id, // 'etapeConstruction' est le etape 2G
+      etapeId: etapeConstruction.id,
       assignePar: admin.id,
     },
   });
 await prisma.etapeReferent.create({
     data: {
       referentId: referent.id,
-      etapeId: etape2F.id, // 'etapeConstruction' est le etape 2G
+      etapeId: etape2F.id,
       assignePar: admin.id,
     },
   });

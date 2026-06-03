@@ -25,7 +25,6 @@ export default function DiscussionContent({
 }: DiscussionContentProps) {
   return (
     <div className="flex flex-col h-[500px] overflow-y-auto">
-      {/* Messages Scroll Area */}
       <div className="flex-1 overflow-y-auto px-1 py-2 space-y-4">
         {comments && comments.length > 0 ? (
           comments.map((commentaire) => (

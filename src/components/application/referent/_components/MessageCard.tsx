@@ -15,7 +15,6 @@ interface MessageCardProps {
   isOptimistic?: boolean;
 }
 
-// Configuration pour les types de commentaires
 const TYPE_CONFIG: Record<
   TypeCommentaire,
   { icon: string; label: string; color: "primary" | "secondary" | "warning" }
@@ -56,7 +55,6 @@ export default function MessageCard({
         isFromCurrentUser ? "flex-row-reverse" : "flex-row justify-start"
       }`}
     >
-      {/* Avatar */}
       <User
         avatarProps={{
           src: commentaire.auteur.image || undefined,
@@ -68,7 +66,6 @@ export default function MessageCard({
         name=""
       />
 
-      {/* Message bubble */}
       <div className={`flex-shrink max-w-md`}>
         <Card
           className={`${
@@ -76,7 +73,6 @@ export default function MessageCard({
           } ${isOptimistic ? "opacity-75" : ""}`}
         >
           <CardBody className="gap-2 p-3">
-            {/* Header : Nom + Type */}
             <div className="flex items-center justify-between gap-2">
               <p className="text-sm font-semibold">{commentaire.auteur.name}</p>
               <Chip
@@ -89,12 +85,10 @@ export default function MessageCard({
               </Chip>
             </div>
 
-            {/* Contenu du message */}
             <p className="text-sm text-default-700 break-words">
               {commentaire.contenu}
             </p>
 
-            {/* Timestamp */}
             <p className="text-xs text-default-500 mt-1">
               {new Date(commentaire.createdAt).toLocaleDateString("fr-FR", {
                 day: "2-digit",
@@ -105,7 +99,6 @@ export default function MessageCard({
               })}
             </p>
 
-            {/* Badge "En attente" si optimiste */}
             {isOptimistic && (
               <div className="flex items-center gap-1 text-xs text-default-500 mt-2">
                 <Icon icon="solar:clock-linear" width={12} />

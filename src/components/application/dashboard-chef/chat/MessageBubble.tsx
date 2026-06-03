@@ -18,7 +18,6 @@ export default function MessageBubble({ comment, isChef }: MessageBubbleProps) {
           isChef ? "flex-row-reverse" : "flex-row"
         }`}
       >
-        {/* Avatar */}
         <User
           avatarProps={{
             src: comment.auteur.image || undefined,
@@ -30,7 +29,6 @@ export default function MessageBubble({ comment, isChef }: MessageBubbleProps) {
           name=""
         />
 
-        {/* Message Bubble */}
         <Card
           className={`${
             isChef ? "bg-primary text-white" : "bg-default-100 text-default-900"

@@ -14,9 +14,6 @@ export type ServiceResult<T> =
   | { success: false; error: string };
 
 export class CommentService {
-  /**
-   * Adds a comment to a justification and handles side effects (notifications).
-   */
   static async addComment(
     input: AddCommentInput,
   ): Promise<ServiceResult<Commentaire>> {
@@ -27,7 +24,6 @@ export class CommentService {
     }
 
     try {
-      // 1. Validate existence and fetch context
       const justification = await prisma.justification.findUnique({
         where: { id: justificationId },
         include: {
@@ -42,11 +38,6 @@ export class CommentService {
       if (!justification) {
         return { success: false, error: "Justification non trouvée" };
       }
-
-      // Domain Logic: Auth check should ideally be passed in or verified here if conditional
-      // For now, we assume the caller checks general "can access" or we duplicate specific checks here if they are 'business rules'
-      // The original code checked:
-      // if (justification.chefId !== user.id) (for Chef Reply)
 
       if (type === "CHEF_REPONSE") {
         if (justification.chefId !== authorId) {
@@ -63,7 +54,6 @@ export class CommentService {
         }
       }
 
-      // 2. Create Comment
       const newCommentaire = await prisma.commentaire.create({
         data: {
           justificationId,
@@ -76,8 +66,6 @@ export class CommentService {
         },
       });
 
-      // 3. Handle Notifications (Side Effect)
-      // This could be moved to an Event Bus later
       await this.handleNotifications(justification, authorId, type, content);
 
       return { success: true, data: newCommentaire };
@@ -99,7 +87,6 @@ export class CommentService {
     type: string,
     content: string,
   ) {
-    // Logic moved from action
     if (type === "CHEF_REPONSE") {
       const etapeReferents = await prisma.etapeReferent.findMany({
         where: { etapeId: justification.objectif.etape.id },
@@ -112,7 +99,7 @@ export class CommentService {
           justificationId: justification.id,
           type: "NOUVEAU_COMMENTAIRE" as const,
           titre: "Nouveau commentaire du Chef",
-          message: "Un chef a répondu à votre demande de précisions.", // Simplification, fetching name requires extra query or passing it
+          message: "Un chef a répondu à votre demande de précisions.",
           lue: false,
         }));
 

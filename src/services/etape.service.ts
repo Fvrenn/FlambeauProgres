@@ -8,9 +8,6 @@ export type ServiceResult<T = void> = {
 };
 
 export class EtapeService {
-  /**
-   * Valide l'étape (badge) complète pour un chef.
-   */
   static async validateBadge(
     chefId: string,
     referentId: string,
@@ -35,7 +32,6 @@ export class EtapeService {
       };
     }
 
-    // Upsert du statut
     await prisma.chefEtapeStatut.upsert({
       where: {
         chefId_etapeId: {
@@ -57,7 +53,6 @@ export class EtapeService {
       },
     });
 
-    // Notification
     await NotificationService.createNotification({
       destinataireId: chefId,
       type: "ETAPE_COMPLETE",

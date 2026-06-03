@@ -39,12 +39,10 @@ export default function AssignationModal({
 }: AssignationModalProps) {
   const router = useRouter();
   const [pendingIds, setPendingIds] = React.useState<Set<string>>(new Set());
-  // Optimistic state to track assignments
   const [optimisticAssignments, setOptimisticAssignments] = React.useState<
     Set<string>
   >(new Set());
 
-  // Initialize optimistic state when modal opens or etape changes
   React.useEffect(() => {
     if (etape) {
       const assignedIds = new Set<string>(
@@ -55,7 +53,6 @@ export default function AssignationModal({
     }
   }, [etape]);
 
-  // Helper to check if a referent is assigned (using optimistic state)
   const isAssigned = (referentId: string) => {
     return optimisticAssignments.has(referentId);
   };
@@ -63,7 +60,6 @@ export default function AssignationModal({
   const handleToggle = async (referentId: string, isSelected: boolean) => {
     setPendingIds((prev) => new Set(prev).add(referentId));
 
-    // Optimistic update
     setOptimisticAssignments((prev) => {
       const next = new Set(prev);
 
@@ -85,7 +81,6 @@ export default function AssignationModal({
       router.refresh();
     } catch (error) {
       console.error("Failed to toggle referent", error);
-      // Revert optimistic update on error
       setOptimisticAssignments((prev) => {
         const next = new Set(prev);
 

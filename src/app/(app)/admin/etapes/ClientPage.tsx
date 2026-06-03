@@ -121,7 +121,6 @@ export default function EtapesClientPage({ etapes }: EtapesClientPageProps) {
         </Button>
       </div>
 
-      {/* Desktop Table View */}
       <div className="hidden sm:block">
         <AdminDataTable
           columns={columns}
@@ -131,7 +130,6 @@ export default function EtapesClientPage({ etapes }: EtapesClientPageProps) {
         />
       </div>
 
-      {/* Mobile Card View */}
       <div className="flex flex-col gap-3 sm:hidden">
         {etapes.map((etape) => (
           <Card

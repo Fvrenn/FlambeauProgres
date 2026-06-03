@@ -65,9 +65,10 @@ export default function LoginForm() {
       <div className="flex flex-col items-center pb-6">
         <Image
           alt="Logo Flambeau Progrès"
-          height={60}
+          className="h-auto w-[60px]"
+          height={68}
           src={FlambeauProgres}
-          width={60}
+          width={50}
         />
         <p className="text-xl font-medium">Se connecter</p>
         <p className="text-small text-default-500">

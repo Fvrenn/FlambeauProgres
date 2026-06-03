@@ -3,7 +3,6 @@
 import type { SessionUser } from "@/types";
 
 import React from "react";
-// --- 1. IMPORTER useSearchParams ---
 import { usePathname, useSearchParams } from "next/navigation";
 import {
   Dropdown,
@@ -15,7 +14,7 @@ import {
   Button,
 } from "@heroui/react";
 import Link from "next/link";
-import Image from "next/image"; // <-- 1. IMPORTER LE COMPOSANT IMAGE
+import Image from "next/image";
 import { redirect } from "next/navigation";
 
 import { signOut } from "@/lib/auth-client";
@@ -132,10 +131,6 @@ const DeconnexionIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-// ... imports
-
-// ... icons
-
 export default function ContextSwitcher({
   user,
   isCompact,
@@ -248,7 +243,6 @@ export default function ContextSwitcher({
               className="h-auto justify-between gap-3 rounded-xl border-1 border-divider bg-default-100 p-2"
               endContent={<DropdownIcon />}
             >
-              {/* --- 3. AJOUTER LE BADGE ET METTRE À JOUR LE TEXTE --- */}
               <div className="flex w-full items-center gap-2">
                 {currentEtape?.image_src && (
                   <Image

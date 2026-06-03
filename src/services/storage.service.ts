@@ -1,10 +1,6 @@
 import path from "path";
 import { writeFile, mkdir } from "fs/promises";
 
-/**
- * Types MIME autorisés à l'upload. Volontairement restrictif :
- * PAS de SVG ni de HTML (vecteurs classiques de XSS stocké).
- */
 const ALLOWED_MIME_TYPES = new Set<string>([
   "image/jpeg",
   "image/png",
@@ -15,30 +11,17 @@ const ALLOWED_MIME_TYPES = new Set<string>([
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 ]);
 
-/** Taille maximale d'un fichier (8 Mo). */
 const MAX_FILE_SIZE = 8 * 1024 * 1024;
 
-/**
- * Dossier de stockage PRIVÉ, hors de /public (donc NON servi publiquement).
- * Configurable via la variable d'environnement UPLOAD_DIR
- * (ex. sur un VPS : /var/data/flambeau/uploads).
- * Par défaut : <racine du projet>/uploads
- */
 const UPLOAD_DIR =
   process.env.UPLOAD_DIR || path.join(process.cwd(), "uploads");
 
 export interface StoredFile {
-  /** Chemin relatif "dossier/nom-de-fichier" — à stocker en base. */
   storedPath: string;
-  /** Nom de fichier unique généré sur le disque. */
   fileName: string;
 }
 
 export class StorageService {
-  /**
-   * Valide le type MIME et la taille AVANT toute écriture.
-   * Lève une Error explicite (remontée à l'utilisateur par l'action).
-   */
   static validate(file: File): void {
     if (!file) {
       throw new Error("Aucun fichier fourni");
@@ -55,11 +38,6 @@ export class StorageService {
     }
   }
 
-  /**
-   * Écrit le fichier dans UPLOAD_DIR/<folder> et renvoie son chemin relatif
-   * (à stocker en base). Le fichier n'est PAS accessible publiquement : il se
-   * sert via la route authentifiée /api/files/[id].
-   */
   static async uploadFile(file: File, folder = "uploads"): Promise<StoredFile> {
     this.validate(file);
 
@@ -90,10 +68,6 @@ export class StorageService {
     };
   }
 
-  /**
-   * Résout un chemin relatif stocké en base vers un chemin absolu sur disque,
-   * en garantissant qu'il reste DANS UPLOAD_DIR (protection path traversal).
-   */
   static resolvePath(storedPath: string): string {
     const baseDir = path.resolve(UPLOAD_DIR);
     const relative = storedPath.replace(/^[/\\]+/, "");

@@ -85,7 +85,6 @@ export default function JustificationModal({
           </div>
         </ModalHeader>
         <ModalBody>
-          {/* Informations du Chef */}
           <div className="space-y-4">
             <div>
               <p className="text-sm text-default-500 mb-2">Soumis par</p>
@@ -99,7 +98,6 @@ export default function JustificationModal({
               />
             </div>
 
-            {/* Objectif concerné */}
             <div>
               <p className="text-sm text-default-500 mb-2">Objectif</p>
               <div className="rounded-lg bg-default-100 p-3">
@@ -112,7 +110,6 @@ export default function JustificationModal({
               </div>
             </div>
 
-            {/* Date de soumission */}
             {justification.soumiseAt && (
               <div>
                 <p className="text-sm text-default-500 mb-2">
@@ -133,7 +130,6 @@ export default function JustificationModal({
               </div>
             )}
 
-            {/* Contenu de la justification */}
             <div>
               <p className="text-sm text-default-500 mb-2">Description</p>
               <div className="rounded-lg bg-default-100 p-3">
@@ -143,7 +139,6 @@ export default function JustificationModal({
               </div>
             </div>
 
-            {/* Fichier attaché (si présent) */}
             {justification.objectif.fichiersRequis && (
               <div>
                 <p className="text-sm text-default-500 mb-2">Fichier joint</p>
@@ -172,7 +167,6 @@ export default function JustificationModal({
             )}
           </div>
 
-          {/* Formulaire de refus (conditionnel) */}
           {showRejectForm && (
             <div className="mt-4">
               <Textarea

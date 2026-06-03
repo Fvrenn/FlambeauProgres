@@ -126,7 +126,7 @@ export default function EtapeDetailClientPage({
       }
     },
     [etape.id, router],
-  ); // Added dependencies
+  );
 
   return (
     <div className="flex flex-col gap-6">
@@ -136,7 +136,6 @@ export default function EtapeDetailClientPage({
       </Breadcrumbs>
 
       <div className="flex flex-col md:flex-row gap-6 items-start">
-        {/* Badge Management Panel */}
         <div className="w-full md:w-1/3 flex flex-col gap-4 p-4 border-small border-divider rounded-large bg-content1 shadow-small">
           <h2 className="text-lg font-bold">Badge de l'étape</h2>
           <div className="flex justify-center py-4">
@@ -173,7 +172,6 @@ export default function EtapeDetailClientPage({
           </Button>
         </div>
 
-        {/* Objectifs Management Panel */}
         <div className="w-full md:w-2/3 flex flex-col gap-4">
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-bold">

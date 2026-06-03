@@ -22,7 +22,6 @@ interface ChatPanelProps {
   isOpen: boolean;
   onClose: () => void;
   justificationId?: string;
-  // initialCommentaires is removed as we load them lazily now
 }
 
 export default function ChatPanel({
@@ -33,12 +32,10 @@ export default function ChatPanel({
   const { data: session } = useSession();
   const currentUserId = session?.user?.id;
 
-  // Local state for real comments
   const [comments, setComments] = useState<CommentaireAvecAuteur[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Optimistic state
   const [optimisticComments, addOptimisticComment] = useOptimistic(
     comments,
     (state: CommentaireAvecAuteur[], newComment: CommentaireAvecAuteur) => [
@@ -47,10 +44,6 @@ export default function ChatPanel({
     ],
   );
 
-  // Lazy load comments when drawer opens.
-  // `getComments` est une Server Action : on ne peut pas l'abort comme un fetch,
-  // donc on ignore son résultat si l'effet a été nettoyé entre-temps (drawer
-  // refermé ou justification changée) → évite les race conditions.
   useEffect(() => {
     if (!isOpen || !justificationId) return;
 
@@ -83,7 +76,6 @@ export default function ChatPanel({
   const handleSendMessage = async (text: string) => {
     if (!justificationId || !currentUserId || !session?.user) return;
 
-    // Create optimistic comment
     const optimisticComment: CommentaireAvecAuteur = {
       id: `temp-${Date.now()}`,
       justificationId,
@@ -91,30 +83,18 @@ export default function ChatPanel({
       contenu: text,
       type: "CHEF_REPONSE",
       createdAt: new Date(),
-      // updatedAt removed as it's not in the schema
       auteur: session.user as UserType,
       isPending: true,
     };
 
     addOptimisticComment(optimisticComment);
 
-    // Call server action
     const result = await submitComment(justificationId, text);
 
     if (result.success && result.data) {
-      // Update local state with the real comment from server
-      // We append it to the existing comments.
-      // Note: In a real-time app, we'd want to merge carefully or re-fetch,
-      // but appending is fine for this simple case.
       setComments((prev) => [...prev, result.data as CommentaireAvecAuteur]);
     } else {
       setError(result.error || "Erreur lors de l'envoi");
-      // Ideally we would roll back the optimistic update here,
-      // but useOptimistic handles the temporary state automatically
-      // (it only exists for the duration of the transition/action).
-      // However, since we are updating `comments` state on success,
-      // if we fail, `comments` won't update, so the optimistic one will just disappear.
-      // We might want to show an error toast.
     }
   };
 
@@ -127,7 +107,6 @@ export default function ChatPanel({
       onClose={onClose}
     >
       <DrawerContent className="flex flex-col h-full">
-        {/* HEADER */}
         <DrawerHeader className="flex flex-col gap-1 border-b border-divider">
           <div className="flex items-center justify-between">
             <div>
@@ -142,7 +121,6 @@ export default function ChatPanel({
           </div>
         </DrawerHeader>
 
-        {/* BODY - Messages */}
         <DrawerBody className="flex-1 overflow-y-auto py-0 px-0">
           <ChatList
             comments={optimisticComments}
@@ -152,7 +130,6 @@ export default function ChatPanel({
           />
         </DrawerBody>
 
-        {/* FOOTER - Input */}
         <DrawerFooter className="flex flex-col gap-3 border-t border-divider">
           <ChatInput
             disabled={!justificationId || isLoading}

@@ -13,7 +13,6 @@ import { Icon } from "@iconify/react";
 import { cn } from "@heroui/react";
 import "./sidebar.css";
 
-// CHANGEMENT 1: Remplacer l'enum par un type
 export type SidebarItemType = "nest";
 
 export type SidebarItem = {
@@ -89,7 +88,6 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
           item.items && item.items?.length > 0 && item?.type === "nest";
 
         if (isNestType) {
-          // Is a nest type item , so we need to remove the href
           delete item.href;
         }
 
@@ -128,9 +126,6 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
             }
             title={isCompact || isNestType ? null : item.title}
           >
-            {/* DEBUT DE LA CORRECTION : 
-    Fusionner les deux blocs en une seule expression ternaire.
-  */}
             {isCompact ? (
               <Tooltip content={item.title} placement="right">
                 <div className="flex w-full items-center justify-center">
@@ -184,6 +179,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                 >
                   {item.items && item.items?.length > 0 ? (
                     <Listbox
+                      aria-label={item.title}
                       className={"mt-0.5"}
                       classNames={{
                         list: cn("border-l border-[#c0c0b8] pl-4 test"),
@@ -202,7 +198,6 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                 </AccordionItem>
               </Accordion>
             ) : null}
-            {/* FIN DE LA CORRECTION */}
           </ListboxItem>
         );
       },
@@ -292,6 +287,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
         key={isCompact ? "compact" : "default"}
         ref={ref}
         hideSelectedIcon
+        aria-label="Navigation principale"
         as="nav"
         className={cn("list-none", className)}
         classNames={{

@@ -3,9 +3,6 @@ import { type TypeNotification } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 export class NotificationService {
-  /**
-   * Crée une notification pour un utilisateur spécifique.
-   */
   static async createNotification(data: {
     destinataireId: string;
     justificationId?: string;
@@ -25,9 +22,6 @@ export class NotificationService {
     });
   }
 
-  /**
-   * Toutes les notifications d'un utilisateur (avec le lien vers la justification).
-   */
   static async getForUser(userId: string) {
     return prisma.notification.findMany({
       where: { destinataireId: userId },
@@ -43,9 +37,6 @@ export class NotificationService {
     });
   }
 
-  /**
-   * Marque UNE notification comme lue, scopée au destinataire (pas d'IDOR).
-   */
   static async markAsRead(notificationId: string, userId: string) {
     await prisma.notification.updateMany({
       where: { id: notificationId, destinataireId: userId },
@@ -53,9 +44,6 @@ export class NotificationService {
     });
   }
 
-  /**
-   * Marque toutes les notifications non lues d'un utilisateur comme lues.
-   */
   static async markAllAsRead(userId: string) {
     await prisma.notification.updateMany({
       where: { destinataireId: userId, lue: false },
@@ -63,9 +51,6 @@ export class NotificationService {
     });
   }
 
-  /**
-   * Marque comme lues les notifications de discussion liées à une justification.
-   */
   static async markAsReadForJustification(
     userId: string,
     justificationId: string,
@@ -81,9 +66,6 @@ export class NotificationService {
     });
   }
 
-  /**
-   * Notifie tous les référents d'une étape qu'une nouvelle réalisation est à valider.
-   */
   static async notifyReferentsOfNewJustification(
     etapeId: string,
     justificationId: string,

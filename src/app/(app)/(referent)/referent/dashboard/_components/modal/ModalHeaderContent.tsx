@@ -15,7 +15,6 @@ export default function ModalHeaderContent({
   return (
     <div className="flex flex-col gap-4 pb-2">
       <div className="flex flex-col md:flex-row md:items-center gap-4">
-        {/* User Info */}
         <div className="flex-shrink-0">
           <User
             avatarProps={{
@@ -36,7 +35,6 @@ export default function ModalHeaderContent({
 
         <div className="hidden md:block w-px h-10 bg-divider mx-2" />
 
-        {/* Objectif Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary text-xs font-bold ring-2 ring-primary/20">

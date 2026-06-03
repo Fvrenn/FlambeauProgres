@@ -34,7 +34,6 @@ export default function RevisionClient({
 }: RevisionClientProps) {
   return (
     <div className="h-full max-h-screen flex flex-col md:overflow-hidden bg-background">
-      {/* Header */}
       <div className="flex-shrink-0 px-4 pt-4 md:px-0 md:pt-0">
         <div className="flex items-center gap-2 text-default-500 mb-4 md:mb-6">
           <Button
@@ -87,7 +86,6 @@ export default function RevisionClient({
 
       <Divider className="my-6" />
 
-      {/* Content */}
       <div className="flex-1 overflow-y-auto px-4 md:px-0 md:pr-2 pb-24 md:pb-4 space-y-4 scrollbar-hide">
         <div className="flex items-center gap-2 mb-2">
           <Icon
@@ -125,7 +123,6 @@ export default function RevisionClient({
         </div>
       </div>
 
-      {/* Footer / Sticky Action */}
       <div className="flex-shrink-0 md:relative fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-md md:bg-transparent border-t md:border-t-0 border-default-200 z-50">
         <div className="flex items-center justify-between gap-4 md:bg-content1 md:p-4 md:rounded-2xl md:border md:border-default-200">
           <div className="hidden md:flex flex-col">

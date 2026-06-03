@@ -30,7 +30,6 @@ export default function TabsContentAction({
         onSelectionChange={onSelectionChange}
       >
         <Tab key="objectif" title="Objectif" />
-        {/*TODO <Tab key="progression" title="Progression"></Tab> */}
         <Tab
           key="notification"
           title={

@@ -7,14 +7,8 @@ import { getUser } from "@/lib/auth-server";
 import { canAccessJustification } from "@/lib/auth-guards";
 import { StorageService } from "@/services/storage.service";
 
-// Lecture du système de fichiers → runtime Node.js obligatoire.
 export const runtime = "nodejs";
 
-/**
- * Sert un fichier de justification de façon AUTHENTIFIÉE.
- * Seuls le Chef propriétaire ou un Référent assigné à l'étape peuvent y accéder.
- * Remplace l'ancien accès public via /public.
- */
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -73,9 +67,7 @@ export async function GET(
       headers: {
         "Content-Type": fichier.mimeType || "application/octet-stream",
         "Content-Disposition": `inline; filename="${safeName}"`,
-        // Empêche le navigateur de "renifler" le type → neutralise un fichier piégé.
         "X-Content-Type-Options": "nosniff",
-        // Contenu sensible (RGPD) : pas de cache partagé.
         "Cache-Control": "private, no-store",
       },
     });

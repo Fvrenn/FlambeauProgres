@@ -59,7 +59,6 @@ export default function UserModal({
     },
   });
 
-  // Update form when user changes
   React.useEffect(() => {
     if (user) {
       setValue("role", user.role);
@@ -70,7 +69,6 @@ export default function UserModal({
   const onSubmit = async (data: UserFormData) => {
     setIsPending(true);
     try {
-      // Execute both updates
       await Promise.all([
         updateUserRole(user.id, data.role),
         updateUserTroupe(user.id, data.troupeId),

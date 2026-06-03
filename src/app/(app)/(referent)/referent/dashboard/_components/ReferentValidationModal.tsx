@@ -38,8 +38,6 @@ import {
 } from "@/actions/justification/justification.actions";
 import { markNotificationsAsReadForJustification } from "@/actions/notification/notification.actions";
 
-// Sub-components
-
 type FichierAvecUrl = Fichier & {
   url: string;
 };
@@ -71,14 +69,12 @@ export default function ReferentValidationModal({
   const currentUserId = session?.user?.id;
   const [isPending, startTransition] = useTransition();
 
-  // State
   const [motif, setMotif] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedTab, setSelectedTab] = useState<
     "justification" | "discussion"
   >(defaultTab);
 
-  // Comments State
   const [localCommentaires, setLocalCommentaires] = useState(
     justification?.commentaires || [],
   );
@@ -90,18 +86,15 @@ export default function ReferentValidationModal({
     ],
   );
 
-  // Sync state when justification changes
   useEffect(() => {
     if (justification?.commentaires) {
       setLocalCommentaires(justification.commentaires);
     }
-    // Reset tab when opening new modal
     if (isOpen) {
       setSelectedTab(defaultTab);
     }
   }, [justification, isOpen, defaultTab]);
 
-  // Mark Read Logic
   useEffect(() => {
     if (isOpen && defaultTab === "discussion" && justification) {
       startTransition(async () => {
@@ -174,7 +167,7 @@ export default function ReferentValidationModal({
 
         if (!result.success) {
           alert(result.error);
-          setMotif(textToSend); // Restore on error
+          setMotif(textToSend);
 
           return;
         }
@@ -200,7 +193,6 @@ export default function ReferentValidationModal({
       onOpenChange={onOpenChange}
     >
       <ModalContent>
-        {/* Header - Simplified & Mobile First */}
         <ModalHeader className="flex flex-col gap-4">
           <div className="flex gap-4 items-center">
             <div className="flex items-center gap-3">
@@ -222,7 +214,6 @@ export default function ReferentValidationModal({
                 }
               />
             </div>
-            {/* Status / Code Badge & Close Button */}
             <div className="flex flex-col items-end gap-2">
               <span className="px-2.5 py-1 rounded-full bg-default-100 border border-default-200 text-xs font-bold text-default-700">
                 {justification.objectif.code}
@@ -230,14 +221,12 @@ export default function ReferentValidationModal({
             </div>
           </div>
 
-          {/* Objectif Description */}
           <div className="bg-default p-3 rounded-xl border border-default-100">
             <p className="text-sm text-default-600 line-clamp-2 leading-relaxed">
               {justification.objectif.description}
             </p>
           </div>
 
-          {/* Navigation - Pill Style like Mockup */}
           <Tabs
             aria-label="Mode d'affichage"
             classNames={{

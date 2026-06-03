@@ -58,8 +58,6 @@ export default function ContentChemise({
         <ChemiseModel selectedBadge={selectedEtape?.number} />
       </div>
 
-      {/* Render ContentAction for mobile only */}
-
       <div className=" md:bg-default w-full h-2/4 rounded-3xl border md:p-7 border-[#F0EFE7]">
         <div className="md:grid md:grid-cols-3 md:gap-4 gap-2 place-items-center flex overflow-x-auto md:px-4 px-0 mt-[-80px] md:mt-0 overflow-y-hidden py-2">
           {etapes.map((etape) => (

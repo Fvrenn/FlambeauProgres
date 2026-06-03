@@ -3,14 +3,6 @@ import { UserRole } from "@prisma/client";
 import { getUser } from "@/lib/auth-server";
 import prisma from "@/lib/prisma";
 
-/**
- * Renvoie l'utilisateur authentifié S'IL possède l'un des rôles demandés, sinon `null`.
- *
- * À appeler en PREMIÈRE ligne de chaque Server Action privilégiée : le `middleware`
- * et les `layout` ne protègent QUE le rendu des pages. Une Server Action est un
- * endpoint POST public — sans ce garde, n'importe quel utilisateur connecté peut
- * l'invoquer directement.
- */
 export async function authorizeRole(...roles: UserRole[]) {
   const user = await getUser();
 
@@ -21,10 +13,6 @@ export async function authorizeRole(...roles: UserRole[]) {
   return user;
 }
 
-/**
- * Indique si l'utilisateur a le droit de lire/écrire la justification donnée :
- * soit il en est le Chef propriétaire, soit il est Référent assigné à son Étape.
- */
 export async function canAccessJustification(
   userId: string,
   role: UserRole | undefined,

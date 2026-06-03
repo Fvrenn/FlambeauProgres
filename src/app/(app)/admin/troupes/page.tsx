@@ -8,7 +8,7 @@ export default async function AdminTroupesPage() {
   const troupes = await prisma.troupe.findMany({
     include: {
       membres: {
-        take: 5, // Limit members fetched for display
+        take: 5,
         select: {
           id: true,
           name: true,
@@ -25,8 +25,6 @@ export default async function AdminTroupesPage() {
     },
   });
 
-  // Fetch users to populate the "Assign Chef" select
-  // We might want to filter this list in a real app, but for now fetch all
   const users = await prisma.user.findMany({
     select: {
       id: true,

@@ -26,16 +26,15 @@ export const SidebarContent = ({
     <div
       className={`flex h-full w-full flex-col ${isCompact ? "p-2 items-center" : "p-6"}`}
     >
-      {/* Logo */}
       <div
         className={`flex items-center gap-2 ${isCompact ? "justify-center" : "px-2"}`}
       >
         <Image
           alt="Flambeau Progrès Logo"
-          className="rounded-full"
-          height={isCompact ? 53 : 67}
+          className={`rounded-full h-auto ${isCompact ? "w-10" : "w-[50px]"}`}
+          height={68}
           src="/logo/logo-flambeau-progres.svg"
-          width={isCompact ? 40 : 50}
+          width={50}
         />
         {!isCompact && (
           <span className="text-2xl font-medium text-[#E06511] leading-7">
@@ -46,10 +45,8 @@ export const SidebarContent = ({
 
       <Spacer y={8} />
 
-      {/* ContextSwitcher */}
       <ContextSwitcher isCompact={isCompact} user={user} />
 
-      {/* Sidebar List */}
       <ScrollShadow
         className={`-mr-6 h-full max-h-full py-6 pr-6 ${isCompact ? "w-full" : ""}`}
       >

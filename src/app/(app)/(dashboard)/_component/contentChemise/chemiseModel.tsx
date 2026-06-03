@@ -25,7 +25,6 @@ const LIGHTING_CONFIG = {
   },
 };
 
-// Configuration des animations
 const ANIMATION_CONFIG = {
   selected: {
     rotation: [0.1, -1.4, 0] as [number, number, number],
@@ -55,7 +54,6 @@ function ChemiseGLB({ selectedBadge }: { selectedBadge?: string | null }) {
   const { scene } = useGLTF("/chemise/chemise.glb");
   const meshRef = useRef<THREE.Group>(null);
 
-  // Animation de rotation, scale et position
   useFrame((state, delta) => {
     if (!meshRef.current) return;
 
@@ -65,7 +63,6 @@ function ChemiseGLB({ selectedBadge }: { selectedBadge?: string | null }) {
       : ANIMATION_CONFIG.default;
     const lerpFactor = delta * ANIMATION_CONFIG.lerpSpeed;
 
-    // Rotation
     meshRef.current.rotation.x = THREE.MathUtils.lerp(
       meshRef.current.rotation.x,
       target.rotation[0],
@@ -82,7 +79,6 @@ function ChemiseGLB({ selectedBadge }: { selectedBadge?: string | null }) {
       lerpFactor,
     );
 
-    // Scale
     const newScale = THREE.MathUtils.lerp(
       meshRef.current.scale.x,
       target.scale,
@@ -91,7 +87,6 @@ function ChemiseGLB({ selectedBadge }: { selectedBadge?: string | null }) {
 
     meshRef.current.scale.set(newScale, newScale, newScale);
 
-    // Position
     meshRef.current.position.x = THREE.MathUtils.lerp(
       meshRef.current.position.x,
       target.position[0],
@@ -119,7 +114,6 @@ function ChemiseGLB({ selectedBadge }: { selectedBadge?: string | null }) {
     });
   }, [scene]);
 
-  // Gestion des badges : grisage et mise en surbrillance
   useLayoutEffect(() => {
     scene.traverse((obj: any) => {
       if (obj.type === "Group" && obj.name.startsWith("badge_")) {

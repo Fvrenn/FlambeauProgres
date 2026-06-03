@@ -4,7 +4,7 @@ import { type User } from "@prisma/client";
 import ReferentDashboardClientV2 from "./ReferentDashboardClientV2";
 
 import { getUser } from "@/lib/auth-server";
-import prisma from "@/lib/prisma"; // Assurez-vous d'importer votre client Prisma
+import prisma from "@/lib/prisma";
 
 type ReferentDashboardPageProps = {
   searchParams: Promise<{
@@ -15,7 +15,6 @@ type ReferentDashboardPageProps = {
 export default async function ReferentDashboardPage({
   searchParams,
 }: ReferentDashboardPageProps) {
-  // Avec Next.js 15, searchParams est une Promise
   const params = await searchParams;
   const etapeId = params.etapeId;
 
@@ -53,7 +52,6 @@ export default async function ReferentDashboardPage({
     },
   });
 
-  // 3. Filtrer pour trouver les chefs ayant 100%
   const chefsCompletsIds = [];
 
   for (const chef of chefsProgress) {
@@ -88,7 +86,7 @@ export default async function ReferentDashboardPage({
     where: {
       etapeId: etapeId,
       statut: "VALIDE",
-      chefId: { in: chefsCompletsIds }, // On ne cherche que parmi les chefs complets
+      chefId: { in: chefsCompletsIds },
     },
     select: {
       chefId: true,
@@ -110,8 +108,6 @@ export default async function ReferentDashboardPage({
     });
   }
 
-  // --- FIN DE LA MODIFICATION ---
-
   const user = await getUser();
 
   if (!user || !("role" in user) || user.role !== "REFERENT") {
@@ -121,7 +117,7 @@ export default async function ReferentDashboardPage({
   const rawJustificationsAValider = await prisma.justification.findMany({
     where: {
       etapeId: etapeId,
-      statut: "SOUMISE", // ou un autre statut pertinent
+      statut: "SOUMISE",
     },
     include: {
       chef: true,
@@ -134,7 +130,7 @@ export default async function ReferentDashboardPage({
           createdAt: "asc",
         },
       },
-      fichiers: true, // <--- AJOUTEZ CETTE LIGNE pour inclure les fichiers
+      fichiers: true,
     },
     orderBy: {
       soumiseAt: "asc",
@@ -168,7 +164,7 @@ export default async function ReferentDashboardPage({
           createdAt: "asc",
         },
       },
-      fichiers: true, // <--- AJOUTEZ CETTE LIGNE
+      fichiers: true,
       _count: {
         select: {
           notifications: {

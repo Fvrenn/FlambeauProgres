@@ -112,7 +112,6 @@ export default function UsersClientPage({
         <h1 className="text-2xl font-bold">Gestion des Utilisateurs</h1>
       </div>
 
-      {/* Desktop Table View */}
       <div className="hidden sm:block">
         <AdminDataTable
           columns={columns}
@@ -122,7 +121,6 @@ export default function UsersClientPage({
         />
       </div>
 
-      {/* Mobile Card View */}
       <div className="flex flex-col gap-3 sm:hidden">
         {users.map((user) => (
           <Card

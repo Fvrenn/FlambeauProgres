@@ -24,7 +24,6 @@ export default function TroupesClientPage({
   );
   const [isModalOpen, setIsModalOpen] = React.useState(false);
 
-  // Derive selectedTroupe from the fresh props
   const selectedTroupe = React.useMemo(() => {
     return selectedTroupeId
       ? troupes.find((t) => t.id === selectedTroupeId)
@@ -41,7 +40,6 @@ export default function TroupesClientPage({
     setIsModalOpen(true);
   };
 
-  /* Helper to filter troupes based on search */
   const [searchTerm, setSearchTerm] = React.useState("");
 
   const filteredTroupes = React.useMemo(() => {

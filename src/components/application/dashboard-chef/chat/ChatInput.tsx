@@ -18,15 +18,14 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
 
     const textToSend = message;
 
-    setMessage(""); // Clear immediately for better UX
+    setMessage("");
 
     startTransition(async () => {
       try {
         await onSend(textToSend);
       } catch (error) {
-        // In a real app, you might want to restore the message or show a toast
         console.error("Failed to send message", error);
-        setMessage(textToSend); // Restore on failure
+        setMessage(textToSend);
       }
     });
   };
@@ -52,7 +51,7 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
       />
       <Button
         isIconOnly
-        className="mb-[2px]" // Align with textarea bottom
+        className="mb-[2px]"
         color="primary"
         disabled={!message.trim() || disabled || isPending}
         isLoading={isPending}

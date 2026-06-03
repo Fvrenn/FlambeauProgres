@@ -111,7 +111,6 @@ export default function ObjectifModal({
       }
 
       if (result.success) {
-        // Fermer la modal
         onOpenChange();
 
         router.refresh();
@@ -120,7 +119,6 @@ export default function ObjectifModal({
         setSelectedFile(null);
         setFilePreview(null);
       } else {
-        // Pour l'instant, on affiche juste l'erreur
         alert(result.error || "Une erreur est survenue");
       }
     } catch (error) {

@@ -7,8 +7,6 @@ import { UserRole } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import { authorizeRole } from "@/lib/auth-guards";
 
-// --- VALIDATION SCHEMAS ---
-
 const idSchema = z.string().min(1);
 
 const objectifInputSchema = z.object({
@@ -28,8 +26,6 @@ const etapeInfoSchema = z.object({
 const createEtapeSchema = etapeInfoSchema.extend({
   objectifs: z.array(objectifInputSchema).max(100),
 });
-
-// --- USERS ---
 
 export async function updateUserRole(userId: string, role: UserRole) {
   if (!(await authorizeRole("ADMIN"))) {
@@ -93,8 +89,6 @@ export async function updateUserTroupe(
   }
 }
 
-// --- TROUPES ---
-
 export async function createTroupe(name: string, chefId?: string) {
   if (!(await authorizeRole("ADMIN"))) {
     return { success: false, error: "Non autorisé" };
@@ -109,7 +103,6 @@ export async function createTroupe(name: string, chefId?: string) {
   }
 
   try {
-    // Transaction to create troupe and assign chef if provided
     await prisma.$transaction(async (tx) => {
       const troupe = await tx.troupe.create({
         data: { nom: parsed.data.name },
@@ -162,7 +155,6 @@ export async function updateTroupe(
       });
 
       if (parsed.data.chefId) {
-        // For now, we just add the user to the troupe
         await tx.user.update({
           where: { id: parsed.data.chefId },
           data: { troupeId: parsed.data.troupeId },
@@ -179,8 +171,6 @@ export async function updateTroupe(
     return { success: false, error: "Échec de la mise à jour de la troupe" };
   }
 }
-
-// --- ASSIGNATIONS (REFERENTS <-> ETAPES) ---
 
 export async function assignReferentToEtape(
   referentId: string,
@@ -251,8 +241,6 @@ export async function removeReferentFromEtape(
     return { success: false, error: "Échec du retrait du référent" };
   }
 }
-
-// --- ETAPES ---
 
 export async function createEtape(data: {
   number: string;
@@ -369,8 +357,6 @@ export async function updateEtapeBadge(etapeId: string, imageSrc: string) {
     return { success: false, error: "Échec de la mise à jour du badge" };
   }
 }
-
-// --- OBJECTIFS ---
 
 export async function createObjectif(
   etapeId: string,

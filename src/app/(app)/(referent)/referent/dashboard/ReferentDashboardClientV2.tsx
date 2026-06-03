@@ -3,8 +3,6 @@
 import React, { useState } from "react";
 import { type User, type Justification } from "@prisma/client";
 
-import { type CommentaireAvecAuteur } from "@/types";
-
 import ReferentValidationModal, {
   type JustificationAvecRelations,
 } from "./_components/ReferentValidationModal";
@@ -13,7 +11,8 @@ import ValidationPanel from "./_components/panels/ValidationPanel";
 import DiscussionPanel from "./_components/panels/DiscussionPanel";
 import RevisionPanel from "./_components/panels/RevisionPanel";
 
-// Types (should ideally be shared but keeping here for now to match structure)
+import { type CommentaireAvecAuteur } from "@/types";
+
 type ChefInfo = {
   id: string;
   name: string;
@@ -51,7 +50,6 @@ export default function ReferentDashboardClientV2({
   justificationsEnDiscussion,
   chefsAReviser,
 }: ReferentDashboardClientV2Props) {
-  // State
   const [activeTab, setActiveTab] = useState<React.Key>("a-valider");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedJustification, setSelectedJustification] = useState<
@@ -61,12 +59,10 @@ export default function ReferentDashboardClientV2({
     | null
   >(null);
 
-  // This helps default the tab in the modal when opening from different lists
   const [modalDefaultTab, setModalDefaultTab] = useState<
     "justification" | "discussion"
   >("justification");
 
-  // Handlers
   const handleJustificationClick = (
     justification: JustificationAValider | JustificationEnDiscussion,
     tab: "justification" | "discussion",
@@ -81,7 +77,6 @@ export default function ReferentDashboardClientV2({
     setSelectedJustification(null);
   };
 
-  // Content Mapping
   const contentMap: Record<string, React.ReactNode> = {
     "a-valider": (
       <ValidationPanel
