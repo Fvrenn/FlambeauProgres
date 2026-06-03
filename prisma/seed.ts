@@ -1016,7 +1016,7 @@ await prisma.etapeReferent.create({
   }
 
   if (objectifRealisationG8) {
-    await prisma.justification.create({
+    const justifG8 = await prisma.justification.create({
       data: {
         contenu: "Voici mon plan d'installation du camp de Pâques.",
         statut: "SOUMISE",
@@ -1025,7 +1025,17 @@ await prisma.etapeReferent.create({
         etapeId: etapeConstruction.id,
       },
     });
-    console.log(`Created SOUMISE justification for objectif ${objectifRealisationG8.code}`);
+
+    await prisma.message.create({
+      data: {
+        justificationId: justifG8.id,
+        auteurId: chef1.id,
+        contenu: "Voici mon plan d'installation du camp de Pâques.",
+        type: "USER",
+      },
+    });
+
+    console.log(`Created SOUMISE justification + message for objectif ${objectifRealisationG8.code}`);
   }
 
 

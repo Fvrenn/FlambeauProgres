@@ -22,10 +22,8 @@ enum StatutJustification {
   BROUILLON
   AUTO_VALIDEE
   SOUMISE
-  EN_COURS
   DEMANDE_PRECISION
   VALIDEE
-  REFUSEE
 }
 
 enum StatutChefEtape {
@@ -41,10 +39,8 @@ enum TypeFichier {
   AUTRE
 }
 
-enum TypeCommentaire {
-  CHEF_REPONSE
-  REFERENT_QUESTION
-  REFERENT_FEEDBACK
+enum MessageType {
+  USER
   SYSTEM
 }
 
@@ -82,7 +78,7 @@ model User {
 
   justifications        Justification[]
   assigneEtapes         EtapeReferent[]
-  commentsWritten       Commentaire[]   @relation("CommentaireAuteur")
+  messagesWritten       Message[]       @relation("MessageAuteur")
   notificationsReceived Notification[]  @relation("NotificationDestinataire")
 
   statutsEtapes         ChefEtapeStatut[] @relation("ChefStatuts")
@@ -158,7 +154,6 @@ model Justification {
   contenu    String?
 
   statut    StatutJustification @default(BROUILLON)
-  version   Int                 @default(1)
   soumiseAt DateTime?
   valideeAt DateTime?
   createdAt DateTime            @default(now())
@@ -168,7 +163,7 @@ model Justification {
   objectif      Objectif       @relation(fields: [objectifId], references: [id], onDelete: Cascade)
   etape         Etape          @relation(fields: [etapeId], references: [id], onDelete: Cascade)
   fichiers      Fichier[]
-  commentaires  Commentaire[]
+  messages      Message[]
   notifications Notification[]
 
   @@unique([chefId, objectifId])
@@ -177,6 +172,7 @@ model Justification {
 
 model Fichier {
   id              String      @id @default(cuid())
+  messageId       String      @unique
   justificationId String
   nomOriginal     String
   nomStockage     String
@@ -186,23 +182,25 @@ model Fichier {
   taille          Int
   createdAt       DateTime    @default(now())
 
+  message       Message       @relation(fields: [messageId], references: [id], onDelete: Cascade)
   justification Justification @relation(fields: [justificationId], references: [id], onDelete: Cascade)
 
   @@map("fichiers")
 }
 
-model Commentaire {
-  id              String          @id @default(cuid())
+model Message {
+  id              String      @id @default(cuid())
   justificationId String
   auteurId        String
-  contenu         String
-  type            TypeCommentaire
-  createdAt       DateTime        @default(now())
+  contenu         String?
+  type            MessageType @default(USER)
+  createdAt       DateTime    @default(now())
 
   justification Justification @relation(fields: [justificationId], references: [id], onDelete: Cascade)
-  auteur        User          @relation("CommentaireAuteur", fields: [auteurId], references: [id], onDelete: Cascade)
+  auteur        User          @relation("MessageAuteur", fields: [auteurId], references: [id], onDelete: Cascade)
+  fichier       Fichier?
 
-  @@map("commentaires")
+  @@map("messages")
 }
 
 model EtapeReferent {
