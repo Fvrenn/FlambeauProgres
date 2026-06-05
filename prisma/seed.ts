@@ -21,8 +21,8 @@ async function main() {
   console.log("Cleaning database...");
   await prisma.etapeReferent.deleteMany();
   await prisma.notification.deleteMany();
-  await prisma.commentaire.deleteMany();
   await prisma.fichier.deleteMany();
+  await prisma.message.deleteMany();
   await prisma.justification.deleteMany();
   await prisma.objectif.deleteMany();
   await prisma.etape.deleteMany();

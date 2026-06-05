@@ -1,5 +1,9 @@
 import prisma from "@/lib/prisma";
 import { NotificationService } from "@/services/notification.service";
+import {
+  DiscussionService,
+  type FichierData,
+} from "@/services/discussion.service";
 
 export type ServiceResult<T = void> = {
   success: boolean;
@@ -7,165 +11,7 @@ export type ServiceResult<T = void> = {
   error?: string;
 };
 
-type FichierData = {
-  nomOriginal: string;
-  nomStockage: string;
-  cheminFichier: string;
-  type: "IMAGE" | "DOCUMENT";
-  mimeType: string;
-  taille: number;
-};
-
 export class JustificationService {
-  static async approveJustification(
-    justificationId: string,
-    referentId: string,
-  ): Promise<ServiceResult> {
-    const justification = await prisma.justification.findUnique({
-      where: { id: justificationId },
-      include: {
-        objectif: { include: { etape: true } },
-      },
-    });
-
-    if (!justification) {
-      return { success: false, error: "Justification introuvable" };
-    }
-
-    const assignation = await prisma.etapeReferent.findFirst({
-      where: {
-        referentId: referentId,
-        etapeId: justification.etapeId,
-      },
-    });
-
-    if (!assignation) {
-      return {
-        success: false,
-        error: "Vous n'êtes pas référent de cette étape",
-      };
-    }
-
-    await prisma.justification.update({
-      where: { id: justificationId },
-      data: {
-        statut: "VALIDEE",
-        valideeAt: new Date(),
-      },
-    });
-
-    await NotificationService.createNotification({
-      destinataireId: justification.chefId,
-      justificationId: justificationId,
-      type: "JUSTIFICATION_VALIDEE",
-      titre: "Réalisation validée !",
-      message: `Votre réalisation "${justification.objectif.code} - ${justification.objectif.description.substring(
-        0,
-        50,
-      )}..." pour l'étape "${justification.objectif.etape.name}" a été validée par votre référent.`,
-    });
-
-    return { success: true };
-  }
-
-  static async rejectJustification(
-    justificationId: string,
-    referentId: string,
-    motif: string,
-  ): Promise<ServiceResult> {
-    const justification = await prisma.justification.findUnique({
-      where: { id: justificationId },
-      include: {
-        objectif: { include: { etape: true } },
-      },
-    });
-
-    if (!justification)
-      return { success: false, error: "Justification introuvable" };
-
-    const assignation = await prisma.etapeReferent.findFirst({
-      where: {
-        referentId: referentId,
-        etapeId: justification.etapeId,
-      },
-    });
-
-    if (!assignation) return { success: false, error: "Non autorisé" };
-
-    await prisma.justification.update({
-      where: { id: justificationId },
-      data: { statut: "REFUSEE" },
-    });
-
-    await prisma.commentaire.create({
-      data: {
-        justificationId,
-        auteurId: referentId,
-        contenu: motif,
-        type: "REFERENT_FEEDBACK",
-      },
-    });
-
-    await NotificationService.createNotification({
-      destinataireId: justification.chefId,
-      justificationId: justificationId,
-      type: "JUSTIFICATION_REFUSEE",
-      titre: "Réalisation refusée",
-      message: `Votre réalisation "${justification.objectif.code}" a été refusée. Voir la raison dans les commentaires.`,
-    });
-
-    return { success: true };
-  }
-
-  static async requestChanges(
-    justificationId: string,
-    referentId: string,
-    motif: string,
-  ): Promise<ServiceResult> {
-    const justification = await prisma.justification.findUnique({
-      where: { id: justificationId },
-      include: {
-        objectif: { include: { etape: true } },
-      },
-    });
-
-    if (!justification)
-      return { success: false, error: "Justification introuvable" };
-
-    const assignation = await prisma.etapeReferent.findFirst({
-      where: {
-        referentId: referentId,
-        etapeId: justification.etapeId,
-      },
-    });
-
-    if (!assignation) return { success: false, error: "Non autorisé" };
-
-    await prisma.justification.update({
-      where: { id: justificationId },
-      data: { statut: "DEMANDE_PRECISION" },
-    });
-
-    await prisma.commentaire.create({
-      data: {
-        justificationId,
-        auteurId: referentId,
-        contenu: motif,
-        type: "REFERENT_QUESTION",
-      },
-    });
-
-    await NotificationService.createNotification({
-      destinataireId: justification.chefId,
-      justificationId: justificationId,
-      type: "DEMANDE_PRECISION",
-      titre: "Demande de précisions",
-      message: `Votre référent demande des précisions sur "${justification.objectif.code}".`,
-    });
-
-    return { success: true };
-  }
-
   static async submitCompetence(
     chefId: string,
     objectifId: string,
@@ -233,39 +79,47 @@ export class JustificationService {
       };
     }
 
+    const trimmed = contenu.trim();
+
+    if (!trimmed && !fichierData) {
+      return { success: false, error: "Ajoute une description ou un fichier" };
+    }
+
     const existing = await prisma.justification.findFirst({
       where: { objectifId, chefId },
     });
 
-    let justificationId: string;
+    const justificationId = await prisma.$transaction(async (tx) => {
+      const justification = existing
+        ? await tx.justification.update({
+            where: { id: existing.id },
+            data: {
+              contenu: trimmed || null,
+              statut: "SOUMISE",
+              soumiseAt: new Date(),
+            },
+          })
+        : await tx.justification.create({
+            data: {
+              objectifId,
+              chefId,
+              etapeId: objectif.etapeId,
+              contenu: trimmed || null,
+              statut: "SOUMISE",
+              soumiseAt: new Date(),
+            },
+          });
 
-    if (existing) {
-      const updated = await prisma.justification.update({
-        where: { id: existing.id },
-        data: { contenu, statut: "SOUMISE", soumiseAt: new Date() },
+      await DiscussionService.addMessage(tx, {
+        justificationId: justification.id,
+        auteurId: chefId,
+        contenu: trimmed || null,
+        type: "USER",
+        fichierData,
       });
 
-      justificationId = updated.id;
-    } else {
-      const created = await prisma.justification.create({
-        data: {
-          objectifId,
-          chefId,
-          etapeId: objectif.etapeId,
-          contenu,
-          statut: "SOUMISE",
-          soumiseAt: new Date(),
-        },
-      });
-
-      justificationId = created.id;
-    }
-
-    if (fichierData) {
-      await prisma.fichier.create({
-        data: { justificationId, ...fichierData },
-      });
-    }
+      return justification.id;
+    });
 
     await NotificationService.notifyReferentsOfNewJustification(
       objectif.etapeId,
