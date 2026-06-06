@@ -15,9 +15,6 @@ import {
 import StatusChip from "./StatusChip";
 import ObjectifModal from "./ObjectifModal";
 
-import ChatPanel from "@/components/application/dashboard-chef/ChatPanel";
-import { clickable } from "@/lib/a11y";
-
 interface ObjectifPanelProps {
   selectedEtape: EtapeAvecObjectifs | null;
   onUpdateJustification: (
@@ -43,14 +40,6 @@ export default function ObjectifPanel({
     }
   }, [targetSubTab]);
 
-  const {
-    isOpen: isChatOpen,
-    onOpen: onChatOpen,
-    onOpenChange: onChatOpenChange,
-  } = useDisclosure();
-  const [selectedChatObjectif, setSelectedChatObjectif] =
-    useState<ObjectifAvecJustification | null>(null);
-
   const handleOpenModal = (objectif: ObjectifAvecJustification) => {
     setSelectedObjectif(objectif);
     onOpen();
@@ -71,14 +60,6 @@ export default function ObjectifPanel({
   const realisations = selectedEtape.objectifs.filter(
     (o) => o.type === "REALISATION",
   ) as ObjectifAvecJustification[];
-  const discussions = selectedEtape.objectifs.filter(
-    (o) => o.justifications[0]?.statut === "DEMANDE_PRECISION",
-  ) as ObjectifAvecJustification[];
-
-  const handleOpenChat = (objectif: ObjectifAvecJustification) => {
-    setSelectedChatObjectif(objectif);
-    onChatOpen();
-  };
 
   return (
     <div>
@@ -182,43 +163,6 @@ export default function ObjectifPanel({
               ))}
             </ul>
           </Tab>
-
-          <Tab key="discussion" title="Discussion">
-            <Divider className="mt-3" />
-            {discussions.length === 0 ? (
-              <div className="flex items-center justify-center h-48 text-gray-500">
-                <p>Aucune discussion en cours pour ce badge.</p>
-              </div>
-            ) : (
-              <ul className="space-y-2">
-                {discussions.map((d) => (
-                  <li
-                    key={d.id}
-                    className="cursor-pointer transition-colors hover:bg-gray-50"
-                    {...clickable(() => handleOpenChat(d))}
-                  >
-                    <div className="py-6.5 px-5 rounded-md flex items-center">
-                      <div className="flex-1 flex items-center">
-                        <span className="text-xl text-foreground border border-default-800 py-3 px-2.5 rounded-full w-12 h-12 flex items-center justify-center mr-2.5">
-                          {d.code}
-                        </span>
-                        {d.description}
-                      </div>
-
-                      <div className="flex items-center gap-4 ml-6">
-                        <StatusChip
-                          statut={d.justifications[0]?.statut || null}
-                        />
-                      </div>
-                    </div>
-                    <div className="px-5">
-                      <Divider />
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Tab>
         </Tabs>
       </div>
 
@@ -227,12 +171,6 @@ export default function ObjectifPanel({
         objectif={selectedObjectif}
         onOpenChange={onOpenChange}
         onUpdateJustification={onUpdateJustification}
-      />
-
-      <ChatPanel
-        isOpen={isChatOpen}
-        justificationId={selectedChatObjectif?.justifications[0]?.id || ""}
-        onClose={onChatOpenChange}
       />
     </div>
   );

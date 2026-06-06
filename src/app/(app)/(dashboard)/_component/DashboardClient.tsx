@@ -7,10 +7,9 @@ import ContentChemise from "./contentChemise/contentChemise";
 import ContentAction from "./contentAction/contentAction";
 
 import { markNotificationAsRead } from "@/actions/notification/notification.actions";
-import { CommentaireAvecAuteur, JustificationAvecCommentaires } from "@/types";
 
 export type ObjectifAvecJustification = Objectif & {
-  justifications: JustificationAvecCommentaires[];
+  justifications: Justification[];
 };
 
 export type EtapeAvecObjectifs = Etape & {
@@ -67,9 +66,8 @@ export default function DashboardClient({
               ? { ...existingJustification, ...justification }
               : ({
                   id: "temp-" + Date.now(),
-                  commentaires: [] as CommentaireAvecAuteur[],
                   ...justification,
-                } as JustificationAvecCommentaires);
+                } as Justification);
 
             return {
               ...objectif,
@@ -103,7 +101,7 @@ export default function DashboardClient({
           notification.type === "NOUVEAU_COMMENTAIRE" ||
           notification.type === "REPONSE_PRECISION"
         ) {
-          setTargetSubTab("discussion");
+          setTargetSubTab("realisations");
         } else {
           setTargetSubTab(null);
         }

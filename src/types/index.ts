@@ -1,23 +1,8 @@
 import { SVGProps } from "react";
-import {
-  Commentaire,
-  User,
-  Justification,
-  Prisma,
-  UserRole,
-} from "@prisma/client";
+import { Prisma, UserRole } from "@prisma/client";
 
 export type IconSvgProps = SVGProps<SVGSVGElement> & {
   size?: number;
-};
-
-export type CommentaireAvecAuteur = Commentaire & {
-  auteur: User;
-  isPending?: boolean;
-};
-
-export type JustificationAvecCommentaires = Justification & {
-  commentaires?: CommentaireAvecAuteur[];
 };
 
 export type SessionUser = {

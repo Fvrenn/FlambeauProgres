@@ -7,43 +7,40 @@ interface StatusChipProps {
   statut: StatutJustification | null;
 }
 
-const STATUS_CONFIG = {
+const STATUS_CONFIG: Record<
+  StatutJustification,
+  {
+    color: "default" | "success" | "warning" | "secondary";
+    icon: string;
+    label: string;
+  }
+> = {
   BROUILLON: {
-    color: "default" as const,
+    color: "default",
     icon: "solar:pen-linear",
     label: "Brouillon",
   },
   AUTO_VALIDEE: {
-    color: "success" as const,
+    color: "success",
     icon: "solar:check-circle-linear",
     label: "Validé",
   },
   SOUMISE: {
-    color: "warning" as const,
+    color: "warning",
     icon: "solar:clock-circle-linear",
-    label: "En attente",
-  },
-  EN_COURS: {
-    color: "primary" as const,
-    icon: "solar:eye-linear",
-    label: "En cours",
+    label: "En attente référent",
   },
   DEMANDE_PRECISION: {
-    color: "secondary" as const,
+    color: "secondary",
     icon: "solar:question-circle-linear",
-    label: "Précision",
+    label: "Précisions demandées",
   },
   VALIDEE: {
-    color: "success" as const,
+    color: "success",
     icon: "solar:check-circle-bold",
     label: "Validé",
   },
-  REFUSEE: {
-    color: "danger" as const,
-    icon: "solar:close-circle-linear",
-    label: "Refusé",
-  },
-} as const;
+};
 
 export default function StatusChip({ statut }: StatusChipProps) {
   if (!statut) {

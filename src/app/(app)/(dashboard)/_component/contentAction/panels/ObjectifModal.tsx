@@ -16,6 +16,7 @@ import { Justification } from "@prisma/client";
 
 import { ObjectifAvecJustification } from "../../DashboardClient";
 
+import DiscussionThread from "@/components/discussion/DiscussionThread";
 import { submitCompetence } from "@/actions/dashboard/competence.actions";
 import { submitRealisation } from "@/actions/dashboard/realisation.actions";
 
@@ -134,6 +135,11 @@ export default function ObjectifModal({
   const isCompetence = objectif.type === "COMPETENCE";
   const existingJustification = objectif.justifications[0];
   const isEditing = !!existingJustification;
+  const showThread =
+    !isCompetence &&
+    !!existingJustification &&
+    existingJustification.statut !== "BROUILLON" &&
+    !existingJustification.id.startsWith("temp-");
 
   return (
     <Modal
@@ -144,110 +150,152 @@ export default function ObjectifModal({
       onOpenChange={onOpenChange}
     >
       <ModalContent>
-        {(onClose) => (
-          <>
-            <ModalHeader className="flex flex-col gap-1">
-              <div className="flex items-center gap-3">
-                <span className="text-xl font-bold border border-default-800 py-2 px-3 rounded-full">
-                  {objectif.code}
-                </span>
-                <span className="text-lg">{objectif.description}</span>
-              </div>
-            </ModalHeader>
+        {(onClose) =>
+          showThread ? (
+            <ModalBody className="h-[70vh] p-0">
+              <DiscussionThread
+                justificationId={existingJustification.id}
+                objectif={{
+                  code: objectif.code,
+                  description: objectif.description,
+                }}
+              />
+            </ModalBody>
+          ) : (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                <div className="flex items-center gap-3">
+                  <span className="text-xl font-bold border border-default-800 py-2 px-3 rounded-full">
+                    {objectif.code}
+                  </span>
+                  <span className="text-lg">{objectif.description}</span>
+                </div>
+              </ModalHeader>
 
-            <ModalBody>
-              {isCompetence ? (
-                <>
-                  <p className="text-sm text-default-600 mb-4">
-                    Décris comment tu as acquis ou démontré cette compétence. Ta
-                    justification sera automatiquement validée.
-                  </p>
+              <ModalBody>
+                {isCompetence ? (
+                  <>
+                    <p className="text-sm text-default-600 mb-4">
+                      Décris comment tu as acquis ou démontré cette compétence.
+                      Ta justification sera automatiquement validée.
+                    </p>
 
-                  <Textarea
-                    isRequired
-                    description={`${contenu.length} caractères`}
-                    label="Ta justification"
-                    maxRows={12}
-                    minRows={6}
-                    placeholder="Explique comment tu as travaillé cette compétence..."
-                    value={contenu}
-                    onValueChange={setContenu}
-                  />
-                </>
-              ) : (
-                <>
-                  <p className="text-sm text-default-600 mb-4">
-                    Décris ta réalisation et ajoute une preuve (photo, PDF,
-                    document). Ta soumission sera envoyée au référent pour
-                    validation.
-                  </p>
+                    <Textarea
+                      isRequired
+                      description={`${contenu.length} caractères`}
+                      label="Ta justification"
+                      maxRows={12}
+                      minRows={6}
+                      placeholder="Explique comment tu as travaillé cette compétence..."
+                      value={contenu}
+                      onValueChange={setContenu}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm text-default-600 mb-4">
+                      Décris ta réalisation et ajoute une preuve (photo, PDF,
+                      document). Ta soumission sera envoyée au référent pour
+                      validation.
+                    </p>
 
-                  <Textarea
-                    isRequired
-                    className="mb-4"
-                    description={`${contenu.length} caractères`}
-                    label="Description de ta réalisation"
-                    maxRows={8}
-                    minRows={4}
-                    placeholder="Explique ce que tu as réalisé, comment et avec qui..."
-                    value={contenu}
-                    onValueChange={setContenu}
-                  />
+                    <Textarea
+                      isRequired
+                      className="mb-4"
+                      description={`${contenu.length} caractères`}
+                      label="Description de ta réalisation"
+                      maxRows={8}
+                      minRows={4}
+                      placeholder="Explique ce que tu as réalisé, comment et avec qui..."
+                      value={contenu}
+                      onValueChange={setContenu}
+                    />
 
-                  <div className="space-y-4">
-                    <div>
-                      <p className="block text-sm font-medium mb-2">
-                        Fichier de preuve *
-                      </p>
+                    <div className="space-y-4">
+                      <div>
+                        <p className="block text-sm font-medium mb-2">
+                          Fichier de preuve *
+                        </p>
 
-                      {!selectedFile ? (
-                        <div className="border-2 border-dashed border-default-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
-                          <input
-                            accept="image/*,.pdf,.doc,.docx"
-                            className="hidden"
-                            id="file-upload"
-                            type="file"
-                            onChange={handleFileChange}
-                          />
-                          <label
-                            className="cursor-pointer flex flex-col items-center gap-2"
-                            htmlFor="file-upload"
-                          >
-                            <Icon
-                              className="text-default-400"
-                              icon="solar:cloud-upload-linear"
-                              width={48}
+                        {!selectedFile ? (
+                          <div className="border-2 border-dashed border-default-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
+                            <input
+                              accept="image/*,.pdf,.doc,.docx"
+                              className="hidden"
+                              id="file-upload"
+                              type="file"
+                              onChange={handleFileChange}
                             />
-                            <p className="text-sm text-default-600">
-                              Clique pour sélectionner un fichier
-                            </p>
-                            <p className="text-xs text-default-400">
-                              Images, PDF, ou documents Word acceptés
-                            </p>
-                          </label>
-                        </div>
-                      ) : (
-                        <div className="border border-default-300 rounded-lg p-4">
-                          {filePreview ? (
-                            <div className="space-y-3">
-                              {/* eslint-disable-next-line @next/next/no-img-element -- aperçu local (data/blob URL) : non optimisable par next/image */}
-                              <img
-                                alt="Preview"
-                                className="w-full h-48 object-cover rounded-lg"
-                                src={filePreview}
+                            <label
+                              className="cursor-pointer flex flex-col items-center gap-2"
+                              htmlFor="file-upload"
+                            >
+                              <Icon
+                                className="text-default-400"
+                                icon="solar:cloud-upload-linear"
+                                width={48}
                               />
+                              <p className="text-sm text-default-600">
+                                Clique pour sélectionner un fichier
+                              </p>
+                              <p className="text-xs text-default-400">
+                                Images, PDF, ou documents Word acceptés
+                              </p>
+                            </label>
+                          </div>
+                        ) : (
+                          <div className="border border-default-300 rounded-lg p-4">
+                            {filePreview ? (
+                              <div className="space-y-3">
+                                {/* eslint-disable-next-line @next/next/no-img-element -- aperçu local (data/blob URL) : non optimisable par next/image */}
+                                <img
+                                  alt="Preview"
+                                  className="w-full h-48 object-cover rounded-lg"
+                                  src={filePreview}
+                                />
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <Icon
+                                      icon="solar:gallery-linear"
+                                      width={20}
+                                    />
+                                    <span className="text-sm font-medium truncate max-w-[200px]">
+                                      {selectedFile.name}
+                                    </span>
+                                    <span className="text-xs text-default-400">
+                                      ({(selectedFile.size / 1024).toFixed(1)}{" "}
+                                      Ko)
+                                    </span>
+                                  </div>
+                                  <Button
+                                    isIconOnly
+                                    color="danger"
+                                    size="sm"
+                                    variant="flat"
+                                    onPress={handleRemoveFile}
+                                  >
+                                    <Icon
+                                      icon="solar:trash-bin-minimalistic-linear"
+                                      width={18}
+                                    />
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : (
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                   <Icon
-                                    icon="solar:gallery-linear"
-                                    width={20}
+                                    icon="solar:document-linear"
+                                    width={24}
                                   />
-                                  <span className="text-sm font-medium truncate max-w-[200px]">
-                                    {selectedFile.name}
-                                  </span>
-                                  <span className="text-xs text-default-400">
-                                    ({(selectedFile.size / 1024).toFixed(1)} Ko)
-                                  </span>
+                                  <div>
+                                    <p className="text-sm font-medium truncate max-w-[250px]">
+                                      {selectedFile.name}
+                                    </p>
+                                    <p className="text-xs text-default-400">
+                                      {(selectedFile.size / 1024).toFixed(1)} Ko
+                                    </p>
+                                  </div>
                                 </div>
                                 <Button
                                   isIconOnly
@@ -262,83 +310,59 @@ export default function ObjectifModal({
                                   />
                                 </Button>
                               </div>
-                            </div>
-                          ) : (
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <Icon icon="solar:document-linear" width={24} />
-                                <div>
-                                  <p className="text-sm font-medium truncate max-w-[250px]">
-                                    {selectedFile.name}
-                                  </p>
-                                  <p className="text-xs text-default-400">
-                                    {(selectedFile.size / 1024).toFixed(1)} Ko
-                                  </p>
-                                </div>
-                              </div>
-                              <Button
-                                isIconOnly
-                                color="danger"
-                                size="sm"
-                                variant="flat"
-                                onPress={handleRemoveFile}
-                              >
-                                <Icon
-                                  icon="solar:trash-bin-minimalistic-linear"
-                                  width={18}
-                                />
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-                      )}
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </>
-              )}
-            </ModalBody>
+                  </>
+                )}
+              </ModalBody>
 
-            <ModalFooter>
-              <Button
-                color="danger"
-                isDisabled={isSubmitting}
-                variant="light"
-                onPress={onClose}
-              >
-                Annuler
-              </Button>
-
-              {isCompetence && (
+              <ModalFooter>
                 <Button
-                  color="primary"
-                  isDisabled={!contenu.trim() || isSubmitting}
-                  isLoading={isSubmitting}
-                  onPress={handleSubmit}
+                  color="danger"
+                  isDisabled={isSubmitting}
+                  variant="light"
+                  onPress={onClose}
                 >
-                  {isEditing ? "Mettre à jour" : "Valider la compétence"}
+                  Annuler
                 </Button>
-              )}
 
-              {!isCompetence && (
-                <Button
-                  color="warning"
-                  isDisabled={!contenu.trim() || !selectedFile || isSubmitting}
-                  isLoading={isSubmitting}
-                  startContent={
-                    !isSubmitting && (
-                      <Icon icon="solar:send-linear" width={20} />
-                    )
-                  }
-                  onPress={handleSubmit}
-                >
-                  {isEditing
-                    ? "Resoummettre au référent"
-                    : "Soumettre au référent"}
-                </Button>
-              )}
-            </ModalFooter>
-          </>
-        )}
+                {isCompetence && (
+                  <Button
+                    color="primary"
+                    isDisabled={!contenu.trim() || isSubmitting}
+                    isLoading={isSubmitting}
+                    onPress={handleSubmit}
+                  >
+                    {isEditing ? "Mettre à jour" : "Valider la compétence"}
+                  </Button>
+                )}
+
+                {!isCompetence && (
+                  <Button
+                    color="warning"
+                    isDisabled={
+                      !contenu.trim() || !selectedFile || isSubmitting
+                    }
+                    isLoading={isSubmitting}
+                    startContent={
+                      !isSubmitting && (
+                        <Icon icon="solar:send-linear" width={20} />
+                      )
+                    }
+                    onPress={handleSubmit}
+                  >
+                    {isEditing
+                      ? "Resoummettre au référent"
+                      : "Soumettre au référent"}
+                  </Button>
+                )}
+              </ModalFooter>
+            </>
+          )
+        }
       </ModalContent>
     </Modal>
   );
