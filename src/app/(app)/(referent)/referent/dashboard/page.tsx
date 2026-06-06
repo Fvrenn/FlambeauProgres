@@ -136,17 +136,6 @@ export default async function ReferentDashboardPage({
     include: {
       chef: true,
       objectif: true,
-      _count: {
-        select: {
-          notifications: {
-            where: {
-              destinataireId: user.id,
-              lue: false,
-              type: "NOUVEAU_COMMENTAIRE",
-            },
-          },
-        },
-      },
     },
     orderBy: {
       updatedAt: "desc",

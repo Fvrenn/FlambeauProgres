@@ -33,9 +33,6 @@ type JustificationAValider = Justification & {
 type JustificationEnDiscussion = Justification & {
   chef: ChefInfo;
   objectif: ObjectifInfo;
-  _count: {
-    notifications: number;
-  };
 };
 
 interface ReferentDashboardClientV2Props {
