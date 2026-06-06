@@ -28,6 +28,11 @@ export default async function Home() {
             },
           },
         },
+        formations: {
+          orderBy: {
+            createdAt: "asc",
+          },
+        },
       },
     }),
     getMyNotifications(),

@@ -20,6 +20,11 @@ export default async function AdminEtapeDetailPage({ params }: PageProps) {
           code: "asc",
         },
       },
+      formations: {
+        orderBy: {
+          createdAt: "asc",
+        },
+      },
     },
   });
 

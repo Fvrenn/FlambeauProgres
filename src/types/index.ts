@@ -40,6 +40,10 @@ export type AdminEtapeWithObjectifs = Prisma.EtapeGetPayload<{
   include: { objectifs: true };
 }>;
 
+export type AdminEtapeDetail = Prisma.EtapeGetPayload<{
+  include: { objectifs: true; formations: true };
+}>;
+
 export type AdminEtapeWithReferents = Prisma.EtapeGetPayload<{
   include: { referents: { include: { referent: true } } };
 }>;

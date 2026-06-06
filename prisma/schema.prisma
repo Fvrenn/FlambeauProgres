@@ -106,8 +106,24 @@ model Etape {
   justifications Justification[]
 
   statutsChefs     ChefEtapeStatut[]
+  formations       FormationCard[]
 
   @@map("etapes")
+}
+
+model FormationCard {
+  id        String   @id @default(cuid())
+  etapeId   String
+  titre     String
+  imageUrl  String   @db.Text
+  lien      String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  etape Etape @relation(fields: [etapeId], references: [id], onDelete: Cascade)
+
+  @@index([etapeId])
+  @@map("formation_cards")
 }
 
 model ChefEtapeStatut {

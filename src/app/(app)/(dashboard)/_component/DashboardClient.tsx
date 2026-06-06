@@ -1,6 +1,12 @@
 "use client";
 
-import { Etape, Objectif, Justification, Notification } from "@prisma/client";
+import {
+  Etape,
+  Objectif,
+  Justification,
+  Notification,
+  FormationCard,
+} from "@prisma/client";
 import React, { useState, useEffect } from "react";
 
 import ContentChemise from "./contentChemise/contentChemise";
@@ -14,6 +20,7 @@ export type ObjectifAvecJustification = Objectif & {
 
 export type EtapeAvecObjectifs = Etape & {
   objectifs: ObjectifAvecJustification[];
+  formations: FormationCard[];
   isValidated?: boolean;
 };
 

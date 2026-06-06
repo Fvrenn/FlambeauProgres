@@ -6,6 +6,7 @@ import { UserRole } from "@prisma/client";
 
 import prisma from "@/lib/prisma";
 import { authorizeRole } from "@/lib/auth-guards";
+import { FormationService } from "@/services/formation.service";
 
 const idSchema = z.string().min(1);
 
@@ -462,5 +463,96 @@ export async function deleteObjectif(objectifId: string, etapeId: string) {
     console.error("Error deleting objectif:", error);
 
     return { success: false, error: "Échec de la suppression de l'objectif" };
+  }
+}
+
+const formationInputSchema = z.object({
+  titre: z.string().min(1).max(200),
+  imageUrl: z.string().url().max(2048),
+  lien: z.string().url().max(2048),
+});
+
+export async function createFormation(
+  etapeId: string,
+  data: { titre: string; imageUrl: string; lien: string },
+) {
+  if (!(await authorizeRole("ADMIN"))) {
+    return { success: false, error: "Non autorisé" };
+  }
+
+  const parsedId = idSchema.safeParse(etapeId);
+  const parsed = formationInputSchema.safeParse(data);
+
+  if (!parsedId.success || !parsed.success) {
+    return { success: false, error: "Données invalides" };
+  }
+
+  try {
+    await FormationService.create(parsedId.data, parsed.data);
+
+    revalidatePath(`/admin/etapes/${parsedId.data}`);
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error creating formation:", error);
+
+    return { success: false, error: "Échec de la création de la carte" };
+  }
+}
+
+export async function updateFormation(
+  formationId: string,
+  etapeId: string,
+  data: { titre: string; imageUrl: string; lien: string },
+) {
+  if (!(await authorizeRole("ADMIN"))) {
+    return { success: false, error: "Non autorisé" };
+  }
+
+  const parsedIds = z
+    .object({ formationId: idSchema, etapeId: idSchema })
+    .safeParse({ formationId, etapeId });
+  const parsed = formationInputSchema.safeParse(data);
+
+  if (!parsedIds.success || !parsed.success) {
+    return { success: false, error: "Données invalides" };
+  }
+
+  try {
+    await FormationService.update(parsedIds.data.formationId, parsed.data);
+
+    revalidatePath(`/admin/etapes/${parsedIds.data.etapeId}`);
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating formation:", error);
+
+    return { success: false, error: "Échec de la mise à jour de la carte" };
+  }
+}
+
+export async function deleteFormation(formationId: string, etapeId: string) {
+  if (!(await authorizeRole("ADMIN"))) {
+    return { success: false, error: "Non autorisé" };
+  }
+
+  const parsed = z
+    .object({ formationId: idSchema, etapeId: idSchema })
+    .safeParse({ formationId, etapeId });
+
+  if (!parsed.success) {
+    return { success: false, error: "Données invalides" };
+  }
+
+  try {
+    await FormationService.remove(parsed.data.formationId);
+
+    revalidatePath(`/admin/etapes/${parsed.data.etapeId}`);
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting formation:", error);
+
+    return { success: false, error: "Échec de la suppression de la carte" };
   }
 }
