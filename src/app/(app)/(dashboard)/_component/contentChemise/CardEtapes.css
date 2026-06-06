@@ -11,6 +11,10 @@
   filter: grayscale(100%);
 }
 
+.holographic-card.validated {
+  filter: grayscale(0.6);
+}
+
 .holographic-card::before {
   content: "";
   position: absolute;

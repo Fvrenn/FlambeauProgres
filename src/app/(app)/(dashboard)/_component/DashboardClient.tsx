@@ -14,6 +14,7 @@ export type ObjectifAvecJustification = Objectif & {
 
 export type EtapeAvecObjectifs = Etape & {
   objectifs: ObjectifAvecJustification[];
+  isValidated?: boolean;
 };
 
 interface DashboardClientProps {
