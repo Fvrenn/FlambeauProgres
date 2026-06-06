@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { Justification } from "@prisma/client";
 import { Tabs, Tab, useDisclosure } from "@heroui/react";
 import { Icon } from "@iconify/react";
@@ -64,6 +65,22 @@ export default function ObjectifPanel({
   return (
     <div>
       <div className="flex w-full flex-col">
+        <div className="mb-4 flex items-center gap-2">
+
+          <h2 className="text-xl font-bold text-foreground">
+            Étape {selectedEtape.name}
+          </h2>
+          {selectedEtape.image_src && (
+            <Image
+              alt={`Badge ${selectedEtape.name}`}
+              className="shrink-0"
+              height={24}
+              src={selectedEtape.image_src}
+              width={24}
+            />
+          )}
+        </div>
+
         <Tabs
           aria-label="Options"
           classNames={{
