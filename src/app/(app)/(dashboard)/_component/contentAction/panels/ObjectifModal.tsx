@@ -145,14 +145,14 @@ export default function ObjectifModal({
     <Modal
       isOpen={isOpen}
       placement="center"
-      scrollBehavior="outside"
-      size="2xl"
+      scrollBehavior="inside"
+      size="3xl"
       onOpenChange={onOpenChange}
     >
-      <ModalContent>
+      <ModalContent className={showThread ? "h-[80vh]" : undefined}>
         {(onClose) =>
           showThread ? (
-            <ModalBody className="h-[70vh] p-0">
+            <ModalBody className="overflow-hidden p-0">
               <DiscussionThread
                 justificationId={existingJustification.id}
                 objectif={{

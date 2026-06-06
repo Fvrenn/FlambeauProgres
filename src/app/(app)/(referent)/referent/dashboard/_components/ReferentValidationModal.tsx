@@ -41,11 +41,11 @@ export default function ReferentValidationModal({
     <Modal
       isOpen={isOpen}
       placement="center"
-      scrollBehavior="outside"
-      size="2xl"
+      scrollBehavior="inside"
+      size="3xl"
       onOpenChange={onOpenChange}
     >
-      <ModalContent>
+      <ModalContent className="h-[80vh]">
         <ModalHeader className="border-b border-default-100">
           <User
             avatarProps={{
@@ -66,7 +66,7 @@ export default function ReferentValidationModal({
           />
         </ModalHeader>
 
-        <ModalBody className="h-[70vh] p-0">
+        <ModalBody className="overflow-hidden p-0">
           <DiscussionThread
             justificationId={justification.id}
             objectif={{

@@ -8,16 +8,12 @@ import { validateFileClient } from "./useDiscussionThread";
 
 interface MessageComposerProps {
   disabled?: boolean;
-  canValidate?: boolean;
   onSend: (text: string, file: File | null) => Promise<void>;
-  onValidate?: (text: string) => Promise<void>;
 }
 
 export default function MessageComposer({
   disabled,
-  canValidate,
   onSend,
-  onValidate,
 }: MessageComposerProps) {
   const [text, setText] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -72,17 +68,6 @@ export default function MessageComposer({
     });
   };
 
-  const handleValidate = () => {
-    if (!onValidate) {
-      return;
-    }
-
-    startTransition(async () => {
-      await onValidate(text);
-      clearAll();
-    });
-  };
-
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
@@ -133,19 +118,6 @@ export default function MessageComposer({
           onValueChange={setText}
         />
 
-        {canValidate && (
-          <Button
-            color="success"
-            isDisabled={busy}
-            isLoading={isPending}
-            startContent={<Icon icon="solar:check-circle-linear" width={18} />}
-            variant="flat"
-            onPress={handleValidate}
-          >
-            Valider
-          </Button>
-        )}
-
         <Button
           isIconOnly
           color="primary"
@@ -153,7 +125,7 @@ export default function MessageComposer({
           isLoading={isPending}
           onPress={handleSend}
         >
-          <Icon icon="solar:send-linear" width={20} />
+          <Icon icon="solar:plain-linear" width={20} />
         </Button>
       </div>
     </div>

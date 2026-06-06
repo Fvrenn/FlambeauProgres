@@ -38,7 +38,7 @@ export const SidebarContent = ({
         />
         {!isCompact && (
           <span className="text-2xl font-medium text-[#E06511] leading-7">
-            Flambeau <span className="text-[#542C11]">Progrès</span>
+            Flambeaux <span className="text-[#542C11]">Progrès</span>
           </span>
         )}
       </div>

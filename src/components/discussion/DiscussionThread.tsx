@@ -8,6 +8,7 @@ import { Icon } from "@iconify/react";
 
 import MessageList from "./MessageList";
 import MessageComposer from "./MessageComposer";
+import ValidateRealisation from "./ValidateRealisation";
 import { useDiscussionThread } from "./useDiscussionThread";
 
 import { useSession } from "@/lib/auth-client";
@@ -53,19 +54,25 @@ export default function DiscussionThread({
         />
       </div>
 
-      <footer className="border-t border-divider p-3">
+      <footer className="flex flex-col gap-3 border-t border-divider p-3">
         {readOnly ? (
           <div className="flex items-center justify-center gap-2 text-sm text-success-600">
             <Icon icon="solar:check-circle-bold" width={18} />
             Réalisation validée — fil clôturé
           </div>
         ) : (
-          <MessageComposer
-            canValidate={viewerRole === "REFERENT"}
-            disabled={!viewerId}
-            onSend={(text, file) => sendMessage({ text, file })}
-            onValidate={(text) => validate(text)}
-          />
+          <>
+            {viewerRole === "REFERENT" && (
+              <ValidateRealisation
+                disabled={!viewerId}
+                onValidate={(word) => validate(word)}
+              />
+            )}
+            <MessageComposer
+              disabled={!viewerId}
+              onSend={(text, file) => sendMessage({ text, file })}
+            />
+          </>
         )}
       </footer>
     </div>
