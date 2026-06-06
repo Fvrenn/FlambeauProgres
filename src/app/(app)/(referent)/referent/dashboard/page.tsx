@@ -114,7 +114,7 @@ export default async function ReferentDashboardPage({
     return <div>Accès refusé</div>;
   }
 
-  const rawJustificationsAValider = await prisma.justification.findMany({
+  const justificationsAValider = await prisma.justification.findMany({
     where: {
       etapeId: etapeId,
       statut: "SOUMISE",
@@ -122,33 +122,13 @@ export default async function ReferentDashboardPage({
     include: {
       chef: true,
       objectif: true,
-      commentaires: {
-        include: {
-          auteur: true,
-        },
-        orderBy: {
-          createdAt: "asc",
-        },
-      },
-      fichiers: true,
     },
     orderBy: {
       soumiseAt: "asc",
     },
   });
 
-  const justificationsAValider = rawJustificationsAValider.map(
-    (justification) => ({
-      ...justification,
-      fichiers: justification.fichiers.map((fichier) => ({
-        ...fichier,
-
-        url: `/api/files/${fichier.id}`,
-      })),
-    }),
-  );
-
-  const rawJustificationsEnDiscussion = await prisma.justification.findMany({
+  const justificationsEnDiscussion = await prisma.justification.findMany({
     where: {
       etapeId: etapeId,
       statut: "DEMANDE_PRECISION",
@@ -156,15 +136,6 @@ export default async function ReferentDashboardPage({
     include: {
       chef: true,
       objectif: true,
-      commentaires: {
-        include: {
-          auteur: true,
-        },
-        orderBy: {
-          createdAt: "asc",
-        },
-      },
-      fichiers: true,
       _count: {
         select: {
           notifications: {
@@ -181,16 +152,6 @@ export default async function ReferentDashboardPage({
       updatedAt: "desc",
     },
   });
-
-  const justificationsEnDiscussion = rawJustificationsEnDiscussion.map(
-    (justification) => ({
-      ...justification,
-      fichiers: justification.fichiers.map((fichier) => ({
-        ...fichier,
-        url: `/api/files/${fichier.id}`,
-      })),
-    }),
-  );
 
   return (
     <ReferentDashboardClientV2
