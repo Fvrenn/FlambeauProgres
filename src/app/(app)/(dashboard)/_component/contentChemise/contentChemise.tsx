@@ -15,9 +15,34 @@ const ChemiseModel = dynamic(
   () => import("./chemiseModel").then((mod) => mod.ChemiseModel),
   {
     ssr: false,
-    loading: () => <p>Chargement du modèle...</p>,
+    loading: () => (
+      <div className="w-full h-full animate-pulse rounded-3xl bg-default-100" />
+    ),
   },
 );
+
+class ChemiseBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex h-full w-full items-center justify-center p-4 text-center text-sm text-default-500">
+          Aperçu 3D indisponible
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 interface ContentChemiseProps {
   etapes: EtapeAvecObjectifs[];
@@ -56,7 +81,9 @@ export default function ContentChemise({
   return (
     <div className="md:bg-content1 h-full w-full md:w-[345px] flex flex-col justify-between p-0.5 rounded-3xl">
       <div className="flex h-2/4 justify-center">
-        <ChemiseModel selectedBadge={selectedEtape?.number} />
+        <ChemiseBoundary>
+          <ChemiseModel selectedBadge={selectedEtape?.number} />
+        </ChemiseBoundary>
       </div>
 
       <div className=" md:bg-default w-full h-2/4 rounded-3xl border md:p-7 border-[#F0EFE7]">
@@ -70,13 +97,16 @@ export default function ContentChemise({
                 } ${selectedEtape?.id === etape.id ? "active" : ""}`}
                 onClick={() => handleBadgeClick(etape)}
               >
-                <Image
-                  alt={etape.name}
-                  className="w-[50px] h-auto md:w-[67px] md:h-[77px]"
-                  height={77}
-                  src={etape.image_src || ""}
-                  width={67}
-                />
+                {etape.image_src && (
+                  <Image
+                    alt={etape.name}
+                    className="w-[50px] h-auto md:w-[67px] md:h-[77px]"
+                    height={77}
+                    sizes="(max-width: 768px) 50px, 67px"
+                    src={etape.image_src}
+                    width={67}
+                  />
+                )}
               </button>
               {etape.isValidated && (
                 <Icon
