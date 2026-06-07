@@ -4,6 +4,7 @@ import { type User } from "@prisma/client";
 import ReferentDashboardClientV2 from "./ReferentDashboardClientV2";
 
 import { getUser } from "@/lib/auth-server";
+import { STATUTS_VALIDES } from "@/lib/justification";
 import prisma from "@/lib/prisma";
 
 type ReferentDashboardPageProps = {
@@ -45,7 +46,7 @@ export default async function ReferentDashboardPage({
     by: ["chefId"],
     where: {
       etapeId: etapeId,
-      statut: { in: ["AUTO_VALIDEE", "VALIDEE"] },
+      statut: { in: STATUTS_VALIDES },
     },
     _count: {
       id: true,

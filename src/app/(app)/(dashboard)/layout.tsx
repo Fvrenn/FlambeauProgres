@@ -19,9 +19,15 @@ export default async function DashboardLayout({
   const sidebarItems: SidebarItem[] = [
     {
       key: "dashboard",
-      href: "/dashboard",
+      href: "/",
       icon: "solar:home-2-linear",
       title: "Tableau de bord",
+    },
+    {
+      key: "progression",
+      href: "/progression",
+      icon: "solar:chart-2-linear",
+      title: "Progression",
     },
   ];
 

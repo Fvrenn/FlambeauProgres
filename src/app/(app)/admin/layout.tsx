@@ -19,12 +19,6 @@ export default async function AdminLayout({
 
   const sidebarItems: SidebarItem[] = [
     {
-      key: "troupes",
-      href: "/admin/troupes",
-      icon: "solar:users-group-rounded-linear",
-      title: "Troupes",
-    },
-    {
       key: "users",
       href: "/admin/users",
       icon: "solar:user-linear",

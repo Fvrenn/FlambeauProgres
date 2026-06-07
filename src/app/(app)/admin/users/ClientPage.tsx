@@ -1,8 +1,6 @@
 "use client";
 
-import type { AdminUserWithTroupe } from "@/types";
-
-import { User, UserRole, Troupe } from "@prisma/client";
+import { User, UserRole } from "@prisma/client";
 import React from "react";
 import { Chip, Tooltip, Avatar, Card, CardBody } from "@heroui/react";
 import { Icon } from "@iconify/react";
@@ -12,14 +10,12 @@ import UserModal from "./_components/UserModal";
 import AdminDataTable, { Column } from "@/components/admin/AdminDataTable";
 
 type UsersClientPageProps = {
-  users: AdminUserWithTroupe[];
-  troupes: Troupe[];
+  users: User[];
 };
 
 const columns: Column[] = [
   { key: "user", label: "UTILISATEUR", sortable: true },
   { key: "role", label: "RÔLE", sortable: true },
-  { key: "troupe", label: "TROUPE", sortable: true },
   { key: "actions", label: "ACTIONS" },
 ];
 
@@ -32,21 +28,17 @@ const roleColorMap: Record<
   ADMIN: "danger",
 };
 
-export default function UsersClientPage({
-  users,
-  troupes,
-}: UsersClientPageProps) {
-  const [selectedUser, setSelectedUser] =
-    React.useState<AdminUserWithTroupe | null>(null);
+export default function UsersClientPage({ users }: UsersClientPageProps) {
+  const [selectedUser, setSelectedUser] = React.useState<User | null>(null);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
 
-  const handleEdit = (user: AdminUserWithTroupe) => {
+  const handleEdit = (user: User) => {
     setSelectedUser(user);
     setIsModalOpen(true);
   };
 
   const renderCell = React.useCallback(
-    (user: AdminUserWithTroupe, columnKey: React.Key) => {
+    (user: User, columnKey: React.Key) => {
       const cellValue = user[columnKey as keyof User];
 
       switch (columnKey) {
@@ -76,14 +68,6 @@ export default function UsersClientPage({
             >
               {user.role}
             </Chip>
-          );
-        case "troupe":
-          return (
-            <div className="flex flex-col">
-              <p className="text-bold text-small capitalize">
-                {user.troupe?.nom || "Aucune"}
-              </p>
-            </div>
           );
         case "actions":
           return (
@@ -152,15 +136,6 @@ export default function UsersClientPage({
                     >
                       {user.role}
                     </Chip>
-                    {user.troupe && (
-                      <span className="text-tiny text-default-500 flex items-center gap-1">
-                        <Icon
-                          icon="solar:users-group-rounded-linear"
-                          width={12}
-                        />
-                        {user.troupe.nom}
-                      </span>
-                    )}
                   </div>
                 </div>
               </div>
@@ -175,7 +150,6 @@ export default function UsersClientPage({
       {selectedUser && (
         <UserModal
           isOpen={isModalOpen}
-          troupes={troupes}
           user={selectedUser}
           onClose={() => {
             setIsModalOpen(false);

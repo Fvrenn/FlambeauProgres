@@ -1,7 +1,5 @@
 "use client";
 
-import type { AdminUserWithTroupe } from "@/types";
-
 import React from "react";
 import {
   Modal,
@@ -14,17 +12,16 @@ import {
   SelectItem,
   Avatar,
 } from "@heroui/react";
-import { UserRole, Troupe } from "@prisma/client";
+import { UserRole, type User } from "@prisma/client";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
 
-import { updateUserRole, updateUserTroupe } from "../../_actions/admin.actions";
+import { updateUserRole } from "../../_actions/admin.actions";
 
 const userSchema = z.object({
   role: z.nativeEnum(UserRole),
-  troupeId: z.string().nullable(),
 });
 
 type UserFormData = z.infer<typeof userSchema>;
@@ -32,21 +29,14 @@ type UserFormData = z.infer<typeof userSchema>;
 type UserModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  user: AdminUserWithTroupe;
-  troupes: Troupe[];
+  user: User;
 };
 
-export default function UserModal({
-  isOpen,
-  onClose,
-  user,
-  troupes,
-}: UserModalProps) {
+export default function UserModal({ isOpen, onClose, user }: UserModalProps) {
   const router = useRouter();
   const [isPending, setIsPending] = React.useState(false);
 
   const {
-    register,
     handleSubmit,
     setValue,
     watch,
@@ -55,24 +45,19 @@ export default function UserModal({
     resolver: zodResolver(userSchema),
     defaultValues: {
       role: user?.role || UserRole.CHEF,
-      troupeId: user?.troupeId || null,
     },
   });
 
   React.useEffect(() => {
     if (user) {
       setValue("role", user.role);
-      setValue("troupeId", user.troupeId);
     }
   }, [user, setValue]);
 
   const onSubmit = async (data: UserFormData) => {
     setIsPending(true);
     try {
-      await Promise.all([
-        updateUserRole(user.id, data.role),
-        updateUserTroupe(user.id, data.troupeId),
-      ]);
+      await updateUserRole(user.id, data.role);
       onClose();
       router.refresh();
     } catch (error) {
@@ -105,25 +90,14 @@ export default function UserModal({
 
               <Select
                 defaultSelectedKeys={[watch("role")]}
+                errorMessage={errors.role?.message}
+                isInvalid={!!errors.role}
                 label="Rôle"
                 placeholder="Sélectionner un rôle"
                 onChange={(e) => setValue("role", e.target.value as UserRole)}
               >
                 {Object.values(UserRole).map((role) => (
                   <SelectItem key={role}>{role}</SelectItem>
-                ))}
-              </Select>
-
-              <Select
-                defaultSelectedKeys={
-                  watch("troupeId") ? [watch("troupeId") as string] : []
-                }
-                label="Troupe"
-                placeholder="Sélectionner une troupe"
-                onChange={(e) => setValue("troupeId", e.target.value || null)}
-              >
-                {troupes.map((troupe) => (
-                  <SelectItem key={troupe.id}>{troupe.nom}</SelectItem>
                 ))}
               </Select>
             </ModalBody>

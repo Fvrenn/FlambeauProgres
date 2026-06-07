@@ -1,3 +1,4 @@
+import { STATUTS_VALIDES } from "@/lib/justification";
 import prisma from "@/lib/prisma";
 import { NotificationService } from "@/services/notification.service";
 
@@ -7,7 +8,52 @@ export type ServiceResult<T = void> = {
   error?: string;
 };
 
+export type EtapeProgressForChef = {
+  id: string;
+  number: string;
+  name: string;
+  imageSrc: string | null;
+  couleur: string | null;
+  done: number;
+  total: number;
+};
+
 export class EtapeService {
+  static async getProgressForChef(
+    chefId: string,
+  ): Promise<EtapeProgressForChef[]> {
+    const [etapes, validees] = await Promise.all([
+      prisma.etape.findMany({
+        orderBy: { ordre: "asc" },
+        select: {
+          id: true,
+          number: true,
+          name: true,
+          image_src: true,
+          couleur: true,
+          _count: { select: { objectifs: true } },
+        },
+      }),
+      prisma.justification.groupBy({
+        by: ["etapeId"],
+        where: { chefId, statut: { in: STATUTS_VALIDES } },
+        _count: { id: true },
+      }),
+    ]);
+
+    const doneByEtape = new Map(validees.map((v) => [v.etapeId, v._count.id]));
+
+    return etapes.map((etape) => ({
+      id: etape.id,
+      number: etape.number,
+      name: etape.name,
+      imageSrc: etape.image_src,
+      couleur: etape.couleur,
+      done: doneByEtape.get(etape.id) ?? 0,
+      total: etape._count.objectifs,
+    }));
+  }
+
   static async validateBadge(
     chefId: string,
     referentId: string,

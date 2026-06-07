@@ -25,6 +25,7 @@ import {
 } from "../../_actions/admin.actions";
 
 import AdminDataTable, { Column } from "@/components/admin/AdminDataTable";
+import { DEFAULT_ETAPE_COLOR } from "@/lib/color";
 
 type EtapeDetailClientPageProps = {
   etape: AdminEtapeDetail;
@@ -46,6 +47,9 @@ export default function EtapeDetailClientPage({
     React.useState<Objectif | null>(null);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [badgeUrl, setBadgeUrl] = React.useState(etape.image_src || "");
+  const [couleur, setCouleur] = React.useState(
+    etape.couleur || DEFAULT_ETAPE_COLOR,
+  );
   const [isSavingBadge, setIsSavingBadge] = React.useState(false);
   const [selectedFormation, setSelectedFormation] =
     React.useState<FormationCard | null>(null);
@@ -88,7 +92,7 @@ export default function EtapeDetailClientPage({
   const handleSaveBadge = async () => {
     setIsSavingBadge(true);
     try {
-      await updateEtapeBadge(etape.id, badgeUrl);
+      await updateEtapeBadge(etape.id, badgeUrl, couleur);
       router.refresh();
     } catch (e) {
       console.error(e);
@@ -188,6 +192,23 @@ export default function EtapeDetailClientPage({
             value={badgeUrl}
             onValueChange={setBadgeUrl}
           />
+          <div className="flex items-end gap-2">
+            <input
+              aria-label="Couleur de l'étape"
+              className="h-10 w-12 shrink-0 cursor-pointer rounded-medium border border-default-300 bg-transparent p-1"
+              type="color"
+              value={couleur}
+              onChange={(e) => setCouleur(e.target.value)}
+            />
+            <Input
+              description="Couleur du curseur des onglets côté chef"
+              label="Couleur des onglets"
+              placeholder={DEFAULT_ETAPE_COLOR}
+              size="sm"
+              value={couleur}
+              onValueChange={setCouleur}
+            />
+          </div>
           <Button
             color="primary"
             isLoading={isSavingBadge}

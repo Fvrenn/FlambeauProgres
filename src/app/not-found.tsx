@@ -10,7 +10,7 @@ export default function NotFound() {
       </p>
       <Link
         className="mt-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-black transition-opacity hover:opacity-90"
-        href="/dashboard"
+        href="/"
       >
         Retour au tableau de bord
       </Link>

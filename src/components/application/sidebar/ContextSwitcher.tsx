@@ -134,7 +134,7 @@ export default function ContextSwitcher({
   const iconClasses = "text-xl text-default-500 pointer-events-none shrink-0";
 
   const viewItems = [
-    ...(pathname === "/" || pathname.startsWith("/troupe")
+    ...(pathname === "/"
       ? []
       : [
           <DropdownItem

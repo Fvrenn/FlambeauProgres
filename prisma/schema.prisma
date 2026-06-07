@@ -55,14 +55,6 @@ enum TypeNotification {
   NOUVEAU_COMMENTAIRE
 }
 
-model Troupe {
-  id      String @id @default(cuid())
-  nom     String
-  membres User[] @relation("TroupeMembres")
-
-  @@map("troupes")
-}
-
 model User {
   id            String   @id @default(cuid())
   email         String   @unique
@@ -72,9 +64,6 @@ model User {
   role          UserRole @default(CHEF)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-
-  troupeId      String?
-  troupe        Troupe? @relation("TroupeMembres", fields: [troupeId], references: [id], onDelete: SetNull)
 
   justifications        Justification[]
   assigneEtapes         EtapeReferent[]
@@ -96,6 +85,7 @@ model Etape {
   name        String
   description String
   image_src   String?
+  couleur     String?
   ordre       Int
   actif       Boolean  @default(true)
   createdAt   DateTime @default(now())

@@ -29,16 +29,9 @@ async function main() {
   await prisma.session.deleteMany();
   await prisma.account.deleteMany();
   await prisma.user.deleteMany();
-  await prisma.troupe.deleteMany();
   console.log("Database cleaned.");
 
   
-  const troupe = await prisma.troupe.create({
-    data: {
-      nom: "Troupe de Paris 11e",
-    },
-  });
-  console.log(`Created troupe: ${troupe.nom}`);
 
   
 
@@ -69,7 +62,6 @@ async function main() {
     where: { id: chef1Result.user.id },
     data: {
       role: "CHEF",
-      troupeId: troupe.id,
     },
   });
 
@@ -86,7 +78,6 @@ async function main() {
     where: { id: referentResult.user.id },
     data: {
       role: "REFERENT",
-      troupeId: troupe.id,
     },
   });
 
@@ -1038,6 +1029,29 @@ await prisma.etapeReferent.create({
     console.log(`Created SOUMISE justification + message for objectif ${objectifRealisationG8.code}`);
   }
 
+
+  const ETAPE_COULEURS: Record<string, string> = {
+    "2b": "#ece835",
+    "2c": "#2357a7",
+    "2e": "#eabf2c",
+    "2f": "#f37b61",
+    "2g": "#cc7b4d",
+    "2h": "#e07f31",
+    "2i": "#3a7155",
+    "2j": "#733d8a",
+    "2k": "#333333",
+    "2l": "#4bbe97",
+    "2m": "#9a1622",
+    "2n": "#9d57a2",
+  };
+
+  for (const [number, couleur] of Object.entries(ETAPE_COULEURS)) {
+    await prisma.etape.updateMany({ where: { number }, data: { couleur } });
+  }
+
+  console.log(
+    `Updated couleur for ${Object.keys(ETAPE_COULEURS).length} etapes`
+  );
 
   console.log(
     `\nSeeding finished. \nDefault password for all users: "${defaultPassword}"`

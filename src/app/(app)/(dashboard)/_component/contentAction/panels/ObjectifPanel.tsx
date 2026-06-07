@@ -16,6 +16,8 @@ import {
 import StatusChip from "./StatusChip";
 import ObjectifModal from "./ObjectifModal";
 
+import { DEFAULT_ETAPE_COLOR, getReadableTextColor } from "@/lib/color";
+
 interface ObjectifPanelProps {
   selectedEtape: EtapeAvecObjectifs | null;
   onUpdateJustification: (
@@ -62,12 +64,21 @@ export default function ObjectifPanel({
     (o) => o.type === "REALISATION",
   ) as ObjectifAvecJustification[];
   const formations = selectedEtape.formations ?? [];
+  const etapeColor = selectedEtape.couleur || DEFAULT_ETAPE_COLOR;
+  const etapeFg = getReadableTextColor(etapeColor);
 
   return (
     <div>
-      <div className="flex w-full flex-col">
+      <div
+        className="flex w-full flex-col"
+        style={
+          {
+            "--etape-color": etapeColor,
+            "--etape-fg": etapeFg,
+          } as React.CSSProperties
+        }
+      >
         <div className="mb-4 flex items-center gap-2">
-
           <h2 className="text-xl font-bold text-foreground">
             Étape {selectedEtape.name}
           </h2>
@@ -88,10 +99,10 @@ export default function ObjectifPanel({
             tabList:
               "gap-1 md:gap-8 w-full max-w-xl rounded-full p-0.5 bg-[#F3F2E9]",
             cursor:
-              "!bg-danger-800 rounded-full md:before:content-['•'] before:absolute before:left-3 before:top-1/2 before:-translate-y-1/2 before:text-black before:text-lg before:font-bold",
+              "!bg-[var(--etape-color)] rounded-full md:before:content-['•'] before:absolute before:left-3 before:top-1/2 before:-translate-y-1/2 before:text-[var(--etape-fg)] before:text-lg before:font-bold",
             tab: "px-1 md:px-6 h-12 relative md:text-sm text-xs",
             tabContent:
-              "text-black md:group-data-[selected=true]:pl-6 group-data-[selected=true]:font-semibold font-medium transition-all duration-300 ease-in-out",
+              "text-black group-data-[selected=true]:text-[var(--etape-fg)] md:group-data-[selected=true]:pl-6 group-data-[selected=true]:font-semibold font-medium transition-all duration-300 ease-in-out",
           }}
           selectedKey={activeTab as string}
           onSelectionChange={setActiveTab}
