@@ -2,10 +2,10 @@
 
 /* eslint-disable react/no-unknown-property -- props React Three Fiber (position, intensity, ...) non reconnues par eslint-plugin-react */
 
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { useGLTF, Center } from "@react-three/drei";
 import { Suspense, useRef, useLayoutEffect, useMemo } from "react";
-import { MathUtils, Group, Mesh, Material, MeshStandardMaterial } from "three";
+import { MathUtils, Group, Mesh, MeshStandardMaterial } from "three";
 
 const LIGHTING_CONFIG = {
   ambient: { intensity: 0.8, color: "#ffffff" },
@@ -37,7 +37,6 @@ const ANIMATION_CONFIG = {
     position: [0, 0, 0] as [number, number, number],
   },
   lerpSpeed: 5,
-  settleEpsilon: 0.001,
 };
 
 const MATERIAL_CONFIG = {
@@ -54,7 +53,6 @@ const MATERIAL_CONFIG = {
 function ChemiseGLB({ selectedBadge }: { selectedBadge?: string | null }) {
   const { scene } = useGLTF("/chemise/chemise.glb");
   const meshRef = useRef<Group>(null);
-  const invalidate = useThree((state) => state.invalidate);
 
   useFrame((_, delta) => {
     const group = meshRef.current;
@@ -64,7 +62,7 @@ function ChemiseGLB({ selectedBadge }: { selectedBadge?: string | null }) {
     const target = selectedBadge
       ? ANIMATION_CONFIG.selected
       : ANIMATION_CONFIG.default;
-    const lerpFactor = Math.min(delta * ANIMATION_CONFIG.lerpSpeed, 1);
+    const lerpFactor = delta * ANIMATION_CONFIG.lerpSpeed;
 
     group.rotation.x = MathUtils.lerp(
       group.rotation.x,
@@ -101,29 +99,11 @@ function ChemiseGLB({ selectedBadge }: { selectedBadge?: string | null }) {
       target.position[2],
       lerpFactor,
     );
-
-    const e = ANIMATION_CONFIG.settleEpsilon;
-    const settled =
-      Math.abs(group.scale.x - target.scale) < e &&
-      Math.abs(group.rotation.x - target.rotation[0]) < e &&
-      Math.abs(group.rotation.y - target.rotation[1]) < e &&
-      Math.abs(group.rotation.z - target.rotation[2]) < e &&
-      Math.abs(group.position.x - target.position[0]) < e &&
-      Math.abs(group.position.y - target.position[1]) < e &&
-      Math.abs(group.position.z - target.position[2]) < e;
-
-    if (!settled) invalidate();
   });
 
   useLayoutEffect(() => {
     scene.traverse((child) => {
       if (child instanceof Mesh && child.material) {
-        const material = child.material as Material;
-
-        if (!material.userData.cloned) {
-          child.material = material.clone();
-          child.material.userData.cloned = true;
-        }
         Object.assign(child.material, MATERIAL_CONFIG.base);
       }
     });
@@ -141,20 +121,19 @@ function ChemiseGLB({ selectedBadge }: { selectedBadge?: string | null }) {
 
         obj.traverse((child) => {
           if (child instanceof Mesh && child.material) {
-            const material = child.material as MeshStandardMaterial;
+            const material = (child.material as MeshStandardMaterial).clone();
 
             material.color.set(materialConfig.color);
             material.roughness = materialConfig.roughness;
             material.metalness = materialConfig.metalness;
             material.opacity = materialConfig.opacity;
             material.transparent = !isActive;
-            material.needsUpdate = true;
+            child.material = material;
           }
         });
       }
     });
-    invalidate();
-  }, [scene, selectedBadge, invalidate]);
+  }, [scene, selectedBadge]);
 
   return (
     <group ref={meshRef}>
@@ -184,7 +163,6 @@ export const ChemiseModel = ({ selectedBadge }: ChemiseModelProps) => {
       <Canvas
         camera={{ position: [0, 0, 5], fov: 20 }}
         dpr={isLowEnd ? [1, 1.5] : [1, 2]}
-        frameloop="demand"
         gl={{ antialias: !isLowEnd, powerPreference: "high-performance" }}
         shadows={false}
       >
