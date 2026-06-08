@@ -27,6 +27,7 @@ const objectifSchema = z.object({
   description: z.string().min(1, "La description est requise"),
   type: z.nativeEnum(TypeObjectif),
   fichiersRequis: z.boolean(),
+  texteRequis: z.boolean(),
 });
 
 type ObjectifFormData = z.infer<typeof objectifSchema>;
@@ -61,6 +62,7 @@ export default function ObjectifModal({
       description: "",
       type: TypeObjectif.COMPETENCE,
       fichiersRequis: false,
+      texteRequis: true,
     },
   });
 
@@ -71,12 +73,14 @@ export default function ObjectifModal({
         setValue("description", objectif.description);
         setValue("type", objectif.type);
         setValue("fichiersRequis", objectif.fichiersRequis);
+        setValue("texteRequis", objectif.texteRequis);
       } else {
         reset({
           code: "",
           description: "",
           type: TypeObjectif.COMPETENCE,
           fichiersRequis: false,
+          texteRequis: true,
         });
       }
     }
@@ -150,6 +154,16 @@ export default function ObjectifModal({
                 <Switch
                   isSelected={watch("fichiersRequis")}
                   onValueChange={(val) => setValue("fichiersRequis", val)}
+                />
+              </div>
+
+              <div className="flex items-center justify-between py-2">
+                <span className="text-small text-default-500">
+                  Texte obligatoire pour valider ?
+                </span>
+                <Switch
+                  isSelected={watch("texteRequis")}
+                  onValueChange={(val) => setValue("texteRequis", val)}
                 />
               </div>
             </ModalBody>

@@ -8,6 +8,7 @@ import {
   FormationCard,
 } from "@prisma/client";
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 
 import ContentChemise from "./contentChemise/contentChemise";
 import ContentAction from "./contentAction/contentAction";
@@ -47,6 +48,25 @@ export default function DashboardClient({
   );
   const [activeTab, setActiveTab] = useState<React.Key>("objectif");
   const [targetSubTab, setTargetSubTab] = useState<string | null>(null);
+
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const etapeId = searchParams.get("etape");
+
+    if (!etapeId) {
+      return;
+    }
+
+    const target = initialEtapes.find((etape) => etape.id === etapeId);
+
+    if (target) {
+      setSelectedEtape(target);
+      setActiveTab("objectif");
+    }
+
+    window.history.replaceState(null, "", window.location.pathname);
+  }, [searchParams, initialEtapes]);
 
   useEffect(() => {
     if (selectedEtape) {

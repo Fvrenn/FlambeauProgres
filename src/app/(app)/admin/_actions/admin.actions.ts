@@ -15,6 +15,7 @@ const objectifInputSchema = z.object({
   description: z.string().max(2000),
   type: z.enum(["COMPETENCE", "REALISATION"]),
   fichiersRequis: z.boolean(),
+  texteRequis: z.boolean(),
 });
 
 const etapeInfoSchema = z.object({
@@ -137,6 +138,7 @@ export async function createEtape(data: {
     description: string;
     type: "COMPETENCE" | "REALISATION";
     fichiersRequis: boolean;
+    texteRequis: boolean;
   }[];
 }) {
   if (!(await authorizeRole("ADMIN"))) {
@@ -266,6 +268,7 @@ export async function createObjectif(
     description: string;
     type: "COMPETENCE" | "REALISATION";
     fichiersRequis: boolean;
+    texteRequis: boolean;
   },
 ) {
   if (!(await authorizeRole("ADMIN"))) {
@@ -305,6 +308,7 @@ export async function updateObjectif(
     description: string;
     type: "COMPETENCE" | "REALISATION";
     fichiersRequis: boolean;
+    texteRequis: boolean;
   },
 ) {
   if (!(await authorizeRole("ADMIN"))) {

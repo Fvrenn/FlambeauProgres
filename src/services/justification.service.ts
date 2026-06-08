@@ -29,6 +29,15 @@ export class JustificationService {
       return { success: false, error: "Cet objectif n'est pas une compétence" };
     }
 
+    const trimmed = contenu.trim();
+
+    if (objectif.texteRequis && !trimmed) {
+      return {
+        success: false,
+        error: "La description est obligatoire pour cet objectif",
+      };
+    }
+
     const existing = await prisma.justification.findFirst({
       where: { objectifId, chefId },
     });
@@ -36,7 +45,11 @@ export class JustificationService {
     if (existing) {
       await prisma.justification.update({
         where: { id: existing.id },
-        data: { contenu, statut: "AUTO_VALIDEE", valideeAt: new Date() },
+        data: {
+          contenu: trimmed || null,
+          statut: "AUTO_VALIDEE",
+          valideeAt: new Date(),
+        },
       });
     } else {
       await prisma.justification.create({
@@ -44,7 +57,7 @@ export class JustificationService {
           objectifId,
           chefId,
           etapeId: objectif.etapeId,
-          contenu,
+          contenu: trimmed || null,
           statut: "AUTO_VALIDEE",
           valideeAt: new Date(),
         },
@@ -80,6 +93,13 @@ export class JustificationService {
     }
 
     const trimmed = contenu.trim();
+
+    if (objectif.texteRequis && !trimmed) {
+      return {
+        success: false,
+        error: "La description est obligatoire pour cet objectif",
+      };
+    }
 
     if (!trimmed && !fichierData) {
       return { success: false, error: "Ajoute une description ou un fichier" };

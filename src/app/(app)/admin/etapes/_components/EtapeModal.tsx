@@ -40,6 +40,7 @@ const etapeSchema = z.object({
       description: z.string().min(1, "Description requise"),
       type: z.nativeEnum(TypeObjectif),
       fichiersRequis: z.boolean(),
+      texteRequis: z.boolean(),
     }),
   ),
 });
@@ -104,6 +105,7 @@ export default function EtapeModal({
               description: "",
               type: TypeObjectif.COMPETENCE,
               fichiersRequis: false,
+              texteRequis: true,
             },
           ],
         });
@@ -200,6 +202,7 @@ export default function EtapeModal({
                               description: "",
                               type: TypeObjectif.COMPETENCE,
                               fichiersRequis: false,
+                              texteRequis: true,
                             })
                           }
                         >
@@ -251,6 +254,17 @@ export default function EtapeModal({
                                       <span className="text-tiny">
                                         Fichiers
                                       </span>
+                                    </Switch>
+                                  </div>
+                                  <div className="flex items-center">
+                                    <Switch
+                                      defaultSelected={field.texteRequis}
+                                      size="sm"
+                                      {...register(
+                                        `objectifs.${index}.texteRequis`,
+                                      )}
+                                    >
+                                      <span className="text-tiny">Texte</span>
                                     </Switch>
                                   </div>
                                 </div>

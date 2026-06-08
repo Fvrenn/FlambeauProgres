@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import EtapeProgressCard from "./_components/EtapeProgressCard";
@@ -21,15 +22,21 @@ export default async function ProgressionPage() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {etapes.map((etape) => (
-          <EtapeProgressCard
+          <Link
             key={etape.id}
-            color={etape.couleur ?? DEFAULT_ETAPE_COLOR}
-            done={etape.done}
-            imageSrc={etape.imageSrc}
-            name={etape.name}
-            number={etape.number}
-            total={etape.total}
-          />
+            aria-label={`Ouvrir l'étape ${etape.name} dans le tableau de bord`}
+            className="block h-full rounded-large outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2"
+            href={`/?etape=${encodeURIComponent(etape.id)}`}
+          >
+            <EtapeProgressCard
+              color={etape.couleur ?? DEFAULT_ETAPE_COLOR}
+              done={etape.done}
+              imageSrc={etape.imageSrc}
+              name={etape.name}
+              number={etape.number}
+              total={etape.total}
+            />
+          </Link>
         ))}
       </div>
     </div>

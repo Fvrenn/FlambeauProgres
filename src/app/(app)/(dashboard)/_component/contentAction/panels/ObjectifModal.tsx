@@ -78,7 +78,8 @@ export default function ObjectifModal({
   };
 
   const handleSubmit = async () => {
-    if (!objectif || !contenu.trim()) return;
+    if (!objectif) return;
+    if (objectif.texteRequis && !contenu.trim()) return;
 
     const isCompetence = objectif.type === "COMPETENCE";
     const isRealisation = objectif.type === "REALISATION";
@@ -133,6 +134,7 @@ export default function ObjectifModal({
   if (!objectif) return null;
 
   const isCompetence = objectif.type === "COMPETENCE";
+  const textRequired = objectif.texteRequis;
   const existingJustification = objectif.justifications[0];
   const isEditing = !!existingJustification;
   const showThread =
@@ -181,9 +183,13 @@ export default function ObjectifModal({
                     </p>
 
                     <Textarea
-                      isRequired
                       description={`${contenu.length} caractères`}
-                      label="Ta justification"
+                      isRequired={textRequired}
+                      label={
+                        textRequired
+                          ? "Ta justification"
+                          : "Ta justification (optionnel)"
+                      }
                       maxRows={12}
                       minRows={6}
                       placeholder="Explique comment tu as travaillé cette compétence..."
@@ -200,10 +206,14 @@ export default function ObjectifModal({
                     </p>
 
                     <Textarea
-                      isRequired
                       className="mb-4"
                       description={`${contenu.length} caractères`}
-                      label="Description de ta réalisation"
+                      isRequired={textRequired}
+                      label={
+                        textRequired
+                          ? "Description de ta réalisation"
+                          : "Description de ta réalisation (optionnel)"
+                      }
                       maxRows={8}
                       minRows={4}
                       placeholder="Explique ce que tu as réalisé, comment et avec qui..."
@@ -332,7 +342,7 @@ export default function ObjectifModal({
                 {isCompetence && (
                   <Button
                     color="primary"
-                    isDisabled={!contenu.trim() || isSubmitting}
+                    isDisabled={(textRequired && !contenu.trim()) || isSubmitting}
                     isLoading={isSubmitting}
                     onPress={handleSubmit}
                   >
@@ -344,7 +354,9 @@ export default function ObjectifModal({
                   <Button
                     color="warning"
                     isDisabled={
-                      !contenu.trim() || !selectedFile || isSubmitting
+                      (textRequired && !contenu.trim()) ||
+                      !selectedFile ||
+                      isSubmitting
                     }
                     isLoading={isSubmitting}
                     startContent={

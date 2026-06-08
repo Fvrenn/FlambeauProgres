@@ -1,4 +1,4 @@
-import { DEFAULT_ETAPE_COLOR } from "@/lib/color";
+import { DEFAULT_ETAPE_COLOR, withAlpha } from "@/lib/color";
 
 type ProgressBarProps = {
   percentage?: number;
@@ -8,6 +8,8 @@ type ProgressBarProps = {
   completed?: boolean;
 };
 
+const INSET = 5;
+const inset = `${INSET}px`;
 const BADGE_HALF_WIDTH = "2rem";
 
 export default function ProgressBar({
@@ -19,6 +21,7 @@ export default function ProgressBar({
 }: ProgressBarProps) {
   const pct = Math.max(0, Math.min(100, Math.round(percentage)));
   const isComplete = completed ?? pct >= 100;
+  const hasFill = pct > 0;
 
   return (
     <div
@@ -26,37 +29,37 @@ export default function ProgressBar({
       aria-valuemax={100}
       aria-valuemin={0}
       aria-valuenow={pct}
-      className="relative flex h-16 w-full items-center overflow-hidden rounded-[35px]"
+      className="relative h-16 w-full overflow-hidden rounded-full"
       role="progressbar"
+      style={{
+        border: `1px solid ${withAlpha(color, 0.4)}`,
+        backgroundColor: withAlpha(color, 0.06),
+      }}
     >
       {!isComplete ? (
         <div
-          className="absolute inset-y-0 right-0 overflow-hidden rounded-[35px]"
-          style={{ left: `calc(${pct}% - 14px)`, border: `1px solid ${color}` }}
-        >
-          <div className="absolute -top-[220%] w-full">
-            <div className="relative flex flex-col items-center justify-center gap-[5px]">
-              {Array.from({ length: 80 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="h-px w-[200%] rotate-[135deg]"
-                  style={{ backgroundColor: color }}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
+          className="absolute rounded-full"
+          style={{
+            inset,
+            backgroundImage: `repeating-linear-gradient(135deg, ${withAlpha(color, 0.6)} 0, ${withAlpha(color, 0.6)} 1px, transparent 1px, transparent 6px)`,
+          }}
+        />
       ) : null}
 
-      <div
-        className="progress-fill absolute inset-y-0 left-0 z-[1] rounded-[35px] border border-white"
-        style={{
-          width: `${pct}%`,
-          background:
-            "linear-gradient(108deg, rgba(238,238,238,0.26) 0%, rgba(238,238,238,0.13) 100%)",
-          backdropFilter: "blur(10px)",
-        }}
-      />
+      {hasFill ? (
+        <div
+          className="progress-fill absolute z-[1] rounded-full border border-white/70"
+          style={{
+            top: inset,
+            bottom: inset,
+            left: inset,
+            width: `max(1.25rem, calc(${pct}% - ${INSET * 2}px))`,
+            background:
+              "linear-gradient(108deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.28) 100%)",
+            backdropFilter: "blur(10px)",
+          }}
+        />
+      ) : null}
 
       <div
         className="absolute top-1/2 z-[2] flex items-center gap-[7px]"
@@ -66,12 +69,14 @@ export default function ProgressBar({
         }}
       >
         {label ? <span className="text-base font-medium">{label}</span> : null}
-        <div className="flex items-center gap-[5px] rounded-[15px] bg-white px-[6px] py-[4px]">
+        <div className="flex items-center gap-[5px] rounded-[15px] bg-white px-[6px] py-[4px] shadow-sm">
           <span
             className="h-[5px] w-[5px] rounded-full"
             style={{ backgroundColor: color }}
           />
-          <span className="text-base font-medium whitespace-nowrap">{pct}%</span>
+          <span className="text-base font-medium whitespace-nowrap text-black">
+            {pct}%
+          </span>
         </div>
       </div>
     </div>

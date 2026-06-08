@@ -36,6 +36,7 @@ const columns: Column[] = [
   { key: "description", label: "DESCRIPTION", sortable: true },
   { key: "type", label: "TYPE", sortable: true },
   { key: "fichiers", label: "FICHIERS" },
+  { key: "texte", label: "TEXTE" },
   { key: "actions", label: "ACTIONS" },
 ];
 
@@ -123,6 +124,15 @@ export default function EtapeDetailClientPage({
             <Icon
               className="text-success text-lg"
               icon="solar:file-check-linear"
+            />
+          ) : (
+            <span className="text-default-300">-</span>
+          );
+        case "texte":
+          return objectif.texteRequis ? (
+            <Icon
+              className="text-success text-lg"
+              icon="solar:document-text-linear"
             />
           ) : (
             <span className="text-default-300">-</span>
