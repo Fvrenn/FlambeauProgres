@@ -22,7 +22,6 @@ async function main() {
   await prisma.etapeReferent.deleteMany();
   await prisma.notification.deleteMany();
   await prisma.fichier.deleteMany();
-  await prisma.message.deleteMany();
   await prisma.justification.deleteMany();
   await prisma.objectif.deleteMany();
   await prisma.etape.deleteMany();
@@ -31,11 +30,11 @@ async function main() {
   await prisma.user.deleteMany();
   console.log("Database cleaned.");
 
-  
 
-  
 
-  
+
+
+
   const adminResult = await authForSeed.api.signUpEmail({
     body: {
       email: "admin@flambeau.dev",
@@ -44,7 +43,7 @@ async function main() {
     },
   });
 
-  
+
   const admin = await prisma.user.update({
     where: { id: adminResult.user.id },
     data: { role: "ADMIN" },
@@ -65,7 +64,7 @@ async function main() {
     },
   });
 
-  
+
   const referentResult = await authForSeed.api.signUpEmail({
     body: {
       email: "referent@flambeau.dev",
@@ -83,8 +82,8 @@ async function main() {
 
   console.log("Users created.");
 
-  
-  
+
+
 
   const etape2B = await prisma.etape.create({
     data: {
@@ -370,7 +369,7 @@ async function main() {
   });
   console.log(`Created etape: ${etape2F.name}`);
 
-  
+
   const etapeConstruction = await prisma.etape.create({
     data: {
       number: "2g",
@@ -964,16 +963,16 @@ async function main() {
   });
   console.log(`Created etape: ${etape2N.name}`);
 
-  
-  
-await prisma.etapeReferent.create({
+
+
+  await prisma.etapeReferent.create({
     data: {
       referentId: referent.id,
       etapeId: etapeConstruction.id,
       assignePar: admin.id,
     },
   });
-await prisma.etapeReferent.create({
+  await prisma.etapeReferent.create({
     data: {
       referentId: referent.id,
       etapeId: etape2F.id,
@@ -982,10 +981,10 @@ await prisma.etapeReferent.create({
   });
   console.log("Assigned referent to etape.");
 
-  
+
   console.log("Creating test justifications for chef1...");
 
-  
+
   const objectifCompetenceG1 = await prisma.objectif.findFirst({
     where: { etapeId: etapeConstruction.id, code: "G1" },
   });
@@ -999,7 +998,7 @@ await prisma.etapeReferent.create({
         contenu: "J'ai lu la documentation et organisé l'atelier sur les outils.",
         statut: "AUTO_VALIDEE",
         objectifId: objectifCompetenceG1.id,
-        chefId: chef1.id, 
+        chefId: chef1.id,
         etapeId: etapeConstruction.id,
       },
     });
