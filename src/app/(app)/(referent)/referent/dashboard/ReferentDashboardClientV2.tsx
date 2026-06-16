@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { type User, type Justification } from "@prisma/client";
 import { useRouter } from "next/navigation";
 
@@ -39,18 +39,42 @@ interface ReferentDashboardClientV2Props {
   justificationsAValider: JustificationAValider[];
   justificationsEnDiscussion: JustificationEnDiscussion[];
   chefsAReviser: User[];
+  targetJustificationId?: string;
 }
 
 export default function ReferentDashboardClientV2({
   justificationsAValider,
   justificationsEnDiscussion,
   chefsAReviser,
+  targetJustificationId,
 }: ReferentDashboardClientV2Props) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<React.Key>("a-valider");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedJustification, setSelectedJustification] =
     useState<ReferentThreadJustification | null>(null);
+  const deepLinkConsumed = useRef(false);
+
+  useEffect(() => {
+    if (deepLinkConsumed.current || !targetJustificationId) {
+      return;
+    }
+
+    const inValider = justificationsAValider.find(
+      (j) => j.id === targetJustificationId,
+    );
+    const inDiscussion = justificationsEnDiscussion.find(
+      (j) => j.id === targetJustificationId,
+    );
+    const found = inValider ?? inDiscussion;
+
+    if (found) {
+      deepLinkConsumed.current = true;
+      setActiveTab(inValider ? "a-valider" : "discussions");
+      setSelectedJustification(found);
+      setIsModalOpen(true);
+    }
+  }, [targetJustificationId, justificationsAValider, justificationsEnDiscussion]);
 
   const handleJustificationClick = (
     justification: JustificationAValider | JustificationEnDiscussion,

@@ -1,6 +1,8 @@
 import { type TypeNotification } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
+import { EmailService } from "@/services/email.service";
+import { referentThreadUrl } from "@/lib/links";
 
 export class NotificationService {
   static async createNotification(data: {
@@ -93,6 +95,17 @@ export class NotificationService {
       }));
 
       await prisma.notification.createMany({ data: notifications });
+
+      await Promise.all(
+        etapeReferents.map((er) =>
+          EmailService.sendNewRealisation({
+            to: er.referent.email,
+            chefName,
+            etapeName: er.etape.name,
+            reviewUrl: referentThreadUrl(etapeId, justificationId),
+          }),
+        ),
+      );
     } catch (error) {
       console.error("Erreur lors de la création des notifications:", error);
     }

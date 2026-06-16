@@ -7,11 +7,12 @@ import {
   Notification,
   FormationCard,
 } from "@prisma/client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 
 import ContentChemise from "./contentChemise/contentChemise";
 import ContentAction from "./contentAction/contentAction";
+import ObjectifModal from "./contentAction/panels/ObjectifModal";
 
 import { markNotificationAsRead } from "@/actions/notification/notification.actions";
 
@@ -48,6 +49,9 @@ export default function DashboardClient({
   );
   const [activeTab, setActiveTab] = useState<React.Key>("objectif");
   const [targetSubTab, setTargetSubTab] = useState<string | null>(null);
+  const [deepLinkObjectif, setDeepLinkObjectif] =
+    useState<ObjectifAvecJustification | null>(null);
+  const deepLinkConsumed = useRef(false);
 
   const searchParams = useSearchParams();
 
@@ -63,6 +67,33 @@ export default function DashboardClient({
     if (target) {
       setSelectedEtape(target);
       setActiveTab("objectif");
+    }
+
+    window.history.replaceState(null, "", window.location.pathname);
+  }, [searchParams, initialEtapes]);
+
+  useEffect(() => {
+    if (deepLinkConsumed.current) {
+      return;
+    }
+
+    const justificationId = searchParams.get("justification");
+
+    if (!justificationId) {
+      return;
+    }
+
+    for (const etape of initialEtapes) {
+      const objectif = etape.objectifs.find((o) =>
+        o.justifications.some((j) => j.id === justificationId),
+      );
+
+      if (objectif) {
+        deepLinkConsumed.current = true;
+        setSelectedEtape(etape);
+        setDeepLinkObjectif(objectif);
+        break;
+      }
     }
 
     window.history.replaceState(null, "", window.location.pathname);
@@ -163,6 +194,13 @@ export default function DashboardClient({
           onUpdateJustification={updateJustification}
         />
       </div>
+
+      <ObjectifModal
+        isOpen={!!deepLinkObjectif}
+        objectif={deepLinkObjectif}
+        onOpenChange={() => setDeepLinkObjectif(null)}
+        onUpdateJustification={updateJustification}
+      />
     </div>
   );
 }

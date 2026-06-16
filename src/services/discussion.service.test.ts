@@ -132,6 +132,7 @@ describe("DiscussionService.postMessage", () => {
     const result = await DiscussionService.postMessage({
       viewerId: "c1",
       viewerRole: "CHEF",
+      authorName: "Chef",
       justificationId: "j1",
     });
 
@@ -145,6 +146,7 @@ describe("DiscussionService.postMessage", () => {
     const result = await DiscussionService.postMessage({
       viewerId: "u1",
       viewerRole: "CHEF",
+      authorName: "Chef",
       justificationId: "j1",
       contenu: "coucou",
     });
@@ -167,6 +169,7 @@ describe("DiscussionService.postMessage", () => {
     const result = await DiscussionService.postMessage({
       viewerId: "c1",
       viewerRole: "CHEF",
+      authorName: "Chef",
       justificationId: "j1",
       contenu: "encore un mot",
     });
@@ -186,12 +189,13 @@ describe("DiscussionService.postMessage", () => {
       chef: { name: "Chef" },
     } as never);
     db.etapeReferent.findMany.mockResolvedValue([
-      { referentId: "ref1" },
+      { referent: { id: "ref1", email: "ref@x.fr", name: "Ref" } },
     ] as never);
 
     const result = await DiscussionService.postMessage({
       viewerId: "c1",
       viewerRole: "CHEF",
+      authorName: "Chef",
       justificationId: "j1",
       contenu: "ma réponse",
     });
@@ -224,6 +228,7 @@ describe("DiscussionService.postMessage", () => {
     const result = await DiscussionService.postMessage({
       viewerId: "ref1",
       viewerRole: "REFERENT",
+      authorName: "Ref",
       justificationId: "j1",
       contenu: "peux-tu préciser ?",
     });
@@ -250,12 +255,13 @@ describe("DiscussionService.postMessage", () => {
       chef: { name: "Chef" },
     } as never);
     db.etapeReferent.findMany.mockResolvedValue([
-      { referentId: "ref1" },
+      { referent: { id: "ref1", email: "ref@x.fr", name: "Ref" } },
     ] as never);
 
     const result = await DiscussionService.postMessage({
       viewerId: "c1",
       viewerRole: "CHEF",
+      authorName: "Chef",
       justificationId: "j1",
       fichierData,
     });

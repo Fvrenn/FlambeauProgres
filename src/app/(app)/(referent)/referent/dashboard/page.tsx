@@ -10,6 +10,7 @@ import prisma from "@/lib/prisma";
 type ReferentDashboardPageProps = {
   searchParams: Promise<{
     etapeId?: string;
+    justification?: string;
   }>;
 };
 
@@ -18,6 +19,7 @@ export default async function ReferentDashboardPage({
 }: ReferentDashboardPageProps) {
   const params = await searchParams;
   const etapeId = params.etapeId;
+  const targetJustificationId = params.justification;
 
   if (!etapeId) {
     return (
@@ -148,6 +150,7 @@ export default async function ReferentDashboardPage({
       chefsAReviser={chefsAReviser}
       justificationsAValider={justificationsAValider}
       justificationsEnDiscussion={justificationsEnDiscussion}
+      targetJustificationId={targetJustificationId}
     />
   );
 }

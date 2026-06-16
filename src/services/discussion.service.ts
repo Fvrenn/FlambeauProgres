@@ -8,6 +8,8 @@ import {
 import prisma from "@/lib/prisma";
 import { canAccessJustification } from "@/lib/auth-guards";
 import { NotificationService } from "@/services/notification.service";
+import { EmailService } from "@/services/email.service";
+import { chefThreadUrl, referentThreadUrl } from "@/lib/links";
 
 export type ServiceResult<T> =
   | { success: true; data: T }
@@ -35,7 +37,10 @@ export type ThreadData = {
 };
 
 type JustificationForNotify = Prisma.JustificationGetPayload<{
-  include: { objectif: { select: { code: true } }; chef: { select: { name: true } } };
+  include: {
+    objectif: { select: { code: true } };
+    chef: { select: { name: true; email: true } };
+  };
 }>;
 
 export class DiscussionService {
@@ -111,12 +116,19 @@ export class DiscussionService {
   static async postMessage(input: {
     viewerId: string;
     viewerRole: UserRole | undefined;
+    authorName: string;
     justificationId: string;
     contenu?: string | null;
     fichierData?: FichierData | null;
   }): Promise<ServiceResult<ThreadMessage>> {
-    const { viewerId, viewerRole, justificationId, contenu, fichierData } =
-      input;
+    const {
+      viewerId,
+      viewerRole,
+      authorName,
+      justificationId,
+      contenu,
+      fichierData,
+    } = input;
 
     const trimmed = contenu?.trim() || null;
 
@@ -138,7 +150,7 @@ export class DiscussionService {
       where: { id: justificationId },
       include: {
         objectif: { select: { code: true } },
-        chef: { select: { name: true } },
+        chef: { select: { name: true, email: true } },
       },
     });
 
@@ -175,7 +187,10 @@ export class DiscussionService {
       return created;
     });
 
-    await this.notifyNewMessage(justification, fromChef);
+    await this.notifyNewMessage(justification, fromChef, {
+      authorName,
+      messageText: trimmed,
+    });
 
     return { success: true, data: message };
   }
@@ -189,7 +204,10 @@ export class DiscussionService {
 
     const justification = await prisma.justification.findUnique({
       where: { id: justificationId },
-      include: { objectif: { select: { code: true } } },
+      include: {
+        objectif: { select: { code: true } },
+        chef: { select: { name: true, email: true } },
+      },
     });
 
     if (!justification) {
@@ -237,17 +255,26 @@ export class DiscussionService {
       message: `Votre réalisation "${justification.objectif.code}" a été validée par votre référent.`,
     });
 
+    await EmailService.sendValidation({
+      to: justification.chef.email,
+      objectifCode: justification.objectif.code,
+      viewUrl: chefThreadUrl(justificationId),
+    });
+
     return { success: true, data: message };
   }
 
   private static async notifyNewMessage(
     justification: JustificationForNotify,
     fromChef: boolean,
+    ctx: { authorName: string; messageText: string | null },
   ) {
     if (fromChef) {
       const referents = await prisma.etapeReferent.findMany({
         where: { etapeId: justification.etapeId },
-        select: { referentId: true },
+        select: {
+          referent: { select: { id: true, name: true, email: true } },
+        },
       });
 
       if (referents.length === 0) {
@@ -256,14 +283,31 @@ export class DiscussionService {
 
       await prisma.notification.createMany({
         data: referents.map((er) => ({
-          destinataireId: er.referentId,
+          destinataireId: er.referent.id,
           justificationId: justification.id,
           type: "NOUVEAU_COMMENTAIRE" as const,
           titre: "Nouveau message du chef",
-          message: `${justification.chef.name} a répondu pour "${justification.objectif.code}".`,
+          message: `${ctx.authorName} a répondu pour "${justification.objectif.code}".`,
           lue: false,
         })),
       });
+
+      const replyUrl = referentThreadUrl(
+        justification.etapeId,
+        justification.id,
+      );
+
+      await Promise.all(
+        referents.map((er) =>
+          EmailService.sendNewMessage({
+            to: er.referent.email,
+            authorName: ctx.authorName,
+            objectifCode: justification.objectif.code,
+            messageText: ctx.messageText,
+            replyUrl,
+          }),
+        ),
+      );
 
       return;
     }
@@ -274,6 +318,14 @@ export class DiscussionService {
       type: "DEMANDE_PRECISION",
       titre: "Demande de précisions",
       message: `Votre référent a écrit au sujet de "${justification.objectif.code}".`,
+    });
+
+    await EmailService.sendNewMessage({
+      to: justification.chef.email,
+      authorName: ctx.authorName,
+      objectifCode: justification.objectif.code,
+      messageText: ctx.messageText,
+      replyUrl: chefThreadUrl(justification.id),
     });
   }
 }

@@ -86,6 +86,7 @@ export async function postMessage(
       const result = await DiscussionService.postMessage({
         viewerId: user.id,
         viewerRole: role,
+        authorName: user.name,
         justificationId: parsed.data.justificationId,
         contenu: parsed.data.contenu ?? null,
         fichierData,
