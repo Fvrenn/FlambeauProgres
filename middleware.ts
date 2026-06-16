@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
 
 export async function middleware(request: NextRequest) {
-    const sessionCookie = getSessionCookie(request);
+    const sessionCookie = getSessionCookie(request, {
+        cookiePrefix: "better-auth"
+    });
 
     if (!sessionCookie) {
         const url = request.nextUrl.clone();
