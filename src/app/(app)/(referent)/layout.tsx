@@ -14,7 +14,7 @@ export default async function ReferentLayout({
   const user = await getUser();
 
   if (!user || !("role" in user) || user.role !== "REFERENT") {
-    redirect("/dashboard");
+    redirect("/");
   }
 
   let dashboardHref = "/referent/dashboard";

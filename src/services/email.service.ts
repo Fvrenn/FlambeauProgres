@@ -24,13 +24,17 @@ export class EmailService {
     }
 
     try {
-      await resend.emails.send({
+      const { error } = await resend.emails.send({
         from,
         to,
         subject: content.subject,
         html: content.html,
         text: content.text,
       });
+
+      if (error) {
+        console.error("Resend a refusé l'email à", to, ":", error);
+      }
     } catch (error) {
       console.error("Erreur lors de l'envoi de l'email:", error);
     }
