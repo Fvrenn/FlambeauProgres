@@ -1,11 +1,18 @@
 "use client";
 
+import type { getUser } from "@/lib/auth-server";
+import type { UserRole } from "@prisma/client";
+
 import React, { useState } from "react";
 import { Input, Button, Card, CardBody, Avatar } from "@heroui/react";
 import { authClient } from "@/lib/auth-client";
 import { addToast } from "@heroui/toast";
 
-export function ProfilForm({ user }: { user: any }) {
+type ProfilUser = NonNullable<Awaited<ReturnType<typeof getUser>>> & {
+  role?: UserRole;
+};
+
+export function ProfilForm({ user }: { user: ProfilUser }) {
   const [name, setName] = useState(user?.name || "");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -27,13 +34,15 @@ export function ProfilForm({ user }: { user: any }) {
         description: "Vos informations ont été enregistrées avec succès.",
         color: "success",
       });
-      
-      // Refresh the page or update data to reflect the new state depending on auth architecture
+
       window.location.reload();
-    } catch (err: any) {
+    } catch (err) {
       addToast({
         title: "Erreur",
-        description: err.message || "Une erreur est survenue lors de la mise à jour.",
+        description:
+          err instanceof Error
+            ? err.message
+            : "Une erreur est survenue lors de la mise à jour.",
         color: "danger",
       });
     } finally {

@@ -82,13 +82,27 @@ export async function postMessage(
 
     const role = "role" in user ? user.role : undefined;
 
-    return await DiscussionService.postMessage({
-      viewerId: user.id,
-      viewerRole: role,
-      justificationId: parsed.data.justificationId,
-      contenu: parsed.data.contenu ?? null,
-      fichierData,
-    });
+    try {
+      const result = await DiscussionService.postMessage({
+        viewerId: user.id,
+        viewerRole: role,
+        justificationId: parsed.data.justificationId,
+        contenu: parsed.data.contenu ?? null,
+        fichierData,
+      });
+
+      if (!result.success && fichierData) {
+        await StorageService.deleteFile(fichierData.cheminFichier);
+      }
+
+      return result;
+    } catch (serviceError) {
+      if (fichierData) {
+        await StorageService.deleteFile(fichierData.cheminFichier);
+      }
+
+      throw serviceError;
+    }
   } catch (error) {
     console.error("Erreur lors de l'envoi du message:", error);
 

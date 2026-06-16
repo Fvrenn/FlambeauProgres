@@ -1,5 +1,5 @@
 import path from "path";
-import { writeFile, mkdir } from "fs/promises";
+import { writeFile, mkdir, unlink } from "fs/promises";
 
 const ALLOWED_MIME_TYPES = new Set<string>([
   "image/jpeg",
@@ -66,6 +66,14 @@ export class StorageService {
       storedPath: `${safeFolder}/${fileName}`,
       fileName,
     };
+  }
+
+  static async deleteFile(storedPath: string): Promise<void> {
+    try {
+      await unlink(this.resolvePath(storedPath));
+    } catch {
+      return;
+    }
   }
 
   static resolvePath(storedPath: string): string {

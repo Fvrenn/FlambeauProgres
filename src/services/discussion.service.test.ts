@@ -186,7 +186,7 @@ describe("DiscussionService.postMessage", () => {
       chef: { name: "Chef" },
     } as never);
     db.etapeReferent.findMany.mockResolvedValue([
-      { referent: { id: "ref1" } },
+      { referentId: "ref1" },
     ] as never);
 
     const result = await DiscussionService.postMessage({
@@ -250,7 +250,7 @@ describe("DiscussionService.postMessage", () => {
       chef: { name: "Chef" },
     } as never);
     db.etapeReferent.findMany.mockResolvedValue([
-      { referent: { id: "ref1" } },
+      { referentId: "ref1" },
     ] as never);
 
     const result = await DiscussionService.postMessage({

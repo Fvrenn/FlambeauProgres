@@ -54,6 +54,31 @@ export class EtapeService {
     }));
   }
 
+  static async getDashboardEtapesForChef(chefId: string) {
+    const [etapes, statutsValides] = await Promise.all([
+      prisma.etape.findMany({
+        orderBy: { ordre: "asc" },
+        include: {
+          objectifs: {
+            include: { justifications: { where: { chefId } } },
+          },
+          formations: { orderBy: { createdAt: "asc" } },
+        },
+      }),
+      prisma.chefEtapeStatut.findMany({
+        where: { chefId, statut: "VALIDE" },
+        select: { etapeId: true },
+      }),
+    ]);
+
+    const etapesIdsValidees = new Set(statutsValides.map((s) => s.etapeId));
+
+    return etapes.map((etape) => ({
+      ...etape,
+      isValidated: etapesIdsValidees.has(etape.id),
+    }));
+  }
+
   static async validateBadge(
     chefId: string,
     referentId: string,

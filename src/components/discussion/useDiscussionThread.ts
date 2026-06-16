@@ -198,7 +198,7 @@ export function useDiscussionThread(justificationId: string, viewer: Viewer) {
     statut,
     isLoading,
     error,
-    readOnly: statut === "VALIDEE",
+    readOnly: statut ? ["VALIDEE", "AUTO_VALIDEE"].includes(statut) : false,
     sendMessage,
     validate,
   };

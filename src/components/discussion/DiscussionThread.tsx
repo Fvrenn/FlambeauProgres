@@ -63,10 +63,7 @@ export default function DiscussionThread({
         ) : (
           <>
             {viewerRole === "REFERENT" && (
-              <ValidateRealisation
-                disabled={!viewerId}
-                onValidate={(word) => validate(word)}
-              />
+              <ValidateRealisation disabled={!viewerId} onValidate={validate} />
             )}
             <MessageComposer
               disabled={!viewerId}

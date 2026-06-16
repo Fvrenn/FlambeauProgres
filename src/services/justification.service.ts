@@ -78,7 +78,6 @@ export class JustificationService {
 
     const objectif = await prisma.objectif.findUnique({
       where: { id: objectifId },
-      include: { etape: true },
     });
 
     if (!objectif) {
@@ -108,6 +107,10 @@ export class JustificationService {
     const existing = await prisma.justification.findFirst({
       where: { objectifId, chefId },
     });
+
+    if (existing?.statut === "VALIDEE") {
+      return { success: false, error: "Cette réalisation est déjà validée" };
+    }
 
     const justificationId = await prisma.$transaction(async (tx) => {
       const justification = existing

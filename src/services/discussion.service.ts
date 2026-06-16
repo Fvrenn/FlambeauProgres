@@ -35,7 +35,7 @@ export type ThreadData = {
 };
 
 type JustificationForNotify = Prisma.JustificationGetPayload<{
-  include: { objectif: true; chef: { select: { name: true } } };
+  include: { objectif: { select: { code: true } }; chef: { select: { name: true } } };
 }>;
 
 export class DiscussionService {
@@ -136,14 +136,17 @@ export class DiscussionService {
 
     const justification = await prisma.justification.findUnique({
       where: { id: justificationId },
-      include: { objectif: true, chef: { select: { name: true } } },
+      include: {
+        objectif: { select: { code: true } },
+        chef: { select: { name: true } },
+      },
     });
 
     if (!justification) {
       return { success: false, error: "Justification introuvable" };
     }
 
-    if (justification.statut === "VALIDEE") {
+    if (["VALIDEE", "AUTO_VALIDEE"].includes(justification.statut)) {
       return {
         success: false,
         error: "Cette réalisation est validée, le fil est clôturé",
@@ -186,7 +189,7 @@ export class DiscussionService {
 
     const justification = await prisma.justification.findUnique({
       where: { id: justificationId },
-      include: { objectif: true, chef: { select: { name: true } } },
+      include: { objectif: { select: { code: true } } },
     });
 
     if (!justification) {
@@ -244,7 +247,7 @@ export class DiscussionService {
     if (fromChef) {
       const referents = await prisma.etapeReferent.findMany({
         where: { etapeId: justification.etapeId },
-        include: { referent: true },
+        select: { referentId: true },
       });
 
       if (referents.length === 0) {
@@ -253,7 +256,7 @@ export class DiscussionService {
 
       await prisma.notification.createMany({
         data: referents.map((er) => ({
-          destinataireId: er.referent.id,
+          destinataireId: er.referentId,
           justificationId: justification.id,
           type: "NOUVEAU_COMMENTAIRE" as const,
           titre: "Nouveau message du chef",

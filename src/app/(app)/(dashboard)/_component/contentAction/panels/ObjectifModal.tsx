@@ -121,6 +121,14 @@ export default function ObjectifModal({
         setSelectedFile(null);
         setFilePreview(null);
       } else {
+        const previousJustification = objectif.justifications[0];
+
+        if (previousJustification) {
+          onUpdateJustification(objectif.id, previousJustification);
+        }
+
+        router.refresh();
+
         alert(result.error || "Une erreur est survenue");
       }
     } catch (error) {
