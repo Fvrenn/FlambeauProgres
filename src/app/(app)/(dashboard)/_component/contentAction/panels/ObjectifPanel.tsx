@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { Justification } from "@prisma/client";
-import { Tabs, Tab, useDisclosure, Image as HeroImage } from "@heroui/react";
+import { Tabs, Tab, useDisclosure } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { Button } from "@heroui/react";
 import { Divider } from "@heroui/divider";
@@ -63,7 +63,6 @@ export default function ObjectifPanel({
   const realisations = selectedEtape.objectifs.filter(
     (o) => o.type === "REALISATION",
   ) as ObjectifAvecJustification[];
-  const formations = selectedEtape.formations ?? [];
   const etapeColor = selectedEtape.couleur || DEFAULT_ETAPE_COLOR;
   const etapeFg = getReadableTextColor(etapeColor);
 
@@ -191,46 +190,6 @@ export default function ObjectifPanel({
                 </li>
               ))}
             </ul>
-          </Tab>
-          <Tab key="formation" title="Formation">
-            <Divider className="mt-3" />
-            {formations.length === 0 ? (
-              <div className="flex flex-col items-center py-10 gap-2 text-default-500 text-sm">
-                <Icon className="text-4xl" icon="solar:book-bookmark-linear" />
-                <p>Aucune formation pour ce badge.</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-                {formations.map((f) => (
-                  <a
-                    key={f.id}
-                    className="group flex flex-col rounded-large border border-default-200 bg-content1 overflow-hidden hover:border-default-400 transition-colors"
-                    href={f.lien}
-                    rel="noopener noreferrer"
-                    target="_blank"
-                  >
-                    <div className="relative aspect-video w-full overflow-hidden bg-default-100">
-                      <HeroImage
-                        removeWrapper
-                        alt={f.titre}
-                        className="w-full h-full object-cover"
-                        src={f.imageUrl}
-                      />
-                    </div>
-                    <div className="flex items-center justify-between gap-2 p-3">
-                      <span className="font-medium text-foreground line-clamp-2">
-                        {f.titre}
-                      </span>
-                      <Icon
-                        className="text-default-400 shrink-0 group-hover:text-foreground transition-colors"
-                        icon="solar:arrow-right-up-linear"
-                        width={20}
-                      />
-                    </div>
-                  </a>
-                ))}
-              </div>
-            )}
           </Tab>
         </Tabs>
       </div>

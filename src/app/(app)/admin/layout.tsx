@@ -36,6 +36,12 @@ export default async function AdminLayout({
       icon: "solar:link-linear",
       title: "Assignations",
     },
+    {
+      key: "formations",
+      href: "/admin/formations",
+      icon: "solar:book-bookmark-linear",
+      title: "Formation",
+    },
   ];
 
   return (

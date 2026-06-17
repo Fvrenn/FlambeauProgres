@@ -7,10 +7,12 @@ export type FormationInput = {
 };
 
 export class FormationService {
-  static async create(etapeId: string, data: FormationInput) {
-    return prisma.formationCard.create({
-      data: { etapeId, ...data },
-    });
+  static async list() {
+    return prisma.formationCard.findMany({ orderBy: { createdAt: "asc" } });
+  }
+
+  static async create(data: FormationInput) {
+    return prisma.formationCard.create({ data });
   }
 
   static async update(id: string, data: FormationInput) {

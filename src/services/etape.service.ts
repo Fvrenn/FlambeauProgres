@@ -62,7 +62,6 @@ export class EtapeService {
           objectifs: {
             include: { justifications: { where: { chefId } } },
           },
-          formations: { orderBy: { createdAt: "asc" } },
         },
       }),
       prisma.chefEtapeStatut.findMany({

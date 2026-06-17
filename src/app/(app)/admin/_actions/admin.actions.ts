@@ -376,25 +376,26 @@ const formationInputSchema = z.object({
   lien: z.string().url().max(2048),
 });
 
-export async function createFormation(
-  etapeId: string,
-  data: { titre: string; imageUrl: string; lien: string },
-) {
+export async function createFormation(data: {
+  titre: string;
+  imageUrl: string;
+  lien: string;
+}) {
   if (!(await authorizeRole("ADMIN"))) {
     return { success: false, error: "Non autorisé" };
   }
 
-  const parsedId = idSchema.safeParse(etapeId);
   const parsed = formationInputSchema.safeParse(data);
 
-  if (!parsedId.success || !parsed.success) {
+  if (!parsed.success) {
     return { success: false, error: "Données invalides" };
   }
 
   try {
-    await FormationService.create(parsedId.data, parsed.data);
+    await FormationService.create(parsed.data);
 
-    revalidatePath(`/admin/etapes/${parsedId.data}`);
+    revalidatePath("/admin/formations");
+    revalidatePath("/formation");
 
     return { success: true };
   } catch (error) {
@@ -406,26 +407,24 @@ export async function createFormation(
 
 export async function updateFormation(
   formationId: string,
-  etapeId: string,
   data: { titre: string; imageUrl: string; lien: string },
 ) {
   if (!(await authorizeRole("ADMIN"))) {
     return { success: false, error: "Non autorisé" };
   }
 
-  const parsedIds = z
-    .object({ formationId: idSchema, etapeId: idSchema })
-    .safeParse({ formationId, etapeId });
+  const parsedId = idSchema.safeParse(formationId);
   const parsed = formationInputSchema.safeParse(data);
 
-  if (!parsedIds.success || !parsed.success) {
+  if (!parsedId.success || !parsed.success) {
     return { success: false, error: "Données invalides" };
   }
 
   try {
-    await FormationService.update(parsedIds.data.formationId, parsed.data);
+    await FormationService.update(parsedId.data, parsed.data);
 
-    revalidatePath(`/admin/etapes/${parsedIds.data.etapeId}`);
+    revalidatePath("/admin/formations");
+    revalidatePath("/formation");
 
     return { success: true };
   } catch (error) {
@@ -435,23 +434,22 @@ export async function updateFormation(
   }
 }
 
-export async function deleteFormation(formationId: string, etapeId: string) {
+export async function deleteFormation(formationId: string) {
   if (!(await authorizeRole("ADMIN"))) {
     return { success: false, error: "Non autorisé" };
   }
 
-  const parsed = z
-    .object({ formationId: idSchema, etapeId: idSchema })
-    .safeParse({ formationId, etapeId });
+  const parsedId = idSchema.safeParse(formationId);
 
-  if (!parsed.success) {
+  if (!parsedId.success) {
     return { success: false, error: "Données invalides" };
   }
 
   try {
-    await FormationService.remove(parsed.data.formationId);
+    await FormationService.remove(parsedId.data);
 
-    revalidatePath(`/admin/etapes/${parsed.data.etapeId}`);
+    revalidatePath("/admin/formations");
+    revalidatePath("/formation");
 
     return { success: true };
   } catch (error) {

@@ -31,14 +31,12 @@ type FormationModalProps = {
   isOpen: boolean;
   onClose: () => void;
   formation?: FormationCard | null;
-  etapeId: string;
 };
 
 export default function FormationModal({
   isOpen,
   onClose,
   formation,
-  etapeId,
 }: FormationModalProps) {
   const router = useRouter();
   const [isPending, setIsPending] = React.useState(false);
@@ -70,9 +68,9 @@ export default function FormationModal({
     setIsPending(true);
     try {
       if (formation) {
-        await updateFormation(formation.id, etapeId, data);
+        await updateFormation(formation.id, data);
       } else {
-        await createFormation(etapeId, data);
+        await createFormation(data);
       }
       onClose();
       router.refresh();

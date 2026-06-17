@@ -1,7 +1,7 @@
 "use client";
 
-import type { Objectif, FormationCard } from "@prisma/client";
-import type { AdminEtapeDetail } from "@/types";
+import type { Objectif } from "@prisma/client";
+import type { AdminEtapeWithObjectifs } from "@/types";
 
 import React from "react";
 import {
@@ -17,18 +17,13 @@ import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 
 import ObjectifModal from "../_components/ObjectifModal";
-import FormationModal from "../_components/FormationModal";
-import {
-  updateEtapeBadge,
-  deleteObjectif,
-  deleteFormation,
-} from "../../_actions/admin.actions";
+import { updateEtapeBadge, deleteObjectif } from "../../_actions/admin.actions";
 
 import AdminDataTable, { Column } from "@/components/admin/AdminDataTable";
 import { DEFAULT_ETAPE_COLOR } from "@/lib/color";
 
 type EtapeDetailClientPageProps = {
-  etape: AdminEtapeDetail;
+  etape: AdminEtapeWithObjectifs;
 };
 
 const columns: Column[] = [
@@ -52,9 +47,6 @@ export default function EtapeDetailClientPage({
     etape.couleur || DEFAULT_ETAPE_COLOR,
   );
   const [isSavingBadge, setIsSavingBadge] = React.useState(false);
-  const [selectedFormation, setSelectedFormation] =
-    React.useState<FormationCard | null>(null);
-  const [isFormationModalOpen, setIsFormationModalOpen] = React.useState(false);
 
   const handleEdit = (objectif: Objectif) => {
     setSelectedObjectif(objectif);
@@ -69,23 +61,6 @@ export default function EtapeDetailClientPage({
   const handleDelete = async (objectifId: string) => {
     if (confirm("Êtes-vous sûr de vouloir supprimer cet objectif ?")) {
       await deleteObjectif(objectifId, etape.id);
-      router.refresh();
-    }
-  };
-
-  const handleEditFormation = (formation: FormationCard) => {
-    setSelectedFormation(formation);
-    setIsFormationModalOpen(true);
-  };
-
-  const handleCreateFormation = () => {
-    setSelectedFormation(null);
-    setIsFormationModalOpen(true);
-  };
-
-  const handleDeleteFormation = async (formationId: string) => {
-    if (confirm("Êtes-vous sûr de vouloir supprimer cette carte ?")) {
-      await deleteFormation(formationId, etape.id);
       router.refresh();
     }
   };
@@ -253,90 +228,11 @@ export default function EtapeDetailClientPage({
         </div>
       </div>
 
-      <div className="flex flex-col gap-4">
-        <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold">
-            Cartes Formation ({etape.formations.length})
-          </h2>
-          <Button
-            color="primary"
-            size="sm"
-            startContent={<Icon icon="solar:add-circle-linear" />}
-            onPress={handleCreateFormation}
-          >
-            Ajouter une carte
-          </Button>
-        </div>
-
-        {etape.formations.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 py-10 text-default-400 border border-dashed border-default-300 rounded-large">
-            <Icon className="text-3xl" icon="solar:gallery-add-linear" />
-            <p className="text-sm">Aucune carte de formation pour cette étape.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {etape.formations.map((formation) => (
-              <div
-                key={formation.id}
-                className="flex flex-col rounded-large border border-divider bg-content1 overflow-hidden shadow-small"
-              >
-                <div className="aspect-video w-full bg-default-100 overflow-hidden">
-                  <Image
-                    removeWrapper
-                    alt={formation.titre}
-                    className="w-full h-full object-cover"
-                    src={formation.imageUrl}
-                  />
-                </div>
-                <div className="flex flex-col gap-2 p-3">
-                  <p className="font-semibold line-clamp-1">{formation.titre}</p>
-                  <a
-                    className="text-tiny text-primary truncate hover:underline"
-                    href={formation.lien}
-                    rel="noopener noreferrer"
-                    target="_blank"
-                  >
-                    {formation.lien}
-                  </a>
-                  <div className="flex justify-end gap-1 pt-1">
-                    <Tooltip content="Modifier">
-                      <button
-                        className="text-lg text-default-400 cursor-pointer active:opacity-50"
-                        type="button"
-                        onClick={() => handleEditFormation(formation)}
-                      >
-                        <Icon icon="solar:pen-linear" />
-                      </button>
-                    </Tooltip>
-                    <Tooltip color="danger" content="Supprimer">
-                      <button
-                        className="text-lg text-danger cursor-pointer active:opacity-50"
-                        type="button"
-                        onClick={() => handleDeleteFormation(formation.id)}
-                      >
-                        <Icon icon="solar:trash-bin-trash-linear" />
-                      </button>
-                    </Tooltip>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
       <ObjectifModal
         etapeId={etape.id}
         isOpen={isModalOpen}
         objectif={selectedObjectif}
         onClose={() => setIsModalOpen(false)}
-      />
-
-      <FormationModal
-        etapeId={etape.id}
-        formation={selectedFormation}
-        isOpen={isFormationModalOpen}
-        onClose={() => setIsFormationModalOpen(false)}
       />
     </div>
   );

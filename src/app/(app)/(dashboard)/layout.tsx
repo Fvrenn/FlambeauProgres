@@ -29,6 +29,12 @@ export default async function DashboardLayout({
       icon: "solar:chart-2-linear",
       title: "Progression",
     },
+    {
+      key: "formation",
+      href: "/formation",
+      icon: "solar:book-bookmark-linear",
+      title: "Formation",
+    },
   ];
 
   return (
