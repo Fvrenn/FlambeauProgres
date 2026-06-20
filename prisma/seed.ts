@@ -82,6 +82,34 @@ async function main() {
 
   console.log("Users created.");
 
+  const allumeFeu = await prisma.etape.create({
+    data: {
+      number: "0",
+      name: "Allume-feu",
+      description:
+        "Découvre l'univers Flambeaux et l'engagement de Chef à travers le livret en 8 thèmes, puis valide pour débloquer l'Étape 1.",
+      couleur: "#f5b301",
+      ordre: 0,
+      niveau: 0,
+      type: "JALON",
+    },
+  });
+  console.log(`Created jalon: ${allumeFeu.name}`);
+
+  const etapeDecouvrir = await prisma.etape.create({
+    data: {
+      number: "1",
+      name: "Découvrir",
+      description:
+        "Étape 1 du Parcours du Chef. Une fois validée par ton Chef de Groupe, certifie-la pour débloquer les badges de l'Étape 2.",
+      couleur: "#c0703c",
+      ordre: 0,
+      niveau: 1,
+      type: "JALON",
+    },
+  });
+  console.log(`Created jalon: ${etapeDecouvrir.name}`);
+
 
 
 

@@ -17,6 +17,7 @@ export type ObjectifAvecJustification = Objectif & {
 export type EtapeAvecObjectifs = Etape & {
   objectifs: ObjectifAvecJustification[];
   isValidated?: boolean;
+  verrouille?: boolean;
 };
 
 interface DashboardClientProps {
@@ -161,10 +162,17 @@ export default function DashboardClient({
     }
   };
 
+  const currentJalon =
+    etapes.find(
+      (etape) =>
+        etape.type === "JALON" && !etape.isValidated && !etape.verrouille,
+    ) ?? null;
+
   return (
     <div className="flex items-stretch md:flex-1 gap-0 md:gap-4 md:pt-4 min-h-0 flex-auto md:flex-0">
       <ContentChemise
         activeTab={activeTab}
+        currentJalon={currentJalon}
         etapes={etapes}
         notifications={notifications}
         selectedEtape={selectedEtape}

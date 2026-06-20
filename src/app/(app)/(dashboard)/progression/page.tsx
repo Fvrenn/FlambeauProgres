@@ -14,7 +14,9 @@ export default async function ProgressionPage() {
     redirect("/login");
   }
 
-  const etapes = await EtapeService.getProgressForChef(user.id);
+  const etapes = (await EtapeService.getProgressForChef(user.id)).filter(
+    (etape) => etape.type === "BADGE",
+  );
 
   return (
     <div className="flex flex-col gap-6">

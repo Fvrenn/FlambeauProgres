@@ -8,6 +8,7 @@ import { Icon } from "@iconify/react";
 import { EtapeAvecObjectifs } from "../DashboardClient";
 import "./CardEtapes.css";
 import ContentAction from "../contentAction/contentAction";
+import JalonBadge from "../JalonBadge";
 
 import { Justification, Notification } from "@prisma/client";
 
@@ -46,6 +47,7 @@ class ChemiseBoundary extends React.Component<
 
 interface ContentChemiseProps {
   etapes: EtapeAvecObjectifs[];
+  currentJalon: EtapeAvecObjectifs | null;
   selectedEtape: EtapeAvecObjectifs | null;
   onEtapeSelect: (etape: EtapeAvecObjectifs | null) => void;
   activeTab: React.Key;
@@ -62,6 +64,7 @@ interface ContentChemiseProps {
 
 export default function ContentChemise({
   etapes,
+  currentJalon,
   selectedEtape,
   onEtapeSelect,
   activeTab,
@@ -87,37 +90,47 @@ export default function ContentChemise({
       </div>
 
       <div className=" md:bg-default w-full h-2/4 rounded-3xl border md:p-7 border-[#F0EFE7]">
-        <div className="md:grid md:grid-cols-3 md:gap-4 gap-2 place-items-center flex overflow-x-auto md:px-4 px-0 mt-[-80px] md:mt-0 overflow-y-hidden py-2">
-          {etapes.map((etape) => (
-            <div key={etape.id} className="relative flex-shrink-0">
-              <button
-                aria-label={`Sélectionner l'étape ${etape.name}`}
-                className={`cursor-pointer opacity-100 holographic-card ${
-                  etape.isValidated ? "validated md:opacity-80" : "md:opacity-50"
-                } ${selectedEtape?.id === etape.id ? "active" : ""}`}
-                onClick={() => handleBadgeClick(etape)}
-              >
-                {etape.image_src && (
-                  <Image
-                    alt={etape.name}
-                    className="w-[50px] h-auto md:w-[67px] md:h-[77px]"
-                    height={77}
-                    sizes="(max-width: 768px) 50px, 67px"
-                    src={etape.image_src}
-                    width={67}
-                  />
-                )}
-              </button>
-              {etape.isValidated && (
-                <Icon
-                  aria-label="Badge validé"
-                  className="absolute -top-1 -right-1 z-10 w-5 h-5 text-primary drop-shadow-[0_1px_1px_rgba(0,0,0,0.35)]"
-                  icon="solar:verified-check-bold"
-                />
-              )}
-            </div>
-          ))}
-        </div>
+        {currentJalon ? (
+          <div className="flex h-full items-center justify-center py-2 mt-[-80px] md:mt-0">
+            <JalonBadge key={currentJalon.id} jalon={currentJalon} />
+          </div>
+        ) : (
+          <div className="md:grid md:grid-cols-3 md:gap-4 gap-2 place-items-center flex overflow-x-auto md:px-4 px-0 mt-[-80px] md:mt-0 overflow-y-hidden py-2">
+            {etapes
+              .filter((etape) => etape.type === "BADGE")
+              .map((etape) => (
+                <div key={etape.id} className="relative flex-shrink-0">
+                  <button
+                    aria-label={`Sélectionner l'étape ${etape.name}`}
+                    className={`cursor-pointer opacity-100 holographic-card ${
+                      etape.isValidated
+                        ? "validated md:opacity-80"
+                        : "md:opacity-50"
+                    } ${selectedEtape?.id === etape.id ? "active" : ""}`}
+                    onClick={() => handleBadgeClick(etape)}
+                  >
+                    {etape.image_src && (
+                      <Image
+                        alt={etape.name}
+                        className="w-[50px] h-auto md:w-[67px] md:h-[77px]"
+                        height={77}
+                        sizes="(max-width: 768px) 50px, 67px"
+                        src={etape.image_src}
+                        width={67}
+                      />
+                    )}
+                  </button>
+                  {etape.isValidated && (
+                    <Icon
+                      aria-label="Badge validé"
+                      className="absolute -top-1 -right-1 z-10 w-5 h-5 text-primary drop-shadow-[0_1px_1px_rgba(0,0,0,0.35)]"
+                      icon="solar:verified-check-bold"
+                    />
+                  )}
+                </div>
+              ))}
+          </div>
+        )}
         <div className="md:hidden flex-1 h-full w-full md:bg-white rounded-t-3xl md:p-4 overflow-y-auto">
           <ContentAction
             activeTab={activeTab}

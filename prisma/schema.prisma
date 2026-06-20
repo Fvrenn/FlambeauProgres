@@ -18,6 +18,11 @@ enum TypeObjectif {
   REALISATION
 }
 
+enum TypeEtape {
+  JALON
+  BADGE
+}
+
 enum StatutJustification {
   BROUILLON
   AUTO_VALIDEE
@@ -87,9 +92,11 @@ model Etape {
   image_src   String?
   couleur     String?
   ordre       Int
-  actif       Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  niveau      Int       @default(2)
+  type        TypeEtape @default(BADGE)
+  actif       Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   objectifs        Objectif[]
   referents      EtapeReferent[]
