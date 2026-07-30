@@ -1,0 +1,31 @@
+:root{
+  /* base */
+  --color-cream-50:#F3F2E9;
+  --color-cream-100:#E8E7DE;
+  --color-stone-200:#DCDDD8;
+  --color-neutral-200:#E9E9E9;
+  --color-ink-900:#0F1511;
+  --color-black:#000000;
+  --color-white:#FFFFFF;
+  --color-taupe-500:#8B8A81;
+  --color-violet-500:#595180;
+  --color-yellow-400:#ECE835;
+  --color-gold-400:#FCC226;
+  --color-orange-600:#E06511;
+  --color-orange-700:#D46016;
+
+  /* semantic */
+  --surface-page:var(--color-cream-50);
+  --surface-card:var(--color-white);
+  --surface-muted:var(--color-cream-100);
+  --surface-sunken:var(--color-stone-200);
+  --surface-inverse:var(--color-ink-900);
+  --surface-highlight:var(--color-yellow-400);
+  --text-primary:var(--color-ink-900);
+  --text-muted:var(--color-taupe-500);
+  --text-on-inverse:var(--color-white);
+  --text-brand:var(--color-orange-600);
+  --text-accent-violet:var(--color-violet-500);
+  --border-default:rgba(17,17,17,.15);
+  --focus-ring:var(--color-ink-900);
+}

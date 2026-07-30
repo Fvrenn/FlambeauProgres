@@ -1,17 +1,7 @@
 "use client";
 
 import React from "react";
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
-  Select,
-  SelectItem,
-  Avatar,
-} from "@heroui/react";
+import { Select, SelectItem } from "@heroui/react";
 import { UserRole, type User } from "@prisma/client";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,6 +9,9 @@ import { z } from "zod";
 import { useRouter } from "next/navigation";
 
 import { updateUserRole } from "../../_actions/admin.actions";
+
+import { FormModal } from "@/components/admin/FormModal";
+import { Avatar } from "@/components/ui";
 
 const userSchema = z.object({
   role: z.nativeEnum(UserRole),
@@ -68,50 +61,34 @@ export default function UserModal({ isOpen, onClose, user }: UserModalProps) {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <ModalContent>
-        {(onClose) => (
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <ModalHeader className="flex flex-col gap-1">
-              Modifier l'utilisateur
-            </ModalHeader>
-            <ModalBody>
-              <div className="flex items-center gap-4 mb-4">
-                <Avatar
-                  name={user?.name}
-                  size="lg"
-                  src={user?.image || undefined}
-                />
-                <div>
-                  <p className="font-bold">{user?.name}</p>
-                  <p className="text-small text-default-500">{user?.email}</p>
-                </div>
-              </div>
+    <FormModal
+      isOpen={isOpen}
+      isPending={isPending}
+      submitLabel="Enregistrer"
+      title="Modifier l'utilisateur"
+      onClose={onClose}
+      onSubmit={handleSubmit(onSubmit)}
+    >
+      <div className="flex items-center gap-4 mb-4">
+        <Avatar name={user?.name} size="lg" src={user?.image || undefined} />
+        <div>
+          <p className="font-bold">{user?.name}</p>
+          <p className="text-small text-default-500">{user?.email}</p>
+        </div>
+      </div>
 
-              <Select
-                defaultSelectedKeys={[watch("role")]}
-                errorMessage={errors.role?.message}
-                isInvalid={!!errors.role}
-                label="Rôle"
-                placeholder="Sélectionner un rôle"
-                onChange={(e) => setValue("role", e.target.value as UserRole)}
-              >
-                {Object.values(UserRole).map((role) => (
-                  <SelectItem key={role}>{role}</SelectItem>
-                ))}
-              </Select>
-            </ModalBody>
-            <ModalFooter>
-              <Button color="danger" variant="light" onPress={onClose}>
-                Annuler
-              </Button>
-              <Button color="primary" isLoading={isPending} type="submit">
-                Enregistrer
-              </Button>
-            </ModalFooter>
-          </form>
-        )}
-      </ModalContent>
-    </Modal>
+      <Select
+        defaultSelectedKeys={[watch("role")]}
+        errorMessage={errors.role?.message}
+        isInvalid={!!errors.role}
+        label="Rôle"
+        placeholder="Sélectionner un rôle"
+        onChange={(e) => setValue("role", e.target.value as UserRole)}
+      >
+        {Object.values(UserRole).map((role) => (
+          <SelectItem key={role}>{role}</SelectItem>
+        ))}
+      </Select>
+    </FormModal>
   );
 }

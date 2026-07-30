@@ -1,11 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { Card, CardBody } from "@heroui/react";
 
 import ProgressBar from "./ProgressBar";
 
 import { withAlpha } from "@/lib/color";
+import { Card, CardBody } from "@/components/ui";
 
 type EtapeProgressCardProps = {
   name: string;
@@ -37,11 +37,8 @@ export default function EtapeProgressCard({
   }
 
   return (
-    <Card
-      className="h-full transition-transform duration-300 hover:-translate-y-1"
-      shadow="sm"
-    >
-      <CardBody className="flex flex-col items-center gap-4 p-5 text-center">
+    <Card isHoverable className="h-full">
+      <CardBody className="items-center gap-4 text-center">
         <div
           className="flex h-20 w-20 items-center justify-center rounded-full"
           style={{

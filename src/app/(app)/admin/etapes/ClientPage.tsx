@@ -3,13 +3,14 @@
 import type { AdminEtapeListItem } from "@/types";
 
 import React from "react";
-import { Image, Button, Tooltip, Card, CardBody } from "@heroui/react";
+import { Image, Button as HeroButton, Tooltip } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 
 import EtapeModal from "./_components/EtapeModal";
 
 import AdminDataTable, { Column } from "@/components/admin/AdminDataTable";
+import { Button, Card, CardBody } from "@/components/ui";
 
 type EtapesClientPageProps = {
   etapes: AdminEtapeListItem[];
@@ -77,16 +78,17 @@ export default function EtapesClientPage({ etapes }: EtapesClientPageProps) {
           return (
             <div className="flex items-center justify-end w-full pr-8 gap-2">
               <Tooltip content="Modifier les infos">
-                <button
-                  className="text-lg text-default-400 cursor-pointer active:opacity-50"
-                  type="button"
+                <Button
+                  isIconOnly
+                  color="default"
+                  size="sm"
+                  startIcon="solar:pen-linear"
+                  variant="ghost"
                   onClick={() => handleEditInfo(etape)}
-                >
-                  <Icon icon="solar:pen-linear" />
-                </button>
+                />
               </Tooltip>
               <Tooltip content="Gérer les objectifs">
-                <Button
+                <HeroButton
                   isIconOnly
                   as={Link}
                   href={`/admin/etapes/${etape.id}`}
@@ -97,7 +99,7 @@ export default function EtapesClientPage({ etapes }: EtapesClientPageProps) {
                     className="text-lg text-default-400"
                     icon="solar:settings-linear"
                   />
-                </Button>
+                </HeroButton>
               </Tooltip>
             </div>
           );
@@ -114,8 +116,8 @@ export default function EtapesClientPage({ etapes }: EtapesClientPageProps) {
         <h1 className="text-2xl font-bold">Gestion des Étapes</h1>
         <Button
           color="primary"
-          endContent={<Icon icon="solar:add-circle-linear" />}
-          onPress={handleCreate}
+          endIcon="solar:add-circle-linear"
+          onClick={handleCreate}
         >
           Nouvelle Étape
         </Button>
@@ -136,11 +138,11 @@ export default function EtapesClientPage({ etapes }: EtapesClientPageProps) {
             key={etape.id}
             isPressable
             className="w-full"
-            onPress={() => handleEditInfo(etape)}
+            onClick={() => handleEditInfo(etape)}
           >
-            <CardBody className="flex flex-row gap-4 items-start">
+            <CardBody className="flex-row gap-4 items-start">
               <div className="flex-none">
-                <div className="w-12 h-12 rounded-lg bg-default-100 flex items-center justify-center overflow-hidden">
+                <div className="w-12 h-12 rounded-lg bg-content1 flex items-center justify-center overflow-hidden">
                   {etape.image_src ? (
                     <Image
                       alt={etape.name}
@@ -176,7 +178,7 @@ export default function EtapesClientPage({ etapes }: EtapesClientPageProps) {
                     <span>{etape._count?.objectifs || 0} obj.</span>
                   </div>
 
-                  <Button
+                  <HeroButton
                     as={Link}
                     className="h-8"
                     color="primary"
@@ -186,7 +188,7 @@ export default function EtapesClientPage({ etapes }: EtapesClientPageProps) {
                     variant="flat"
                   >
                     Gérer
-                  </Button>
+                  </HeroButton>
                 </div>
               </div>
             </CardBody>

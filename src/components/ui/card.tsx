@@ -8,7 +8,7 @@ import { cn } from "@heroui/react";
 export const cardVariants = tv({
   slots: {
     root: [
-      "rounded-2xl transition-all duration-200",
+      "rounded-ds-lg transition-all duration-fast",
       "focus-within:outline-none",
     ],
     header: "flex flex-col gap-1",
@@ -17,9 +17,9 @@ export const cardVariants = tv({
   },
   variants: {
     variant: {
-      // Carte blanche / claire
+      // Carte détachée du fond crème de la page
       elevated: {
-        root: "bg-white border border-[#E8E7DE] shadow-sm hover:shadow-md",
+        root: "bg-default-100 shadow-inset-border",
       },
       // Fond de la page (beige)
       flat: {

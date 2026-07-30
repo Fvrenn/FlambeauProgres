@@ -3,13 +3,14 @@
 import type { FormationCard } from "@prisma/client";
 
 import React from "react";
-import { Button, Tooltip, Image } from "@heroui/react";
+import { Tooltip, Image } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 
 import FormationModal from "./_components/FormationModal";
 
 import { deleteFormation } from "../_actions/admin.actions";
+import { Button, Card, CardBody } from "@/components/ui";
 
 type FormationsClientPageProps = {
   formations: FormationCard[];
@@ -46,8 +47,8 @@ export default function FormationsClientPage({
         <h1 className="text-2xl font-bold">Gestion de la Formation</h1>
         <Button
           color="primary"
-          endContent={<Icon icon="solar:add-circle-linear" />}
-          onPress={handleCreate}
+          endIcon="solar:add-circle-linear"
+          onClick={handleCreate}
         >
           Ajouter une carte
         </Button>
@@ -61,11 +62,8 @@ export default function FormationsClientPage({
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {formations.map((formation) => (
-            <div
-              key={formation.id}
-              className="flex flex-col rounded-large border border-divider bg-content1 overflow-hidden shadow-small"
-            >
-              <div className="aspect-video w-full bg-default-100 overflow-hidden">
+            <Card key={formation.id} className="p-0" size="sm">
+              <div className="aspect-video w-full bg-content1 overflow-hidden rounded-t-ds-lg">
                 <Image
                   removeWrapper
                   alt={formation.titre}
@@ -73,7 +71,7 @@ export default function FormationsClientPage({
                   src={formation.imageUrl}
                 />
               </div>
-              <div className="flex flex-col gap-2 p-3">
+              <CardBody className="gap-2 p-3">
                 <p className="font-semibold line-clamp-1">{formation.titre}</p>
                 <a
                   className="text-tiny text-primary truncate hover:underline"
@@ -85,26 +83,28 @@ export default function FormationsClientPage({
                 </a>
                 <div className="flex justify-end gap-1 pt-1">
                   <Tooltip content="Modifier">
-                    <button
-                      className="text-lg text-default-400 cursor-pointer active:opacity-50"
-                      type="button"
+                    <Button
+                      isIconOnly
+                      color="default"
+                      size="sm"
+                      startIcon="solar:pen-linear"
+                      variant="ghost"
                       onClick={() => handleEdit(formation)}
-                    >
-                      <Icon icon="solar:pen-linear" />
-                    </button>
+                    />
                   </Tooltip>
                   <Tooltip color="danger" content="Supprimer">
-                    <button
-                      className="text-lg text-danger cursor-pointer active:opacity-50"
-                      type="button"
+                    <Button
+                      isIconOnly
+                      color="danger"
+                      size="sm"
+                      startIcon="solar:trash-bin-trash-linear"
+                      variant="ghost"
                       onClick={() => handleDelete(formation.id)}
-                    >
-                      <Icon icon="solar:trash-bin-trash-linear" />
-                    </button>
+                    />
                   </Tooltip>
                 </div>
-              </div>
-            </div>
+              </CardBody>
+            </Card>
           ))}
         </div>
       )}

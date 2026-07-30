@@ -2,12 +2,13 @@
 
 import { User, UserRole } from "@prisma/client";
 import React from "react";
-import { Chip, Tooltip, Avatar, Card, CardBody } from "@heroui/react";
+import { Tooltip } from "@heroui/react";
 import { Icon } from "@iconify/react";
 
 import UserModal from "./_components/UserModal";
 
 import AdminDataTable, { Column } from "@/components/admin/AdminDataTable";
+import { Badge, Avatar, Card, CardBody, Button } from "@/components/ui";
 
 type UsersClientPageProps = {
   users: User[];
@@ -37,58 +38,52 @@ export default function UsersClientPage({ users }: UsersClientPageProps) {
     setIsModalOpen(true);
   };
 
-  const renderCell = React.useCallback(
-    (user: User, columnKey: React.Key) => {
-      const cellValue = user[columnKey as keyof User];
+  const renderCell = React.useCallback((user: User, columnKey: React.Key) => {
+    const cellValue = user[columnKey as keyof User];
 
-      switch (columnKey) {
-        case "user":
-          return (
-            <div className="flex items-center gap-3">
-              <Avatar
-                name={user.name}
+    switch (columnKey) {
+      case "user":
+        return (
+          <div className="flex items-center gap-3">
+            <Avatar name={user.name} size="sm" src={user.image || undefined} />
+            <div className="flex flex-col">
+              <p className="text-bold text-small capitalize">{user.name}</p>
+              <p className="text-bold text-tiny capitalize text-default-400">
+                {user.email}
+              </p>
+            </div>
+          </div>
+        );
+      case "role":
+        return (
+          <Badge
+            className="capitalize"
+            color={roleColorMap[user.role as UserRole]}
+            size="sm"
+            variant="flat"
+          >
+            {user.role}
+          </Badge>
+        );
+      case "actions":
+        return (
+          <div className="flex items-center justify-end w-full pr-8">
+            <Tooltip content="Modifier l'utilisateur">
+              <Button
+                isIconOnly
+                color="default"
                 size="sm"
-                src={user.image || undefined}
+                startIcon="solar:pen-linear"
+                variant="ghost"
+                onClick={() => handleEdit(user)}
               />
-              <div className="flex flex-col">
-                <p className="text-bold text-small capitalize">{user.name}</p>
-                <p className="text-bold text-tiny capitalize text-default-400">
-                  {user.email}
-                </p>
-              </div>
-            </div>
-          );
-        case "role":
-          return (
-            <Chip
-              className="capitalize"
-              color={roleColorMap[user.role as UserRole]}
-              size="sm"
-              variant="flat"
-            >
-              {user.role}
-            </Chip>
-          );
-        case "actions":
-          return (
-            <div className="flex items-center justify-end w-full pr-8">
-              <Tooltip content="Modifier l'utilisateur">
-                <button
-                  className="text-lg text-default-400 cursor-pointer active:opacity-50"
-                  type="button"
-                  onClick={() => handleEdit(user)}
-                >
-                  <Icon icon="solar:pen-linear" />
-                </button>
-              </Tooltip>
-            </div>
-          );
-        default:
-          return cellValue as React.ReactNode;
-      }
-    },
-    [],
-  );
+            </Tooltip>
+          </div>
+        );
+      default:
+        return cellValue as React.ReactNode;
+    }
+  }, []);
 
   return (
     <div className="flex flex-col gap-4">
@@ -111,9 +106,9 @@ export default function UsersClientPage({ users }: UsersClientPageProps) {
             key={user.id}
             isPressable
             className="w-full"
-            onPress={() => handleEdit(user)}
+            onClick={() => handleEdit(user)}
           >
-            <CardBody className="flex flex-row justify-between items-center gap-4">
+            <CardBody className="flex-row justify-between items-center gap-4">
               <div className="flex items-center gap-3 overflow-hidden">
                 <Avatar
                   name={user.name}
@@ -128,14 +123,12 @@ export default function UsersClientPage({ users }: UsersClientPageProps) {
                     {user.email}
                   </span>
                   <div className="flex items-center gap-2 mt-1">
-                    <Chip
-                      className="h-5 text-tiny px-1"
+                    <Badge
                       color={roleColorMap[user.role as UserRole]}
                       size="sm"
-                      variant="flat"
                     >
                       {user.role}
-                    </Chip>
+                    </Badge>
                   </div>
                 </div>
               </div>

@@ -8,8 +8,8 @@ import { Icon } from "@iconify/react";
 // ─────────────────────────────────────────────
 export const badgeVariants = tv({
   base: [
-    "inline-flex items-center gap-1.5 font-medium",
-    "transition-colors duration-150",
+    "inline-flex items-center gap-1.5 rounded-full font-medium",
+    "transition-colors duration-fast",
   ],
   variants: {
     color: {
@@ -27,9 +27,9 @@ export const badgeVariants = tv({
       dot:     "pl-2",
     },
     size: {
-      sm: "text-xs  px-2  py-0.5 rounded-lg",
-      md: "text-xs  px-2.5 py-1 rounded-xl",
-      lg: "text-sm  px-3  py-1.5 rounded-xl",
+      sm: "text-xs px-2   h-5",
+      md: "text-xs px-2.5 h-6",
+      lg: "text-sm px-3   h-7",
     },
   },
   compoundVariants: [

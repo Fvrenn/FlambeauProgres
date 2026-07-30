@@ -10,9 +10,9 @@ import { cn } from "@heroui/react";
 // ─────────────────────────────────────────────
 export const buttonVariants = tv({
   base: [
-    "inline-flex items-center justify-center gap-2",
-    "font-semibold select-none",
-    "transition-all duration-200 ease-in-out",
+    "inline-flex items-center justify-center gap-2 rounded-full",
+    "font-medium select-none",
+    "transition-all duration-fast ease-in-out",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
     "active:scale-[0.97]",
     "disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none",
@@ -41,11 +41,11 @@ export const buttonVariants = tv({
 
     // ── Taille ───────────────────────────────
     size: {
-      xs:  "text-xs px-2.5 py-1.5 h-7  rounded-lg",
-      sm:  "text-sm px-3.5  py-2   h-9  rounded-xl",
-      md:  "text-sm px-4.5  py-2.5 h-10 rounded-xl",
-      lg:  "text-base px-6   py-3   h-12 rounded-2xl",
-      xl:  "text-lg  px-7   py-3.5 h-14 rounded-2xl",
+      xs:  "text-xs px-2.5 py-1.5 h-7",
+      sm:  "text-xs px-3.5  py-0   h-8",
+      md:  "text-sm px-4.5  py-0   h-10",
+      lg:  "text-base px-6   py-0   h-12",
+      xl:  "text-lg  px-7   py-0   h-14",
     },
 
     // ── Forme ────────────────────────────────
@@ -76,37 +76,37 @@ export const buttonVariants = tv({
       color: "primary",
       variant: "solid",
       class:
-        "bg-[#FCC226] text-[#0f1511] hover:bg-[#e5ae1e] focus-visible:ring-[#FCC226] shadow-sm hover:shadow-md",
+        "bg-[#FCC226] text-[#0f1511] hover:bg-[#e5ae1e] focus-visible:ring-[#FCC226]",
     },
     {
       color: "secondary",
       variant: "solid",
       class:
-        "bg-[#ffdc00] text-[#0f1511] hover:bg-[#e5c800] focus-visible:ring-[#ffdc00] shadow-sm hover:shadow-md",
+        "bg-[#ffdc00] text-[#0f1511] hover:bg-[#e5c800] focus-visible:ring-[#ffdc00]",
     },
     {
       color: "success",
       variant: "solid",
       class:
-        "bg-[#1bc47d] text-white hover:bg-[#16a267] focus-visible:ring-[#1bc47d] shadow-sm hover:shadow-md",
+        "bg-[#1bc47d] text-white hover:bg-[#16a267] focus-visible:ring-[#1bc47d]",
     },
     {
       color: "warning",
       variant: "solid",
       class:
-        "bg-[#ffb100] text-[#0f1511] hover:bg-[#d29200] focus-visible:ring-[#ffb100] shadow-sm hover:shadow-md",
+        "bg-[#ffb100] text-[#0f1511] hover:bg-[#d29200] focus-visible:ring-[#ffb100]",
     },
     {
       color: "danger",
       variant: "solid",
       class:
-        "bg-[#ff4f4f] text-white hover:bg-[#d24141] focus-visible:ring-[#ff4f4f] shadow-sm hover:shadow-md",
+        "bg-[#ff4f4f] text-white hover:bg-[#d24141] focus-visible:ring-[#ff4f4f]",
     },
     {
       color: "default",
       variant: "solid",
       class:
-        "bg-[#E8E7DE] text-[#0f1511] hover:bg-[#d4d3ca] focus-visible:ring-[#0f1511] shadow-sm hover:shadow-md",
+        "bg-[#E8E7DE] text-[#0f1511] hover:bg-[#d4d3ca] focus-visible:ring-[#0f1511]",
     },
 
     // ─ FLAT ───────────────────────────────────

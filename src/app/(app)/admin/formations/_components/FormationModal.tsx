@@ -1,16 +1,7 @@
 "use client";
 
 import React from "react";
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
-  Input,
-  Image,
-} from "@heroui/react";
+import { Input, Image } from "@heroui/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -18,6 +9,8 @@ import { useRouter } from "next/navigation";
 import { type FormationCard } from "@prisma/client";
 
 import { createFormation, updateFormation } from "../../_actions/admin.actions";
+
+import { FormModal } from "@/components/admin/FormModal";
 
 const formationSchema = z.object({
   titre: z.string().min(1, "Le titre est requis"),
@@ -82,57 +75,45 @@ export default function FormationModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <ModalContent>
-        {(onClose) => (
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <ModalHeader className="flex flex-col gap-1">
-              {formation ? "Modifier la carte" : "Ajouter une carte Formation"}
-            </ModalHeader>
-            <ModalBody>
-              <Input
-                label="Titre"
-                placeholder="Ex: Apprendre les nœuds"
-                {...register("titre")}
-                errorMessage={errors.titre?.message}
-                isInvalid={!!errors.titre}
-              />
-              <Input
-                label="URL de l'image"
-                placeholder="https://..."
-                {...register("imageUrl")}
-                errorMessage={errors.imageUrl?.message}
-                isInvalid={!!errors.imageUrl}
-              />
-              <Input
-                label="Lien (plateforme Flambeaux)"
-                placeholder="https://..."
-                {...register("lien")}
-                errorMessage={errors.lien?.message}
-                isInvalid={!!errors.lien}
-              />
-              {imageUrl ? (
-                <div className="flex justify-center pt-2">
-                  <Image
-                    alt="Aperçu"
-                    className="max-h-32 object-cover rounded-large"
-                    src={imageUrl}
-                    width={220}
-                  />
-                </div>
-              ) : null}
-            </ModalBody>
-            <ModalFooter>
-              <Button color="danger" variant="light" onPress={onClose}>
-                Annuler
-              </Button>
-              <Button color="primary" isLoading={isPending} type="submit">
-                {formation ? "Mettre à jour" : "Créer"}
-              </Button>
-            </ModalFooter>
-          </form>
-        )}
-      </ModalContent>
-    </Modal>
+    <FormModal
+      isOpen={isOpen}
+      isPending={isPending}
+      submitLabel={formation ? "Mettre à jour" : "Créer"}
+      title={formation ? "Modifier la carte" : "Ajouter une carte Formation"}
+      onClose={onClose}
+      onSubmit={handleSubmit(onSubmit)}
+    >
+      <Input
+        label="Titre"
+        placeholder="Ex: Apprendre les nœuds"
+        {...register("titre")}
+        errorMessage={errors.titre?.message}
+        isInvalid={!!errors.titre}
+      />
+      <Input
+        label="URL de l'image"
+        placeholder="https://..."
+        {...register("imageUrl")}
+        errorMessage={errors.imageUrl?.message}
+        isInvalid={!!errors.imageUrl}
+      />
+      <Input
+        label="Lien (plateforme Flambeaux)"
+        placeholder="https://..."
+        {...register("lien")}
+        errorMessage={errors.lien?.message}
+        isInvalid={!!errors.lien}
+      />
+      {imageUrl ? (
+        <div className="flex justify-center pt-2">
+          <Image
+            alt="Aperçu"
+            className="max-h-32 object-cover rounded-large"
+            src={imageUrl}
+            width={220}
+          />
+        </div>
+      ) : null}
+    </FormModal>
   );
 }

@@ -26,12 +26,12 @@ export default function FormationClientPage({
       {formations.map((f) => (
         <a
           key={f.id}
-          className="group flex flex-col rounded-large border border-default-200 bg-content1 overflow-hidden hover:border-default-400 transition-colors"
+          className="group flex flex-col rounded-ds-lg bg-default-100 shadow-inset-border overflow-hidden transition-transform duration-fast hover:-translate-y-0.5"
           href={f.lien}
           rel="noopener noreferrer"
           target="_blank"
         >
-          <div className="relative aspect-video w-full overflow-hidden bg-default-100">
+          <div className="relative aspect-video w-full overflow-hidden bg-content1">
             <HeroImage
               removeWrapper
               alt={f.titre}
@@ -39,7 +39,7 @@ export default function FormationClientPage({
               src={f.imageUrl}
             />
           </div>
-          <div className="flex items-center justify-between gap-2 p-3">
+          <div className="flex items-center justify-between gap-2 p-5">
             <span className="font-medium text-foreground line-clamp-2">
               {f.titre}
             </span>
