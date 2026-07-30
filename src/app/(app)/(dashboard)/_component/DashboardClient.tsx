@@ -1,20 +1,23 @@
 "use client";
 
 import { Etape, Objectif, Justification, Notification } from "@prisma/client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 
 import ContentChemise from "./contentChemise/contentChemise";
 import ContentAction from "./contentAction/contentAction";
+import ObjectifModal from "./contentAction/panels/ObjectifModal";
 
 import { markNotificationAsRead } from "@/actions/notification/notification.actions";
-import { CommentaireAvecAuteur, JustificationAvecCommentaires } from "@/types";
 
 export type ObjectifAvecJustification = Objectif & {
-  justifications: JustificationAvecCommentaires[];
+  justifications: Justification[];
 };
 
 export type EtapeAvecObjectifs = Etape & {
   objectifs: ObjectifAvecJustification[];
+  isValidated?: boolean;
+  verrouille?: boolean;
 };
 
 interface DashboardClientProps {
@@ -40,6 +43,55 @@ export default function DashboardClient({
   );
   const [activeTab, setActiveTab] = useState<React.Key>("objectif");
   const [targetSubTab, setTargetSubTab] = useState<string | null>(null);
+  const [deepLinkObjectif, setDeepLinkObjectif] =
+    useState<ObjectifAvecJustification | null>(null);
+  const deepLinkConsumed = useRef(false);
+
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const etapeId = searchParams.get("etape");
+
+    if (!etapeId) {
+      return;
+    }
+
+    const target = initialEtapes.find((etape) => etape.id === etapeId);
+
+    if (target) {
+      setSelectedEtape(target);
+      setActiveTab("objectif");
+    }
+
+    window.history.replaceState(null, "", window.location.pathname);
+  }, [searchParams, initialEtapes]);
+
+  useEffect(() => {
+    if (deepLinkConsumed.current) {
+      return;
+    }
+
+    const justificationId = searchParams.get("justification");
+
+    if (!justificationId) {
+      return;
+    }
+
+    for (const etape of initialEtapes) {
+      const objectif = etape.objectifs.find((o) =>
+        o.justifications.some((j) => j.id === justificationId),
+      );
+
+      if (objectif) {
+        deepLinkConsumed.current = true;
+        setSelectedEtape(etape);
+        setDeepLinkObjectif(objectif);
+        break;
+      }
+    }
+
+    window.history.replaceState(null, "", window.location.pathname);
+  }, [searchParams, initialEtapes]);
 
   useEffect(() => {
     if (selectedEtape) {
@@ -67,9 +119,8 @@ export default function DashboardClient({
               ? { ...existingJustification, ...justification }
               : ({
                   id: "temp-" + Date.now(),
-                  commentaires: [] as CommentaireAvecAuteur[],
                   ...justification,
-                } as JustificationAvecCommentaires);
+                } as Justification);
 
             return {
               ...objectif,
@@ -103,7 +154,7 @@ export default function DashboardClient({
           notification.type === "NOUVEAU_COMMENTAIRE" ||
           notification.type === "REPONSE_PRECISION"
         ) {
-          setTargetSubTab("discussion");
+          setTargetSubTab("realisations");
         } else {
           setTargetSubTab(null);
         }
@@ -111,10 +162,17 @@ export default function DashboardClient({
     }
   };
 
+  const currentJalon =
+    etapes.find(
+      (etape) =>
+        etape.type === "JALON" && !etape.isValidated && !etape.verrouille,
+    ) ?? null;
+
   return (
     <div className="flex items-stretch md:flex-1 gap-0 md:gap-4 md:pt-4 min-h-0 flex-auto md:flex-0">
       <ContentChemise
         activeTab={activeTab}
+        currentJalon={currentJalon}
         etapes={etapes}
         notifications={notifications}
         selectedEtape={selectedEtape}
@@ -137,6 +195,13 @@ export default function DashboardClient({
           onUpdateJustification={updateJustification}
         />
       </div>
+
+      <ObjectifModal
+        isOpen={!!deepLinkObjectif}
+        objectif={deepLinkObjectif}
+        onOpenChange={() => setDeepLinkObjectif(null)}
+        onUpdateJustification={updateJustification}
+      />
     </div>
   );
 }

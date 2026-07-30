@@ -10,7 +10,6 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
-  Button,
   User as UserComponent,
   Checkbox,
   ScrollShadow,
@@ -23,6 +22,7 @@ import {
 } from "../../_actions/admin.actions";
 
 import { clickable } from "@/lib/a11y";
+import { Button } from "@/components/ui";
 
 type AssignationModalProps = {
   isOpen: boolean;
@@ -104,7 +104,12 @@ export default function AssignationModal({
   };
 
   return (
-    <Modal isOpen={isOpen} scrollBehavior="inside" onClose={onClose}>
+    <Modal
+      classNames={{ base: "rounded-[24px]" }}
+      isOpen={isOpen}
+      scrollBehavior="inside"
+      onClose={onClose}
+    >
       <ModalContent>
         {(onClose) => (
           <>
@@ -149,7 +154,7 @@ export default function AssignationModal({
               </ScrollShadow>
             </ModalBody>
             <ModalFooter>
-              <Button color="primary" onPress={onClose}>
+              <Button color="primary" onClick={onClose}>
                 Fermer
               </Button>
             </ModalFooter>

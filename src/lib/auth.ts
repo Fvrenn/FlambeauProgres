@@ -20,7 +20,6 @@ export const auth = betterAuth({
           where: { id: user.id },
           select: {
             role: true,
-            troupeId: true,
             assigneEtapes: {
               select: {
                 etape: {
@@ -45,7 +44,6 @@ export const auth = betterAuth({
             user: {
               ...user,
               role: userFromDb.role,
-              troupeId: userFromDb.troupeId,
               etapesReferent: etapesReferent,
             },
           };

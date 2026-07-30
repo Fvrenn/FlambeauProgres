@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { Justification } from "@prisma/client";
 import { Tabs, Tab, useDisclosure } from "@heroui/react";
 import { Icon } from "@iconify/react";
@@ -15,8 +16,7 @@ import {
 import StatusChip from "./StatusChip";
 import ObjectifModal from "./ObjectifModal";
 
-import ChatPanel from "@/components/application/dashboard-chef/ChatPanel";
-import { clickable } from "@/lib/a11y";
+import { DEFAULT_ETAPE_COLOR, getReadableTextColor } from "@/lib/color";
 
 interface ObjectifPanelProps {
   selectedEtape: EtapeAvecObjectifs | null;
@@ -43,14 +43,6 @@ export default function ObjectifPanel({
     }
   }, [targetSubTab]);
 
-  const {
-    isOpen: isChatOpen,
-    onOpen: onChatOpen,
-    onOpenChange: onChatOpenChange,
-  } = useDisclosure();
-  const [selectedChatObjectif, setSelectedChatObjectif] =
-    useState<ObjectifAvecJustification | null>(null);
-
   const handleOpenModal = (objectif: ObjectifAvecJustification) => {
     setSelectedObjectif(objectif);
     onOpen();
@@ -71,28 +63,45 @@ export default function ObjectifPanel({
   const realisations = selectedEtape.objectifs.filter(
     (o) => o.type === "REALISATION",
   ) as ObjectifAvecJustification[];
-  const discussions = selectedEtape.objectifs.filter(
-    (o) => o.justifications[0]?.statut === "DEMANDE_PRECISION",
-  ) as ObjectifAvecJustification[];
-
-  const handleOpenChat = (objectif: ObjectifAvecJustification) => {
-    setSelectedChatObjectif(objectif);
-    onChatOpen();
-  };
+  const etapeColor = selectedEtape.couleur || DEFAULT_ETAPE_COLOR;
+  const etapeFg = getReadableTextColor(etapeColor);
 
   return (
     <div>
-      <div className="flex w-full flex-col">
+      <div
+        className="flex w-full flex-col"
+        style={
+          {
+            "--etape-color": etapeColor,
+            "--etape-fg": etapeFg,
+          } as React.CSSProperties
+        }
+      >
+        <div className="mb-4 flex items-center gap-2">
+          <h2 className="text-xl font-bold text-foreground">
+            Étape {selectedEtape.name}
+          </h2>
+          {selectedEtape.image_src && (
+            <Image
+              alt={`Badge ${selectedEtape.name}`}
+              className="shrink-0"
+              height={24}
+              src={selectedEtape.image_src}
+              width={24}
+            />
+          )}
+        </div>
+
         <Tabs
           aria-label="Options"
           classNames={{
             tabList:
               "gap-1 md:gap-8 w-full max-w-xl rounded-full p-0.5 bg-[#F3F2E9]",
             cursor:
-              "!bg-danger-800 rounded-full md:before:content-['•'] before:absolute before:left-3 before:top-1/2 before:-translate-y-1/2 before:text-black before:text-lg before:font-bold",
+              "!bg-[var(--etape-color)] rounded-full md:before:content-['•'] before:absolute before:left-3 before:top-1/2 before:-translate-y-1/2 before:text-[var(--etape-fg)] before:text-lg before:font-bold",
             tab: "px-1 md:px-6 h-12 relative md:text-sm text-xs",
             tabContent:
-              "text-black md:group-data-[selected=true]:pl-6 group-data-[selected=true]:font-semibold font-medium transition-all duration-300 ease-in-out",
+              "text-black group-data-[selected=true]:text-[var(--etape-fg)] md:group-data-[selected=true]:pl-6 group-data-[selected=true]:font-semibold font-medium transition-all duration-300 ease-in-out",
           }}
           selectedKey={activeTab as string}
           onSelectionChange={setActiveTab}
@@ -182,43 +191,6 @@ export default function ObjectifPanel({
               ))}
             </ul>
           </Tab>
-
-          <Tab key="discussion" title="Discussion">
-            <Divider className="mt-3" />
-            {discussions.length === 0 ? (
-              <div className="flex items-center justify-center h-48 text-gray-500">
-                <p>Aucune discussion en cours pour ce badge.</p>
-              </div>
-            ) : (
-              <ul className="space-y-2">
-                {discussions.map((d) => (
-                  <li
-                    key={d.id}
-                    className="cursor-pointer transition-colors hover:bg-gray-50"
-                    {...clickable(() => handleOpenChat(d))}
-                  >
-                    <div className="py-6.5 px-5 rounded-md flex items-center">
-                      <div className="flex-1 flex items-center">
-                        <span className="text-xl text-foreground border border-default-800 py-3 px-2.5 rounded-full w-12 h-12 flex items-center justify-center mr-2.5">
-                          {d.code}
-                        </span>
-                        {d.description}
-                      </div>
-
-                      <div className="flex items-center gap-4 ml-6">
-                        <StatusChip
-                          statut={d.justifications[0]?.statut || null}
-                        />
-                      </div>
-                    </div>
-                    <div className="px-5">
-                      <Divider />
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Tab>
         </Tabs>
       </div>
 
@@ -227,12 +199,6 @@ export default function ObjectifPanel({
         objectif={selectedObjectif}
         onOpenChange={onOpenChange}
         onUpdateJustification={onUpdateJustification}
-      />
-
-      <ChatPanel
-        isOpen={isChatOpen}
-        justificationId={selectedChatObjectif?.justifications[0]?.id || ""}
-        onClose={onChatOpenChange}
       />
     </div>
   );

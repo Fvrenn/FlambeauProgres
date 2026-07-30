@@ -4,8 +4,8 @@
 
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useGLTF, Center } from "@react-three/drei";
-import { Suspense, useRef, useLayoutEffect } from "react";
-import * as THREE from "three";
+import { Suspense, useRef, useLayoutEffect, useMemo } from "react";
+import { MathUtils, Group, Mesh, MeshStandardMaterial } from "three";
 
 const LIGHTING_CONFIG = {
   ambient: { intensity: 0.8, color: "#ffffff" },
@@ -52,89 +52,83 @@ const MATERIAL_CONFIG = {
 
 function ChemiseGLB({ selectedBadge }: { selectedBadge?: string | null }) {
   const { scene } = useGLTF("/chemise/chemise.glb");
-  const meshRef = useRef<THREE.Group>(null);
+  const meshRef = useRef<Group>(null);
 
-  useFrame((state, delta) => {
-    if (!meshRef.current) return;
+  useFrame((_, delta) => {
+    const group = meshRef.current;
 
-    const isSelected = !!selectedBadge;
-    const target = isSelected
+    if (!group) return;
+
+    const target = selectedBadge
       ? ANIMATION_CONFIG.selected
       : ANIMATION_CONFIG.default;
     const lerpFactor = delta * ANIMATION_CONFIG.lerpSpeed;
 
-    meshRef.current.rotation.x = THREE.MathUtils.lerp(
-      meshRef.current.rotation.x,
+    group.rotation.x = MathUtils.lerp(
+      group.rotation.x,
       target.rotation[0],
       lerpFactor,
     );
-    meshRef.current.rotation.y = THREE.MathUtils.lerp(
-      meshRef.current.rotation.y,
+    group.rotation.y = MathUtils.lerp(
+      group.rotation.y,
       target.rotation[1],
       lerpFactor,
     );
-    meshRef.current.rotation.z = THREE.MathUtils.lerp(
-      meshRef.current.rotation.z,
+    group.rotation.z = MathUtils.lerp(
+      group.rotation.z,
       target.rotation[2],
       lerpFactor,
     );
 
-    const newScale = THREE.MathUtils.lerp(
-      meshRef.current.scale.x,
-      target.scale,
-      lerpFactor,
-    );
+    const newScale = MathUtils.lerp(group.scale.x, target.scale, lerpFactor);
 
-    meshRef.current.scale.set(newScale, newScale, newScale);
+    group.scale.set(newScale, newScale, newScale);
 
-    meshRef.current.position.x = THREE.MathUtils.lerp(
-      meshRef.current.position.x,
+    group.position.x = MathUtils.lerp(
+      group.position.x,
       target.position[0],
       lerpFactor,
     );
-    meshRef.current.position.y = THREE.MathUtils.lerp(
-      meshRef.current.position.y,
+    group.position.y = MathUtils.lerp(
+      group.position.y,
       target.position[1],
       lerpFactor,
     );
-    meshRef.current.position.z = THREE.MathUtils.lerp(
-      meshRef.current.position.z,
+    group.position.z = MathUtils.lerp(
+      group.position.z,
       target.position[2],
       lerpFactor,
     );
   });
 
   useLayoutEffect(() => {
-    scene.traverse((child: any) => {
-      if (child.isMesh && child.material) {
+    scene.traverse((child) => {
+      if (child instanceof Mesh && child.material) {
         Object.assign(child.material, MATERIAL_CONFIG.base);
-        child.castShadow = true;
-        child.receiveShadow = true;
       }
     });
   }, [scene]);
 
   useLayoutEffect(() => {
-    scene.traverse((obj: any) => {
+    scene.traverse((obj) => {
       if (obj.type === "Group" && obj.name.startsWith("badge_")) {
         const isActive =
-          selectedBadge &&
+          !!selectedBadge &&
           obj.name.toLowerCase() === `badge_${selectedBadge.toLowerCase()}`;
         const materialConfig = isActive
           ? MATERIAL_CONFIG.badgeActive
           : MATERIAL_CONFIG.badgeInactive;
 
-        obj.traverse((child: any) => {
-          if (child.isMesh && child.material) {
-            child.material = child.material.clone();
-            child.material.color.set(materialConfig.color);
-            child.material.roughness = materialConfig.roughness;
-            child.material.metalness = materialConfig.metalness;
-            child.material.envMapIntensity = 1;
-            child.material.opacity = materialConfig.opacity;
-            child.material.transparent = !isActive;
-            child.castShadow = true;
-            child.receiveShadow = true;
+        obj.traverse((child) => {
+          if (child instanceof Mesh && child.material) {
+            const material = (child.material as MeshStandardMaterial).clone();
+
+            material.color.set(materialConfig.color);
+            material.roughness = materialConfig.roughness;
+            material.metalness = materialConfig.metalness;
+            material.opacity = materialConfig.opacity;
+            material.transparent = !isActive;
+            child.material = material;
           }
         });
       }
@@ -152,12 +146,26 @@ interface ChemiseModelProps {
   selectedBadge?: string | null;
 }
 
+function detectLowEndDevice() {
+  if (typeof navigator === "undefined") return false;
+  const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+  const cores = navigator.hardwareConcurrency ?? 8;
+
+  return isMobile && cores <= 4;
+}
+
 export const ChemiseModel = ({ selectedBadge }: ChemiseModelProps) => {
   const { ambient, directional, spot, point } = LIGHTING_CONFIG;
+  const isLowEnd = useMemo(detectLowEndDevice, []);
 
   return (
     <div className="w-full h-full">
-      <Canvas camera={{ position: [0, 0, 5], fov: 20 }} shadows={false}>
+      <Canvas
+        camera={{ position: [0, 0, 5], fov: 20 }}
+        dpr={isLowEnd ? [1, 1.5] : [1, 2]}
+        gl={{ antialias: !isLowEnd, powerPreference: "high-performance" }}
+        shadows={false}
+      >
         <ambientLight color={ambient.color} intensity={ambient.intensity} />
         <directionalLight
           color="#ffffff"

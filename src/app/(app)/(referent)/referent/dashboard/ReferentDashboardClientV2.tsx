@@ -1,17 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { type User, type Justification } from "@prisma/client";
+import { useRouter } from "next/navigation";
 
 import ReferentValidationModal, {
-  type JustificationAvecRelations,
+  type ReferentThreadJustification,
 } from "./_components/ReferentValidationModal";
 import ReferentTabs from "./_components/ReferentTabs";
 import ValidationPanel from "./_components/panels/ValidationPanel";
 import DiscussionPanel from "./_components/panels/DiscussionPanel";
 import RevisionPanel from "./_components/panels/RevisionPanel";
-
-import { type CommentaireAvecAuteur } from "@/types";
 
 type ChefInfo = {
   id: string;
@@ -34,62 +33,77 @@ type JustificationAValider = Justification & {
 type JustificationEnDiscussion = Justification & {
   chef: ChefInfo;
   objectif: ObjectifInfo;
-  _count: {
-    notifications: number;
-  };
 };
 
 interface ReferentDashboardClientV2Props {
   justificationsAValider: JustificationAValider[];
   justificationsEnDiscussion: JustificationEnDiscussion[];
   chefsAReviser: User[];
+  targetJustificationId?: string;
 }
 
 export default function ReferentDashboardClientV2({
   justificationsAValider,
   justificationsEnDiscussion,
   chefsAReviser,
+  targetJustificationId,
 }: ReferentDashboardClientV2Props) {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<React.Key>("a-valider");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedJustification, setSelectedJustification] = useState<
-    | ((JustificationAValider | JustificationEnDiscussion) & {
-        commentaires?: CommentaireAvecAuteur[];
-      })
-    | null
-  >(null);
+  const [selectedJustification, setSelectedJustification] =
+    useState<ReferentThreadJustification | null>(null);
+  const deepLinkConsumed = useRef(false);
 
-  const [modalDefaultTab, setModalDefaultTab] = useState<
-    "justification" | "discussion"
-  >("justification");
+  useEffect(() => {
+    if (deepLinkConsumed.current || !targetJustificationId) {
+      return;
+    }
+
+    const inValider = justificationsAValider.find(
+      (j) => j.id === targetJustificationId,
+    );
+    const inDiscussion = justificationsEnDiscussion.find(
+      (j) => j.id === targetJustificationId,
+    );
+    const found = inValider ?? inDiscussion;
+
+    if (found) {
+      deepLinkConsumed.current = true;
+      setActiveTab(inValider ? "a-valider" : "discussions");
+      setSelectedJustification(found);
+      setIsModalOpen(true);
+    }
+  }, [
+    targetJustificationId,
+    justificationsAValider,
+    justificationsEnDiscussion,
+  ]);
 
   const handleJustificationClick = (
     justification: JustificationAValider | JustificationEnDiscussion,
-    tab: "justification" | "discussion",
   ) => {
     setSelectedJustification(justification);
-    setModalDefaultTab(tab);
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedJustification(null);
+    router.refresh();
   };
 
   const contentMap: Record<string, React.ReactNode> = {
     "a-valider": (
       <ValidationPanel
         justifications={justificationsAValider}
-        onJustificationClick={(j) =>
-          handleJustificationClick(j, "justification")
-        }
+        onJustificationClick={handleJustificationClick}
       />
     ),
     discussions: (
       <DiscussionPanel
         justifications={justificationsEnDiscussion}
-        onJustificationClick={(j) => handleJustificationClick(j, "discussion")}
+        onJustificationClick={handleJustificationClick}
       />
     ),
     "a-reviser": <RevisionPanel chefs={chefsAReviser} />,
@@ -116,11 +130,8 @@ export default function ReferentDashboardClientV2({
       </div>
 
       <ReferentValidationModal
-        defaultTab={modalDefaultTab}
         isOpen={isModalOpen}
-        justification={
-          selectedJustification as unknown as JustificationAvecRelations | null
-        }
+        justification={selectedJustification}
         onOpenChange={handleCloseModal}
       />
     </div>

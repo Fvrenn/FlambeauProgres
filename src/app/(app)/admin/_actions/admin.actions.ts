@@ -6,6 +6,7 @@ import { UserRole } from "@prisma/client";
 
 import prisma from "@/lib/prisma";
 import { authorizeRole } from "@/lib/auth-guards";
+import { FormationService } from "@/services/formation.service";
 
 const idSchema = z.string().min(1);
 
@@ -14,6 +15,7 @@ const objectifInputSchema = z.object({
   description: z.string().max(2000),
   type: z.enum(["COMPETENCE", "REALISATION"]),
   fichiersRequis: z.boolean(),
+  texteRequis: z.boolean(),
 });
 
 const etapeInfoSchema = z.object({
@@ -53,122 +55,6 @@ export async function updateUserRole(userId: string, role: UserRole) {
     console.error("Error updating user role:", error);
 
     return { success: false, error: "Échec de la mise à jour du rôle" };
-  }
-}
-
-export async function updateUserTroupe(
-  userId: string,
-  troupeId: string | null,
-) {
-  if (!(await authorizeRole("ADMIN"))) {
-    return { success: false, error: "Non autorisé" };
-  }
-
-  const parsed = z
-    .object({ userId: idSchema, troupeId: idSchema.nullable() })
-    .safeParse({ userId, troupeId });
-
-  if (!parsed.success) {
-    return { success: false, error: "Données invalides" };
-  }
-
-  try {
-    await prisma.user.update({
-      where: { id: parsed.data.userId },
-      data: { troupeId: parsed.data.troupeId },
-    });
-
-    revalidatePath("/admin/users");
-    revalidatePath("/admin/troupes");
-
-    return { success: true };
-  } catch (error) {
-    console.error("Error updating user troupe:", error);
-
-    return { success: false, error: "Échec de la mise à jour de la troupe" };
-  }
-}
-
-export async function createTroupe(name: string, chefId?: string) {
-  if (!(await authorizeRole("ADMIN"))) {
-    return { success: false, error: "Non autorisé" };
-  }
-
-  const parsed = z
-    .object({ name: z.string().min(1).max(120), chefId: idSchema.optional() })
-    .safeParse({ name, chefId });
-
-  if (!parsed.success) {
-    return { success: false, error: "Données invalides" };
-  }
-
-  try {
-    await prisma.$transaction(async (tx) => {
-      const troupe = await tx.troupe.create({
-        data: { nom: parsed.data.name },
-      });
-
-      if (parsed.data.chefId) {
-        await tx.user.update({
-          where: { id: parsed.data.chefId },
-          data: { troupeId: troupe.id },
-        });
-      }
-    });
-
-    revalidatePath("/admin/troupes");
-
-    return { success: true };
-  } catch (error) {
-    console.error("Error creating troupe:", error);
-
-    return { success: false, error: "Échec de la création de la troupe" };
-  }
-}
-
-export async function updateTroupe(
-  troupeId: string,
-  name: string,
-  chefId?: string,
-) {
-  if (!(await authorizeRole("ADMIN"))) {
-    return { success: false, error: "Non autorisé" };
-  }
-
-  const parsed = z
-    .object({
-      troupeId: idSchema,
-      name: z.string().min(1).max(120),
-      chefId: idSchema.optional(),
-    })
-    .safeParse({ troupeId, name, chefId });
-
-  if (!parsed.success) {
-    return { success: false, error: "Données invalides" };
-  }
-
-  try {
-    await prisma.$transaction(async (tx) => {
-      await tx.troupe.update({
-        where: { id: parsed.data.troupeId },
-        data: { nom: parsed.data.name },
-      });
-
-      if (parsed.data.chefId) {
-        await tx.user.update({
-          where: { id: parsed.data.chefId },
-          data: { troupeId: parsed.data.troupeId },
-        });
-      }
-    });
-
-    revalidatePath("/admin/troupes");
-
-    return { success: true };
-  } catch (error) {
-    console.error("Error updating troupe:", error);
-
-    return { success: false, error: "Échec de la mise à jour de la troupe" };
   }
 }
 
@@ -252,6 +138,7 @@ export async function createEtape(data: {
     description: string;
     type: "COMPETENCE" | "REALISATION";
     fichiersRequis: boolean;
+    texteRequis: boolean;
   }[];
 }) {
   if (!(await authorizeRole("ADMIN"))) {
@@ -329,14 +216,26 @@ export async function updateEtape(
   }
 }
 
-export async function updateEtapeBadge(etapeId: string, imageSrc: string) {
+export async function updateEtapeBadge(
+  etapeId: string,
+  imageSrc: string,
+  couleur?: string | null,
+) {
   if (!(await authorizeRole("ADMIN"))) {
     return { success: false, error: "Non autorisé" };
   }
 
   const parsed = z
-    .object({ etapeId: idSchema, imageSrc: z.string().min(1).max(2048) })
-    .safeParse({ etapeId, imageSrc });
+    .object({
+      etapeId: idSchema,
+      imageSrc: z.string().min(1).max(2048),
+      couleur: z
+        .string()
+        .regex(/^#[0-9a-fA-F]{6}$/, "Couleur hexadécimale invalide")
+        .nullable()
+        .optional(),
+    })
+    .safeParse({ etapeId, imageSrc, couleur });
 
   if (!parsed.success) {
     return { success: false, error: "Données invalides" };
@@ -345,10 +244,14 @@ export async function updateEtapeBadge(etapeId: string, imageSrc: string) {
   try {
     await prisma.etape.update({
       where: { id: parsed.data.etapeId },
-      data: { image_src: parsed.data.imageSrc },
+      data: {
+        image_src: parsed.data.imageSrc,
+        couleur: parsed.data.couleur ?? null,
+      },
     });
 
     revalidatePath("/admin/etapes");
+    revalidatePath(`/admin/etapes/${parsed.data.etapeId}`);
 
     return { success: true };
   } catch (error) {
@@ -365,6 +268,7 @@ export async function createObjectif(
     description: string;
     type: "COMPETENCE" | "REALISATION";
     fichiersRequis: boolean;
+    texteRequis: boolean;
   },
 ) {
   if (!(await authorizeRole("ADMIN"))) {
@@ -404,6 +308,7 @@ export async function updateObjectif(
     description: string;
     type: "COMPETENCE" | "REALISATION";
     fichiersRequis: boolean;
+    texteRequis: boolean;
   },
 ) {
   if (!(await authorizeRole("ADMIN"))) {
@@ -462,5 +367,94 @@ export async function deleteObjectif(objectifId: string, etapeId: string) {
     console.error("Error deleting objectif:", error);
 
     return { success: false, error: "Échec de la suppression de l'objectif" };
+  }
+}
+
+const formationInputSchema = z.object({
+  titre: z.string().min(1).max(200),
+  imageUrl: z.string().url().max(2048),
+  lien: z.string().url().max(2048),
+});
+
+export async function createFormation(data: {
+  titre: string;
+  imageUrl: string;
+  lien: string;
+}) {
+  if (!(await authorizeRole("ADMIN"))) {
+    return { success: false, error: "Non autorisé" };
+  }
+
+  const parsed = formationInputSchema.safeParse(data);
+
+  if (!parsed.success) {
+    return { success: false, error: "Données invalides" };
+  }
+
+  try {
+    await FormationService.create(parsed.data);
+
+    revalidatePath("/admin/formations");
+    revalidatePath("/formation");
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error creating formation:", error);
+
+    return { success: false, error: "Échec de la création de la carte" };
+  }
+}
+
+export async function updateFormation(
+  formationId: string,
+  data: { titre: string; imageUrl: string; lien: string },
+) {
+  if (!(await authorizeRole("ADMIN"))) {
+    return { success: false, error: "Non autorisé" };
+  }
+
+  const parsedId = idSchema.safeParse(formationId);
+  const parsed = formationInputSchema.safeParse(data);
+
+  if (!parsedId.success || !parsed.success) {
+    return { success: false, error: "Données invalides" };
+  }
+
+  try {
+    await FormationService.update(parsedId.data, parsed.data);
+
+    revalidatePath("/admin/formations");
+    revalidatePath("/formation");
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating formation:", error);
+
+    return { success: false, error: "Échec de la mise à jour de la carte" };
+  }
+}
+
+export async function deleteFormation(formationId: string) {
+  if (!(await authorizeRole("ADMIN"))) {
+    return { success: false, error: "Non autorisé" };
+  }
+
+  const parsedId = idSchema.safeParse(formationId);
+
+  if (!parsedId.success) {
+    return { success: false, error: "Données invalides" };
+  }
+
+  try {
+    await FormationService.remove(parsedId.data);
+
+    revalidatePath("/admin/formations");
+    revalidatePath("/formation");
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting formation:", error);
+
+    return { success: false, error: "Échec de la suppression de la carte" };
   }
 }

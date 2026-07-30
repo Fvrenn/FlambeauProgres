@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Avatar, Chip, Button, Divider, Badge } from "@heroui/react";
+import { Avatar, Chip, Button, Divider } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { Justification } from "@prisma/client";
 
@@ -22,9 +22,6 @@ type ObjectifInfo = {
 type JustificationEnDiscussion = Justification & {
   chef: ChefInfo;
   objectif: ObjectifInfo;
-  _count: {
-    notifications: number;
-  };
 };
 
 interface DiscussionPanelProps {
@@ -85,42 +82,20 @@ export default function DiscussionPanel({
               </div>
 
               <div className="flex items-center justify-between w-full md:w-auto md:ml-6 mt-1 md:mt-0">
-                <div className="flex items-center gap-2">
-                  <Chip
-                    classNames={{
-                      base: "h-6 text-[10px] md:text-xs",
-                      content: "px-2",
-                    }}
-                    color="secondary"
-                    size="sm"
-                    startContent={
-                      <Icon icon="solar:question-circle-linear" width={12} />
-                    }
-                    variant="flat"
-                  >
-                    Précision
-                  </Chip>
-                  {justification._count.notifications > 0 && (
-                    <Badge
-                      color="danger"
-                      content={justification._count.notifications}
-                      shape="circle"
-                      size="sm"
-                    >
-                      <Chip
-                        classNames={{
-                          base: "h-6 text-[10px] md:text-xs",
-                          content: "px-2",
-                        }}
-                        color="primary"
-                        size="sm"
-                        variant="flat"
-                      >
-                        Nouveau
-                      </Chip>
-                    </Badge>
-                  )}
-                </div>
+                <Chip
+                  classNames={{
+                    base: "h-6 text-[10px] md:text-xs",
+                    content: "px-2",
+                  }}
+                  color="secondary"
+                  size="sm"
+                  startContent={
+                    <Icon icon="solar:question-circle-linear" width={12} />
+                  }
+                  variant="flat"
+                >
+                  Précision
+                </Chip>
                 <Button
                   isIconOnly
                   aria-label="Ouvrir"

@@ -13,6 +13,18 @@ const config = {
         sans: ["var(--font-sans)"],
         mono: ["var(--font-mono)"],
       },
+      borderRadius: {
+        "ds-sm": "12px",
+        "ds-md": "14px",
+        "ds-lg": "24px",
+      },
+      boxShadow: {
+        pill: "0px 0px 5px rgba(0,0,0,.02), 0px 2px 10px rgba(0,0,0,.06), 0px 0px 1px rgba(0,0,0,.3)",
+        "inset-border": "inset 0 0 0 1px rgba(17,17,17,.15)",
+      },
+      transitionDuration: {
+        fast: "120ms",
+      },
     },
   },
   darkMode: "class",

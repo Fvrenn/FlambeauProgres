@@ -36,12 +36,13 @@ export default function ValidationFinaleButton({
   return (
     <>
       <Button
-        color="success"
+        className="w-full md:w-auto"
+        color="primary"
         isLoading={isLoading}
         startContent={!isLoading && <Icon icon="solar:verified-check-linear" />}
         onPress={onOpen}
       >
-        Valider le Badge Complet
+        Valider le badge complet
       </Button>
 
       <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
@@ -62,7 +63,7 @@ export default function ValidationFinaleButton({
                   Annuler
                 </Button>
                 <Button
-                  color="success"
+                  color="primary"
                   onPress={() => {
                     onClose();
                     handleConfirmValidate();

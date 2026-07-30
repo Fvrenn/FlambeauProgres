@@ -4,11 +4,13 @@ import { type User } from "@prisma/client";
 import ReferentDashboardClientV2 from "./ReferentDashboardClientV2";
 
 import { getUser } from "@/lib/auth-server";
+import { STATUTS_VALIDES } from "@/lib/justification";
 import prisma from "@/lib/prisma";
 
 type ReferentDashboardPageProps = {
   searchParams: Promise<{
     etapeId?: string;
+    justification?: string;
   }>;
 };
 
@@ -17,6 +19,7 @@ export default async function ReferentDashboardPage({
 }: ReferentDashboardPageProps) {
   const params = await searchParams;
   const etapeId = params.etapeId;
+  const targetJustificationId = params.justification;
 
   if (!etapeId) {
     return (
@@ -45,7 +48,7 @@ export default async function ReferentDashboardPage({
     by: ["chefId"],
     where: {
       etapeId: etapeId,
-      statut: { in: ["AUTO_VALIDEE", "VALIDEE"] },
+      statut: { in: STATUTS_VALIDES },
     },
     _count: {
       id: true,
@@ -114,7 +117,7 @@ export default async function ReferentDashboardPage({
     return <div>Accès refusé</div>;
   }
 
-  const rawJustificationsAValider = await prisma.justification.findMany({
+  const justificationsAValider = await prisma.justification.findMany({
     where: {
       etapeId: etapeId,
       statut: "SOUMISE",
@@ -122,33 +125,13 @@ export default async function ReferentDashboardPage({
     include: {
       chef: true,
       objectif: true,
-      commentaires: {
-        include: {
-          auteur: true,
-        },
-        orderBy: {
-          createdAt: "asc",
-        },
-      },
-      fichiers: true,
     },
     orderBy: {
       soumiseAt: "asc",
     },
   });
 
-  const justificationsAValider = rawJustificationsAValider.map(
-    (justification) => ({
-      ...justification,
-      fichiers: justification.fichiers.map((fichier) => ({
-        ...fichier,
-
-        url: `/api/files/${fichier.id}`,
-      })),
-    }),
-  );
-
-  const rawJustificationsEnDiscussion = await prisma.justification.findMany({
+  const justificationsEnDiscussion = await prisma.justification.findMany({
     where: {
       etapeId: etapeId,
       statut: "DEMANDE_PRECISION",
@@ -156,47 +139,18 @@ export default async function ReferentDashboardPage({
     include: {
       chef: true,
       objectif: true,
-      commentaires: {
-        include: {
-          auteur: true,
-        },
-        orderBy: {
-          createdAt: "asc",
-        },
-      },
-      fichiers: true,
-      _count: {
-        select: {
-          notifications: {
-            where: {
-              destinataireId: user.id,
-              lue: false,
-              type: "NOUVEAU_COMMENTAIRE",
-            },
-          },
-        },
-      },
     },
     orderBy: {
       updatedAt: "desc",
     },
   });
 
-  const justificationsEnDiscussion = rawJustificationsEnDiscussion.map(
-    (justification) => ({
-      ...justification,
-      fichiers: justification.fichiers.map((fichier) => ({
-        ...fichier,
-        url: `/api/files/${fichier.id}`,
-      })),
-    }),
-  );
-
   return (
     <ReferentDashboardClientV2
       chefsAReviser={chefsAReviser}
       justificationsAValider={justificationsAValider}
       justificationsEnDiscussion={justificationsEnDiscussion}
+      targetJustificationId={targetJustificationId}
     />
   );
 }

@@ -13,6 +13,7 @@ import {
   Spacer,
   Button,
 } from "@heroui/react";
+import { Icon } from "@iconify/react";
 import Link from "next/link";
 import Image from "next/image";
 import { redirect } from "next/navigation";
@@ -103,34 +104,6 @@ const ProfilIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-const DeconnexionIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    aria-hidden="true"
-    fill="none"
-    focusable="false"
-    height="1em"
-    role="presentation"
-    viewBox="0 0 24 24"
-    width="1em"
-    {...props}
-  >
-    <path
-      d="M12.95 21.99h-3.9c-4 0-5-1-5-5v-8c0-4 1-5 5-5h3.9c4 0 5 1 5 5v1"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={1.5}
-    />
-    <path
-      d="M16.95 12h-6.9M18.95 15l3-3-3-3"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={1.5}
-    />
-  </svg>
-);
-
 export default function ContextSwitcher({
   user,
   isCompact,
@@ -161,7 +134,7 @@ export default function ContextSwitcher({
   const iconClasses = "text-xl text-default-500 pointer-events-none shrink-0";
 
   const viewItems = [
-    ...(pathname === "/" || pathname.startsWith("/troupe")
+    ...(pathname === "/"
       ? []
       : [
           <DropdownItem
@@ -272,26 +245,38 @@ export default function ContextSwitcher({
           }}
           variant="faded"
         >
-          <DropdownSection showDivider title="Changer de vue">
-            {viewItems}
-          </DropdownSection>
-
-          <DropdownSection title="Compte">
-            <DropdownItem
-              key="logout"
-              className="text-danger"
-              color="danger"
-              startContent={
-                <DeconnexionIcon className={`${iconClasses} text-danger`} />
-              }
-              onPress={async () => {
-                await signOut();
-                redirect("/login");
-              }}
-            >
-              Déconnexion
-            </DropdownItem>
-          </DropdownSection>
+          {[
+            ...(viewItems.length > 0
+              ? [
+                  <DropdownSection
+                    key="views"
+                    showDivider
+                    title="Changer de vue"
+                  >
+                    {viewItems}
+                  </DropdownSection>,
+                ]
+              : []),
+            <DropdownSection key="account" title="Compte">
+              <DropdownItem
+                key="logout"
+                className="text-danger"
+                color="danger"
+                startContent={
+                  <Icon
+                    className={`${iconClasses} text-danger`}
+                    icon="solar:logout-2-linear"
+                  />
+                }
+                onPress={async () => {
+                  await signOut();
+                  redirect("/login");
+                }}
+              >
+                Déconnexion
+              </DropdownItem>
+            </DropdownSection>,
+          ]}
         </DropdownMenu>
       </Dropdown>
       <Spacer y={8} />

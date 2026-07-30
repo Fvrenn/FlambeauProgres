@@ -1,0 +1,8 @@
+:root{
+  --radius-sm:12px;--radius-md:14px;--radius-lg:24px;--radius-full:9999px;
+  --shadow-pill:0px 0px 5px rgba(0,0,0,.02),0px 2px 10px rgba(0,0,0,.06),0px 0px 1px rgba(0,0,0,.3);
+  --shadow-inset-border:inset 0 0 0 1px rgba(17,17,17,.15);
+  --ease-standard:cubic-bezier(.4,0,.2,1); /* @kind other */
+  --duration-fast:120ms; /* @kind other */
+  --duration-base:200ms; /* @kind other */
+}

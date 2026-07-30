@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
 
-import prisma from "@/lib/prisma";
 import DashboardClient from "@/app/(app)/(dashboard)/_component/DashboardClient";
 import { getUser } from "@/lib/auth-server";
 import { getMyNotifications } from "@/actions/notification/notification.actions";
+import { EtapeService } from "@/services/etape.service";
 
 export default async function Home() {
   const user = await getUser();
@@ -13,23 +13,7 @@ export default async function Home() {
   }
 
   const [etapes, notifications] = await Promise.all([
-    prisma.etape.findMany({
-      orderBy: {
-        ordre: "asc",
-      },
-      include: {
-        objectifs: {
-          include: {
-            justifications: {
-              where: {
-                chefId: user.id,
-              },
-              include: {},
-            },
-          },
-        },
-      },
-    }),
+    EtapeService.getDashboardEtapesForChef(user.id),
     getMyNotifications(),
   ]);
 

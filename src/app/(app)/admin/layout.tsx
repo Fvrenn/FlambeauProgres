@@ -19,12 +19,6 @@ export default async function AdminLayout({
 
   const sidebarItems: SidebarItem[] = [
     {
-      key: "troupes",
-      href: "/admin/troupes",
-      icon: "solar:users-group-rounded-linear",
-      title: "Troupes",
-    },
-    {
       key: "users",
       href: "/admin/users",
       icon: "solar:user-linear",
@@ -41,6 +35,12 @@ export default async function AdminLayout({
       href: "/admin/assignations",
       icon: "solar:link-linear",
       title: "Assignations",
+    },
+    {
+      key: "formations",
+      href: "/admin/formations",
+      icon: "solar:book-bookmark-linear",
+      title: "Formation",
     },
   ];
 
