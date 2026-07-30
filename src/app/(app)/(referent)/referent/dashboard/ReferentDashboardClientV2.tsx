@@ -74,7 +74,11 @@ export default function ReferentDashboardClientV2({
       setSelectedJustification(found);
       setIsModalOpen(true);
     }
-  }, [targetJustificationId, justificationsAValider, justificationsEnDiscussion]);
+  }, [
+    targetJustificationId,
+    justificationsAValider,
+    justificationsEnDiscussion,
+  ]);
 
   const handleJustificationClick = (
     justification: JustificationAValider | JustificationEnDiscussion,

@@ -25,8 +25,8 @@ const db = vi.mocked(prisma, true);
 
 beforeEach(() => {
   vi.resetAllMocks();
-  db.$transaction.mockImplementation(
-    async (cb: (tx: typeof db) => unknown) => cb(db),
+  db.$transaction.mockImplementation(async (cb: (tx: typeof db) => unknown) =>
+    cb(db),
   );
   db.message.create.mockResolvedValue({ id: "m1" } as never);
   db.notification.createMany.mockResolvedValue({ count: 1 } as never);

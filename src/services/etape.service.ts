@@ -178,7 +178,10 @@ export class EtapeService {
     ]);
 
     if (!etape || etape.type !== "JALON") {
-      return { success: false, error: "Étape introuvable ou non auto-validable" };
+      return {
+        success: false,
+        error: "Étape introuvable ou non auto-validable",
+      };
     }
 
     const etapesValidees = new Set(statutsValides.map((s) => s.etapeId));

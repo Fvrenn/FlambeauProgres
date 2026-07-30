@@ -1,8 +1,9 @@
 "use client";
 
 import React from "react";
-import { ProfilForm } from "./_components/ProfilForm";
 import { Spacer } from "@heroui/react";
+
+import { ProfilForm } from "./_components/ProfilForm";
 
 export default function ClientPage({ user }: { user: any }) {
   return (

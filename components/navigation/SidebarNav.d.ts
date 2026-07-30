@@ -1,7 +1,10 @@
 /**
  * Primary sidebar navigation list (Tableau de bord / Progression / Formation).
  */
-export interface SidebarNavItem { label: string; icon?: React.ReactNode; }
+export interface SidebarNavItem {
+  label: string;
+  icon?: React.ReactNode;
+}
 export interface SidebarNavProps {
   items: SidebarNavItem[];
   defaultIndex?: number;

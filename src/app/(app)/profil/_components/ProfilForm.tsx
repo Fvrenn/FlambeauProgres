@@ -5,8 +5,9 @@ import type { UserRole } from "@prisma/client";
 
 import React, { useState } from "react";
 import { Input, Button, Card, CardBody, Avatar } from "@heroui/react";
-import { authClient } from "@/lib/auth-client";
 import { addToast } from "@heroui/toast";
+
+import { authClient } from "@/lib/auth-client";
 
 type ProfilUser = NonNullable<Awaited<ReturnType<typeof getUser>>> & {
   role?: UserRole;
@@ -55,44 +56,49 @@ export function ProfilForm({ user }: { user: ProfilUser }) {
       <CardBody className="p-6 gap-6">
         <div className="flex items-center gap-6">
           <Avatar
-            src={user?.image || undefined}
-            name={user?.name || "U"}
             className="w-20 h-20 text-large"
             color="primary"
+            name={user?.name || "U"}
+            src={user?.image || undefined}
           />
           <div className="flex flex-col h-full justify-center">
-            <h3 className="text-xl font-semibold leading-none mb-2">{user?.name}</h3>
+            <h3 className="text-xl font-semibold leading-none mb-2">
+              {user?.name}
+            </h3>
             <p className="text-small text-default-500">{user?.email}</p>
             <p className="text-small text-default-500 capitalize mt-1">
-              Rôle : <span className="font-medium text-foreground">{user?.role?.toLowerCase() || "chef"}</span>
+              Rôle :{" "}
+              <span className="font-medium text-foreground">
+                {user?.role?.toLowerCase() || "chef"}
+              </span>
             </p>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-4">
+        <form className="flex flex-col gap-4 mt-4" onSubmit={handleSubmit}>
           <Input
+            isRequired
+            errorMessage={name.trim() === "" ? "Le nom est requis" : ""}
+            isInvalid={name.trim() === ""}
             label="Nom complet"
+            labelPlacement="outside"
             placeholder="Entrez votre nom"
             value={name}
+            variant="faded"
             onChange={(e) => setName(e.target.value)}
-            isRequired
-            variant="faded"
-            labelPlacement="outside"
-            isInvalid={name.trim() === ""}
-            errorMessage={name.trim() === "" ? "Le nom est requis" : ""}
           />
-          
+
           <Input
-            label="Adresse email"
-            defaultValue={user?.email || ""}
             isReadOnly
-            variant="faded"
-            labelPlacement="outside"
+            defaultValue={user?.email || ""}
             description="L'adresse email ne peut pas être modifiée."
+            label="Adresse email"
+            labelPlacement="outside"
+            variant="faded"
           />
 
           <div className="flex justify-end mt-4">
-            <Button color="primary" type="submit" isLoading={isLoading}>
+            <Button color="primary" isLoading={isLoading} type="submit">
               Enregistrer les modifications
             </Button>
           </div>

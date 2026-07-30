@@ -219,7 +219,10 @@ export class DiscussionService {
     });
 
     if (!assignation) {
-      return { success: false, error: "Vous n'êtes pas référent de cette étape" };
+      return {
+        success: false,
+        error: "Vous n'êtes pas référent de cette étape",
+      };
     }
 
     if (justification.statut === "VALIDEE") {

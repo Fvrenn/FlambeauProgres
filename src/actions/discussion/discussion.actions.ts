@@ -47,7 +47,10 @@ export async function postMessage(
     }
 
     const parsed = z
-      .object({ justificationId: justificationIdSchema, contenu: contenuSchema })
+      .object({
+        justificationId: justificationIdSchema,
+        contenu: contenuSchema,
+      })
       .safeParse({ justificationId, contenu });
 
     if (!parsed.success) {
@@ -123,7 +126,10 @@ export async function validateRealisation(
     }
 
     const parsed = z
-      .object({ justificationId: justificationIdSchema, contenu: contenuSchema })
+      .object({
+        justificationId: justificationIdSchema,
+        contenu: contenuSchema,
+      })
       .safeParse({ justificationId, contenu });
 
     if (!parsed.success) {

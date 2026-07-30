@@ -4,14 +4,12 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 
 const prisma = new PrismaClient();
 
-
 const authForSeed = betterAuth({
   database: prismaAdapter(prisma, { provider: "postgresql" }),
   emailAndPassword: {
     enabled: true,
   },
 });
-
 
 const defaultPassword = "password123";
 
@@ -30,11 +28,6 @@ async function main() {
   await prisma.user.deleteMany();
   console.log("Database cleaned.");
 
-
-
-
-
-
   const adminResult = await authForSeed.api.signUpEmail({
     body: {
       email: "admin@flambeau.dev",
@@ -42,7 +35,6 @@ async function main() {
       password: defaultPassword,
     },
   });
-
 
   const admin = await prisma.user.update({
     where: { id: adminResult.user.id },
@@ -63,7 +55,6 @@ async function main() {
       role: "CHEF",
     },
   });
-
 
   const referentResult = await authForSeed.api.signUpEmail({
     body: {
@@ -94,6 +85,7 @@ async function main() {
       type: "JALON",
     },
   });
+
   console.log(`Created jalon: ${allumeFeu.name}`);
 
   const etapeDecouvrir = await prisma.etape.create({
@@ -108,10 +100,8 @@ async function main() {
       type: "JALON",
     },
   });
+
   console.log(`Created jalon: ${etapeDecouvrir.name}`);
-
-
-
 
   const etape2B = await prisma.etape.create({
     data: {
@@ -125,7 +115,8 @@ async function main() {
         create: [
           {
             code: "B1",
-            description: 'Acquérir et savoir utiliser le "Guide du Bois" (p. 9 à 11)',
+            description:
+              'Acquérir et savoir utiliser le "Guide du Bois" (p. 9 à 11)',
             type: "COMPETENCE",
           },
           {
@@ -137,7 +128,7 @@ async function main() {
           {
             code: "B3",
             description:
-              'Lire le chapitre "L\'enfant à l\'âge PF" p.19 du Guide du Bois et animer une discussion...',
+              "Lire le chapitre \"L'enfant à l'âge PF\" p.19 du Guide du Bois et animer une discussion...",
             type: "COMPETENCE",
           },
           {
@@ -160,7 +151,8 @@ async function main() {
           },
           {
             code: "B7",
-            description: "Accompagner un ami du Bois dans toute la démarche de la Parole de PF.",
+            description:
+              "Accompagner un ami du Bois dans toute la démarche de la Parole de PF.",
             type: "COMPETENCE",
           },
           {
@@ -181,6 +173,7 @@ async function main() {
       },
     },
   });
+
   console.log(`Created etape: ${etape2B.name}`);
 
   const etape2C = await prisma.etape.create({
@@ -253,6 +246,7 @@ async function main() {
       },
     },
   });
+
   console.log(`Created etape: ${etape2C.name}`);
 
   const etape2E = await prisma.etape.create({
@@ -324,6 +318,7 @@ async function main() {
       },
     },
   });
+
   console.log(`Created etape: ${etape2E.name}`);
 
   const etape2F = await prisma.etape.create({
@@ -356,7 +351,8 @@ async function main() {
           },
           {
             code: "F4",
-            description: "Garder un lien avec les parents par différents moyens (réunion de rentrée...)",
+            description:
+              "Garder un lien avec les parents par différents moyens (réunion de rentrée...)",
             type: "COMPETENCE",
           },
           {
@@ -395,8 +391,8 @@ async function main() {
       },
     },
   });
-  console.log(`Created etape: ${etape2F.name}`);
 
+  console.log(`Created etape: ${etape2F.name}`);
 
   const etapeConstruction = await prisma.etape.create({
     data: {
@@ -468,6 +464,7 @@ async function main() {
       },
     },
   });
+
   console.log(`Created etape: ${etapeConstruction.name}`);
 
   const etapeCuisine = await prisma.etape.create({
@@ -482,7 +479,8 @@ async function main() {
         create: [
           {
             code: "H1",
-            description: "Réaliser un carnet de 30 recettes avec : 10 plats adaptés au plein air...",
+            description:
+              "Réaliser un carnet de 30 recettes avec : 10 plats adaptés au plein air...",
             type: "COMPETENCE",
           },
           {
@@ -546,6 +544,7 @@ async function main() {
       },
     },
   });
+
   console.log(`Created etape: ${etapeCuisine.name}`);
 
   const etape2I = await prisma.etape.create({
@@ -618,6 +617,7 @@ async function main() {
       },
     },
   });
+
   console.log(`Created etape: ${etape2I.name}`);
 
   const etape2J = await prisma.etape.create({
@@ -690,6 +690,7 @@ async function main() {
       },
     },
   });
+
   console.log(`Created etape: ${etape2J.name}`);
 
   const etape2K = await prisma.etape.create({
@@ -762,6 +763,7 @@ async function main() {
       },
     },
   });
+
   console.log(`Created etape: ${etape2K.name}`);
 
   const etape2L = await prisma.etape.create({
@@ -834,6 +836,7 @@ async function main() {
       },
     },
   });
+
   console.log(`Created etape: ${etape2L.name}`);
 
   const etape2M = await prisma.etape.create({
@@ -911,6 +914,7 @@ async function main() {
       },
     },
   });
+
   console.log(`Created etape: ${etape2M.name}`);
 
   const etape2N = await prisma.etape.create({
@@ -974,7 +978,8 @@ async function main() {
           },
           {
             code: "N8b",
-            description: "Mettre en place un parrainage spi des Chefs par l'Eglise.",
+            description:
+              "Mettre en place un parrainage spi des Chefs par l'Eglise.",
             type: "REALISATION",
             fichiersRequis: true,
           },
@@ -989,9 +994,8 @@ async function main() {
       },
     },
   });
+
   console.log(`Created etape: ${etape2N.name}`);
-
-
 
   await prisma.etapeReferent.create({
     data: {
@@ -1009,9 +1013,7 @@ async function main() {
   });
   console.log("Assigned referent to etape.");
 
-
   console.log("Creating test justifications for chef1...");
-
 
   const objectifCompetenceG1 = await prisma.objectif.findFirst({
     where: { etapeId: etapeConstruction.id, code: "G1" },
@@ -1023,14 +1025,17 @@ async function main() {
   if (objectifCompetenceG1) {
     await prisma.justification.create({
       data: {
-        contenu: "J'ai lu la documentation et organisé l'atelier sur les outils.",
+        contenu:
+          "J'ai lu la documentation et organisé l'atelier sur les outils.",
         statut: "AUTO_VALIDEE",
         objectifId: objectifCompetenceG1.id,
         chefId: chef1.id,
         etapeId: etapeConstruction.id,
       },
     });
-    console.log(`Created AUTO_VALIDEE justification for objectif ${objectifCompetenceG1.code}`);
+    console.log(
+      `Created AUTO_VALIDEE justification for objectif ${objectifCompetenceG1.code}`,
+    );
   }
 
   if (objectifRealisationG8) {
@@ -1053,9 +1058,10 @@ async function main() {
       },
     });
 
-    console.log(`Created SOUMISE justification + message for objectif ${objectifRealisationG8.code}`);
+    console.log(
+      `Created SOUMISE justification + message for objectif ${objectifRealisationG8.code}`,
+    );
   }
-
 
   const ETAPE_COULEURS: Record<string, string> = {
     "2b": "#ece835",
@@ -1077,11 +1083,11 @@ async function main() {
   }
 
   console.log(
-    `Updated couleur for ${Object.keys(ETAPE_COULEURS).length} etapes`
+    `Updated couleur for ${Object.keys(ETAPE_COULEURS).length} etapes`,
   );
 
   console.log(
-    `\nSeeding finished. \nDefault password for all users: "${defaultPassword}"`
+    `\nSeeding finished. \nDefault password for all users: "${defaultPassword}"`,
   );
 }
 

@@ -7,9 +7,10 @@ import { Tooltip, Image } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 
+import { deleteFormation } from "../_actions/admin.actions";
+
 import FormationModal from "./_components/FormationModal";
 
-import { deleteFormation } from "../_actions/admin.actions";
 import { Button, Card, CardBody } from "@/components/ui";
 
 type FormationsClientPageProps = {

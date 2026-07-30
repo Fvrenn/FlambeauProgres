@@ -5,9 +5,6 @@ import { tv, type VariantProps } from "tailwind-variants";
 import { Icon } from "@iconify/react";
 import { cn } from "@heroui/react";
 
-// ─────────────────────────────────────────────
-//  Définition des variantes avec tailwind-variants
-// ─────────────────────────────────────────────
 export const buttonVariants = tv({
   base: [
     "inline-flex items-center justify-center gap-2 rounded-full",
@@ -20,58 +17,50 @@ export const buttonVariants = tv({
   ],
 
   variants: {
-    // ── Couleur ──────────────────────────────
     color: {
-      primary:   "",
+      primary: "",
       secondary: "",
-      success:   "",
-      warning:   "",
-      danger:    "",
-      default:   "",
+      success: "",
+      warning: "",
+      danger: "",
+      default: "",
     },
 
-    // ── Style visuel ─────────────────────────
     variant: {
-      solid:   "",
-      flat:    "",
+      solid: "",
+      flat: "",
       outline: "border bg-transparent",
-      ghost:   "bg-transparent",
-      link:    "bg-transparent underline-offset-4 hover:underline p-0 h-auto",
+      ghost: "bg-transparent",
+      link: "bg-transparent underline-offset-4 hover:underline p-0 h-auto",
     },
 
-    // ── Taille ───────────────────────────────
     size: {
-      xs:  "text-xs px-2.5 py-1.5 h-7",
-      sm:  "text-xs px-3.5  py-0   h-8",
-      md:  "text-sm px-4.5  py-0   h-10",
-      lg:  "text-base px-6   py-0   h-12",
-      xl:  "text-lg  px-7   py-0   h-14",
+      xs: "text-xs px-2.5 py-1.5 h-7",
+      sm: "text-xs px-3.5  py-0   h-8",
+      md: "text-sm px-4.5  py-0   h-10",
+      lg: "text-base px-6   py-0   h-12",
+      xl: "text-lg  px-7   py-0   h-14",
     },
 
-    // ── Forme ────────────────────────────────
     rounded: {
-      none:  "!rounded-none",
-      sm:    "!rounded-sm",
-      md:    "!rounded-md",
-      lg:    "!rounded-lg",
-      xl:    "!rounded-xl",
-      full:  "!rounded-full",
+      none: "!rounded-none",
+      sm: "!rounded-sm",
+      md: "!rounded-md",
+      lg: "!rounded-lg",
+      xl: "!rounded-xl",
+      full: "!rounded-full",
     },
 
-    // ── Largeur totale ────────────────────────
     fullWidth: {
       true: "w-full",
     },
 
-    // ── Icône seule (carré) ───────────────────
     isIconOnly: {
       true: "p-0",
     },
   },
 
-  // ── Variantes composées (color × variant) ──
   compoundVariants: [
-    // ─ SOLID ──────────────────────────────────
     {
       color: "primary",
       variant: "solid",
@@ -109,7 +98,6 @@ export const buttonVariants = tv({
         "bg-[#E8E7DE] text-[#0f1511] hover:bg-[#d4d3ca] focus-visible:ring-[#0f1511]",
     },
 
-    // ─ FLAT ───────────────────────────────────
     {
       color: "primary",
       variant: "flat",
@@ -147,7 +135,6 @@ export const buttonVariants = tv({
         "bg-[#E8E7DE]/60 text-[#0f1511] hover:bg-[#E8E7DE] focus-visible:ring-[#0f1511]",
     },
 
-    // ─ OUTLINE ────────────────────────────────
     {
       color: "primary",
       variant: "outline",
@@ -185,31 +172,35 @@ export const buttonVariants = tv({
         "border-[#0f1511]/20 text-[#0f1511] hover:bg-[#0f1511]/5 focus-visible:ring-[#0f1511]",
     },
 
-    // ─ GHOST ──────────────────────────────────
     {
       color: "primary",
       variant: "ghost",
-      class: "text-[#c49a0e] hover:bg-[#FCC226]/15 focus-visible:ring-[#FCC226]",
+      class:
+        "text-[#c49a0e] hover:bg-[#FCC226]/15 focus-visible:ring-[#FCC226]",
     },
     {
       color: "secondary",
       variant: "ghost",
-      class: "text-[#a68f00] hover:bg-[#ffdc00]/15 focus-visible:ring-[#ffdc00]",
+      class:
+        "text-[#a68f00] hover:bg-[#ffdc00]/15 focus-visible:ring-[#ffdc00]",
     },
     {
       color: "success",
       variant: "ghost",
-      class: "text-[#1bc47d] hover:bg-[#1bc47d]/15 focus-visible:ring-[#1bc47d]",
+      class:
+        "text-[#1bc47d] hover:bg-[#1bc47d]/15 focus-visible:ring-[#1bc47d]",
     },
     {
       color: "warning",
       variant: "ghost",
-      class: "text-[#ffb100] hover:bg-[#ffb100]/15 focus-visible:ring-[#ffb100]",
+      class:
+        "text-[#ffb100] hover:bg-[#ffb100]/15 focus-visible:ring-[#ffb100]",
     },
     {
       color: "danger",
       variant: "ghost",
-      class: "text-[#ff4f4f] hover:bg-[#ff4f4f]/15 focus-visible:ring-[#ff4f4f]",
+      class:
+        "text-[#ff4f4f] hover:bg-[#ff4f4f]/15 focus-visible:ring-[#ff4f4f]",
     },
     {
       color: "default",
@@ -217,7 +208,6 @@ export const buttonVariants = tv({
       class: "text-[#0f1511] hover:bg-[#0f1511]/8 focus-visible:ring-[#0f1511]",
     },
 
-    // ─ LINK ───────────────────────────────────
     {
       color: "primary",
       variant: "link",
@@ -239,7 +229,6 @@ export const buttonVariants = tv({
       class: "text-[#0f1511] hover:text-[#595180]",
     },
 
-    // ─ isIconOnly × size ──────────────────────
     { isIconOnly: true, size: "xs", class: "w-7  h-7" },
     { isIconOnly: true, size: "sm", class: "w-9  h-9" },
     { isIconOnly: true, size: "md", class: "w-10 h-10" },
@@ -248,37 +237,25 @@ export const buttonVariants = tv({
   ],
 
   defaultVariants: {
-    color:   "default",
+    color: "default",
     variant: "solid",
-    size:    "md",
+    size: "md",
   },
 });
 
-// ─────────────────────────────────────────────
-//  Types du composant
-// ─────────────────────────────────────────────
 export type ButtonVariants = VariantProps<typeof buttonVariants>;
 
 export interface ButtonProps
   extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "color">,
     ButtonVariants {
-  /** Icône Iconify à gauche (ex: "solar:home-2-linear") */
   startIcon?: string;
-  /** Icône Iconify à droite */
   endIcon?: string;
-  /** Affiche un spinner de chargement */
   isLoading?: boolean;
-  /** Texte du label de chargement */
   loadingText?: string;
-  /** Largeur de l'icône (défaut : 18) */
   iconSize?: number;
-  /** Ref forwardé */
   ref?: React.Ref<HTMLButtonElement>;
 }
 
-// ─────────────────────────────────────────────
-//  Composant Button
-// ─────────────────────────────────────────────
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
@@ -315,7 +292,6 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         ref={ref}
-        disabled={isDisabled}
         className={cn(
           buttonVariants({
             color,
@@ -327,40 +303,33 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           }),
           className,
         )}
+        disabled={isDisabled}
         {...props}
       >
-        {/* Spinner de chargement */}
         {isLoading && (
           <Icon
+            className="animate-spin shrink-0"
             icon="solar:refresh-bold"
             width={resolvedIconSize}
-            className="animate-spin shrink-0"
           />
         )}
 
-        {/* Icône gauche (uniquement si pas en chargement) */}
         {!isLoading && startIcon && (
           <Icon
+            className="shrink-0"
             icon={startIcon}
             width={resolvedIconSize}
-            className="shrink-0"
           />
         )}
 
-        {/* Contenu */}
         {isIconOnly ? null : (
           <span className="leading-none">
             {isLoading && loadingText ? loadingText : children}
           </span>
         )}
 
-        {/* Icône droite (uniquement si pas en chargement) */}
         {!isLoading && endIcon && (
-          <Icon
-            icon={endIcon}
-            width={resolvedIconSize}
-            className="shrink-0"
-          />
+          <Icon className="shrink-0" icon={endIcon} width={resolvedIconSize} />
         )}
       </button>
     );

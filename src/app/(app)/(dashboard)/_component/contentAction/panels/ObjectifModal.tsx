@@ -350,7 +350,9 @@ export default function ObjectifModal({
                 {isCompetence && (
                   <Button
                     color="primary"
-                    isDisabled={(textRequired && !contenu.trim()) || isSubmitting}
+                    isDisabled={
+                      (textRequired && !contenu.trim()) || isSubmitting
+                    }
                     isLoading={isSubmitting}
                     onPress={handleSubmit}
                   >

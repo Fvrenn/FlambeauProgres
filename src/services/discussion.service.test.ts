@@ -34,8 +34,8 @@ const fichierData = {
 
 beforeEach(() => {
   vi.resetAllMocks();
-  db.$transaction.mockImplementation(
-    async (cb: (tx: typeof db) => unknown) => cb(db),
+  db.$transaction.mockImplementation(async (cb: (tx: typeof db) => unknown) =>
+    cb(db),
   );
   db.message.create.mockResolvedValue({ id: "m1" } as never);
   db.justification.update.mockResolvedValue({} as never);
@@ -207,9 +207,9 @@ describe("DiscussionService.postMessage", () => {
         data: expect.objectContaining({ statut: "SOUMISE" }),
       }),
     );
-    expect(db.justification.update.mock.calls[0][0].data.soumiseAt).toBeInstanceOf(
-      Date,
-    );
+    expect(
+      db.justification.update.mock.calls[0][0].data.soumiseAt,
+    ).toBeInstanceOf(Date);
     expect(db.notification.createMany).toHaveBeenCalledTimes(1);
     expect(db.notification.create).not.toHaveBeenCalled();
   });
@@ -239,7 +239,9 @@ describe("DiscussionService.postMessage", () => {
         data: expect.objectContaining({ statut: "DEMANDE_PRECISION" }),
       }),
     );
-    expect(db.justification.update.mock.calls[0][0].data.soumiseAt).toBeUndefined();
+    expect(
+      db.justification.update.mock.calls[0][0].data.soumiseAt,
+    ).toBeUndefined();
     expect(db.notification.create).toHaveBeenCalledTimes(1);
     expect(db.notification.createMany).not.toHaveBeenCalled();
   });
@@ -359,9 +361,9 @@ describe("DiscussionService.validateRealisation", () => {
         data: expect.objectContaining({ statut: "VALIDEE" }),
       }),
     );
-    expect(db.justification.update.mock.calls[0][0].data.valideeAt).toBeInstanceOf(
-      Date,
-    );
+    expect(
+      db.justification.update.mock.calls[0][0].data.valideeAt,
+    ).toBeInstanceOf(Date);
     expect(db.notification.create).toHaveBeenCalledTimes(1);
   });
 

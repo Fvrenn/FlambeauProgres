@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+
 import { niveauMaxDebloque, etapeEstDebloquee } from "@/lib/parcours";
 
 const jalons = [

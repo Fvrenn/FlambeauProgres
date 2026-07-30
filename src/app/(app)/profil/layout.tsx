@@ -1,8 +1,10 @@
-import { getUser } from "@/lib/auth-server";
 import React from "react";
-import AppClientLayout from "../AppClientLayout";
-import { type SidebarItem } from "@/components/application/sidebar/sidebar";
 import { redirect } from "next/navigation";
+
+import AppClientLayout from "../AppClientLayout";
+
+import { getUser } from "@/lib/auth-server";
+import { type SidebarItem } from "@/components/application/sidebar/sidebar";
 
 export default async function ProfilLayout({
   children,
@@ -25,7 +27,7 @@ export default async function ProfilLayout({
   ];
 
   return (
-    <AppClientLayout user={user} sidebarItems={sidebarItems}>
+    <AppClientLayout sidebarItems={sidebarItems} user={user}>
       {children}
     </AppClientLayout>
   );

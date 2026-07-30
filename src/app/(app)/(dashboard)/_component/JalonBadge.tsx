@@ -81,10 +81,10 @@ export default function JalonBadge({ jalon }: { jalon: EtapeAvecObjectifs }) {
       >
         <div className="relative">
           <Image
+            priority
             alt={jalon.name}
             className="h-32 w-auto drop-shadow-[0_6px_12px_rgba(0,0,0,0.2)] md:h-40"
             height={config.height}
-            priority
             src={config.src}
             width={config.width}
           />
@@ -107,7 +107,11 @@ export default function JalonBadge({ jalon }: { jalon: EtapeAvecObjectifs }) {
         <ModalContent>
           <ModalHeader className="flex items-center gap-3">
             <span className="flex h-11 w-11 items-center justify-center rounded-full bg-warning/15">
-              <Icon className="text-warning" icon="solar:fire-bold" width={26} />
+              <Icon
+                className="text-warning"
+                icon="solar:fire-bold"
+                width={26}
+              />
             </span>
             <div className="flex flex-col">
               <span className="text-lg font-semibold">{jalon.name}</span>

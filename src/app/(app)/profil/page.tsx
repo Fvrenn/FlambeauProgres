@@ -1,6 +1,8 @@
-import { getUser } from "@/lib/auth-server";
 import { redirect } from "next/navigation";
+
 import ClientPage from "./ClientPage";
+
+import { getUser } from "@/lib/auth-server";
 
 export const metadata = {
   title: "Profil | Flambeau Progres",
