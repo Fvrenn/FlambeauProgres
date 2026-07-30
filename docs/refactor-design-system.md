@@ -8,7 +8,7 @@
 
 Le kit généré par Claude Design (`SKILL.md` + `components/`, `tokens/`) définit une esthétique boutons pilule, cartes à rayon 24px, badges/tags arrondis, sur une base Inter + palette crème/or/violet. Il ne s'agit pas d'une lib prête à l'emploi (pas de générique `Card`, pas de couleurs danger/success, pas de nesting de menu) — on en extrait la forme (rayons, ombres, spacing) et on l'applique à nos vrais composants TypeScript dans `src/components/ui/`.
 
-La page d'accueil (chemise 3D, `JalonBadge`) n'est **pas concernée** par ce refactor.
+La page d'accueil (chemise 3D) n'est **pas concernée** par ce refactor. `JalonBadge` (modal Allume-feu / Découvrir) fait exception : ses boutons ont été migrés sur demande explicite du user (voir plus bas), sans toucher à la 3D elle-même.
 
 ## Périmètre resserré (2026-07-30)
 
@@ -23,6 +23,8 @@ Sidebar/chrome global, Auth/Profil, Discussion/Référent et les panneaux du das
 
 ## Phases
 
+- [x] **Extra — Modal Allume-feu / Découvrir (Étape 1 → débloque l'Étape 2)** — `_component/JalonBadge.tsx`.
+  ✅ Fait — les 3 boutons de la modal (Ouvrir le livret, Annuler, CTA de validation) migrés sur `@/components/ui` `Button` ; radius de la `Modal` HeroUI aligné à 24px comme les autres modals. Le reste (image 3D, animation, structure du composant) non touché. `tsc --noEmit`, `npm run build`, `npm test` (50/50) verts.
 - [x] **Phase 1 — Fondations (tokens + primitives)** — `tailwind.config.js`, `src/components/ui/{button,card,badge,avatar,index}.tsx`.
   ✅ Fait — tokens de forme (rayons `ds-sm/ds-md/ds-lg`, `shadow-pill`, `shadow-inset-border`, `duration-fast`) ajoutés à `tailwind.config.js` ; `Button` en pilule flat (sans ombre, `font-medium`, hauteurs 28/32/40/48/56) ; `Card` en rayon 24px + `shadow-inset-border` ; `Badge` en pilule à hauteur fixe (20/24/28) ; nouveau `src/components/ui/avatar.tsx` (cercle, initiales sur fond ink-900, `ring` or) exporté dans `index.ts`. API des composants inchangée (color/variant/size). `tsc --noEmit`, `npm run build`, `npm test` (50/50) verts.
 - [x] **Phase 2 — Page Formation** — `formation/ClientPage.tsx` (cartes uniquement).

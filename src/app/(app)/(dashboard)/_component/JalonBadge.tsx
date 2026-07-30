@@ -4,7 +4,6 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
-  Button,
   Modal,
   ModalBody,
   ModalContent,
@@ -17,6 +16,7 @@ import { Icon } from "@iconify/react";
 import { EtapeAvecObjectifs } from "./DashboardClient";
 
 import { validerJalon } from "@/actions/etape/etape.actions";
+import { Button } from "@/components/ui";
 
 const ALLUME_FEU = {
   src: "/livrets/allumefeu/mascotte.png",
@@ -100,6 +100,7 @@ export default function JalonBadge({ jalon }: { jalon: EtapeAvecObjectifs }) {
 
       <Modal
         backdrop="blur"
+        classNames={{ base: "rounded-[24px]" }}
         isOpen={isOpen}
         placement="center"
         onOpenChange={onOpenChange}
@@ -123,11 +124,10 @@ export default function JalonBadge({ jalon }: { jalon: EtapeAvecObjectifs }) {
           <ModalBody className="gap-4">
             <p className="text-sm text-default-600">{config.intro}</p>
             <Button
-              className="font-medium"
               color="primary"
-              startContent={<Icon icon="solar:book-2-bold" width={18} />}
+              startIcon="solar:book-2-bold"
               variant="flat"
-              onPress={handleOpenPdf}
+              onClick={handleOpenPdf}
             >
               Ouvrir le livret (PDF)
             </Button>
@@ -144,17 +144,15 @@ export default function JalonBadge({ jalon }: { jalon: EtapeAvecObjectifs }) {
             {error && <p className="text-sm text-danger">{error}</p>}
           </ModalBody>
           <ModalFooter>
-            <Button isDisabled={isPending} variant="light" onPress={onClose}>
+            <Button disabled={isPending} variant="ghost" onClick={onClose}>
               Annuler
             </Button>
             <Button
               color="success"
-              isDisabled={!pdfOpened}
+              disabled={!pdfOpened}
               isLoading={isPending}
-              startContent={
-                !isPending && <Icon icon="solar:check-circle-bold" width={18} />
-              }
-              onPress={handleValider}
+              startIcon="solar:check-circle-bold"
+              onClick={handleValider}
             >
               {config.ctaLabel}
             </Button>
