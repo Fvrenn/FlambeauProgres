@@ -53,7 +53,7 @@ const validerJalonSchema = z.object({
 
 export async function validerJalon(etapeId: string) {
   try {
-    const user = await authorizeRole("CHEF");
+    const user = await authorizeRole("CHEF", "REFERENT", "ADMIN");
 
     if (!user) {
       return { success: false, error: "Non autorisé" };
