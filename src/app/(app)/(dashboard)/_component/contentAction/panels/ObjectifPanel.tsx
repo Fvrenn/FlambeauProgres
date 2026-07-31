@@ -109,16 +109,16 @@ export default function ObjectifPanel({
           <Tab key="competence" title="Compétences">
             <Divider className="mt-3" />
 
-            <ul className="space-y-2">
+            <ul className="space-y-3">
               {competences.map((c) => (
                 <li key={c.id} className="">
-                  <div className="py-3 px-5 rounded-md flex md:block items-center flex-col md:flex-row">
+                  <div className="py-4 px-5 rounded-md flex md:block items-center flex-col md:flex-row">
                     <div className="flex mb-2 md:mb-0 items-center w-full">
                       <div className="flex-1 flex items-center ">
-                        <span className="text-sm text-foreground border border-default-800 rounded-full w-9 h-9 flex items-center justify-center mr-2.5 shrink-0">
+                        <span className="font-semibold text-sm text-foreground border border-dashboard-border rounded-full w-10 h-10 flex items-center justify-center mr-2.5 shrink-0">
                           {c.code}
                         </span>
-                        <div className="hidden md:block text-[15px]">
+                        <div className="hidden md:block text-[16px]">
                           {c.description}
                         </div>
                       </div>
@@ -130,6 +130,7 @@ export default function ObjectifPanel({
                         <Button
                           isIconOnly
                           aria-label="ouvrir compétence"
+                          className="bg-dashboard-tab hover:bg-dashboard-tab-hover"
                           color="default"
                           variant="faded"
                           onPress={() => handleOpenModal(c)}
@@ -142,7 +143,7 @@ export default function ObjectifPanel({
                       </div>
                     </div>
 
-                    <div className="block md:hidden text-[15px]">
+                    <div className="block md:hidden text-[16px]">
                       {c.description}
                     </div>
                   </div>
@@ -155,16 +156,16 @@ export default function ObjectifPanel({
           </Tab>
           <Tab key="realisations" title="Réalisations">
             <Divider className="mt-3" />
-            <ul className="space-y-2">
+            <ul className="space-y-3">
               {realisations.map((r) => (
                 <li key={r.id} className="">
-                  <div className="py-3 px-5 rounded-md flex md:block items-center flex-col md:flex-row">
+                  <div className="py-4 px-5 rounded-md flex md:block items-center flex-col md:flex-row">
                     <div className="flex mb-2 md:mb-0 items-center w-full">
                       <div className="flex-1 flex items-center ">
-                        <span className="text-sm text-foreground border border-default-800 rounded-full w-9 h-9 flex items-center justify-center mr-2.5 shrink-0">
+                        <span className="text-sm text-foreground border border-dashboard-border rounded-full w-9 h-9 flex items-center justify-center mr-2.5 shrink-0">
                           {r.code}
                         </span>
-                        <div className="hidden md:block text-[15px]">
+                        <div className="hidden md:block text-[16px]">
                           {r.description}
                         </div>
                       </div>
@@ -176,6 +177,7 @@ export default function ObjectifPanel({
                         <Button
                           isIconOnly
                           aria-label="ouvrir réalisation"
+                          className="bg-dashboard-tab hover:bg-dashboard-tab-hover"
                           color="default"
                           variant="faded"
                           onPress={() => handleOpenModal(r)}
@@ -188,7 +190,7 @@ export default function ObjectifPanel({
                       </div>
                     </div>
 
-                    <div className="block md:hidden text-[15px]">
+                    <div className="block md:hidden text-[16px]">
                       {r.description}
                     </div>
                   </div>

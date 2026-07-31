@@ -45,7 +45,7 @@ const STATUS_CONFIG: Record<
 export default function StatusChip({ statut }: StatusChipProps) {
   if (!statut) {
     return (
-      <Chip color="default" size="sm" variant="flat">
+      <Chip className="bg-dashboard-tab" color="default" size="sm" variant="flat">
         Non fait
       </Chip>
     );

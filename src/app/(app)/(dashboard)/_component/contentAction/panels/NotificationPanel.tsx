@@ -18,33 +18,39 @@ type NotificationPanelProps = {
 
 const NOTIFICATION_CONFIG: Record<
   TypeNotification,
-  { icon: string; color: "success" | "danger" | "warning" | "primary" }
+  { icon: string; iconWrapperClassName: string }
 > = {
-  ETAPE_COMPLETE: { icon: "solar:verified-check-bold", color: "success" },
+  ETAPE_COMPLETE: {
+    icon: "solar:verified-check-bold",
+    iconWrapperClassName: "bg-success/10 text-success",
+  },
   JUSTIFICATION_VALIDEE: {
     icon: "solar:check-read-linear",
-    color: "success",
+    iconWrapperClassName: "bg-success/10 text-success",
   },
   JUSTIFICATION_REFUSEE: {
     icon: "solar:close-circle-linear",
-    color: "danger",
+    iconWrapperClassName: "bg-danger/10 text-danger",
   },
   DEMANDE_PRECISION: {
     icon: "solar:question-circle-linear",
-    color: "warning",
+    iconWrapperClassName: "bg-warning/10 text-warning",
   },
   NOUVELLE_JUSTIFICATION: {
     icon: "solar:document-add-linear",
-    color: "primary",
+    iconWrapperClassName: "bg-nav-active/10 text-nav-active",
   },
-  REPONSE_PRECISION: { icon: "solar:chat-round-dots-linear", color: "primary" },
+  REPONSE_PRECISION: {
+    icon: "solar:chat-round-dots-linear",
+    iconWrapperClassName: "bg-nav-active/10 text-nav-active",
+  },
   JUSTIFICATION_URGENTE: {
     icon: "solar:danger-circle-linear",
-    color: "danger",
+    iconWrapperClassName: "bg-danger/10 text-danger",
   },
   NOUVEAU_COMMENTAIRE: {
     icon: "solar:chat-line-linear",
-    color: "primary",
+    iconWrapperClassName: "bg-nav-active/10 text-nav-active",
   },
 };
 
@@ -70,10 +76,11 @@ export default function NotificationPanel({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex justify-between items-center mb-4 pb-4 border-b border-default-200">
+      <div className="flex justify-between items-center mb-4 pb-4 border-b border-dashboard-border">
         <h2 className="text-xl font-bold">Notifications</h2>
         {unreadCount > 0 && (
           <Button
+            className="bg-dashboard-tab data-[hover=true]:bg-dashboard-tab-hover"
             isLoading={isPending}
             size="sm"
             startContent={!isPending && <Icon icon="solar:check-read-linear" />}
@@ -101,15 +108,15 @@ export default function NotificationPanel({
             return (
               <li
                 key={notif.id}
-                className={`flex items-start gap-4 p-4 rounded-lg transition-colors cursor-pointer hover:bg-default-100 ${
+                className={`flex items-start gap-4 p-4 rounded-lg transition-colors cursor-pointer ${
                   notif.lue
-                    ? "bg-default-50"
-                    : "bg-primary-50 border border-primary-200"
+                    ? "bg-dashboard-card hover:bg-dashboard-border"
+                    : "bg-nav-active/10 border border-nav-active/30 hover:bg-nav-active/15"
                 }`}
                 {...clickable(() => onNotificationClick(notif))}
               >
                 <div
-                  className={`mt-1 w-8 h-8 flex-shrink-0 rounded-full flex items-center justify-center bg-${config.color}/10 text-${config.color}`}
+                  className={`mt-1 w-8 h-8 flex-shrink-0 rounded-full flex items-center justify-center ${config.iconWrapperClassName}`}
                 >
                   <Icon className="text-xl" icon={config.icon} />
                 </div>

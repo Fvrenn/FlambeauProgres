@@ -17,7 +17,9 @@ const config = {
         "dashboard-border": "#e6dfc9",
         "dashboard-card": "#eee7d3",
         "dashboard-panel": "#faf6ea",
+        "dashboard-panel-hover": "#fdfbf4",
         "dashboard-tab": "#f2ecd9",
+        "dashboard-tab-hover": "#f3eedc",
       },
       fontFamily: {
         sans: ["var(--font-sans)"],

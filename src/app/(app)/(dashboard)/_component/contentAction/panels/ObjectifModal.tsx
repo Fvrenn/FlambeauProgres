@@ -9,7 +9,9 @@ import {
   ModalFooter,
   Button,
   Textarea,
+  cn,
 } from "@heroui/react";
+import { Divider } from "@heroui/divider";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 import { Justification } from "@prisma/client";
@@ -153,13 +155,16 @@ export default function ObjectifModal({
 
   return (
     <Modal
+      classNames={{ closeButton: "top-4 end-4" }}
       isOpen={isOpen}
       placement="center"
       scrollBehavior="inside"
       size="3xl"
       onOpenChange={onOpenChange}
     >
-      <ModalContent className={showThread ? "h-[80vh]" : undefined}>
+      <ModalContent
+        className={cn("bg-dashboard", showThread && "h-[80vh]")}
+      >
         {(onClose) =>
           showThread ? (
             <ModalBody className="overflow-hidden p-0">
@@ -175,12 +180,14 @@ export default function ObjectifModal({
             <>
               <ModalHeader className="flex flex-col gap-1">
                 <div className="flex items-center gap-3">
-                  <span className="text-xl font-bold border border-default-800 py-2 px-3 rounded-full">
+                  <span className="font-semibold text-sm text-foreground border border-dashboard-border rounded-full w-10 h-10 flex items-center justify-center shrink-0">
                     {objectif.code}
                   </span>
-                  <span className="text-lg">{objectif.description}</span>
+                  <span className="text-[17px]">{objectif.description}</span>
                 </div>
               </ModalHeader>
+
+              <Divider className="bg-dashboard-border" />
 
               <ModalBody>
                 {isCompetence ? (
@@ -191,6 +198,10 @@ export default function ObjectifModal({
                     </p>
 
                     <Textarea
+                      classNames={{
+                        inputWrapper:
+                          "bg-dashboard-panel data-[hover=true]:bg-dashboard-panel-hover",
+                      }}
                       description={`${contenu.length} caractères`}
                       isRequired={textRequired}
                       label={
@@ -215,6 +226,10 @@ export default function ObjectifModal({
 
                     <Textarea
                       className="mb-4"
+                      classNames={{
+                        inputWrapper:
+                          "bg-dashboard-panel data-[hover=true]:bg-dashboard-panel-hover",
+                      }}
                       description={`${contenu.length} caractères`}
                       isRequired={textRequired}
                       label={
@@ -349,7 +364,7 @@ export default function ObjectifModal({
 
                 {isCompetence && (
                   <Button
-                    color="primary"
+                    className="bg-nav-active text-white data-[hover=true]:bg-nav-hover"
                     isDisabled={
                       (textRequired && !contenu.trim()) || isSubmitting
                     }
@@ -362,7 +377,7 @@ export default function ObjectifModal({
 
                 {!isCompetence && (
                   <Button
-                    color="warning"
+                    className="bg-nav-active text-white data-[hover=true]:bg-nav-hover"
                     isDisabled={
                       (textRequired && !contenu.trim()) ||
                       !selectedFile ||
