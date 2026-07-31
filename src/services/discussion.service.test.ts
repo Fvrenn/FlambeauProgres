@@ -186,6 +186,7 @@ describe("DiscussionService.postMessage", () => {
       etapeId: "e1",
       statut: "DEMANDE_PRECISION",
       objectif: { code: "G8" },
+      etape: { name: "E" },
       chef: { name: "Chef" },
     } as never);
     db.etapeReferent.findMany.mockResolvedValue([
@@ -222,6 +223,7 @@ describe("DiscussionService.postMessage", () => {
       etapeId: "e1",
       statut: "SOUMISE",
       objectif: { code: "G8" },
+      etape: { name: "E" },
       chef: { name: "Chef" },
     } as never);
 
@@ -254,6 +256,7 @@ describe("DiscussionService.postMessage", () => {
       etapeId: "e1",
       statut: "DEMANDE_PRECISION",
       objectif: { code: "G8" },
+      etape: { name: "E" },
       chef: { name: "Chef" },
     } as never);
     db.etapeReferent.findMany.mockResolvedValue([
@@ -283,6 +286,7 @@ describe("DiscussionService.validateRealisation", () => {
 
     const result = await DiscussionService.validateRealisation({
       referentId: "ref1",
+      referentName: "Ref",
       justificationId: "j1",
     });
 
@@ -303,6 +307,7 @@ describe("DiscussionService.validateRealisation", () => {
 
     const result = await DiscussionService.validateRealisation({
       referentId: "ref1",
+      referentName: "Ref",
       justificationId: "j1",
     });
 
@@ -323,6 +328,7 @@ describe("DiscussionService.validateRealisation", () => {
 
     const result = await DiscussionService.validateRealisation({
       referentId: "ref1",
+      referentName: "Ref",
       justificationId: "j1",
     });
 
@@ -336,13 +342,15 @@ describe("DiscussionService.validateRealisation", () => {
       chefId: "c1",
       etapeId: "e1",
       statut: "SOUMISE",
-      objectif: { code: "G8" },
+      objectif: { code: "G8", description: "Description G8" },
+      etape: { name: "E" },
       chef: { name: "Chef" },
     } as never);
     db.etapeReferent.findFirst.mockResolvedValue({ id: "a1" } as never);
 
     const result = await DiscussionService.validateRealisation({
       referentId: "ref1",
+      referentName: "Ref",
       justificationId: "j1",
     });
 

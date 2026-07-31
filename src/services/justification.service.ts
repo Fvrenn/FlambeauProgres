@@ -148,6 +148,8 @@ export class JustificationService {
       objectif.etapeId,
       justificationId,
       chefName,
+      objectif.code,
+      objectif.description,
     );
 
     return { success: true };

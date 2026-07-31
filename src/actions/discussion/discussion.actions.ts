@@ -134,6 +134,7 @@ export async function validateRealisation(justificationId: string) {
 
     return await DiscussionService.validateRealisation({
       referentId: user.id,
+      referentName: user.name,
       justificationId: parsed.data,
     });
   } catch (error) {

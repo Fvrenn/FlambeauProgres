@@ -38,7 +38,8 @@ export type ThreadData = {
 
 type JustificationForNotify = Prisma.JustificationGetPayload<{
   include: {
-    objectif: { select: { code: true } };
+    objectif: { select: { code: true; description: true } };
+    etape: { select: { name: true } };
     chef: { select: { name: true; email: true } };
   };
 }>;
@@ -149,7 +150,8 @@ export class DiscussionService {
     const justification = await prisma.justification.findUnique({
       where: { id: justificationId },
       include: {
-        objectif: { select: { code: true } },
+        objectif: { select: { code: true, description: true } },
+        etape: { select: { name: true } },
         chef: { select: { name: true, email: true } },
       },
     });
@@ -197,14 +199,16 @@ export class DiscussionService {
 
   static async validateRealisation(input: {
     referentId: string;
+    referentName: string;
     justificationId: string;
   }): Promise<ServiceResult<ThreadMessage>> {
-    const { referentId, justificationId } = input;
+    const { referentId, referentName, justificationId } = input;
 
     const justification = await prisma.justification.findUnique({
       where: { id: justificationId },
       include: {
-        objectif: { select: { code: true } },
+        objectif: { select: { code: true, description: true } },
+        etape: { select: { name: true } },
         chef: { select: { name: true, email: true } },
       },
     });
@@ -254,8 +258,13 @@ export class DiscussionService {
 
     await EmailService.sendValidation({
       to: justification.chef.email,
+      chefName: justification.chef.name,
+      referentName,
+      etapeName: justification.etape.name,
       objectifCode: justification.objectif.code,
+      objectifDescription: justification.objectif.description,
       viewUrl: chefThreadUrl(justificationId),
+      justificationId,
     });
 
     return { success: true, data: message };
@@ -299,9 +308,11 @@ export class DiscussionService {
           EmailService.sendNewMessage({
             to: er.referent.email,
             authorName: ctx.authorName,
+            etapeName: justification.etape.name,
             objectifCode: justification.objectif.code,
             messageText: ctx.messageText,
             replyUrl,
+            justificationId: justification.id,
           }),
         ),
       );
@@ -320,9 +331,11 @@ export class DiscussionService {
     await EmailService.sendNewMessage({
       to: justification.chef.email,
       authorName: ctx.authorName,
+      etapeName: justification.etape.name,
       objectifCode: justification.objectif.code,
       messageText: ctx.messageText,
       replyUrl: chefThreadUrl(justification.id),
+      justificationId: justification.id,
     });
   }
 }

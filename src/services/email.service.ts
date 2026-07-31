@@ -17,8 +17,16 @@ type EmailContent = {
   text: string;
 };
 
+function threadMessageId(justificationId: string): string {
+  return `<justification-${justificationId}@flambeau-progres.app>`;
+}
+
 export class EmailService {
-  private static async send(to: string, content: EmailContent): Promise<void> {
+  private static async send(
+    to: string,
+    content: EmailContent,
+    headers?: Record<string, string>,
+  ): Promise<void> {
     if (!resend || !to) {
       return;
     }
@@ -30,6 +38,7 @@ export class EmailService {
         subject: content.subject,
         html: content.html,
         text: content.text,
+        headers,
       });
 
       if (error) {
@@ -43,27 +52,49 @@ export class EmailService {
   static sendNewMessage(opts: {
     to: string;
     authorName: string;
+    etapeName: string;
     objectifCode: string;
     messageText: string | null;
     replyUrl: string;
+    justificationId: string;
   }): Promise<void> {
-    return this.send(opts.to, newMessageEmail(opts));
+    const threadId = threadMessageId(opts.justificationId);
+
+    return this.send(opts.to, newMessageEmail(opts), {
+      "In-Reply-To": threadId,
+      References: threadId,
+    });
   }
 
   static sendNewRealisation(opts: {
     to: string;
     chefName: string;
     etapeName: string;
+    objectifCode: string;
+    objectifDescription: string;
     reviewUrl: string;
+    justificationId: string;
   }): Promise<void> {
-    return this.send(opts.to, newRealisationEmail(opts));
+    return this.send(opts.to, newRealisationEmail(opts), {
+      "Message-ID": threadMessageId(opts.justificationId),
+    });
   }
 
   static sendValidation(opts: {
     to: string;
+    chefName: string;
+    referentName: string;
+    etapeName: string;
     objectifCode: string;
+    objectifDescription: string;
     viewUrl: string;
+    justificationId: string;
   }): Promise<void> {
-    return this.send(opts.to, validationEmail(opts));
+    const threadId = threadMessageId(opts.justificationId);
+
+    return this.send(opts.to, validationEmail(opts), {
+      "In-Reply-To": threadId,
+      References: threadId,
+    });
   }
 }

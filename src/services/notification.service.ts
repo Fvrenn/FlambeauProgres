@@ -72,6 +72,8 @@ export class NotificationService {
     etapeId: string,
     justificationId: string,
     chefName: string,
+    objectifCode: string,
+    objectifDescription: string,
   ) {
     try {
       const etapeReferents = await prisma.etapeReferent.findMany({
@@ -102,7 +104,10 @@ export class NotificationService {
             to: er.referent.email,
             chefName,
             etapeName: er.etape.name,
+            objectifCode,
+            objectifDescription,
             reviewUrl: referentThreadUrl(etapeId, justificationId),
+            justificationId,
           }),
         ),
       );
