@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Input, Select, SelectItem, Textarea, Switch } from "@heroui/react";
+import { Select, SelectItem, Textarea, Switch } from "@heroui/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -11,6 +11,7 @@ import { TypeObjectif, type Objectif } from "@prisma/client";
 import { createObjectif, updateObjectif } from "../../_actions/admin.actions";
 
 import { FormModal } from "@/components/admin/FormModal";
+import { Input } from "@/components/ui";
 
 const objectifSchema = z.object({
   code: z.string().min(1, "Le code est requis"),

@@ -5,7 +5,7 @@ import { cn } from "@heroui/react";
 export const cardVariants = tv({
   slots: {
     root: [
-      "rounded-ds-lg transition-all duration-fast",
+      "rounded-[22px] transition-all duration-fast",
       "focus-within:outline-none",
     ],
     header: "flex flex-col gap-1",

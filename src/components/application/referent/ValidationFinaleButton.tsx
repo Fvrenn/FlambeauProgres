@@ -36,8 +36,7 @@ export default function ValidationFinaleButton({
   return (
     <>
       <Button
-        className="w-full md:w-auto"
-        color="primary"
+        className="w-full md:w-auto bg-nav-active text-white data-[hover=true]:bg-nav-hover"
         isLoading={isLoading}
         startContent={!isLoading && <Icon icon="solar:verified-check-linear" />}
         onPress={onOpen}
@@ -46,13 +45,13 @@ export default function ValidationFinaleButton({
       </Button>
 
       <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
-        <ModalContent>
+        <ModalContent className="bg-dashboard">
           {(onClose) => (
             <>
-              <ModalHeader className="flex flex-col gap-1">
+              <ModalHeader className="flex flex-col gap-1 border-b border-dashboard-border">
                 Confirmation de la validation
               </ModalHeader>
-              <ModalBody>
+              <ModalBody className="pt-4">
                 <p>
                   Êtes-vous sûr de vouloir valider ce badge ? Cette action est
                   définitive et enverra une notification au chef.
@@ -63,7 +62,7 @@ export default function ValidationFinaleButton({
                   Annuler
                 </Button>
                 <Button
-                  color="primary"
+                  className="bg-nav-active text-white data-[hover=true]:bg-nav-hover"
                   onPress={() => {
                     onClose();
                     handleConfirmValidate();

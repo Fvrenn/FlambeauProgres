@@ -113,7 +113,7 @@ export default function EtapesClientPage({ etapes }: EtapesClientPageProps) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Gestion des Étapes</h1>
+        <h1 className="text-2xl font-extrabold">Gestion des Étapes</h1>
         <Button
           color="primary"
           endIcon="solar:add-circle-linear"

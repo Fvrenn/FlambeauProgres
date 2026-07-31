@@ -366,30 +366,4 @@ describe("DiscussionService.validateRealisation", () => {
     ).toBeInstanceOf(Date);
     expect(db.notification.create).toHaveBeenCalledTimes(1);
   });
-
-  it("appends the optional word to the SYSTEM message", async () => {
-    db.justification.findUnique.mockResolvedValue({
-      id: "j1",
-      chefId: "c1",
-      etapeId: "e1",
-      statut: "SOUMISE",
-      objectif: { code: "G8" },
-      chef: { name: "Chef" },
-    } as never);
-    db.etapeReferent.findFirst.mockResolvedValue({ id: "a1" } as never);
-
-    await DiscussionService.validateRealisation({
-      referentId: "ref1",
-      justificationId: "j1",
-      contenu: "Bravo",
-    });
-
-    expect(db.message.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({
-          contenu: "✓ Réalisation validée — Bravo",
-        }),
-      }),
-    );
-  });
 });

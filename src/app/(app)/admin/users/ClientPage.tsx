@@ -9,6 +9,7 @@ import UserModal from "./_components/UserModal";
 
 import AdminDataTable, { Column } from "@/components/admin/AdminDataTable";
 import { Badge, Avatar, Card, CardBody, Button } from "@/components/ui";
+import { roleColorMap } from "@/lib/roles";
 
 type UsersClientPageProps = {
   users: User[];
@@ -19,15 +20,6 @@ const columns: Column[] = [
   { key: "role", label: "RÔLE", sortable: true },
   { key: "actions", label: "ACTIONS" },
 ];
-
-const roleColorMap: Record<
-  UserRole,
-  "default" | "primary" | "secondary" | "success" | "warning" | "danger"
-> = {
-  CHEF: "default",
-  REFERENT: "secondary",
-  ADMIN: "danger",
-};
 
 export default function UsersClientPage({ users }: UsersClientPageProps) {
   const [selectedUser, setSelectedUser] = React.useState<User | null>(null);
@@ -88,7 +80,7 @@ export default function UsersClientPage({ users }: UsersClientPageProps) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Gestion des Utilisateurs</h1>
+        <h1 className="text-2xl font-extrabold">Gestion des Utilisateurs</h1>
       </div>
 
       <div className="hidden sm:block">

@@ -125,6 +125,7 @@ export default async function ReferentDashboardPage({
     include: {
       chef: true,
       objectif: true,
+      messages: { select: { auteurId: true } },
     },
     orderBy: {
       soumiseAt: "asc",

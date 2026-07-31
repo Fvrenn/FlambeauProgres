@@ -1,18 +1,12 @@
 "use client";
 
 import React, { useState, useTransition } from "react";
-import {
-  Button,
-  Input,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@heroui/react";
+import { Button, Popover, PopoverContent, PopoverTrigger } from "@heroui/react";
 import { Icon } from "@iconify/react";
 
 interface ValidateRealisationProps {
   disabled?: boolean;
-  onValidate: (word: string) => Promise<void>;
+  onValidate: () => Promise<void>;
 }
 
 export default function ValidateRealisation({
@@ -20,13 +14,11 @@ export default function ValidateRealisation({
   onValidate,
 }: ValidateRealisationProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [word, setWord] = useState("");
   const [isPending, startTransition] = useTransition();
 
   const handleConfirm = () => {
     startTransition(async () => {
-      await onValidate(word);
-      setWord("");
+      await onValidate();
       setIsOpen(false);
     });
   };
@@ -35,11 +27,9 @@ export default function ValidateRealisation({
     <Popover isOpen={isOpen} placement="top" onOpenChange={setIsOpen}>
       <PopoverTrigger>
         <Button
-          className="w-full font-medium"
-          color="success"
+          className="w-full font-medium bg-nav-active text-white data-[hover=true]:bg-nav-hover"
           isDisabled={disabled}
           startContent={<Icon icon="solar:check-circle-bold" width={18} />}
-          variant="flat"
         >
           Valider la réalisation
         </Button>
@@ -56,14 +46,6 @@ export default function ValidateRealisation({
             </p>
           </div>
 
-          <Input
-            label="Petit mot (optionnel)"
-            placeholder="Bravo, beau travail !"
-            size="sm"
-            value={word}
-            onValueChange={setWord}
-          />
-
           <div className="flex justify-end gap-2">
             <Button
               isDisabled={isPending}
@@ -74,7 +56,7 @@ export default function ValidateRealisation({
               Annuler
             </Button>
             <Button
-              color="success"
+              className="bg-nav-active text-white data-[hover=true]:bg-nav-hover"
               isLoading={isPending}
               size="sm"
               onPress={handleConfirm}

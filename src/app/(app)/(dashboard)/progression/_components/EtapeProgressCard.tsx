@@ -37,7 +37,7 @@ export default function EtapeProgressCard({
   }
 
   return (
-    <Card isHoverable className="h-full">
+    <Card isHoverable className="h-full bg-dashboard-panel">
       <CardBody className="items-center gap-4 text-center">
         <div
           className="flex h-20 w-20 items-center justify-center rounded-full"

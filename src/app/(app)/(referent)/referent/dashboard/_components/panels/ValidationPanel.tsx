@@ -1,10 +1,11 @@
 "use client";
 import React from "react";
-import { Avatar, Chip, Button, Divider } from "@heroui/react";
+import { Chip } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { Justification } from "@prisma/client";
 
-import { clickable } from "@/lib/a11y";
+import AdminDataTable, { Column } from "@/components/admin/AdminDataTable";
+import { Avatar, Card, CardBody, Button } from "@/components/ui";
 
 type ChefInfo = {
   id: string;
@@ -22,11 +23,37 @@ type ObjectifInfo = {
 type JustificationAValider = Justification & {
   chef: ChefInfo;
   objectif: ObjectifInfo;
+  messages: { auteurId: string }[];
 };
 
 interface ValidationPanelProps {
   justifications: JustificationAValider[];
   onJustificationClick: (justification: JustificationAValider) => void;
+}
+
+const columns: Column[] = [
+  { key: "chefName", label: "CHEF", sortable: true },
+  { key: "objectif", label: "RÉALISATION" },
+  { key: "soumiseAt", label: "SOUMIS", sortable: true },
+  { key: "statut", label: "STATUT" },
+  { key: "actions", label: "ACTIONS" },
+];
+
+function hasDiscussion(justification: JustificationAValider): boolean {
+  return justification.messages.some(
+    (message) => message.auteurId !== justification.chefId,
+  );
+}
+
+function formatSoumiseAt(date: Date | null): string {
+  if (!date) return "—";
+
+  return new Date(date).toLocaleDateString("fr-FR", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 export default function ValidationPanel({
@@ -41,83 +68,150 @@ export default function ValidationPanel({
     );
   }
 
+  const data = justifications.map((justification) => ({
+    ...justification,
+    chefName: justification.chef.name,
+    chefEmail: justification.chef.email,
+    objectifCode: justification.objectif.code,
+  }));
+
+  const renderCell = (
+    justification: (typeof data)[number],
+    columnKey: React.Key,
+  ) => {
+    switch (columnKey) {
+      case "chefName":
+        return (
+          <div className="flex items-center gap-3">
+            <Avatar
+              name={justification.chef.name}
+              size="sm"
+              src={justification.chef.image}
+            />
+            <div className="flex flex-col">
+              <p className="text-bold text-small">{justification.chef.name}</p>
+              <p className="text-bold text-tiny text-default-400">
+                {justification.chef.email}
+              </p>
+            </div>
+          </div>
+        );
+      case "objectif":
+        return (
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-medium border border-default-300 rounded-full px-2 py-1 flex-shrink-0">
+              {justification.objectif.code}
+            </span>
+            <span className="text-sm text-foreground line-clamp-1">
+              {justification.objectif.description}
+            </span>
+          </div>
+        );
+      case "soumiseAt":
+        return (
+          <span className="text-sm text-default-500">
+            {formatSoumiseAt(justification.soumiseAt)}
+          </span>
+        );
+      case "statut":
+        return hasDiscussion(justification) ? (
+          <Chip
+            color="secondary"
+            size="sm"
+            startContent={
+              <Icon icon="solar:question-circle-linear" width={14} />
+            }
+            variant="flat"
+          >
+            Précision demandée
+          </Chip>
+        ) : (
+          <Chip
+            color="danger"
+            size="sm"
+            startContent={<Icon icon="solar:bell-linear" width={14} />}
+            variant="flat"
+          >
+            Nouveau
+          </Chip>
+        );
+      case "actions":
+        return (
+          <div className="flex items-center justify-end w-full pr-4">
+            <Button
+              isIconOnly
+              aria-label="Ouvrir"
+              color="default"
+              size="sm"
+              startIcon="solar:arrow-right-linear"
+              variant="ghost"
+              onClick={(e) => {
+                e.stopPropagation();
+                onJustificationClick(justification);
+              }}
+            />
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
-    <div className="flex-1 overflow-y-auto space-y-2 md:space-y-3 pr-1 md:pr-2">
-      <ul className="space-y-1 md:space-y-2">
+    <div className="flex-1 overflow-y-auto">
+      <div className="hidden sm:block">
+        <AdminDataTable
+          columns={columns}
+          data={data}
+          renderCell={renderCell}
+          searchPlaceholder="Rechercher un chef, une réalisation..."
+          onRowAction={(key) => {
+            const justification = data.find((item) => item.id === key);
+
+            if (justification) onJustificationClick(justification);
+          }}
+        />
+      </div>
+
+      <div className="flex flex-col gap-2 sm:hidden">
         {justifications.map((justification) => (
-          <li key={justification.id}>
-            <div
-              className="py-4 px-3 md:py-6 md:px-5 rounded-md flex flex-col md:flex-row items-start md:items-center cursor-pointer hover:bg-default-100 transition-colors gap-3 md:gap-0"
-              {...clickable(() => onJustificationClick(justification))}
-            >
-              <div className="flex items-center gap-3 w-full md:w-1/4">
-                <Avatar
-                  className="w-8 h-8 md:w-10 md:h-10 text-tiny md:text-small"
-                  name={justification.chef.name.charAt(0).toUpperCase()}
-                  size="sm"
-                  src={justification.chef.image || undefined}
-                />
-                <div className="flex flex-col min-w-0 flex-1">
-                  <p className="text-sm font-semibold truncate text-foreground">
-                    {justification.chef.name}
-                  </p>
-                  <p className="text-[10px] md:text-xs text-default-500 truncate">
-                    {justification.chef.email}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex-1 flex items-center w-full md:w-auto mt-1 md:mt-0">
-                <span className="text-sm md:text-xl font-medium text-foreground border border-default-300 bg-white md:bg-transparent py-1 px-2 md:py-3 md:px-2.5 rounded-lg md:rounded-full md:w-12 md:h-12 flex items-center justify-center mr-3 md:mr-4 flex-shrink-0 shadow-sm md:shadow-none">
-                  {justification.objectif.code}
+          <Card
+            key={justification.id}
+            isPressable
+            className="w-full"
+            onClick={() => onJustificationClick(justification)}
+          >
+            <CardBody className="flex-row items-center gap-3">
+              <Avatar
+                name={justification.chef.name}
+                size="md"
+                src={justification.chef.image}
+              />
+              <div className="flex flex-col flex-1 min-w-0">
+                <span className="text-sm font-semibold truncate">
+                  {justification.chef.name}
                 </span>
-                <div className="flex flex-col min-w-0">
-                  <p className="text-xs md:text-base font-medium text-foreground line-clamp-1">
-                    {justification.objectif.description}
-                  </p>
-                  <p className="text-[10px] md:text-sm text-default-400 block md:hidden">
-                    Objectif {justification.objectif.code}
-                  </p>
-                </div>
+                <span className="text-xs text-default-400 truncate">
+                  {justification.objectif.code} —{" "}
+                  {justification.objectif.description}
+                </span>
+                <span className="text-[11px] text-default-400 mt-0.5">
+                  {formatSoumiseAt(justification.soumiseAt)}
+                </span>
               </div>
-
-              <div className="flex items-center justify-between w-full md:w-auto md:ml-6 mt-1 md:mt-0">
-                <Chip
-                  classNames={{
-                    base: "h-6 text-[10px] md:text-xs",
-                    content: "px-2",
-                  }}
-                  color="warning"
-                  size="sm"
-                  startContent={
-                    <Icon icon="solar:clock-circle-linear" width={12} />
-                  }
-                  variant="flat"
-                >
-                  En attente
+              {hasDiscussion(justification) ? (
+                <Chip color="secondary" size="sm" variant="flat">
+                  Précision
                 </Chip>
-                <Button
-                  isIconOnly
-                  aria-label="Ouvrir"
-                  className="bg-transparent data-[hover=true]:bg-default/20 w-8 h-8 md:w-10 md:h-10 min-w-8"
-                  color="default"
-                  variant="light"
-                  onPress={() => onJustificationClick(justification)}
-                >
-                  <Icon
-                    className="md:w-6 md:h-6"
-                    icon="solar:arrow-right-linear"
-                    width={20}
-                  />
-                </Button>
-              </div>
-            </div>
-            <div className="px-3 md:px-5">
-              <Divider className="bg-default-100" />
-            </div>
-          </li>
+              ) : (
+                <Chip color="danger" size="sm" variant="flat">
+                  Nouveau
+                </Chip>
+              )}
+            </CardBody>
+          </Card>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }

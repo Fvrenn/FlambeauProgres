@@ -8,11 +8,12 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  Input,
   Pagination,
   SortDescriptor,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
+
+import { Input } from "@/components/ui";
 
 export type Column = {
   key: string;
@@ -26,6 +27,7 @@ type AdminDataTableProps<T> = {
   renderCell: (item: T, columnKey: React.Key) => React.ReactNode;
   searchPlaceholder?: string;
   initialRowsPerPage?: number;
+  onRowAction?: (key: React.Key) => void;
 };
 
 export default function AdminDataTable<T extends { id: string | number }>({
@@ -34,6 +36,7 @@ export default function AdminDataTable<T extends { id: string | number }>({
   renderCell,
   searchPlaceholder = "Rechercher...",
   initialRowsPerPage = 10,
+  onRowAction,
 }: AdminDataTableProps<T>) {
   const [filterValue, setFilterValue] = React.useState("");
   const [rowsPerPage, setRowsPerPage] = React.useState(initialRowsPerPage);
@@ -116,8 +119,14 @@ export default function AdminDataTable<T extends { id: string | number }>({
         <Pagination
           isCompact
           showControls
-          showShadow
-          color="primary"
+          classNames={{
+            wrapper: "gap-1",
+            item: "bg-dashboard-panel text-foreground/60 shadow-none border-none text-sm font-medium rounded-[10px] hover:bg-dashboard-tab",
+            cursor:
+              "bg-nav-active text-white font-semibold rounded-[10px] shadow-none",
+            prev: "bg-dashboard-panel text-foreground/60 shadow-none rounded-[10px] hover:bg-dashboard-tab",
+            next: "bg-dashboard-panel text-foreground/60 shadow-none rounded-[10px] hover:bg-dashboard-tab",
+          }}
           page={page}
           total={pages}
           onChange={setPage}
@@ -133,16 +142,49 @@ export default function AdminDataTable<T extends { id: string | number }>({
 
   return (
     <Table
-      isHeaderSticky
       aria-label="Admin Data Table"
       bottomContent={bottomContent}
       bottomContentPlacement="outside"
       classNames={{
-        wrapper: "min-h-[222px]",
+        wrapper: [
+          "rounded-[22px]",
+          "bg-[#FAF6EB]",
+          "shadow-none",
+          "border-none",
+          "p-0",
+          "min-h-[222px]",
+        ],
+        th: [
+          "bg-transparent",
+          "text-[11px]",
+          "font-semibold",
+          "uppercase",
+          "tracking-wider",
+          "text-foreground/40",
+          "py-4",
+          "px-6",
+          "first:rounded-tl-[22px]",
+          "last:rounded-tr-[22px]",
+        ],
+        td: [
+          "py-4",
+          "px-6",
+          "text-sm",
+          "border-b",
+          "border-dashboard-border/60",
+          "group-last:border-b-0",
+        ],
+        tr: [
+          "group",
+          "transition-colors",
+          "hover:bg-dashboard-tab",
+          onRowAction ? "cursor-pointer" : "",
+        ],
       }}
       sortDescriptor={sortDescriptor}
       topContent={topContent}
       topContentPlacement="outside"
+      onRowAction={onRowAction}
       onSortChange={setSortDescriptor}
     >
       <TableHeader columns={columns}>

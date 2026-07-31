@@ -5,7 +5,6 @@ import type { AdminEtapeListItem } from "@/types";
 import React from "react";
 import {
   Button,
-  Input,
   Textarea,
   Select,
   SelectItem,
@@ -25,6 +24,7 @@ import { Icon } from "@iconify/react";
 import { createEtape, updateEtape } from "../../_actions/admin.actions";
 
 import { FormModal } from "@/components/admin/FormModal";
+import { Input } from "@/components/ui";
 
 const etapeSchema = z.object({
   number: z.string().min(1, "Le numéro est requis"),

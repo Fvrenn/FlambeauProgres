@@ -33,7 +33,19 @@ export default async function ReferentLayout({
   ];
 
   return (
-    <AppClientLayout sidebarItems={sidebarItems} user={user}>
+    <AppClientLayout
+      contextSwitcherClassName="bg-dashboard-card"
+      mainClassName="bg-dashboard"
+      navItemClassNames={{
+        base: "data-[selected=true]:bg-nav-active data-[selected=true]:data-[hover=true]:bg-nav-hover data-[focus=true]:!bg-transparent data-[selected=true]:data-[focus=true]:!bg-nav-active",
+        title:
+          "text-small font-medium text-default-500 group-data-[selected=true]:text-white",
+        icon: "text-default-500 group-data-[selected=true]:text-white",
+      }}
+      sidebarClassName="bg-sidebar border-r border-r-dashboard-border"
+      sidebarItems={sidebarItems}
+      user={user}
+    >
       {children}
     </AppClientLayout>
   );

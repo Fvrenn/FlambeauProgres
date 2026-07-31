@@ -38,7 +38,7 @@ export default function DiscussionThread({
 
   return (
     <div className="flex h-full flex-col">
-      <header className="border-b border-divider px-4 py-3">
+      <header className="border-b border-dashboard-border px-4 py-3">
         <p className="text-xs font-semibold uppercase tracking-wider text-default-500">
           {objectif.code}
         </p>
@@ -54,11 +54,11 @@ export default function DiscussionThread({
         />
       </div>
 
-      <footer className="flex flex-col gap-3 border-t border-divider p-3">
+      <footer className="flex flex-col gap-3 border-t border-dashboard-border p-3">
         {readOnly ? (
           <div className="flex items-center justify-center gap-2 text-sm text-success-600">
             <Icon icon="solar:check-circle-bold" width={18} />
-            Réalisation validée — fil clôturé
+            Réalisation validée, fil clôturé
           </div>
         ) : (
           <>

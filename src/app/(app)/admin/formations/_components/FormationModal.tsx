@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Input, Image } from "@heroui/react";
+import { Image } from "@heroui/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -11,6 +11,7 @@ import { type FormationCard } from "@prisma/client";
 import { createFormation, updateFormation } from "../../_actions/admin.actions";
 
 import { FormModal } from "@/components/admin/FormModal";
+import { Input } from "@/components/ui";
 
 const formationSchema = z.object({
   titre: z.string().min(1, "Le titre est requis"),

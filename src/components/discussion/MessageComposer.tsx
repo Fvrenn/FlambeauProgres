@@ -109,6 +109,10 @@ export default function MessageComposer({
 
         <Textarea
           className="flex-1"
+          classNames={{
+            inputWrapper:
+              "bg-dashboard-panel data-[hover=true]:bg-dashboard-panel-hover",
+          }}
           isDisabled={busy}
           maxRows={4}
           minRows={1}
@@ -120,7 +124,7 @@ export default function MessageComposer({
 
         <Button
           isIconOnly
-          color="primary"
+          className="bg-nav-active text-white data-[hover=true]:bg-nav-hover"
           isDisabled={busy || (!text.trim() && !file)}
           isLoading={isPending}
           onPress={handleSend}

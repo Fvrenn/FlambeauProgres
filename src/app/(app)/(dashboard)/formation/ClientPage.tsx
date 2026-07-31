@@ -24,32 +24,54 @@ export default function FormationClientPage({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {formations.map((f) => (
-        <a
+        <div
           key={f.id}
-          className="group flex flex-col rounded-ds-lg bg-default-100 shadow-inset-border overflow-hidden transition-transform duration-fast hover:-translate-y-0.5"
-          href={f.lien}
-          rel="noopener noreferrer"
-          target="_blank"
+          className="flex flex-col rounded-[22px] overflow-hidden h-[270px]"
+          style={{ background: "#FAF6EB" }}
         >
-          <div className="relative aspect-video w-full overflow-hidden bg-content1">
-            <HeroImage
-              removeWrapper
-              alt={f.titre}
-              className="w-full h-full object-cover"
-              src={f.imageUrl}
-            />
+          {/* Zone image — 160px */}
+          <div
+            className="w-full shrink-0 bg-default-100 border-b border-dashed border-dashboard-border overflow-hidden"
+            style={{ height: 160, borderRadius: "22px 22px 0 0" }}
+          >
+            {f.imageUrl ? (
+              <HeroImage
+                removeWrapper
+                alt={f.titre}
+                className="w-full h-full object-cover rounded-none"
+                src={f.imageUrl}
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full gap-1 text-foreground/30">
+                <Icon className="text-2xl" icon="solar:gallery-linear" />
+                <span className="text-xs">Aucune image</span>
+              </div>
+            )}
           </div>
-          <div className="flex items-center justify-between gap-2 p-5">
-            <span className="font-medium text-foreground line-clamp-2">
+
+          {/* Corps — 110px */}
+          <div
+            className="flex flex-col justify-between bg-dashboard-panel"
+            style={{ height: 110, padding: "18px 20px 20px" }}
+          >
+            <p className="line-clamp-2" style={{ fontSize: 17, fontWeight: 700 }}>
               {f.titre}
-            </span>
-            <Icon
-              className="text-default-400 shrink-0 group-hover:text-foreground transition-colors"
-              icon="solar:arrow-right-up-linear"
-              width={20}
-            />
+            </p>
+
+            <a
+              className="flex items-center justify-center gap-1.5 w-full rounded-[12px] py-2 text-[13px] font-semibold text-white cursor-pointer transition-colors"
+              href={f.lien}
+              rel="noopener noreferrer"
+              style={{ backgroundColor: "#2f4a35" }}
+              target="_blank"
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#4d634f")}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#2f4a35")}
+            >
+              Accéder
+              <Icon icon="solar:arrow-right-up-linear" width={14} />
+            </a>
           </div>
-        </a>
+        </div>
       ))}
     </div>
   );

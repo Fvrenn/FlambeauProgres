@@ -11,7 +11,6 @@ import {
   Breadcrumbs,
   BreadcrumbItem,
   Image,
-  Input,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
@@ -20,6 +19,7 @@ import ObjectifModal from "../_components/ObjectifModal";
 import { updateEtapeBadge, deleteObjectif } from "../../_actions/admin.actions";
 
 import AdminDataTable, { Column } from "@/components/admin/AdminDataTable";
+import { Input } from "@/components/ui";
 import { DEFAULT_ETAPE_COLOR } from "@/lib/color";
 
 type EtapeDetailClientPageProps = {
@@ -150,10 +150,10 @@ export default function EtapeDetailClientPage({
       </Breadcrumbs>
 
       <div className="flex flex-col md:flex-row gap-6 items-start">
-        <div className="w-full md:w-1/3 flex flex-col gap-4 p-4 border-small border-divider rounded-large bg-content1 shadow-small">
-          <h2 className="text-lg font-bold">Badge de l'étape</h2>
+        <div className="w-full md:w-1/3 flex flex-col gap-4 p-6 rounded-[22px] bg-[#FAF6EB]">
+          <h2 className="text-[15px] font-bold">Badge de l'étape</h2>
           <div className="flex justify-center py-4">
-            <div className="w-32 h-32 rounded-xl bg-default-100 flex items-center justify-center overflow-hidden border-2 border-dashed border-default-300">
+            <div className="w-32 h-32 rounded-xl bg-dashboard-border/50 flex items-center justify-center overflow-hidden border-2 border-dashed border-dashboard-border">
               {badgeUrl ? (
                 <Image
                   alt="Badge"
@@ -164,7 +164,7 @@ export default function EtapeDetailClientPage({
                 />
               ) : (
                 <Icon
-                  className="text-4xl text-default-400"
+                  className="text-4xl text-foreground/30"
                   icon="solar:gallery-add-linear"
                 />
               )}
@@ -180,7 +180,7 @@ export default function EtapeDetailClientPage({
           <div className="flex items-end gap-2">
             <input
               aria-label="Couleur de l'étape"
-              className="h-10 w-12 shrink-0 cursor-pointer rounded-medium border border-default-300 bg-transparent p-1"
+              className="h-10 w-12 shrink-0 cursor-pointer rounded-medium border border-dashboard-border bg-transparent p-1"
               type="color"
               value={couleur}
               onChange={(e) => setCouleur(e.target.value)}
@@ -194,13 +194,16 @@ export default function EtapeDetailClientPage({
               onValueChange={setCouleur}
             />
           </div>
-          <Button
-            color="primary"
-            isLoading={isSavingBadge}
-            onPress={handleSaveBadge}
+          <button
+            className="w-full rounded-[12px] py-2 text-[13px] font-semibold text-white cursor-pointer transition-colors"
+            style={{ backgroundColor: isSavingBadge ? "#4d634f" : "#2f4a35" }}
+            disabled={isSavingBadge}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#4d634f")}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#2f4a35")}
+            onClick={handleSaveBadge}
           >
-            Enregistrer le badge
-          </Button>
+            {isSavingBadge ? "Enregistrement..." : "Enregistrer le badge"}
+          </button>
         </div>
 
         <div className="w-full md:w-2/3 flex flex-col gap-4">
@@ -208,14 +211,16 @@ export default function EtapeDetailClientPage({
             <h2 className="text-xl font-bold">
               Objectifs ({etape.objectifs.length})
             </h2>
-            <Button
-              color="primary"
-              size="sm"
-              startContent={<Icon icon="solar:add-circle-linear" />}
-              onPress={handleCreate}
+            <button
+              className="flex items-center gap-1.5 rounded-[12px] px-4 py-2 text-[13px] font-semibold text-white cursor-pointer transition-colors"
+              style={{ backgroundColor: "#2f4a35" }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#4d634f")}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#2f4a35")}
+              onClick={handleCreate}
             >
+              <Icon icon="solar:add-circle-linear" width={16} />
               Ajouter un objectif
-            </Button>
+            </button>
           </div>
 
           <AdminDataTable

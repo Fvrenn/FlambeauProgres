@@ -11,7 +11,7 @@ import { deleteFormation } from "../_actions/admin.actions";
 
 import FormationModal from "./_components/FormationModal";
 
-import { Button, Card, CardBody } from "@/components/ui";
+import { Button, Badge, Card, CardBody, CardFooter } from "@/components/ui";
 
 type FormationsClientPageProps = {
   formations: FormationCard[];
@@ -44,15 +44,18 @@ export default function FormationsClientPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Gestion de la Formation</h1>
-        <Button
-          color="primary"
-          endIcon="solar:add-circle-linear"
-          onClick={handleCreate}
-        >
-          Ajouter une carte
-        </Button>
+      <div className="flex flex-col gap-3">
+        <h1 className="text-2xl font-extrabold">Gestion de la Formation</h1>
+        <div>
+          <Button
+            color="success"
+            endIcon="solar:add-circle-linear"
+            className="!bg-nav-active hover:!bg-nav-hover !text-white cursor-pointer"
+            onClick={handleCreate}
+          >
+            Nouvelle formation
+          </Button>
+        </div>
       </div>
 
       {formations.length === 0 ? (
@@ -63,46 +66,63 @@ export default function FormationsClientPage({
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {formations.map((formation) => (
-            <Card key={formation.id} className="p-0" size="sm">
-              <div className="aspect-video w-full bg-content1 overflow-hidden rounded-t-ds-lg">
-                <Image
-                  removeWrapper
-                  alt={formation.titre}
-                  className="w-full h-full object-cover"
-                  src={formation.imageUrl}
-                />
+            <Card key={formation.id} className="p-0 overflow-hidden h-[270px]" size="sm">
+              {/* Zone image — 160px, arrondie en haut seulement */}
+              <div
+                className="w-full shrink-0 bg-default-100 border-b border-dashed border-default-300 overflow-hidden"
+                style={{ height: 160, borderRadius: "22px 22px 0 0" }}
+              >
+                {formation.imageUrl ? (
+                  <Image
+                    removeWrapper
+                    alt={formation.titre}
+                    className="w-full h-full object-cover rounded-none"
+                    src={formation.imageUrl}
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-full gap-1 text-default-400">
+                    <Icon className="text-2xl" icon="solar:gallery-linear" />
+                    <span className="text-xs">training visual</span>
+                    <span className="text-xs">
+                      or{" "}
+                      <span className="text-primary underline cursor-pointer">
+                        browse files
+                      </span>
+                    </span>
+                  </div>
+                )}
               </div>
-              <CardBody className="gap-2 p-3">
-                <p className="font-semibold line-clamp-1">{formation.titre}</p>
-                <a
-                  className="text-tiny text-primary truncate hover:underline"
-                  href={formation.lien}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  {formation.lien}
-                </a>
-                <div className="flex justify-end gap-1 pt-1">
-                  <Tooltip content="Modifier">
-                    <Button
-                      isIconOnly
-                      color="default"
-                      size="sm"
-                      startIcon="solar:pen-linear"
-                      variant="ghost"
-                      onClick={() => handleEdit(formation)}
-                    />
-                  </Tooltip>
-                  <Tooltip color="danger" content="Supprimer">
-                    <Button
-                      isIconOnly
-                      color="danger"
-                      size="sm"
-                      startIcon="solar:trash-bin-trash-linear"
-                      variant="ghost"
-                      onClick={() => handleDelete(formation.id)}
-                    />
-                  </Tooltip>
+
+              {/* Corps de la card — 110px, fond blanc, padding 18 20 20 */}
+              <CardBody
+                className="gap-3 flex-col justify-between bg-dashboard-panel"
+                style={{ height: 110, padding: "18px 20px 20px", flexShrink: 0 }}
+              >
+                <p className="line-clamp-2" style={{ fontSize: 17, fontWeight: 700 }}>
+                  {formation.titre}
+                </p>
+
+                {/* Actions */}
+                <div className="flex items-center gap-2">
+                  <Button
+                    fullWidth
+                    color="default"
+                    size="sm"
+                    variant="solid"
+                    className="!bg-[#eee7d3] hover:!bg-[#f0ead8] !rounded-[12px] !text-[13px] !font-semibold cursor-pointer"
+                    onClick={() => handleEdit(formation)}
+                  >
+                    Modifier
+                  </Button>
+                  <Button
+                    color="primary"
+                    size="sm"
+                    variant="solid"
+                    className="!bg-[#fbe4b8] hover:!bg-[#fbe7c2] !rounded-[12px] !text-[13px] !font-semibold !text-[#8a5a1f] cursor-pointer"
+                    onClick={() => handleDelete(formation.id)}
+                  >
+                    Suppr.
+                  </Button>
                 </div>
               </CardBody>
             </Card>

@@ -72,7 +72,7 @@ export default function MessageList({
           <Fragment key={message.id}>
             {showDay && (
               <div className="flex justify-center">
-                <span className="rounded-full bg-default-100 px-3 py-0.5 text-xs text-default-400">
+                <span className="rounded-full bg-dashboard-card px-3 py-0.5 text-xs text-foreground/50">
                   {day}
                 </span>
               </div>

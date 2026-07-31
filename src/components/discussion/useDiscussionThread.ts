@@ -173,25 +173,19 @@ export function useDiscussionThread(justificationId: string, viewer: Viewer) {
     [justificationId, refresh],
   );
 
-  const validate = useCallback(
-    async (text: string) => {
-      if (!viewerRef.current.id) {
-        return;
-      }
+  const validate = useCallback(async () => {
+    if (!viewerRef.current.id) {
+      return;
+    }
 
-      const result = await validateRealisation(
-        justificationId,
-        text.trim() || undefined,
-      );
+    const result = await validateRealisation(justificationId);
 
-      if (result.success) {
-        await refresh({ silent: true });
-      } else {
-        setError(result.error);
-      }
-    },
-    [justificationId, refresh],
-  );
+    if (result.success) {
+      await refresh({ silent: true });
+    } else {
+      setError(result.error);
+    }
+  }, [justificationId, refresh]);
 
   return {
     messages,

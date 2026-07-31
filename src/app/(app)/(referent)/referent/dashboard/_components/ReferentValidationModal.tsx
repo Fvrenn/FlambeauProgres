@@ -45,8 +45,8 @@ export default function ReferentValidationModal({
       size="3xl"
       onOpenChange={onOpenChange}
     >
-      <ModalContent className="h-[80vh]">
-        <ModalHeader className="border-b border-default-100">
+      <ModalContent className="h-[80vh] bg-dashboard">
+        <ModalHeader className="border-b border-dashboard-border">
           <User
             avatarProps={{
               src: justification.chef.image || undefined,

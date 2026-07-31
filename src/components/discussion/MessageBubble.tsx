@@ -3,9 +3,11 @@
 import type { UiMessage } from "./types";
 
 import React from "react";
-import { Card, CardBody, Spinner, User } from "@heroui/react";
+import { Card, CardBody, Spinner } from "@heroui/react";
 
 import FileAttachment from "./FileAttachment";
+
+import { Avatar } from "@/components/ui";
 
 interface MessageBubbleProps {
   message: UiMessage;
@@ -30,20 +32,18 @@ export default function MessageBubble({ message, isOwn }: MessageBubbleProps) {
           isOwn ? "flex-row-reverse" : "flex-row"
         }`}
       >
-        <User
-          avatarProps={{
-            src: message.auteur.image || undefined,
-            name: message.auteur.name.charAt(0).toUpperCase(),
-            size: "sm",
-          }}
+        <Avatar
           className="min-w-fit"
-          description=""
-          name=""
+          name={message.auteur.name}
+          size="sm"
+          src={message.auteur.image}
         />
 
         <Card
           className={`${
-            isOwn ? "bg-primary text-white" : "bg-default-100 text-default-900"
+            isOwn
+              ? "bg-nav-active text-white"
+              : "bg-dashboard-panel text-foreground"
           } ${message.pending ? "opacity-60" : ""}`}
         >
           <CardBody className="gap-2 p-3">

@@ -198,9 +198,8 @@ export class DiscussionService {
   static async validateRealisation(input: {
     referentId: string;
     justificationId: string;
-    contenu?: string | null;
   }): Promise<ServiceResult<ThreadMessage>> {
-    const { referentId, justificationId, contenu } = input;
+    const { referentId, justificationId } = input;
 
     const justification = await prisma.justification.findUnique({
       where: { id: justificationId },
@@ -229,16 +228,11 @@ export class DiscussionService {
       return { success: false, error: "Cette réalisation est déjà validée" };
     }
 
-    const trimmed = contenu?.trim() || null;
-    const texte = trimmed
-      ? `✓ Réalisation validée — ${trimmed}`
-      : "✓ Réalisation validée";
-
     const message = await prisma.$transaction(async (tx) => {
       const created = await this.addMessage(tx, {
         justificationId,
         auteurId: referentId,
-        contenu: texte,
+        contenu: "✓ Réalisation validée",
         type: "SYSTEM",
       });
 

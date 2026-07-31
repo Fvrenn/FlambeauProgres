@@ -114,10 +114,7 @@ export async function postMessage(
   }
 }
 
-export async function validateRealisation(
-  justificationId: string,
-  contenu?: string,
-) {
+export async function validateRealisation(justificationId: string) {
   try {
     const user = await getUser();
 
@@ -125,12 +122,7 @@ export async function validateRealisation(
       return { success: false as const, error: "Non autorisé" };
     }
 
-    const parsed = z
-      .object({
-        justificationId: justificationIdSchema,
-        contenu: contenuSchema,
-      })
-      .safeParse({ justificationId, contenu });
+    const parsed = justificationIdSchema.safeParse(justificationId);
 
     if (!parsed.success) {
       return { success: false as const, error: "Données invalides" };
@@ -138,8 +130,7 @@ export async function validateRealisation(
 
     return await DiscussionService.validateRealisation({
       referentId: user.id,
-      justificationId: parsed.data.justificationId,
-      contenu: parsed.data.contenu ?? null,
+      justificationId: parsed.data,
     });
   } catch (error) {
     console.error("Erreur lors de la validation:", error);

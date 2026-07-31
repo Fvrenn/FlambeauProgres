@@ -193,7 +193,12 @@ export default function ContextSwitcher({
 
   return (
     <div className="flex flex-col">
-      <Dropdown placement={isCompact ? "right-start" : "bottom-end"}>
+      <Dropdown
+        classNames={{
+          content: "bg-dashboard-panel border border-dashboard-border",
+        }}
+        placement={isCompact ? "right-start" : "bottom-end"}
+      >
         <DropdownTrigger>
           {isCompact ? (
             <Button isIconOnly className="w-10 h-10 rounded-full">
@@ -252,7 +257,10 @@ export default function ContextSwitcher({
         <DropdownMenu
           aria-label="Menu de Contexte"
           itemClasses={{
-            base: ["data-[hover=true]:border-divider"],
+            base: [
+              "data-[hover=true]:border-divider",
+              "data-[hover=true]:bg-dashboard-tab",
+            ],
           }}
           variant="faded"
         >

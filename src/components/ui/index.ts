@@ -11,6 +11,7 @@ export {
   badgeVariants,
 } from "./badge";
 export { Avatar, type AvatarProps } from "./avatar";
+export { Input } from "./input";
 export {
   Card,
   CardHeader,
