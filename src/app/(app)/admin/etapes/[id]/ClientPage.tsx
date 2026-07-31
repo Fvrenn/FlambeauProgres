@@ -5,7 +5,6 @@ import type { AdminEtapeWithObjectifs } from "@/types";
 
 import React from "react";
 import {
-  Button,
   Chip,
   Tooltip,
   Breadcrumbs,
@@ -196,11 +195,15 @@ export default function EtapeDetailClientPage({
           </div>
           <button
             className="w-full rounded-[12px] py-2 text-[13px] font-semibold text-white cursor-pointer transition-colors"
-            style={{ backgroundColor: isSavingBadge ? "#4d634f" : "#2f4a35" }}
             disabled={isSavingBadge}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#4d634f")}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#2f4a35")}
+            style={{ backgroundColor: isSavingBadge ? "#4d634f" : "#2f4a35" }}
             onClick={handleSaveBadge}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.backgroundColor = "#4d634f")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.backgroundColor = "#2f4a35")
+            }
           >
             {isSavingBadge ? "Enregistrement..." : "Enregistrer le badge"}
           </button>
@@ -214,9 +217,13 @@ export default function EtapeDetailClientPage({
             <button
               className="flex items-center gap-1.5 rounded-[12px] px-4 py-2 text-[13px] font-semibold text-white cursor-pointer transition-colors"
               style={{ backgroundColor: "#2f4a35" }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#4d634f")}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#2f4a35")}
               onClick={handleCreate}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundColor = "#4d634f")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundColor = "#2f4a35")
+              }
             >
               <Icon icon="solar:add-circle-linear" width={16} />
               Ajouter un objectif

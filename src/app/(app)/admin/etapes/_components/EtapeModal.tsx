@@ -63,7 +63,6 @@ export default function EtapeModal({
     control,
     handleSubmit,
     setValue,
-    watch,
     reset,
     formState: { errors },
   } = useForm<EtapeFormData>({

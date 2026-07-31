@@ -3,7 +3,7 @@
 import type { FormationCard } from "@prisma/client";
 
 import React from "react";
-import { Tooltip, Image } from "@heroui/react";
+import { Image } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 
@@ -11,7 +11,7 @@ import { deleteFormation } from "../_actions/admin.actions";
 
 import FormationModal from "./_components/FormationModal";
 
-import { Button, Badge, Card, CardBody, CardFooter } from "@/components/ui";
+import { Button, Card, CardBody } from "@/components/ui";
 
 type FormationsClientPageProps = {
   formations: FormationCard[];
@@ -48,9 +48,9 @@ export default function FormationsClientPage({
         <h1 className="text-2xl font-extrabold">Gestion de la Formation</h1>
         <div>
           <Button
+            className="!bg-nav-active hover:!bg-nav-hover !text-white cursor-pointer"
             color="success"
             endIcon="solar:add-circle-linear"
-            className="!bg-nav-active hover:!bg-nav-hover !text-white cursor-pointer"
             onClick={handleCreate}
           >
             Nouvelle formation
@@ -66,7 +66,11 @@ export default function FormationsClientPage({
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {formations.map((formation) => (
-            <Card key={formation.id} className="p-0 overflow-hidden h-[270px]" size="sm">
+            <Card
+              key={formation.id}
+              className="p-0 overflow-hidden h-[270px]"
+              size="sm"
+            >
               {/* Zone image — 160px, arrondie en haut seulement */}
               <div
                 className="w-full shrink-0 bg-default-100 border-b border-dashed border-default-300 overflow-hidden"
@@ -96,9 +100,16 @@ export default function FormationsClientPage({
               {/* Corps de la card — 110px, fond blanc, padding 18 20 20 */}
               <CardBody
                 className="gap-3 flex-col justify-between bg-dashboard-panel"
-                style={{ height: 110, padding: "18px 20px 20px", flexShrink: 0 }}
+                style={{
+                  height: 110,
+                  padding: "18px 20px 20px",
+                  flexShrink: 0,
+                }}
               >
-                <p className="line-clamp-2" style={{ fontSize: 17, fontWeight: 700 }}>
+                <p
+                  className="line-clamp-2"
+                  style={{ fontSize: 17, fontWeight: 700 }}
+                >
                   {formation.titre}
                 </p>
 
@@ -106,19 +117,19 @@ export default function FormationsClientPage({
                 <div className="flex items-center gap-2">
                   <Button
                     fullWidth
+                    className="!bg-[#eee7d3] hover:!bg-[#f0ead8] !rounded-[12px] !text-[13px] !font-semibold cursor-pointer"
                     color="default"
                     size="sm"
                     variant="solid"
-                    className="!bg-[#eee7d3] hover:!bg-[#f0ead8] !rounded-[12px] !text-[13px] !font-semibold cursor-pointer"
                     onClick={() => handleEdit(formation)}
                   >
                     Modifier
                   </Button>
                   <Button
+                    className="!bg-[#fbe4b8] hover:!bg-[#fbe7c2] !rounded-[12px] !text-[13px] !font-semibold !text-[#8a5a1f] cursor-pointer"
                     color="primary"
                     size="sm"
                     variant="solid"
-                    className="!bg-[#fbe4b8] hover:!bg-[#fbe7c2] !rounded-[12px] !text-[13px] !font-semibold !text-[#8a5a1f] cursor-pointer"
                     onClick={() => handleDelete(formation.id)}
                   >
                     Suppr.

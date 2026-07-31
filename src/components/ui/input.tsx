@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Input as HeroInput, type InputProps } from "@heroui/react";
+import { mergeClasses } from "@heroui/theme";
 
 const inputClassNames: InputProps["classNames"] = {
   inputWrapper: [
@@ -15,11 +16,7 @@ const inputClassNames: InputProps["classNames"] = {
     "group-data-[focus=true]:border-foreground/30",
     "!transition-colors",
   ],
-  label: [
-    "text-foreground/50",
-    "text-xs",
-    "font-medium",
-  ],
+  label: ["text-foreground/50", "text-xs", "font-medium"],
   input: [
     "text-sm",
     "text-foreground",
@@ -30,14 +27,12 @@ const inputClassNames: InputProps["classNames"] = {
   errorMessage: "text-danger text-xs",
 };
 
-export function Input(props: InputProps) {
+export function Input({ classNames, ...rest }: InputProps) {
   return (
     <HeroInput
-      {...props}
-      classNames={{
-        ...inputClassNames,
-        ...props.classNames,
-      }}
+      // @ts-expect-error -- HTMLHeroUIProps est polymorphe (props "as"), spreader la totalité dépasse la limite d'union de TS (TS2590)
+      {...rest}
+      classNames={mergeClasses(inputClassNames, classNames)}
     />
   );
 }

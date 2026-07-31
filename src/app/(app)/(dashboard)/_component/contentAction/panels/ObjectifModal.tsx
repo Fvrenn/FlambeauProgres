@@ -162,9 +162,7 @@ export default function ObjectifModal({
       size="3xl"
       onOpenChange={onOpenChange}
     >
-      <ModalContent
-        className={cn("bg-dashboard", showThread && "h-[80vh]")}
-      >
+      <ModalContent className={cn("bg-dashboard", showThread && "h-[80vh]")}>
         {(onClose) =>
           showThread ? (
             <ModalBody className="overflow-hidden p-0">

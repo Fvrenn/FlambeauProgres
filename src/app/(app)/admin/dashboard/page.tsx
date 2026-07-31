@@ -5,7 +5,7 @@ import { cn } from "@heroui/react";
 
 import prisma from "@/lib/prisma";
 import { roleColorMap } from "@/lib/roles";
-import { Badge, Avatar, Card, CardHeader, CardBody } from "@/components/ui";
+import { Badge, Card, CardBody } from "@/components/ui";
 
 const quickLinks = [
   {
@@ -65,9 +65,7 @@ function StatCard({
           <Icon icon={icon} width={22} />
         </div>
         <div className="flex flex-col">
-          <span className="text-3xl font-extrabold leading-none">
-            {value}
-          </span>
+          <span className="text-3xl font-extrabold leading-none">{value}</span>
           <span className="text-small text-default-500 mt-1">{label}</span>
         </div>
       </CardBody>
@@ -85,7 +83,6 @@ export default async function AdminDashboardPage() {
     formationsCount,
     etapesSansReferent,
     justificationsEnAttente,
-    recentUsers,
   ] = await Promise.all([
     prisma.user.count({ where: { role: "CHEF" } }),
     prisma.user.count({ where: { role: "REFERENT" } }),
@@ -95,7 +92,6 @@ export default async function AdminDashboardPage() {
     prisma.formationCard.count(),
     prisma.etape.count({ where: { referents: { none: {} } } }),
     prisma.justification.count({ where: { statut: "SOUMISE" } }),
-    prisma.user.findMany({ orderBy: { createdAt: "desc" }, take: 5 }),
   ]);
 
   const totalUsers = chefCount + referentCount + adminCount;

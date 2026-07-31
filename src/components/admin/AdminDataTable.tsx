@@ -39,7 +39,7 @@ export default function AdminDataTable<T extends { id: string | number }>({
   onRowAction,
 }: AdminDataTableProps<T>) {
   const [filterValue, setFilterValue] = React.useState("");
-  const [rowsPerPage, setRowsPerPage] = React.useState(initialRowsPerPage);
+  const [rowsPerPage] = React.useState(initialRowsPerPage);
   const [page, setPage] = React.useState(1);
   const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
     column: "id",

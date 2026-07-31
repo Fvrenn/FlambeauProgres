@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function UnauthorizedPage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground">
@@ -5,9 +7,9 @@ export default function UnauthorizedPage() {
       <p className="mt-4 text-lg">
         Vous n'avez pas la permission d'accéder à cette page.
       </p>
-      <a className="mt-6 text-primary-500 hover:underline" href="/">
+      <Link className="mt-6 text-primary-500 hover:underline" href="/">
         Retour à l'accueil
-      </a>
+      </Link>
     </div>
   );
 }

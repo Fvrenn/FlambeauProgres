@@ -175,8 +175,7 @@ export const buttonVariants = tv({
     {
       color: "primary",
       variant: "ghost",
-      class:
-        "text-[#c49a0e] hover:bg-primary/15 focus-visible:ring-primary",
+      class: "text-[#c49a0e] hover:bg-primary/15 focus-visible:ring-primary",
     },
     {
       color: "secondary",
@@ -187,25 +186,23 @@ export const buttonVariants = tv({
     {
       color: "success",
       variant: "ghost",
-      class:
-        "text-success hover:bg-success/15 focus-visible:ring-success",
+      class: "text-success hover:bg-success/15 focus-visible:ring-success",
     },
     {
       color: "warning",
       variant: "ghost",
-      class:
-        "text-warning hover:bg-warning/15 focus-visible:ring-warning",
+      class: "text-warning hover:bg-warning/15 focus-visible:ring-warning",
     },
     {
       color: "danger",
       variant: "ghost",
-      class:
-        "text-danger hover:bg-danger/15 focus-visible:ring-danger",
+      class: "text-danger hover:bg-danger/15 focus-visible:ring-danger",
     },
     {
       color: "default",
       variant: "ghost",
-      class: "text-foreground hover:bg-foreground/8 focus-visible:ring-foreground",
+      class:
+        "text-foreground hover:bg-foreground/8 focus-visible:ring-foreground",
     },
 
     {

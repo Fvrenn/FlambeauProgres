@@ -63,7 +63,8 @@ export default function AssignationsClientPage({
               <div className="flex flex-col">
                 <p className="font-bold text-[15px]">{etape.name}</p>
                 <p className="text-xs text-foreground/40">
-                  {etape.referents.length} référent{etape.referents.length !== 1 ? "s" : ""}
+                  {etape.referents.length} référent
+                  {etape.referents.length !== 1 ? "s" : ""}
                 </p>
               </div>
             </div>
@@ -108,9 +109,13 @@ export default function AssignationsClientPage({
               <button
                 className="w-full rounded-[12px] py-2 text-[13px] font-semibold text-white cursor-pointer transition-colors"
                 style={{ backgroundColor: "#2f4a35" }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#4d634f")}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#2f4a35")}
                 onClick={() => handleManage(etape)}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor = "#4d634f")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.backgroundColor = "#2f4a35")
+                }
               >
                 Gérer les assignations
               </button>

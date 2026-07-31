@@ -77,8 +77,10 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
       setSelected(defaultSelectedKey);
     }, [defaultSelectedKey]);
 
-    const navBaseClasses = navItemClassNames.base ?? DEFAULT_NAV_ITEM_BASE_CLASSES;
-    const navTitleClasses = navItemClassNames.title ?? DEFAULT_NAV_TITLE_CLASSES;
+    const navBaseClasses =
+      navItemClassNames.base ?? DEFAULT_NAV_ITEM_BASE_CLASSES;
+    const navTitleClasses =
+      navItemClassNames.title ?? DEFAULT_NAV_TITLE_CLASSES;
     const navIconClasses = navItemClassNames.icon ?? DEFAULT_NAV_ICON_CLASSES;
 
     const sectionClasses = {
@@ -132,10 +134,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
             startContent={
               isCompact || isNestType ? null : item.icon ? (
                 <Icon
-                  className={cn(
-                    navIconClasses,
-                    iconClassName,
-                  )}
+                  className={cn(navIconClasses, iconClassName)}
                   icon={item.icon}
                   width={24}
                 />
@@ -150,10 +149,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                 <div className="flex w-full items-center justify-center">
                   {item.icon ? (
                     <Icon
-                      className={cn(
-                        navIconClasses,
-                        iconClassName,
-                      )}
+                      className={cn(navIconClasses, iconClassName)}
                       icon={item.icon}
                       width={24}
                     />
@@ -180,16 +176,11 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                         }
                       >
                         <Icon
-                          className={cn(
-                            navIconClasses,
-                            iconClassName,
-                          )}
+                          className={cn(navIconClasses, iconClassName)}
                           icon={item.icon}
                           width={24}
                         />
-                        <span className={navTitleClasses}>
-                          {item.title}
-                        </span>
+                        <span className={navTitleClasses}>{item.title}</span>
                       </div>
                     ) : (
                       (item.startContent ?? null)
@@ -262,10 +253,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
             startContent={
               isCompact ? null : item.icon ? (
                 <Icon
-                  className={cn(
-                    navIconClasses,
-                    iconClassName,
-                  )}
+                  className={cn(navIconClasses, iconClassName)}
                   icon={item.icon}
                   width={24}
                 />
@@ -281,10 +269,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                 <div className="flex w-full items-center justify-center">
                   {item.icon ? (
                     <Icon
-                      className={cn(
-                        navIconClasses,
-                        iconClassName,
-                      )}
+                      className={cn(navIconClasses, iconClassName)}
                       icon={item.icon}
                       width={24}
                     />

@@ -54,7 +54,10 @@ export default function FormationClientPage({
             className="flex flex-col justify-between bg-dashboard-panel"
             style={{ height: 110, padding: "18px 20px 20px" }}
           >
-            <p className="line-clamp-2" style={{ fontSize: 17, fontWeight: 700 }}>
+            <p
+              className="line-clamp-2"
+              style={{ fontSize: 17, fontWeight: 700 }}
+            >
               {f.titre}
             </p>
 
@@ -64,8 +67,12 @@ export default function FormationClientPage({
               rel="noopener noreferrer"
               style={{ backgroundColor: "#2f4a35" }}
               target="_blank"
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#4d634f")}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#2f4a35")}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundColor = "#4d634f")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundColor = "#2f4a35")
+              }
             >
               Accéder
               <Icon icon="solar:arrow-right-up-linear" width={14} />

@@ -4,13 +4,12 @@ import React from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { Icon } from "@iconify/react";
+import { Justification, Notification } from "@prisma/client";
 
 import { EtapeAvecObjectifs } from "../DashboardClient";
 import "./CardEtapes.css";
 import ContentAction from "../contentAction/contentAction";
 import JalonBadge from "../JalonBadge";
-
-import { Justification, Notification } from "@prisma/client";
 
 const ChemiseModel = dynamic(
   () => import("./chemiseModel").then((mod) => mod.ChemiseModel),

@@ -14,7 +14,8 @@ const ALLOWED_MIME_TYPES = new Set<string>([
 const MAX_FILE_SIZE = 8 * 1024 * 1024;
 
 const UPLOAD_DIR =
-  process.env.UPLOAD_DIR || path.join(process.cwd(), "uploads");
+  process.env.UPLOAD_DIR ||
+  path.join(/*turbopackIgnore: true*/ process.cwd(), "uploads");
 
 export interface StoredFile {
   storedPath: string;
