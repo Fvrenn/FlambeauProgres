@@ -65,168 +65,168 @@ export const buttonVariants = tv({
       color: "primary",
       variant: "solid",
       class:
-        "bg-[#FCC226] text-[#0f1511] hover:bg-[#e5ae1e] focus-visible:ring-[#FCC226]",
+        "bg-primary text-foreground hover:bg-[#e5ae1e] focus-visible:ring-primary",
     },
     {
       color: "secondary",
       variant: "solid",
       class:
-        "bg-[#ffdc00] text-[#0f1511] hover:bg-[#e5c800] focus-visible:ring-[#ffdc00]",
+        "bg-secondary text-foreground hover:bg-[#e5c800] focus-visible:ring-secondary",
     },
     {
       color: "success",
       variant: "solid",
       class:
-        "bg-[#1bc47d] text-white hover:bg-[#16a267] focus-visible:ring-[#1bc47d]",
+        "bg-success text-white hover:bg-[#16a267] focus-visible:ring-success",
     },
     {
       color: "warning",
       variant: "solid",
       class:
-        "bg-[#ffb100] text-[#0f1511] hover:bg-[#d29200] focus-visible:ring-[#ffb100]",
+        "bg-warning text-foreground hover:bg-[#d29200] focus-visible:ring-warning",
     },
     {
       color: "danger",
       variant: "solid",
       class:
-        "bg-[#ff4f4f] text-white hover:bg-[#d24141] focus-visible:ring-[#ff4f4f]",
+        "bg-danger text-white hover:bg-[#d24141] focus-visible:ring-danger",
     },
     {
       color: "default",
       variant: "solid",
       class:
-        "bg-[#E8E7DE] text-[#0f1511] hover:bg-[#d4d3ca] focus-visible:ring-[#0f1511]",
+        "bg-default text-foreground hover:bg-[#d4d3ca] focus-visible:ring-foreground",
     },
 
     {
       color: "primary",
       variant: "flat",
       class:
-        "bg-[#FCC226]/15 text-[#c49a0e] hover:bg-[#FCC226]/25 focus-visible:ring-[#FCC226]",
+        "bg-primary/15 text-[#c49a0e] hover:bg-primary/25 focus-visible:ring-primary",
     },
     {
       color: "secondary",
       variant: "flat",
       class:
-        "bg-[#ffdc00]/15 text-[#a68f00] hover:bg-[#ffdc00]/25 focus-visible:ring-[#ffdc00]",
+        "bg-secondary/15 text-[#a68f00] hover:bg-secondary/25 focus-visible:ring-secondary",
     },
     {
       color: "success",
       variant: "flat",
       class:
-        "bg-[#1bc47d]/15 text-[#127f51] hover:bg-[#1bc47d]/25 focus-visible:ring-[#1bc47d]",
+        "bg-success/15 text-[#127f51] hover:bg-success/25 focus-visible:ring-success",
     },
     {
       color: "warning",
       variant: "flat",
       class:
-        "bg-[#ffb100]/15 text-[#a67300] hover:bg-[#ffb100]/25 focus-visible:ring-[#ffb100]",
+        "bg-warning/15 text-[#a67300] hover:bg-warning/25 focus-visible:ring-warning",
     },
     {
       color: "danger",
       variant: "flat",
       class:
-        "bg-[#ff4f4f]/15 text-[#d24141] hover:bg-[#ff4f4f]/25 focus-visible:ring-[#ff4f4f]",
+        "bg-danger/15 text-[#d24141] hover:bg-danger/25 focus-visible:ring-danger",
     },
     {
       color: "default",
       variant: "flat",
       class:
-        "bg-[#E8E7DE]/60 text-[#0f1511] hover:bg-[#E8E7DE] focus-visible:ring-[#0f1511]",
+        "bg-default/60 text-foreground hover:bg-default focus-visible:ring-foreground",
     },
 
     {
       color: "primary",
       variant: "outline",
       class:
-        "border-[#FCC226] text-[#c49a0e] hover:bg-[#FCC226]/10 focus-visible:ring-[#FCC226]",
+        "border-primary text-[#c49a0e] hover:bg-primary/10 focus-visible:ring-primary",
     },
     {
       color: "secondary",
       variant: "outline",
       class:
-        "border-[#ffdc00] text-[#a68f00] hover:bg-[#ffdc00]/10 focus-visible:ring-[#ffdc00]",
+        "border-secondary text-[#a68f00] hover:bg-secondary/10 focus-visible:ring-secondary",
     },
     {
       color: "success",
       variant: "outline",
       class:
-        "border-[#1bc47d] text-[#1bc47d] hover:bg-[#1bc47d]/10 focus-visible:ring-[#1bc47d]",
+        "border-success text-success hover:bg-success/10 focus-visible:ring-success",
     },
     {
       color: "warning",
       variant: "outline",
       class:
-        "border-[#ffb100] text-[#ffb100] hover:bg-[#ffb100]/10 focus-visible:ring-[#ffb100]",
+        "border-warning text-warning hover:bg-warning/10 focus-visible:ring-warning",
     },
     {
       color: "danger",
       variant: "outline",
       class:
-        "border-[#ff4f4f] text-[#ff4f4f] hover:bg-[#ff4f4f]/10 focus-visible:ring-[#ff4f4f]",
+        "border-danger text-danger hover:bg-danger/10 focus-visible:ring-danger",
     },
     {
       color: "default",
       variant: "outline",
       class:
-        "border-[#0f1511]/20 text-[#0f1511] hover:bg-[#0f1511]/5 focus-visible:ring-[#0f1511]",
+        "border-foreground/20 text-foreground hover:bg-foreground/5 focus-visible:ring-foreground",
     },
 
     {
       color: "primary",
       variant: "ghost",
       class:
-        "text-[#c49a0e] hover:bg-[#FCC226]/15 focus-visible:ring-[#FCC226]",
+        "text-[#c49a0e] hover:bg-primary/15 focus-visible:ring-primary",
     },
     {
       color: "secondary",
       variant: "ghost",
       class:
-        "text-[#a68f00] hover:bg-[#ffdc00]/15 focus-visible:ring-[#ffdc00]",
+        "text-[#a68f00] hover:bg-secondary/15 focus-visible:ring-secondary",
     },
     {
       color: "success",
       variant: "ghost",
       class:
-        "text-[#1bc47d] hover:bg-[#1bc47d]/15 focus-visible:ring-[#1bc47d]",
+        "text-success hover:bg-success/15 focus-visible:ring-success",
     },
     {
       color: "warning",
       variant: "ghost",
       class:
-        "text-[#ffb100] hover:bg-[#ffb100]/15 focus-visible:ring-[#ffb100]",
+        "text-warning hover:bg-warning/15 focus-visible:ring-warning",
     },
     {
       color: "danger",
       variant: "ghost",
       class:
-        "text-[#ff4f4f] hover:bg-[#ff4f4f]/15 focus-visible:ring-[#ff4f4f]",
+        "text-danger hover:bg-danger/15 focus-visible:ring-danger",
     },
     {
       color: "default",
       variant: "ghost",
-      class: "text-[#0f1511] hover:bg-[#0f1511]/8 focus-visible:ring-[#0f1511]",
+      class: "text-foreground hover:bg-foreground/8 focus-visible:ring-foreground",
     },
 
     {
       color: "primary",
       variant: "link",
-      class: "text-[#c49a0e] hover:text-[#FCC226]",
+      class: "text-[#c49a0e] hover:text-primary",
     },
     {
       color: "success",
       variant: "link",
-      class: "text-[#1bc47d] hover:text-[#16a267]",
+      class: "text-success hover:text-[#16a267]",
     },
     {
       color: "danger",
       variant: "link",
-      class: "text-[#ff4f4f] hover:text-[#d24141]",
+      class: "text-danger hover:text-[#d24141]",
     },
     {
       color: "default",
       variant: "link",
-      class: "text-[#0f1511] hover:text-[#595180]",
+      class: "text-foreground hover:text-[#595180]",
     },
 
     { isIconOnly: true, size: "xs", class: "w-7  h-7" },
@@ -339,4 +339,3 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = "Button";
 
 export { Button };
-export default Button;

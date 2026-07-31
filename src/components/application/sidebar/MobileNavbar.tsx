@@ -37,7 +37,7 @@ export const MobileNavbar = ({
             src="/logo/logo-flambeau-progres.svg"
             width={50}
           />
-          <span className="text-lg font-medium text-[#E06511] leading-7">
+          <span className="text-lg font-extrabold text-[#E06511] leading-7">
             Flambeau <span className="text-[#542C11]">Progrès</span>
           </span>
         </NavbarBrand>

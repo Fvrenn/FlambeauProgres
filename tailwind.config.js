@@ -9,6 +9,16 @@ const config = {
   ],
   theme: {
     extend: {
+      colors: {
+        dashboard: "#f5f0e1",
+        sidebar: "#f8f4e7",
+        "nav-active": "#2f4a35",
+        "nav-hover": "#4d634f",
+        "dashboard-border": "#e6dfc9",
+        "dashboard-card": "#eee7d3",
+        "dashboard-panel": "#faf6ea",
+        "dashboard-tab": "#f2ecd9",
+      },
       fontFamily: {
         sans: ["var(--font-sans)"],
         mono: ["var(--font-mono)"],

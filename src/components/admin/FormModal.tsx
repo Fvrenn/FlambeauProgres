@@ -63,5 +63,3 @@ export function FormModal({
     </Modal>
   );
 }
-
-export default FormModal;

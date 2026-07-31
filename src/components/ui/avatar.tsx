@@ -33,8 +33,8 @@ export function Avatar({
     <div
       className={cn(
         "flex shrink-0 items-center justify-center overflow-hidden rounded-full",
-        src ? "bg-transparent" : "bg-[#0f1511] text-white",
-        ring && "ring-2 ring-[#FCC226] ring-offset-2",
+        src ? "bg-transparent" : "bg-foreground text-white",
+        ring && "ring-2 ring-primary ring-offset-2",
         className,
       )}
       style={{
@@ -56,4 +56,3 @@ export function Avatar({
 }
 
 Avatar.displayName = "Avatar";
-export default Avatar;

@@ -13,6 +13,13 @@ import { Icon } from "@iconify/react";
 import { cn } from "@heroui/react";
 import "./sidebar.css";
 
+const DEFAULT_NAV_ITEM_BASE_CLASSES =
+  "data-[selected=true]:bg-default-100 data-[focus=true]:!bg-transparent data-[selected=true]:data-[focus=true]:!bg-default-100";
+const DEFAULT_NAV_TITLE_CLASSES =
+  "text-small font-medium text-default-500 group-data-[selected=true]:text-foreground";
+const DEFAULT_NAV_ICON_CLASSES =
+  "text-default-500 group-data-[selected=true]:text-foreground";
+
 export type SidebarItemType = "nest";
 
 export type SidebarItem = {
@@ -27,6 +34,12 @@ export type SidebarItem = {
   className?: string;
 };
 
+export type SidebarNavItemClassNames = {
+  base?: string;
+  title?: string;
+  icon?: string;
+};
+
 export type SidebarProps = Omit<ListboxProps<SidebarItem>, "children"> & {
   items: SidebarItem[];
   isCompact?: boolean;
@@ -36,6 +49,7 @@ export type SidebarProps = Omit<ListboxProps<SidebarItem>, "children"> & {
   classNames?: ListboxProps["classNames"];
   defaultSelectedKey: string;
   onItemSelect?: (key: string) => void;
+  navItemClassNames?: SidebarNavItemClassNames;
 };
 
 const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
@@ -51,6 +65,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
       iconClassName,
       classNames,
       className,
+      navItemClassNames = {},
       ...props
     },
     ref,
@@ -61,6 +76,10 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
     React.useEffect(() => {
       setSelected(defaultSelectedKey);
     }, [defaultSelectedKey]);
+
+    const navBaseClasses = navItemClassNames.base ?? DEFAULT_NAV_ITEM_BASE_CLASSES;
+    const navTitleClasses = navItemClassNames.title ?? DEFAULT_NAV_TITLE_CLASSES;
+    const navIconClasses = navItemClassNames.icon ?? DEFAULT_NAV_ICON_CLASSES;
 
     const sectionClasses = {
       ...sectionClassesProp,
@@ -114,7 +133,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
               isCompact || isNestType ? null : item.icon ? (
                 <Icon
                   className={cn(
-                    "text-default-500 group-data-[selected=true]:text-foreground",
+                    navIconClasses,
                     iconClassName,
                   )}
                   icon={item.icon}
@@ -132,7 +151,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                   {item.icon ? (
                     <Icon
                       className={cn(
-                        "text-default-500 group-data-[selected=true]:text-foreground",
+                        navIconClasses,
                         iconClassName,
                       )}
                       icon={item.icon}
@@ -162,13 +181,13 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                       >
                         <Icon
                           className={cn(
-                            "text-default-500 group-data-[selected=true]:text-foreground",
+                            navIconClasses,
                             iconClassName,
                           )}
                           icon={item.icon}
                           width={24}
                         />
-                        <span className="text-small font-medium text-default-500 group-data-[selected=true]:text-foreground">
+                        <span className={navTitleClasses}>
                           {item.title}
                         </span>
                       </div>
@@ -244,7 +263,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
               isCompact ? null : item.icon ? (
                 <Icon
                   className={cn(
-                    "text-default-500 group-data-[selected=true]:text-foreground",
+                    navIconClasses,
                     iconClassName,
                   )}
                   icon={item.icon}
@@ -263,7 +282,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                   {item.icon ? (
                     <Icon
                       className={cn(
-                        "text-default-500 group-data-[selected=true]:text-foreground",
+                        navIconClasses,
                         iconClassName,
                       )}
                       icon={item.icon}
@@ -298,13 +317,11 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
         itemClasses={{
           ...itemClasses,
           base: cn(
-            "px-3 min-h-11 rounded-large h-[44px] data-[selected=true]:bg-default-100 data-[focus=true]:!bg-transparent data-[selected=true]:data-[focus=true]:!bg-default-100",
+            "px-3 min-h-11 rounded-large h-[44px]",
+            navBaseClasses,
             itemClasses?.base,
           ),
-          title: cn(
-            "text-small font-medium text-default-500 group-data-[selected=true]:text-foreground",
-            itemClasses?.title,
-          ),
+          title: cn(navTitleClasses, itemClasses?.title),
         }}
         items={items}
         selectedKeys={[selected] as unknown as Selection}

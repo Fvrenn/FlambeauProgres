@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "@heroui/react";
+import { Button, cn } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -7,12 +7,14 @@ type SidebarDrawerProps = {
   isOpen: boolean;
   onClose: () => void;
   children: React.ReactNode;
+  panelClassName?: string;
 };
 
 export const SidebarDrawer = ({
   isOpen,
   onClose,
   children,
+  panelClassName,
 }: SidebarDrawerProps) => {
   return (
     <AnimatePresence>
@@ -29,7 +31,10 @@ export const SidebarDrawer = ({
 
           <motion.div
             animate={{ x: 0 }}
-            className="relative flex h-full w-72 max-w-[80vw] flex-col bg-background border-r-small border-divider z-10"
+            className={cn(
+              "relative flex h-full w-72 max-w-[80vw] flex-col z-10",
+              panelClassName ?? "bg-background border-r-small border-divider",
+            )}
             exit={{ x: "-100%" }}
             initial={{ x: "-100%" }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}

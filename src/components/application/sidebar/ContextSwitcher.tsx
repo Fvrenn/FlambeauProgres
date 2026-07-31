@@ -17,6 +17,7 @@ import { Icon } from "@iconify/react";
 import Link from "next/link";
 import Image from "next/image";
 import { redirect } from "next/navigation";
+import { cn } from "@heroui/react";
 
 import { signOut } from "@/lib/auth-client";
 
@@ -107,9 +108,11 @@ const ProfilIcon = (props: React.SVGProps<SVGSVGElement>) => (
 export default function ContextSwitcher({
   user,
   isCompact,
+  triggerClassName,
 }: {
   user: SessionUser;
   isCompact?: boolean;
+  triggerClassName?: string;
 }) {
   const pathname = usePathname();
 
@@ -203,7 +206,12 @@ export default function ContextSwitcher({
                   width={32}
                 />
               ) : (
-                <div className="flex items-center justify-center w-full h-full bg-default-100 rounded-full">
+                <div
+                  className={cn(
+                    "flex items-center justify-center w-full h-full rounded-full",
+                    triggerClassName ?? "bg-default-100",
+                  )}
+                >
                   <span className="text-xs font-medium text-default-600">
                     {user.name?.charAt(0) || "U"}
                   </span>
@@ -213,7 +221,10 @@ export default function ContextSwitcher({
           ) : (
             <Button
               fullWidth
-              className="h-auto justify-between gap-3 rounded-xl border-1 border-divider bg-default-100 p-2"
+              className={cn(
+                "h-auto justify-between gap-3 rounded-xl border-1 border-divider p-2",
+                triggerClassName ?? "bg-default-100",
+              )}
               endContent={<DropdownIcon />}
             >
               <div className="flex w-full items-center gap-2">

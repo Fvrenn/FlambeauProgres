@@ -28,7 +28,7 @@ export default function ReferentTabs({
           cursor: "!bg-danger-800 rounded-full shadow-sm",
           tab: "px-3 md:px-6 h-10 md:h-12 relative text-xs md:text-sm whitespace-nowrap",
           tabContent:
-            "text-black group-data-[selected=true]:text-white group-data-[selected=true]:font-semibold font-medium transition-colors duration-300 ease-in-out",
+            "text-white font-medium transition-colors duration-300 ease-in-out",
         }}
         selectedKey={selectedKey as string}
         onSelectionChange={onSelectionChange}

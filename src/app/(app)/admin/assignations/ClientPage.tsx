@@ -49,7 +49,7 @@ export default function AssignationsClientPage({
         {etapes.map((etape) => (
           <Card key={etape.id} isHoverable variant="elevated">
             <CardHeader className="flex-row items-center gap-4 mb-4">
-              <div className="relative w-12 h-12 rounded-full bg-[#E8E7DE]/60 flex items-center justify-center overflow-hidden shrink-0">
+              <div className="relative w-12 h-12 rounded-full bg-default/60 flex items-center justify-center overflow-hidden shrink-0">
                 {etape.image_src ? (
                   <Image
                     alt={etape.name}
@@ -88,7 +88,7 @@ export default function AssignationsClientPage({
                     ))}
                     {etape.referents.length > 5 && (
                       <div
-                        className="flex items-center justify-center rounded-full bg-[#E8E7DE] text-[11px] font-medium text-[#0f1511] ring-2 ring-white"
+                        className="flex items-center justify-center rounded-full bg-default text-[11px] font-medium text-foreground ring-2 ring-white"
                         style={{ width: 28, height: 28 }}
                       >
                         +{etape.referents.length - 5}

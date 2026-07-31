@@ -17,7 +17,7 @@ const ChemiseModel = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="w-full h-full animate-pulse rounded-3xl bg-default-100" />
+      <div className="w-full h-full animate-pulse rounded-3xl bg-dashboard" />
     ),
   },
 );
@@ -82,14 +82,14 @@ export default function ContentChemise({
   };
 
   return (
-    <div className="md:bg-content1 h-full w-full md:w-[345px] flex flex-col justify-between p-0.5 rounded-3xl">
+    <div className="md:bg-dashboard-card h-full w-full md:w-[345px] flex flex-col justify-between p-0.5 rounded-3xl">
       <div className="flex h-2/4 justify-center">
         <ChemiseBoundary>
           <ChemiseModel selectedBadge={selectedEtape?.number} />
         </ChemiseBoundary>
       </div>
 
-      <div className=" md:bg-default w-full h-2/4 rounded-3xl border md:p-7 border-[#F0EFE7]">
+      <div className="md:bg-dashboard w-full h-2/4 rounded-3xl border md:p-7 border-dashboard-border">
         {currentJalon ? (
           <div className="flex h-full items-center justify-center py-2 mt-[-80px] md:mt-0">
             <JalonBadge key={currentJalon.id} jalon={currentJalon} />

@@ -33,91 +33,91 @@ export const badgeVariants = tv({
     {
       color: "primary",
       variant: "solid",
-      class: "bg-[#FCC226] text-[#0f1511]",
+      class: "bg-primary text-foreground",
     },
     {
       color: "secondary",
       variant: "solid",
-      class: "bg-[#ffdc00] text-[#0f1511]",
+      class: "bg-secondary text-foreground",
     },
-    { color: "success", variant: "solid", class: "bg-[#1bc47d] text-white" },
+    { color: "success", variant: "solid", class: "bg-success text-white" },
     {
       color: "warning",
       variant: "solid",
-      class: "bg-[#ffb100] text-[#0f1511]",
+      class: "bg-warning text-foreground",
     },
-    { color: "danger", variant: "solid", class: "bg-[#ff4f4f] text-white" },
+    { color: "danger", variant: "solid", class: "bg-danger text-white" },
     {
       color: "default",
       variant: "solid",
-      class: "bg-[#E8E7DE] text-[#0f1511]",
+      class: "bg-default text-foreground",
     },
     {
       color: "primary",
       variant: "flat",
-      class: "bg-[#FCC226]/15 text-[#c49a0e]",
+      class: "bg-primary/15 text-[#c49a0e]",
     },
     {
       color: "secondary",
       variant: "flat",
-      class: "bg-[#ffdc00]/15 text-[#a68f00]",
+      class: "bg-secondary/15 text-[#a68f00]",
     },
     {
       color: "success",
       variant: "flat",
-      class: "bg-[#1bc47d]/15 text-[#127f51]",
+      class: "bg-success/15 text-[#127f51]",
     },
     {
       color: "warning",
       variant: "flat",
-      class: "bg-[#ffb100]/15 text-[#a67300]",
+      class: "bg-warning/15 text-[#a67300]",
     },
     {
       color: "danger",
       variant: "flat",
-      class: "bg-[#ff4f4f]/15 text-[#d24141]",
+      class: "bg-danger/15 text-[#d24141]",
     },
     {
       color: "default",
       variant: "flat",
-      class: "bg-[#0f1511]/8 text-[#0f1511]",
+      class: "bg-foreground/8 text-foreground",
     },
     {
       color: "primary",
       variant: "outline",
-      class: "border-[#FCC226] text-[#c49a0e]",
+      class: "border-primary text-[#c49a0e]",
     },
     {
       color: "secondary",
       variant: "outline",
-      class: "border-[#ffdc00] text-[#a68f00]",
+      class: "border-secondary text-[#a68f00]",
     },
     {
       color: "success",
       variant: "outline",
-      class: "border-[#1bc47d] text-[#1bc47d]",
+      class: "border-success text-success",
     },
     {
       color: "warning",
       variant: "outline",
-      class: "border-[#ffb100] text-[#ffb100]",
+      class: "border-warning text-warning",
     },
     {
       color: "danger",
       variant: "outline",
-      class: "border-[#ff4f4f] text-[#ff4f4f]",
+      class: "border-danger text-danger",
     },
     {
       color: "default",
       variant: "outline",
-      class: "border-[#0f1511]/20 text-[#0f1511]",
+      class: "border-foreground/20 text-foreground",
     },
     { color: "primary", variant: "dot", class: "text-[#c49a0e]" },
     { color: "secondary", variant: "dot", class: "text-[#a68f00]" },
     { color: "success", variant: "dot", class: "text-[#127f51]" },
     { color: "warning", variant: "dot", class: "text-[#a67300]" },
     { color: "danger", variant: "dot", class: "text-[#d24141]" },
-    { color: "default", variant: "dot", class: "text-[#0f1511]" },
+    { color: "default", variant: "dot", class: "text-foreground" },
   ],
   defaultVariants: {
     color: "default",
@@ -127,12 +127,12 @@ export const badgeVariants = tv({
 });
 
 const DOT_COLORS: Record<string, string> = {
-  primary: "bg-[#FCC226]",
-  secondary: "bg-[#ffdc00]",
-  success: "bg-[#1bc47d]",
-  warning: "bg-[#ffb100]",
-  danger: "bg-[#ff4f4f]",
-  default: "bg-[#0f1511]",
+  primary: "bg-primary",
+  secondary: "bg-secondary",
+  success: "bg-success",
+  warning: "bg-warning",
+  danger: "bg-danger",
+  default: "bg-foreground",
 };
 
 export type BadgeVariants = VariantProps<typeof badgeVariants>;
@@ -183,4 +183,3 @@ export function Badge({
 }
 
 Badge.displayName = "Badge";
-export default Badge;

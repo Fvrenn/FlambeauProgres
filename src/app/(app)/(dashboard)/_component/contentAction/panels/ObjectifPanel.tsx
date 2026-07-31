@@ -96,12 +96,12 @@ export default function ObjectifPanel({
           aria-label="Options"
           classNames={{
             tabList:
-              "gap-1 md:gap-8 w-full max-w-xl rounded-full p-0.5 bg-[#F3F2E9]",
+              "gap-1 md:gap-8 w-full max-w-md rounded-3xl p-1.5 bg-dashboard-tab",
             cursor:
-              "!bg-[var(--etape-color)] rounded-full md:before:content-['•'] before:absolute before:left-3 before:top-1/2 before:-translate-y-1/2 before:text-[var(--etape-fg)] before:text-lg before:font-bold",
-            tab: "px-1 md:px-6 h-12 relative md:text-sm text-xs",
+              "!bg-[var(--etape-color)] rounded-2xl md:before:content-['•'] before:absolute before:left-3 before:top-1/2 before:-translate-y-1/2 before:text-white before:text-lg before:font-bold",
+            tab: "px-1 md:px-6 h-10 relative md:text-sm text-xs",
             tabContent:
-              "text-black group-data-[selected=true]:text-[var(--etape-fg)] md:group-data-[selected=true]:pl-6 group-data-[selected=true]:font-semibold font-medium transition-all duration-300 ease-in-out",
+              "text-black group-data-[selected=true]:text-white md:group-data-[selected=true]:pl-6 group-data-[selected=true]:font-semibold font-medium transition-all duration-300 ease-in-out",
           }}
           selectedKey={activeTab as string}
           onSelectionChange={setActiveTab}
@@ -112,13 +112,15 @@ export default function ObjectifPanel({
             <ul className="space-y-2">
               {competences.map((c) => (
                 <li key={c.id} className="">
-                  <div className="py-6.5 px-5 rounded-md flex md:block items-center flex-col md:flex-row">
-                    <div className="flex mb-4 md:mb-0 items-center w-full">
+                  <div className="py-3 px-5 rounded-md flex md:block items-center flex-col md:flex-row">
+                    <div className="flex mb-2 md:mb-0 items-center w-full">
                       <div className="flex-1 flex items-center ">
-                        <span className="text-xl text-foreground border border-default-800 py-3 px-2.5 rounded-full w-12 h-12 flex items-center justify-center mr-2.5">
+                        <span className="text-sm text-foreground border border-default-800 rounded-full w-9 h-9 flex items-center justify-center mr-2.5 shrink-0">
                           {c.code}
                         </span>
-                        <div className="hidden md:block">{c.description}</div>
+                        <div className="hidden md:block text-[15px]">
+                          {c.description}
+                        </div>
                       </div>
 
                       <div className="flex items-center gap-4 ml-6 ">
@@ -140,7 +142,9 @@ export default function ObjectifPanel({
                       </div>
                     </div>
 
-                    <div className="block md:hidden">{c.description}</div>
+                    <div className="block md:hidden text-[15px]">
+                      {c.description}
+                    </div>
                   </div>
                   <div className="px-5">
                     <Divider />
@@ -154,13 +158,15 @@ export default function ObjectifPanel({
             <ul className="space-y-2">
               {realisations.map((r) => (
                 <li key={r.id} className="">
-                  <div className="py-6.5 px-5 rounded-md flex md:block items-center flex-col md:flex-row">
-                    <div className="flex mb-4 md:mb-0 items-center w-full">
+                  <div className="py-3 px-5 rounded-md flex md:block items-center flex-col md:flex-row">
+                    <div className="flex mb-2 md:mb-0 items-center w-full">
                       <div className="flex-1 flex items-center ">
-                        <span className="text-xl text-foreground border border-default-800 py-3 px-2.5 rounded-full w-12 h-12 flex items-center justify-center mr-2.5">
+                        <span className="text-sm text-foreground border border-default-800 rounded-full w-9 h-9 flex items-center justify-center mr-2.5 shrink-0">
                           {r.code}
                         </span>
-                        <div className="hidden md:block">{r.description}</div>
+                        <div className="hidden md:block text-[15px]">
+                          {r.description}
+                        </div>
                       </div>
 
                       <div className="flex items-center gap-4 ml-6 ">
@@ -182,7 +188,9 @@ export default function ObjectifPanel({
                       </div>
                     </div>
 
-                    <div className="block md:hidden">{r.description}</div>
+                    <div className="block md:hidden text-[15px]">
+                      {r.description}
+                    </div>
                   </div>
                   <div className="px-5">
                     <Divider />

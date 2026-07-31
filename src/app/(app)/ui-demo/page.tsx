@@ -21,9 +21,9 @@ function Section({
   return (
     <section className="flex flex-col gap-4">
       <div>
-        <h2 className="text-xl font-bold text-[#0f1511]">{title}</h2>
+        <h2 className="text-xl font-bold text-foreground">{title}</h2>
         {description && (
-          <p className="text-sm text-[#0f1511]/50 mt-0.5">{description}</p>
+          <p className="text-sm text-foreground/50 mt-0.5">{description}</p>
         )}
       </div>
       <div className="flex flex-wrap items-start gap-3">{children}</div>
@@ -34,33 +34,33 @@ function Section({
 function Divider({ label }: { label: string }) {
   return (
     <div className="flex items-center gap-3 my-2">
-      <hr className="flex-1 border-[#0f1511]/10" />
-      <span className="text-xs font-medium text-[#0f1511]/40 uppercase tracking-widest">
+      <hr className="flex-1 border-foreground/10" />
+      <span className="text-xs font-medium text-foreground/40 uppercase tracking-widest">
         {label}
       </span>
-      <hr className="flex-1 border-[#0f1511]/10" />
+      <hr className="flex-1 border-foreground/10" />
     </div>
   );
 }
 
 export default function UiDemoPage() {
   return (
-    <div className="min-h-screen bg-[#F3F2E9] py-12 px-6">
+    <div className="min-h-screen bg-background py-12 px-6">
       <div className="max-w-5xl mx-auto flex flex-col gap-14">
         <header>
-          <h1 className="text-4xl font-bold text-[#0f1511]">
+          <h1 className="text-4xl font-bold text-foreground">
             🎨 Design System — FlambeauProgrès
           </h1>
-          <p className="mt-2 text-[#0f1511]/60 text-lg">
+          <p className="mt-2 text-foreground/60 text-lg">
             Composants réutilisables avec{" "}
-            <code className="text-sm bg-[#E8E7DE] px-1.5 py-0.5 rounded font-mono">
+            <code className="text-sm bg-default px-1.5 py-0.5 rounded font-mono">
               tailwind-variants
             </code>
           </p>
         </header>
 
         <div className="flex flex-col gap-8">
-          <h2 className="text-2xl font-extrabold text-[#0f1511] border-b-2 border-[#FCC226] pb-2">
+          <h2 className="text-2xl font-extrabold text-foreground border-b-2 border-primary pb-2">
             Button
           </h2>
 
@@ -228,7 +228,7 @@ export default function UiDemoPage() {
           <Divider label="fullWidth" />
 
           <section className="flex flex-col gap-3 w-full">
-            <h2 className="text-xl font-bold text-[#0f1511]">Full Width</h2>
+            <h2 className="text-xl font-bold text-foreground">Full Width</h2>
             <Button fullWidth color="primary" startIcon="solar:login-2-bold">
               Se connecter
             </Button>
@@ -239,7 +239,7 @@ export default function UiDemoPage() {
         </div>
 
         <div className="flex flex-col gap-8">
-          <h2 className="text-2xl font-extrabold text-[#0f1511] border-b-2 border-[#FCC226] pb-2">
+          <h2 className="text-2xl font-extrabold text-foreground border-b-2 border-primary pb-2">
             Badge
           </h2>
 
@@ -296,7 +296,7 @@ export default function UiDemoPage() {
         </div>
 
         <div className="flex flex-col gap-8">
-          <h2 className="text-2xl font-extrabold text-[#0f1511] border-b-2 border-[#FCC226] pb-2">
+          <h2 className="text-2xl font-extrabold text-foreground border-b-2 border-primary pb-2">
             Card
           </h2>
 
@@ -306,10 +306,10 @@ export default function UiDemoPage() {
           >
             <Card className="w-60" variant="elevated">
               <CardHeader>
-                <span className="text-sm font-bold text-[#0f1511]">
+                <span className="text-sm font-bold text-foreground">
                   Elevated
                 </span>
-                <span className="text-xs text-[#0f1511]/50">
+                <span className="text-xs text-foreground/50">
                   Carte blanche avec ombre
                 </span>
               </CardHeader>
@@ -317,7 +317,7 @@ export default function UiDemoPage() {
                 <Badge color="success" variant="dot">
                   Actif
                 </Badge>
-                <p className="text-sm text-[#0f1511]/70">
+                <p className="text-sm text-foreground/70">
                   Contenu de la carte elevated.
                 </p>
               </CardBody>
@@ -333,8 +333,8 @@ export default function UiDemoPage() {
 
             <Card className="w-60" variant="flat">
               <CardHeader>
-                <span className="text-sm font-bold text-[#0f1511]">Flat</span>
-                <span className="text-xs text-[#0f1511]/50">
+                <span className="text-sm font-bold text-foreground">Flat</span>
+                <span className="text-xs text-foreground/50">
                   Fond beige discret
                 </span>
               </CardHeader>
@@ -342,7 +342,7 @@ export default function UiDemoPage() {
                 <Badge color="warning" variant="flat">
                   En attente
                 </Badge>
-                <p className="text-sm text-[#0f1511]/70">
+                <p className="text-sm text-foreground/70">
                   Contenu de la carte flat.
                 </p>
               </CardBody>
@@ -355,10 +355,10 @@ export default function UiDemoPage() {
 
             <Card className="w-60" variant="outline">
               <CardHeader>
-                <span className="text-sm font-bold text-[#0f1511]">
+                <span className="text-sm font-bold text-foreground">
                   Outline
                 </span>
-                <span className="text-xs text-[#0f1511]/50">
+                <span className="text-xs text-foreground/50">
                   Contour seulement
                 </span>
               </CardHeader>
@@ -366,7 +366,7 @@ export default function UiDemoPage() {
                 <Badge color="danger" variant="outline">
                   Refusé
                 </Badge>
-                <p className="text-sm text-[#0f1511]/70">
+                <p className="text-sm text-foreground/70">
                   Contenu de la carte outline.
                 </p>
               </CardBody>
@@ -378,18 +378,18 @@ export default function UiDemoPage() {
             </Card>
 
             <Card
-              className="w-60 bg-gradient-to-br from-[#FCC226]/20 to-[#1bc47d]/10"
+              className="w-60 bg-gradient-to-br from-primary/20 to-success/10"
               variant="glass"
             >
               <CardHeader>
-                <span className="text-sm font-bold text-[#0f1511]">Glass</span>
-                <span className="text-xs text-[#0f1511]/50">Glassmorphism</span>
+                <span className="text-sm font-bold text-foreground">Glass</span>
+                <span className="text-xs text-foreground/50">Glassmorphism</span>
               </CardHeader>
               <CardBody>
                 <Badge color="primary" variant="solid">
                   Premium
                 </Badge>
-                <p className="text-sm text-[#0f1511]/70">
+                <p className="text-sm text-foreground/70">
                   Contenu de la carte glass.
                 </p>
               </CardBody>
@@ -409,7 +409,7 @@ export default function UiDemoPage() {
                 <span className="font-bold text-sm">Small</span>
               </CardHeader>
               <CardBody>
-                <p className="text-xs text-[#0f1511]/60">Carte compacte</p>
+                <p className="text-xs text-foreground/60">Carte compacte</p>
               </CardBody>
             </Card>
             <Card className="w-56" size="md" variant="elevated">
@@ -417,7 +417,7 @@ export default function UiDemoPage() {
                 <span className="font-bold text-sm">Medium</span>
               </CardHeader>
               <CardBody>
-                <p className="text-sm text-[#0f1511]/60">Taille par défaut</p>
+                <p className="text-sm text-foreground/60">Taille par défaut</p>
               </CardBody>
             </Card>
             <Card className="w-64" size="lg" variant="elevated">
@@ -425,19 +425,19 @@ export default function UiDemoPage() {
                 <span className="font-bold text-base">Large</span>
               </CardHeader>
               <CardBody>
-                <p className="text-sm text-[#0f1511]/60">Carte spacieuse</p>
+                <p className="text-sm text-foreground/60">Carte spacieuse</p>
               </CardBody>
             </Card>
           </Section>
         </div>
 
         <div className="flex flex-col gap-4">
-          <h2 className="text-2xl font-extrabold text-[#0f1511] border-b-2 border-[#FCC226] pb-2">
+          <h2 className="text-2xl font-extrabold text-foreground border-b-2 border-primary pb-2">
             Utilisation
           </h2>
           <Card variant="flat">
             <CardBody>
-              <pre className="text-xs text-[#0f1511]/80 overflow-x-auto leading-6">
+              <pre className="text-xs text-foreground/80 overflow-x-auto leading-6">
                 {`import { Button, Badge, Card, CardHeader, CardBody, CardFooter } from "@/components/ui";
 
 // Bouton avec icône et variante

@@ -18,10 +18,10 @@ export const cardVariants = tv({
         root: "bg-default-100 shadow-inset-border",
       },
       flat: {
-        root: "bg-[#E8E7DE]/60 border border-transparent",
+        root: "bg-default/60 border border-transparent",
       },
       outline: {
-        root: "bg-transparent border border-[#0f1511]/12 hover:border-[#0f1511]/25",
+        root: "bg-transparent border border-foreground/12 hover:border-foreground/25",
       },
       glass: {
         root: "bg-white/60 backdrop-blur-md border border-white/40 shadow-sm",
@@ -105,7 +105,7 @@ function CardFooter({ children, className, ...props }: CardFooterProps) {
   return (
     <div
       className={cn(
-        "flex items-center gap-2 mt-3 pt-3 border-t border-[#0f1511]/8",
+        "flex items-center gap-2 mt-3 pt-3 border-t border-foreground/8",
         className,
       )}
       {...props}
@@ -121,4 +121,3 @@ CardBody.displayName = "CardBody";
 CardFooter.displayName = "CardFooter";
 
 export { Card, CardHeader, CardBody, CardFooter };
-export default Card;

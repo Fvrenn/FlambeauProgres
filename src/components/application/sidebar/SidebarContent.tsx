@@ -4,7 +4,7 @@ import React from "react";
 import { ScrollShadow, Spacer } from "@heroui/react";
 import Image from "next/image";
 
-import Sidebar, { SidebarItem } from "./sidebar";
+import Sidebar, { SidebarItem, SidebarNavItemClassNames } from "./sidebar";
 import ContextSwitcher from "./ContextSwitcher";
 
 type SidebarContentProps = {
@@ -13,6 +13,8 @@ type SidebarContentProps = {
   defaultSelectedKey: string;
   isCompact?: boolean;
   onItemSelect?: (key: string) => void;
+  navItemClassNames?: SidebarNavItemClassNames;
+  contextSwitcherClassName?: string;
 };
 
 export const SidebarContent = ({
@@ -21,6 +23,8 @@ export const SidebarContent = ({
   defaultSelectedKey,
   isCompact,
   onItemSelect,
+  navItemClassNames,
+  contextSwitcherClassName,
 }: SidebarContentProps) => {
   return (
     <div
@@ -37,7 +41,7 @@ export const SidebarContent = ({
           width={50}
         />
         {!isCompact && (
-          <span className="text-2xl font-medium text-[#E06511] leading-7">
+          <span className="text-2xl font-extrabold text-[#E06511] leading-7">
             Flambeaux <span className="text-[#542C11]">Progrès</span>
           </span>
         )}
@@ -45,7 +49,11 @@ export const SidebarContent = ({
 
       <Spacer y={8} />
 
-      <ContextSwitcher isCompact={isCompact} user={user} />
+      <ContextSwitcher
+        isCompact={isCompact}
+        triggerClassName={contextSwitcherClassName}
+        user={user}
+      />
 
       <ScrollShadow
         className={`-mr-6 h-full max-h-full py-6 pr-6 ${isCompact ? "w-full" : ""}`}
@@ -54,6 +62,7 @@ export const SidebarContent = ({
           defaultSelectedKey={defaultSelectedKey}
           isCompact={isCompact}
           items={sidebarItems}
+          navItemClassNames={navItemClassNames}
           onItemSelect={onItemSelect}
         />
       </ScrollShadow>

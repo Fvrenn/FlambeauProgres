@@ -16,7 +16,7 @@ export default async function FormationPage() {
 
   return (
     <div className="h-full flex flex-col gap-6">
-      <h4 className="text-3xl font-normal flex-shrink-0">Formation</h4>
+      <h4 className="text-3xl font-extrabold flex-shrink-0">Formation</h4>
       <FormationClientPage formations={formations} />
     </div>
   );

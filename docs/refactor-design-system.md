@@ -42,3 +42,6 @@ Sidebar/chrome global, Auth/Profil, Discussion/Référent et les panneaux du das
 Chaque phase est lancée sur validation explicite, une par une.
 
 **Hors périmètre pour l'instant** (à réactiver seulement si demandé) : sidebar/chrome global, Auth/Profil, Discussion/Référent, panneaux du dashboard.
+
+- [x] **Nettoyage — Retrait du kit de référence racine** (2026-07-31) — toutes les phases ci-dessus étaient terminées et l'extraction (formes/rayons/ombres → `src/components/ui/`) déjà faite ; le kit lui-même ne servait plus.
+  ✅ Fait — suppression de `components/`, `tokens/`, `ui_kits/`, `guidelines/`, `assets/`, `SKILL.md`, `styles.css`, `thumbnail.html`, `.thumbnail`, `_adherence.oxlintrc.json`, `_ds_bundle.js`, `_ds_manifest.json` à la racine (aucune référence depuis `src/`, `tailwind.config.js` ou `next.config.ts`). Fait dans le cadre d'un nettoyage global avant le refactor couleurs/disposition.

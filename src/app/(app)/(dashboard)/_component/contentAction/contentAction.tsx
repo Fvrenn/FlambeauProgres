@@ -57,7 +57,7 @@ export default function ContentAction({
           onSelectionChange={onTabChange}
         />
       </div>
-      <div className="bg-white flex-1 w-full rounded-3xl p-2 md:p-6 overflow-y-auto min-h-0 h-full">
+      <div className="bg-dashboard-panel flex-1 w-full rounded-3xl p-2 md:p-6 overflow-y-auto min-h-0 h-full">
         {contentMap[activeTab as string]}
       </div>
     </div>

@@ -19,12 +19,12 @@ export default function TabsContentAction({
         aria-label="Options"
         classNames={{
           tabList:
-            "gap-1 md:gap-8 w-full max-w-[550px] rounded-full p-0.5 border-b border-divider bg-foreground",
+            "gap-1 md:gap-8 w-full max-w-[550px] rounded-full p-0.5 border-divider bg-dashboard-card",
           cursor:
-            "!bg-white rounded-full border border-black md:before:content-['•'] before:absolute before:left-3 before:top-1/2 before:-translate-y-1/2 before:text-black before:text-lg before:font-bold",
-          tab: "px2 md:px-6 h-12 relative md:text-sm text-xs",
+            "!bg-nav-active rounded-full border border-dashboard-card md:before:content-['•'] before:absolute before:left-3 before:top-1/2 before:-translate-y-1/2 before:text-white before:text-lg before:font-bold",
+          tab: "px2 md:px-6 h-12 relative md:text-sm text-xs ",
           tabContent:
-            "group-data-[selected=true]:text-black text-white md:group-data-[selected=true]:pl-6 transition-all duration-300 ease-in-out",
+            "text-black group-data-[selected=true]:text-white md:group-data-[selected=true]:pl-6 transition-all duration-300 ease-in-out",
         }}
         selectedKey={selectedKey as string}
         onSelectionChange={onSelectionChange}
