@@ -113,7 +113,11 @@ export default async function ReferentDashboardPage({
 
   const user = await getUser();
 
-  if (!user || !("role" in user) || user.role !== "REFERENT") {
+  if (
+    !user ||
+    !("role" in user) ||
+    (user.role !== "REFERENT" && user.role !== "ADMIN")
+  ) {
     return <div>Accès refusé</div>;
   }
 

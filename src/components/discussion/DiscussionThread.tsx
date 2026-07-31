@@ -62,7 +62,7 @@ export default function DiscussionThread({
           </div>
         ) : (
           <>
-            {viewerRole === "REFERENT" && (
+            {(viewerRole === "REFERENT" || viewerRole === "ADMIN") && (
               <ValidateRealisation disabled={!viewerId} onValidate={validate} />
             )}
             <MessageComposer

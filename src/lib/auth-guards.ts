@@ -31,7 +31,7 @@ export async function canAccessJustification(
     return true;
   }
 
-  if (role === "REFERENT") {
+  if (role === "REFERENT" || role === "ADMIN") {
     const assignation = await prisma.etapeReferent.findFirst({
       where: { referentId: userId, etapeId: justification.etapeId },
     });

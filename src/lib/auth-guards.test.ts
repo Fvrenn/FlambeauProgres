@@ -98,6 +98,26 @@ describe("canAccessJustification", () => {
     expect(await canAccessJustification("ref1", "REFERENT", "j1")).toBe(false);
   });
 
+  it("returns true for an admin assigned to the etape as referent", async () => {
+    db.justification.findUnique.mockResolvedValue({
+      chefId: "other",
+      etapeId: "e1",
+    } as never);
+    db.etapeReferent.findFirst.mockResolvedValue({ id: "a1" } as never);
+
+    expect(await canAccessJustification("admin1", "ADMIN", "j1")).toBe(true);
+  });
+
+  it("returns false for an admin NOT assigned to the etape", async () => {
+    db.justification.findUnique.mockResolvedValue({
+      chefId: "other",
+      etapeId: "e1",
+    } as never);
+    db.etapeReferent.findFirst.mockResolvedValue(null as never);
+
+    expect(await canAccessJustification("admin1", "ADMIN", "j1")).toBe(false);
+  });
+
   it("returns false for a chef who is not the owner", async () => {
     db.justification.findUnique.mockResolvedValue({
       chefId: "other",

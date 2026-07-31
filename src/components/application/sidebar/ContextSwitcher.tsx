@@ -129,7 +129,7 @@ export default function ContextSwitcher({
             Mon Progrès (Chef)
           </DropdownItem>,
         ]),
-    ...(user.role === "REFERENT" && user.etapesReferent
+    ...((user.role === "REFERENT" || user.role === "ADMIN") && user.etapesReferent
       ? user.etapesReferent
           .filter((etape) => etape.id !== currentEtapeId)
           .map((etape) => (

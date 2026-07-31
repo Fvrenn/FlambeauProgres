@@ -20,7 +20,7 @@ export default async function AdminAssignationsPage() {
 
   const allReferents = await prisma.user.findMany({
     where: {
-      role: "REFERENT",
+      role: { in: ["REFERENT", "ADMIN"] },
     },
     orderBy: {
       name: "asc",

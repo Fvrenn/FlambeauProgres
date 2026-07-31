@@ -13,7 +13,11 @@ export default async function ReferentLayout({
 }) {
   const user = await getUser();
 
-  if (!user || !("role" in user) || user.role !== "REFERENT") {
+  if (
+    !user ||
+    !("role" in user) ||
+    (user.role !== "REFERENT" && user.role !== "ADMIN")
+  ) {
     redirect("/");
   }
 

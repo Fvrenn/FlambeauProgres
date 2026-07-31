@@ -118,7 +118,11 @@ export async function validateRealisation(justificationId: string) {
   try {
     const user = await getUser();
 
-    if (!user || !("role" in user) || user.role !== "REFERENT") {
+    if (
+      !user ||
+      !("role" in user) ||
+      (user.role !== "REFERENT" && user.role !== "ADMIN")
+    ) {
       return { success: false as const, error: "Non autorisé" };
     }
 

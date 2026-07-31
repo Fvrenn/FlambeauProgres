@@ -17,7 +17,11 @@ export async function validateEtape(chefId: string, etapeId: string) {
   try {
     const user = await getUser();
 
-    if (!user || !("role" in user) || user.role !== "REFERENT") {
+    if (
+      !user ||
+      !("role" in user) ||
+      (user.role !== "REFERENT" && user.role !== "ADMIN")
+    ) {
       return { success: false, error: "Non autorisé" };
     }
 
