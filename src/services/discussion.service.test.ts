@@ -366,7 +366,10 @@ describe("DiscussionService.validateRealisation", () => {
     expect(db.justification.update).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { id: "j1" },
-        data: expect.objectContaining({ statut: "VALIDEE" }),
+        data: expect.objectContaining({
+          statut: "VALIDEE",
+          valideeParId: "ref1",
+        }),
       }),
     );
     expect(

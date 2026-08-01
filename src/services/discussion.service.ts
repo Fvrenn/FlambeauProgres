@@ -242,7 +242,11 @@ export class DiscussionService {
 
       await tx.justification.update({
         where: { id: justificationId },
-        data: { statut: "VALIDEE", valideeAt: new Date() },
+        data: {
+          statut: "VALIDEE",
+          valideeAt: new Date(),
+          valideeParId: referentId,
+        },
       });
 
       return created;

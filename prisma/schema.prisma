@@ -78,6 +78,8 @@ model User {
   statutsEtapes         ChefEtapeStatut[] @relation("ChefStatuts")
   validationsEffectuees ChefEtapeStatut[] @relation("ReferentValidations")
 
+  realisationsValidees Justification[] @relation("ReferentJustificationValidations")
+
   accounts Account[]
   sessions Session[]
 
@@ -162,15 +164,17 @@ model Justification {
   etapeId    String
   contenu    String?
 
-  statut    StatutJustification @default(BROUILLON)
-  soumiseAt DateTime?
-  valideeAt DateTime?
-  createdAt DateTime            @default(now())
-  updatedAt DateTime            @updatedAt
+  statut       StatutJustification @default(BROUILLON)
+  soumiseAt    DateTime?
+  valideeAt    DateTime?
+  valideeParId String?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
 
   chef          User           @relation(fields: [chefId], references: [id], onDelete: Cascade)
   objectif      Objectif       @relation(fields: [objectifId], references: [id], onDelete: Cascade)
   etape         Etape          @relation(fields: [etapeId], references: [id], onDelete: Cascade)
+  valideePar    User?          @relation("ReferentJustificationValidations", fields: [valideeParId], references: [id], onDelete: SetNull)
   fichiers      Fichier[]
   messages      Message[]
   notifications Notification[]

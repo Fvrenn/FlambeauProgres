@@ -34,6 +34,12 @@ export default async function ReferentLayout({
       icon: "solar:checklist-minimalistic-linear",
       title: "Justifications à valider",
     },
+    {
+      key: "analyse",
+      href: "/referent/analyse",
+      icon: "solar:chart-square-linear",
+      title: "Analyse",
+    },
   ];
 
   return (
