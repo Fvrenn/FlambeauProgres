@@ -81,20 +81,20 @@ export default function ContentChemise({
   };
 
   return (
-    <div className="md:bg-dashboard-card h-full w-full md:w-[345px] flex flex-col justify-between p-0.5 rounded-3xl">
+    <div className="md:bg-dashboard-card h-full min-h-0 w-full md:w-[345px] flex flex-col justify-between p-0.5 rounded-3xl">
       <div className="flex h-2/4 justify-center">
         <ChemiseBoundary>
           <ChemiseModel selectedBadge={selectedEtape?.number} />
         </ChemiseBoundary>
       </div>
 
-      <div className="md:bg-dashboard w-full h-2/4 rounded-3xl border md:p-7 border-dashboard-border">
+      <div className="md:bg-dashboard w-full flex-1 min-h-0 md:h-2/4 md:flex-none rounded-3xl border md:p-7 border-dashboard-border flex flex-col">
         {currentJalon ? (
           <div className="flex h-full items-center justify-center py-2 mt-[-80px] md:mt-0">
             <JalonBadge key={currentJalon.id} jalon={currentJalon} />
           </div>
         ) : (
-          <div className="md:grid md:grid-cols-3 md:gap-4 gap-2 place-items-center flex overflow-x-auto md:px-4 px-0 mt-[-80px] md:mt-0 overflow-y-hidden py-2">
+          <div className="md:grid md:grid-cols-3 md:gap-4 gap-2 place-items-center flex overflow-x-auto md:px-4 px-0 mt-[-80px] md:mt-0 overflow-y-hidden py-2 flex-none">
             {etapes
               .filter((etape) => etape.type === "BADGE")
               .map((etape) => (
@@ -130,7 +130,7 @@ export default function ContentChemise({
               ))}
           </div>
         )}
-        <div className="md:hidden flex-1 h-full w-full md:bg-white rounded-t-3xl md:p-4 overflow-y-auto">
+        <div className="md:hidden flex-1 min-h-0 w-full md:bg-white rounded-t-3xl md:p-4 overflow-y-auto">
           <ContentAction
             activeTab={activeTab}
             notifications={notifications}

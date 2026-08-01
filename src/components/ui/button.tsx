@@ -8,7 +8,7 @@ import { cn } from "@heroui/react";
 export const buttonVariants = tv({
   base: [
     "inline-flex items-center justify-center gap-2 rounded-full",
-    "font-medium select-none",
+    "font-medium select-none cursor-pointer",
     "transition-all duration-fast ease-in-out",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
     "active:scale-[0.97]",

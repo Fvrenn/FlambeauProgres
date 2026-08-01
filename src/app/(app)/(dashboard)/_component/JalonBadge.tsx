@@ -75,7 +75,7 @@ export default function JalonBadge({ jalon }: { jalon: EtapeAvecObjectifs }) {
     <>
       <button
         aria-label={`Ouvrir ${jalon.name}`}
-        className="group flex flex-col items-center gap-2 rounded-3xl p-3 transition-transform hover:-translate-y-1"
+        className="group flex cursor-pointer flex-col items-center gap-2 rounded-3xl p-3 transition-transform hover:-translate-y-1"
         type="button"
         onClick={onOpen}
       >
@@ -103,15 +103,18 @@ export default function JalonBadge({ jalon }: { jalon: EtapeAvecObjectifs }) {
         classNames={{ base: "rounded-[24px]" }}
         isOpen={isOpen}
         placement="center"
+        size="xl"
         onOpenChange={onOpenChange}
       >
         <ModalContent>
           <ModalHeader className="flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-warning/15">
-              <Icon
-                className="text-warning"
-                icon="solar:fire-bold"
-                width={26}
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/15">
+              <Image
+                alt=""
+                className="h-9 w-9 object-contain"
+                height={44}
+                src={config.src}
+                width={44}
               />
             </span>
             <div className="flex flex-col">
@@ -124,17 +127,16 @@ export default function JalonBadge({ jalon }: { jalon: EtapeAvecObjectifs }) {
           <ModalBody className="gap-4">
             <p className="text-sm text-default-600">{config.intro}</p>
             <Button
-              color="primary"
+              className="bg-nav-active text-white hover:bg-nav-hover"
               startIcon="solar:book-2-bold"
-              variant="flat"
               onClick={handleOpenPdf}
             >
               Ouvrir le livret (PDF)
             </Button>
             {pdfOpened ? (
-              <p className="flex items-center gap-1.5 text-sm text-success">
+              <p className="flex items-center gap-1.5 text-sm text-nav-active">
                 <Icon icon="solar:check-circle-bold" width={16} />
-                Livret ouvert — tu peux maintenant valider.
+                Livret ouvert, tu peux maintenant valider.
               </p>
             ) : (
               <p className="text-xs text-default-400">
@@ -143,12 +145,17 @@ export default function JalonBadge({ jalon }: { jalon: EtapeAvecObjectifs }) {
             )}
             {error && <p className="text-sm text-danger">{error}</p>}
           </ModalBody>
-          <ModalFooter>
-            <Button disabled={isPending} variant="ghost" onClick={onClose}>
+          <ModalFooter className="flex-col items-stretch gap-2 md:flex-row md:items-center md:justify-end">
+            <Button
+              className="w-full md:w-auto"
+              disabled={isPending}
+              variant="ghost"
+              onClick={onClose}
+            >
               Annuler
             </Button>
             <Button
-              color="success"
+              className="w-full bg-nav-active text-white hover:bg-nav-hover md:w-auto"
               disabled={!pdfOpened}
               isLoading={isPending}
               startIcon="solar:check-circle-bold"
