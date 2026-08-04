@@ -18,7 +18,9 @@ import { Justification } from "@prisma/client";
 
 import { ObjectifAvecJustification } from "../../DashboardClient";
 
-import DiscussionThread from "@/components/discussion/DiscussionThread";
+import DiscussionThread, {
+  type DiscussionViewer,
+} from "@/components/discussion/DiscussionThread";
 import { submitCompetence } from "@/actions/dashboard/competence.actions";
 import { submitRealisation } from "@/actions/dashboard/realisation.actions";
 
@@ -26,6 +28,7 @@ interface ObjectifModalProps {
   isOpen: boolean;
   onOpenChange: () => void;
   objectif: ObjectifAvecJustification | null;
+  viewer: DiscussionViewer;
   onUpdateJustification: (
     objectifId: string,
     justification: Partial<Justification>,
@@ -36,6 +39,7 @@ export default function ObjectifModal({
   isOpen,
   onOpenChange,
   objectif,
+  viewer,
   onUpdateJustification,
 }: ObjectifModalProps) {
   const router = useRouter();
@@ -168,6 +172,7 @@ export default function ObjectifModal({
             <ModalBody className="overflow-hidden p-0">
               <DiscussionThread
                 justificationId={existingJustification.id}
+                viewer={viewer}
                 objectif={{
                   code: objectif.code,
                   description: objectif.description,

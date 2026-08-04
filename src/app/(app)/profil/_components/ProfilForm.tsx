@@ -9,11 +9,65 @@ import { addToast } from "@heroui/toast";
 
 import { authClient } from "@/lib/auth-client";
 
+const AUTH_PROVIDER = process.env.NEXT_PUBLIC_AUTH_PROVIDER ?? "better-auth";
+const WORDPRESS_URL = process.env.NEXT_PUBLIC_WORDPRESS_URL;
+
 type ProfilUser = NonNullable<Awaited<ReturnType<typeof getUser>>> & {
   role?: UserRole;
 };
 
-export function ProfilForm({ user }: { user: ProfilUser }) {
+function ProfilIdentity({ user }: { user: ProfilUser }) {
+  return (
+    <div className="flex items-center gap-6">
+      <Avatar
+        className="w-20 h-20 text-large"
+        color="primary"
+        name={user?.name || "U"}
+        src={user?.image || undefined}
+      />
+      <div className="flex flex-col h-full justify-center">
+        <h3 className="text-xl font-semibold leading-none mb-2">
+          {user?.name}
+        </h3>
+        <p className="text-small text-default-500">{user?.email}</p>
+        <p className="text-small text-default-500 capitalize mt-1">
+          Rôle :{" "}
+          <span className="font-medium text-foreground">
+            {user?.role?.toLowerCase() || "chef"}
+          </span>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function ProfilFormWordpress({ user }: { user: ProfilUser }) {
+  return (
+    <Card className="w-full shadow-small border-1 border-divider">
+      <CardBody className="p-6 gap-6">
+        <ProfilIdentity user={user} />
+        <p className="text-small text-default-500">
+          Ces informations sont gérées depuis WordPress.
+          {WORDPRESS_URL && (
+            <>
+              {" "}
+              <a
+                className="underline"
+                href={`${WORDPRESS_URL}/wp-admin/profile.php`}
+                rel="noreferrer"
+                target="_blank"
+              >
+                Modifier sur WordPress
+              </a>
+            </>
+          )}
+        </p>
+      </CardBody>
+    </Card>
+  );
+}
+
+function ProfilFormBetterAuth({ user }: { user: ProfilUser }) {
   const [name, setName] = useState(user?.name || "");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -54,26 +108,7 @@ export function ProfilForm({ user }: { user: ProfilUser }) {
   return (
     <Card className="w-full shadow-small border-1 border-divider">
       <CardBody className="p-6 gap-6">
-        <div className="flex items-center gap-6">
-          <Avatar
-            className="w-20 h-20 text-large"
-            color="primary"
-            name={user?.name || "U"}
-            src={user?.image || undefined}
-          />
-          <div className="flex flex-col h-full justify-center">
-            <h3 className="text-xl font-semibold leading-none mb-2">
-              {user?.name}
-            </h3>
-            <p className="text-small text-default-500">{user?.email}</p>
-            <p className="text-small text-default-500 capitalize mt-1">
-              Rôle :{" "}
-              <span className="font-medium text-foreground">
-                {user?.role?.toLowerCase() || "chef"}
-              </span>
-            </p>
-          </div>
-        </div>
+        <ProfilIdentity user={user} />
 
         <form className="flex flex-col gap-4 mt-4" onSubmit={handleSubmit}>
           <Input
@@ -106,4 +141,12 @@ export function ProfilForm({ user }: { user: ProfilUser }) {
       </CardBody>
     </Card>
   );
+}
+
+export function ProfilForm({ user }: { user: ProfilUser }) {
+  if (AUTH_PROVIDER === "wordpress") {
+    return <ProfilFormWordpress user={user} />;
+  }
+
+  return <ProfilFormBetterAuth user={user} />;
 }

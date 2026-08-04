@@ -21,6 +21,8 @@ import { cn } from "@heroui/react";
 
 import { signOut } from "@/lib/auth-client";
 
+const AUTH_PROVIDER = process.env.NEXT_PUBLIC_AUTH_PROVIDER ?? "better-auth";
+
 function DropdownIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
@@ -257,6 +259,15 @@ export default function ContextSwitcher({
               : []),
             <DropdownSection key="account" title="Compte">
               <DropdownItem
+                key="profil"
+                href="/profil"
+                startContent={
+                  <Icon className={iconClasses} icon="solar:user-linear" />
+                }
+              >
+                Profil
+              </DropdownItem>
+              <DropdownItem
                 key="logout"
                 className="text-danger"
                 color="danger"
@@ -267,6 +278,15 @@ export default function ContextSwitcher({
                   />
                 }
                 onPress={async () => {
+                  if (AUTH_PROVIDER === "wordpress") {
+                    // TODO: récupérer le nonce WordPress 'log-out' (via
+                    // wp_logout_url() côté WP) pour éviter l'écran de
+                    // confirmation de wp-login.php?action=logout
+                    window.location.href = `${process.env.NEXT_PUBLIC_WORDPRESS_URL}/wp-login.php?action=logout`;
+
+                    return;
+                  }
+
                   await signOut();
                   redirect("/login");
                 }}

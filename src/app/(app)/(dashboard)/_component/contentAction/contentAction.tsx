@@ -8,6 +8,8 @@ import TabsContentAction from "./tabs_content_action/tabsContentAction";
 import ObjectifPanel from "./panels/ObjectifPanel";
 import NotificationPanel from "./panels/NotificationPanel";
 
+import { type DiscussionViewer } from "@/components/discussion/DiscussionThread";
+
 interface ContentActionProps {
   selectedEtape: EtapeAvecObjectifs | null;
   activeTab: React.Key;
@@ -20,6 +22,7 @@ interface ContentActionProps {
   unreadCount: number;
   onNotificationClick: (notification: Notification) => void;
   targetSubTab: string | null;
+  viewer: DiscussionViewer;
 }
 
 export default function ContentAction({
@@ -31,12 +34,14 @@ export default function ContentAction({
   unreadCount,
   onNotificationClick,
   targetSubTab,
+  viewer,
 }: ContentActionProps) {
   const contentMap: Record<string, React.ReactNode> = {
     objectif: (
       <ObjectifPanel
         selectedEtape={selectedEtape}
         targetSubTab={targetSubTab}
+        viewer={viewer}
         onUpdateJustification={onUpdateJustification}
       />
     ),

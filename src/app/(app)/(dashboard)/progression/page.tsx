@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
 import EtapeProgressCard from "./_components/EtapeProgressCard";
 
 import { getUser } from "@/lib/auth-server";
+import { redirectToLogin } from "@/lib/auth-redirect";
 import { DEFAULT_ETAPE_COLOR } from "@/lib/color";
 import { EtapeService } from "@/services/etape.service";
 
@@ -11,7 +11,9 @@ export default async function ProgressionPage() {
   const user = await getUser();
 
   if (!user) {
-    redirect("/login");
+    await redirectToLogin();
+
+    return null;
   }
 
   const etapes = (await EtapeService.getProgressForChef(user.id)).filter(

@@ -156,6 +156,12 @@ export default async function ReferentDashboardPage({
       justificationsAValider={justificationsAValider}
       justificationsEnDiscussion={justificationsEnDiscussion}
       targetJustificationId={targetJustificationId}
+      viewer={{
+        id: user.id,
+        name: user.name,
+        image: user.image ?? null,
+        role: user.role,
+      }}
     />
   );
 }

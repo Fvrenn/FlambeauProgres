@@ -9,6 +9,7 @@ import ContentAction from "./contentAction/contentAction";
 import ObjectifModal from "./contentAction/panels/ObjectifModal";
 
 import { markNotificationAsRead } from "@/actions/notification/notification.actions";
+import { type DiscussionViewer } from "@/components/discussion/DiscussionThread";
 
 export type ObjectifAvecJustification = Objectif & {
   justifications: Justification[];
@@ -23,11 +24,13 @@ export type EtapeAvecObjectifs = Etape & {
 interface DashboardClientProps {
   etapes: EtapeAvecObjectifs[];
   notifications: Notification[];
+  viewer: DiscussionViewer;
 }
 
 export default function DashboardClient({
   etapes: initialEtapes,
   notifications,
+  viewer,
 }: DashboardClientProps) {
   const [etapes, setEtapes] = useState<EtapeAvecObjectifs[]>(initialEtapes);
 
@@ -178,6 +181,7 @@ export default function DashboardClient({
         selectedEtape={selectedEtape}
         targetSubTab={targetSubTab}
         unreadCount={notifications.filter((n) => !n.lue).length}
+        viewer={viewer}
         onEtapeSelect={setSelectedEtape}
         onNotificationClick={handleNotificationClick}
         onTabChange={setActiveTab}
@@ -190,6 +194,7 @@ export default function DashboardClient({
           selectedEtape={selectedEtape}
           targetSubTab={targetSubTab}
           unreadCount={notifications.filter((n) => !n.lue).length}
+          viewer={viewer}
           onNotificationClick={handleNotificationClick}
           onTabChange={setActiveTab}
           onUpdateJustification={updateJustification}
@@ -199,6 +204,7 @@ export default function DashboardClient({
       <ObjectifModal
         isOpen={!!deepLinkObjectif}
         objectif={deepLinkObjectif}
+        viewer={viewer}
         onOpenChange={() => setDeepLinkObjectif(null)}
         onUpdateJustification={updateJustification}
       />

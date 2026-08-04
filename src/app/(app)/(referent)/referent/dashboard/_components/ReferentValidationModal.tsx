@@ -9,7 +9,9 @@ import {
   User,
 } from "@heroui/react";
 
-import DiscussionThread from "@/components/discussion/DiscussionThread";
+import DiscussionThread, {
+  type DiscussionViewer,
+} from "@/components/discussion/DiscussionThread";
 import { markNotificationsAsReadForJustification } from "@/actions/notification/notification.actions";
 
 export type ReferentThreadJustification = {
@@ -22,12 +24,14 @@ interface ReferentValidationModalProps {
   isOpen: boolean;
   onOpenChange: () => void;
   justification: ReferentThreadJustification | null;
+  viewer: DiscussionViewer;
 }
 
 export default function ReferentValidationModal({
   isOpen,
   onOpenChange,
   justification,
+  viewer,
 }: ReferentValidationModalProps) {
   useEffect(() => {
     if (isOpen && justification) {
@@ -69,6 +73,7 @@ export default function ReferentValidationModal({
         <ModalBody className="overflow-hidden p-0">
           <DiscussionThread
             justificationId={justification.id}
+            viewer={viewer}
             objectif={{
               code: justification.objectif.code,
               description: justification.objectif.description,

@@ -17,6 +17,7 @@ import StatusChip from "./StatusChip";
 import ObjectifModal from "./ObjectifModal";
 
 import { DEFAULT_ETAPE_COLOR, getReadableTextColor } from "@/lib/color";
+import { type DiscussionViewer } from "@/components/discussion/DiscussionThread";
 
 interface ObjectifPanelProps {
   selectedEtape: EtapeAvecObjectifs | null;
@@ -25,12 +26,14 @@ interface ObjectifPanelProps {
     justification: Partial<Justification>,
   ) => void;
   targetSubTab?: string | null;
+  viewer: DiscussionViewer;
 }
 
 export default function ObjectifPanel({
   selectedEtape,
   onUpdateJustification,
   targetSubTab,
+  viewer,
 }: ObjectifPanelProps) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [selectedObjectif, setSelectedObjectif] =
@@ -207,6 +210,7 @@ export default function ObjectifPanel({
       <ObjectifModal
         isOpen={isOpen}
         objectif={selectedObjectif}
+        viewer={viewer}
         onOpenChange={onOpenChange}
         onUpdateJustification={onUpdateJustification}
       />

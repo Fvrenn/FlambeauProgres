@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
+
 const nextConfig: NextConfig = {
+  allowedDevOrigins: ["dev.flambeaux.org"],
   async headers() {
     return [
       {

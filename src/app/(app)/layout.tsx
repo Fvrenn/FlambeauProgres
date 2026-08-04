@@ -1,27 +1,17 @@
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
 import React from "react";
 
-import { auth } from "@/lib/auth";
+import { getUser } from "@/lib/auth-server";
+import { redirectToLogin } from "@/lib/auth-redirect";
 
 export default async function AppLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const headersList = await headers();
-  const session = await auth.api.getSession({
-    headers: new Headers(headersList),
-  });
+  const user = await getUser();
 
-  if (!session) {
-    redirect("/login");
-  }
-
-  const user = session.user;
-
-  if (!("role" in user)) {
-    redirect("/login");
+  if (!user || !("role" in user)) {
+    await redirectToLogin();
   }
 
   return <>{children}</>;

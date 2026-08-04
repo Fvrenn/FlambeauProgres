@@ -62,6 +62,7 @@ enum TypeNotification {
 
 model User {
   id            String   @id @default(cuid())
+  wpUserId      Int?     @unique
   email         String   @unique
   name          String
   image         String?

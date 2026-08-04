@@ -11,26 +11,28 @@ import MessageComposer from "./MessageComposer";
 import ValidateRealisation from "./ValidateRealisation";
 import { useDiscussionThread } from "./useDiscussionThread";
 
-import { useSession } from "@/lib/auth-client";
+export type DiscussionViewer = {
+  id: string;
+  name: string;
+  image: string | null;
+  role?: UserRole;
+} | null;
 
 interface DiscussionThreadProps {
   justificationId: string;
   objectif: ThreadObjectif;
+  viewer: DiscussionViewer;
 }
 
 export default function DiscussionThread({
   justificationId,
   objectif,
+  viewer,
 }: DiscussionThreadProps) {
-  const { data: session } = useSession();
-  const user = session?.user;
-
-  const viewerId = user?.id;
-  const viewerRole = (user && "role" in user ? user.role : undefined) as
-    | UserRole
-    | undefined;
-  const author = user
-    ? { id: user.id, name: user.name, image: user.image ?? null }
+  const viewerId = viewer?.id;
+  const viewerRole = viewer?.role;
+  const author = viewer
+    ? { id: viewer.id, name: viewer.name, image: viewer.image }
     : null;
 
   const { messages, isLoading, error, readOnly, sendMessage, validate } =

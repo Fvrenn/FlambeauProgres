@@ -14,6 +14,7 @@ import ValidationPanel from "./_components/panels/ValidationPanel";
 import RevisionPanel from "./_components/panels/RevisionPanel";
 
 import { Card, CardBody } from "@/components/ui";
+import { type DiscussionViewer } from "@/components/discussion/DiscussionThread";
 
 type StatTone = "default" | "warning" | "success";
 
@@ -83,6 +84,7 @@ interface ReferentDashboardClientV2Props {
   justificationsEnDiscussion: JustificationEnDiscussion[];
   chefsAReviser: User[];
   targetJustificationId?: string;
+  viewer: DiscussionViewer;
 }
 
 export default function ReferentDashboardClientV2({
@@ -90,6 +92,7 @@ export default function ReferentDashboardClientV2({
   justificationsEnDiscussion,
   chefsAReviser,
   targetJustificationId,
+  viewer,
 }: ReferentDashboardClientV2Props) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<React.Key>("a-valider");
@@ -191,6 +194,7 @@ export default function ReferentDashboardClientV2({
       <ReferentValidationModal
         isOpen={isModalOpen}
         justification={selectedJustification}
+        viewer={viewer}
         onOpenChange={handleCloseModal}
       />
     </div>

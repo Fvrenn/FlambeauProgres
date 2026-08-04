@@ -11,6 +11,8 @@ import "./CardEtapes.css";
 import ContentAction from "../contentAction/contentAction";
 import JalonBadge from "../JalonBadge";
 
+import { type DiscussionViewer } from "@/components/discussion/DiscussionThread";
+
 const ChemiseModel = dynamic(
   () => import("./chemiseModel").then((mod) => mod.ChemiseModel),
   {
@@ -59,6 +61,7 @@ interface ContentChemiseProps {
   unreadCount: number;
   onNotificationClick: (notification: Notification) => void;
   targetSubTab: string | null;
+  viewer: DiscussionViewer;
 }
 
 export default function ContentChemise({
@@ -73,6 +76,7 @@ export default function ContentChemise({
   unreadCount,
   onNotificationClick,
   targetSubTab,
+  viewer,
 }: ContentChemiseProps) {
   const handleBadgeClick = (etape: EtapeAvecObjectifs) => {
     const newSelection = selectedEtape?.id === etape.id ? null : etape;
@@ -137,6 +141,7 @@ export default function ContentChemise({
             selectedEtape={selectedEtape}
             targetSubTab={targetSubTab}
             unreadCount={unreadCount}
+            viewer={viewer}
             onNotificationClick={onNotificationClick}
             onTabChange={onTabChange}
             onUpdateJustification={onUpdateJustification}

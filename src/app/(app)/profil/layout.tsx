@@ -1,9 +1,9 @@
 import React from "react";
-import { redirect } from "next/navigation";
 
 import AppClientLayout from "../AppClientLayout";
 
 import { getUser } from "@/lib/auth-server";
+import { redirectToLogin } from "@/lib/auth-redirect";
 import { type SidebarItem } from "@/components/application/sidebar/sidebar";
 
 export default async function ProfilLayout({
@@ -14,7 +14,9 @@ export default async function ProfilLayout({
   const user = await getUser();
 
   if (!user) {
-    redirect("/login");
+    await redirectToLogin();
+
+    return null;
   }
 
   const sidebarItems: SidebarItem[] = [

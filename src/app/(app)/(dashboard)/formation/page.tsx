@@ -1,15 +1,16 @@
-import { redirect } from "next/navigation";
-
 import FormationClientPage from "./ClientPage";
 
 import { getUser } from "@/lib/auth-server";
+import { redirectToLogin } from "@/lib/auth-redirect";
 import { FormationService } from "@/services/formation.service";
 
 export default async function FormationPage() {
   const user = await getUser();
 
   if (!user) {
-    redirect("/login");
+    await redirectToLogin();
+
+    return null;
   }
 
   const formations = await FormationService.list();
