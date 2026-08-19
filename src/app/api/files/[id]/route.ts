@@ -2,7 +2,7 @@ import { readFile } from "fs/promises";
 
 import { NextRequest, NextResponse } from "next/server";
 
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { getUser } from "@/lib/auth-server";
 import { canAccessJustification } from "@/lib/auth-guards";
 import { StorageService } from "@/services/storage.service";

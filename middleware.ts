@@ -13,9 +13,7 @@ export async function middleware(request: NextRequest) {
       .some((cookie) => cookie.name.startsWith("wordpress_logged_in"));
 
     if (!isWpAuthenticated) {
-      return NextResponse.redirect(
-        buildWpLoginUrl(request.nextUrl.toString()),
-      );
+      return NextResponse.redirect(buildWpLoginUrl(request.nextUrl.toString()));
     }
 
     const requestHeaders = new Headers(request.headers);

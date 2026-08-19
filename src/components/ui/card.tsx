@@ -2,15 +2,13 @@ import React from "react";
 import { tv, type VariantProps } from "tailwind-variants";
 import { cn } from "@heroui/react";
 
-export const cardVariants = tv({
+const cardVariants = tv({
   slots: {
     root: [
       "rounded-[22px] transition-all duration-fast",
       "focus-within:outline-none",
     ],
-    header: "flex flex-col gap-1",
     body: "flex flex-col gap-3",
-    footer: "flex items-center gap-2",
   },
   variants: {
     variant: {
@@ -30,18 +28,12 @@ export const cardVariants = tv({
     size: {
       sm: {
         root: "p-3",
-        header: "mb-2",
-        footer: "mt-2",
       },
       md: {
         root: "p-5",
-        header: "mb-3",
-        footer: "mt-3",
       },
       lg: {
         root: "p-7",
-        header: "mb-4",
-        footer: "mt-4",
       },
     },
     isHoverable: {
@@ -57,15 +49,13 @@ export const cardVariants = tv({
   },
 });
 
-export type CardVariants = VariantProps<typeof cardVariants>;
+type CardVariants = VariantProps<typeof cardVariants>;
 
-export interface CardProps
+interface CardProps
   extends React.HTMLAttributes<HTMLDivElement>,
     CardVariants {}
 
-export interface CardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {}
-export interface CardBodyProps extends React.HTMLAttributes<HTMLDivElement> {}
-export interface CardFooterProps extends React.HTMLAttributes<HTMLDivElement> {}
+interface CardBodyProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 function Card({
   children,
@@ -85,14 +75,6 @@ function Card({
   );
 }
 
-function CardHeader({ children, className, ...props }: CardHeaderProps) {
-  return (
-    <div className={cn("flex flex-col gap-1 mb-3", className)} {...props}>
-      {children}
-    </div>
-  );
-}
-
 function CardBody({ children, className, ...props }: CardBodyProps) {
   return (
     <div className={cn("flex flex-col gap-3", className)} {...props}>
@@ -101,23 +83,7 @@ function CardBody({ children, className, ...props }: CardBodyProps) {
   );
 }
 
-function CardFooter({ children, className, ...props }: CardFooterProps) {
-  return (
-    <div
-      className={cn(
-        "flex items-center gap-2 mt-3 pt-3 border-t border-foreground/8",
-        className,
-      )}
-      {...props}
-    >
-      {children}
-    </div>
-  );
-}
-
 Card.displayName = "Card";
-CardHeader.displayName = "CardHeader";
 CardBody.displayName = "CardBody";
-CardFooter.displayName = "CardFooter";
 
-export { Card, CardHeader, CardBody, CardFooter };
+export { Card, CardBody };

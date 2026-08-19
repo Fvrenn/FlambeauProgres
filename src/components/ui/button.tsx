@@ -5,7 +5,7 @@ import { tv, type VariantProps } from "tailwind-variants";
 import { Icon } from "@iconify/react";
 import { cn } from "@heroui/react";
 
-export const buttonVariants = tv({
+const buttonVariants = tv({
   base: [
     "inline-flex items-center justify-center gap-2 rounded-full",
     "font-medium select-none cursor-pointer",
@@ -240,9 +240,9 @@ export const buttonVariants = tv({
   },
 });
 
-export type ButtonVariants = VariantProps<typeof buttonVariants>;
+type ButtonVariants = VariantProps<typeof buttonVariants>;
 
-export interface ButtonProps
+interface ButtonProps
   extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "color">,
     ButtonVariants {
   startIcon?: string;

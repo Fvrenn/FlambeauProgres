@@ -20,7 +20,7 @@ const DEFAULT_NAV_TITLE_CLASSES =
 const DEFAULT_NAV_ICON_CLASSES =
   "text-default-500 group-data-[selected=true]:text-foreground";
 
-export type SidebarItemType = "nest";
+type SidebarItemType = "nest";
 
 export type SidebarItem = {
   key: string;
@@ -40,7 +40,7 @@ export type SidebarNavItemClassNames = {
   icon?: string;
 };
 
-export type SidebarProps = Omit<ListboxProps<SidebarItem>, "children"> & {
+type SidebarProps = Omit<ListboxProps<SidebarItem>, "children"> & {
   items: SidebarItem[];
   isCompact?: boolean;
   hideEndContent?: boolean;

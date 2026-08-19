@@ -9,14 +9,14 @@ vi.mock("@/lib/prisma", () => {
     $transaction: vi.fn(),
   };
 
-  return { default: prisma, prisma };
+  return { prisma };
 });
 
 vi.mock("@/lib/auth-guards", () => ({
   canAccessJustification: vi.fn(),
 }));
 
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { canAccessJustification } from "@/lib/auth-guards";
 import { DiscussionService } from "@/services/discussion.service";
 

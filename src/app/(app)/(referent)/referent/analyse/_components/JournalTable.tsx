@@ -279,7 +279,10 @@ export function JournalTable({
             </TableColumn>
           )}
         </TableHeader>
-        <TableBody emptyContent="Aucune validation ne correspond" items={lignes}>
+        <TableBody
+          emptyContent="Aucune validation ne correspond"
+          items={lignes}
+        >
           {(evenement) => (
             <TableRow key={evenement.id}>
               {(cle) => <TableCell>{renderCell(evenement, cle)}</TableCell>}

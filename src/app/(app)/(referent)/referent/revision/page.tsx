@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 
 import RevisionClient from "./RevisionClient";
 
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 
 type RevisionPageProps = {
   searchParams: Promise<{

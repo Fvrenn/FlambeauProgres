@@ -2,7 +2,7 @@ import type { TypeEtape } from "@prisma/client";
 
 import { STATUTS_VALIDES } from "@/lib/justification";
 import { etapeEstDebloquee, niveauMaxDebloque } from "@/lib/parcours";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { NotificationService } from "@/services/notification.service";
 
 export type ServiceResult<T = void> = {

@@ -17,7 +17,10 @@ const JOURS_PAR_PERIODE: Record<AnalyticsPeriode, number | null> = {
 };
 
 export function parsePeriode(value: string | undefined): AnalyticsPeriode {
-  return value === "30j" || value === "3m" || value === "12m" || value === "tout"
+  return value === "30j" ||
+    value === "3m" ||
+    value === "12m" ||
+    value === "tout"
     ? value
     : "tout";
 }

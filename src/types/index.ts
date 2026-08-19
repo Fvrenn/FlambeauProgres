@@ -1,11 +1,6 @@
 import type { WpProfile } from "@/lib/wordpress-profile";
 
-import { SVGProps } from "react";
 import { Prisma, UserRole } from "@prisma/client";
-
-export type IconSvgProps = SVGProps<SVGSVGElement> & {
-  size?: number;
-};
 
 export type SessionUser = {
   id: string;

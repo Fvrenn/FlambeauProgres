@@ -3,7 +3,7 @@ import { cn } from "@heroui/react";
 
 const SIZES = { sm: 28, md: 40, lg: 56 } as const;
 
-export interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
+interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
   src?: string | null;
   name?: string | null;
   size?: keyof typeof SIZES;
@@ -47,7 +47,7 @@ export function Avatar({
       {...props}
     >
       {src ? (
-        // eslint-disable-next-line @next/next/no-img-element -- URL variable (avatar externe / OAuth), domaine non whitelisté dans next.config
+        // eslint-disable-next-line @next/next/no-img-element -- variable URL (external/OAuth avatar), domain not whitelisted in next.config
         <img alt="" className="h-full w-full object-cover" src={src} />
       ) : (
         getInitials(name)

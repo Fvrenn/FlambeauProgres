@@ -15,10 +15,10 @@ vi.mock("@/lib/prisma", () => {
     $transaction: vi.fn(),
   };
 
-  return { default: prisma, prisma };
+  return { prisma };
 });
 
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { JustificationService } from "@/services/justification.service";
 
 const db = vi.mocked(prisma, true);

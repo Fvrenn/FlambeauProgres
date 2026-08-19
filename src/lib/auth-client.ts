@@ -7,4 +7,4 @@ export const authClient = createAuthClient({
   plugins: [customSessionClient<typeof auth>()],
 });
 
-export const { signIn, signUp, useSession, signOut } = authClient;
+export const { signIn, signUp, signOut } = authClient;

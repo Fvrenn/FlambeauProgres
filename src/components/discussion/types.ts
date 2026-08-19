@@ -1,10 +1,4 @@
-import type {
-  MessageType,
-  StatutJustification,
-  UserRole,
-} from "@prisma/client";
-
-export type ViewerRole = UserRole | undefined;
+import type { MessageType } from "@prisma/client";
 
 export type ThreadAuthor = {
   id: string;
@@ -33,5 +27,3 @@ export type ThreadObjectif = {
   code: string;
   description: string;
 };
-
-export type { StatutJustification };

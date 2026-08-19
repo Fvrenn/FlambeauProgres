@@ -10,7 +10,7 @@ import {
   calculerKpis,
   debutPeriode,
 } from "@/lib/analytics";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 
 export type AnalyticsFiltres = {
   periode: AnalyticsPeriode;

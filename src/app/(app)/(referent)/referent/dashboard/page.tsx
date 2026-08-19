@@ -5,7 +5,7 @@ import ReferentDashboardClientV2 from "./ReferentDashboardClientV2";
 
 import { getUser } from "@/lib/auth-server";
 import { STATUTS_VALIDES } from "@/lib/justification";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 
 type ReferentDashboardPageProps = {
   searchParams: Promise<{

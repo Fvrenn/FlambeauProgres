@@ -19,22 +19,22 @@ import { validerJalon } from "@/actions/etape/etape.actions";
 import { Button } from "@/components/ui";
 
 const ALLUME_FEU = {
-  src: "/livrets/allumefeu/mascotte.png",
+  src: "/livrets/allumefeu/illustration.png",
   width: 361,
   height: 659,
   subtitle: "Devenir Chef-taine Flambeaux",
-  pdfUrl: "/livrets/allumefeu-v1.pdf",
+  pdfUrl: "/livrets/allumefeu/allumefeu-v1.pdf",
   intro:
     "Avant de valider, prends le temps de lire le livret de découverte des Flambeaux. La validation se débloque une fois le livret ouvert.",
   ctaLabel: "J'ai lu le livret et je m'engage",
 };
 
 const DECOUVRIR = {
-  src: "/livrets/allumefeu/decouvrir.png",
+  src: "/livrets/decouvrir/illustration.png",
   width: 273,
   height: 251,
   subtitle: "Étape 1 du Parcours du Chef",
-  pdfUrl: "/livrets/decouvrir-v11-2015.pdf",
+  pdfUrl: "/livrets/decouvrir/decouvrir-v11-2015.pdf",
   intro:
     "Lis le livret « Découvrir » du Parcours du Chef, puis certifie que ton Chef de Groupe a validé ton Étape 1. La validation se débloque une fois le livret ouvert.",
   ctaLabel: "Je certifie que mon CG a validé mon Étape 1",

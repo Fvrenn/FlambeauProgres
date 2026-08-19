@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { NotificationService } from "@/services/notification.service";
 import {
   DiscussionService,

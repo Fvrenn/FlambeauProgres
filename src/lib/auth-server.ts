@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { auth } from "./auth";
 import { getCurrentUser as getWordpressUser } from "./wordpress-auth";
 
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 
 const AUTH_PROVIDER = process.env.AUTH_PROVIDER ?? "better-auth";
 
@@ -43,7 +43,7 @@ const getWordpressSession = cache(async () => {
   };
 });
 
-export const getSession = async () => {
+const getSession = async () => {
   if (AUTH_PROVIDER === "wordpress") {
     return getWordpressSession();
   }

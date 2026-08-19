@@ -43,6 +43,8 @@
   },
   "devDependencies": {
     "@eslint/compat": "^2.1.0",
+    "@eslint/eslintrc": "^3.3.6",
+    "@eslint/js": "^9.39.5",
     "@gltf-transform/cli": "^4.4.2",
     "@iconify/react": "^6.0.2",
     "@next/eslint-plugin-next": "15.3.4",
@@ -68,7 +70,6 @@
     "prisma": "^6.17.1",
     "tailwind-variants": "3.1.1",
     "tailwindcss": "4.1.11",
-    "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.6.3",
     "vitest": "^4.1.8"

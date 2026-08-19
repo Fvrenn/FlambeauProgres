@@ -7,10 +7,10 @@ vi.mock("@/lib/prisma", () => {
     justification: { groupBy: vi.fn() },
   };
 
-  return { default: prisma, prisma };
+  return { prisma };
 });
 
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { EtapeService } from "@/services/etape.service";
 
 const db = vi.mocked(prisma, true);

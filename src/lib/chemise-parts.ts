@@ -9,15 +9,9 @@ const BARETTE_ETAPE_1 = "Etape 1";
 const BARETTE_ETAPE_1_DOUBLON = "Etape 1.001";
 const BARETTE_ETAPE_2 = "Etape 2";
 
-export const JALON_ETAPE_1_NUMBER = "1";
+const JALON_ETAPE_1_NUMBER = "1";
 
-export const EPAULETTE_NODES = Object.values(EPAULETTES_PAR_BRANCHE).flat();
-
-export const BARETTE_NODES = [
-  BARETTE_ETAPE_1,
-  BARETTE_ETAPE_1_DOUBLON,
-  BARETTE_ETAPE_2,
-];
+const EPAULETTE_NODES = Object.values(EPAULETTES_PAR_BRANCHE).flat();
 
 export type EtapeAvancement = {
   number: string;

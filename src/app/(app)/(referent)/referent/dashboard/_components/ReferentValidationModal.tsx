@@ -73,11 +73,11 @@ export default function ReferentValidationModal({
         <ModalBody className="overflow-hidden p-0">
           <DiscussionThread
             justificationId={justification.id}
-            viewer={viewer}
             objectif={{
               code: justification.objectif.code,
               description: justification.objectif.description,
             }}
+            viewer={viewer}
           />
         </ModalBody>
       </ModalContent>

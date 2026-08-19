@@ -86,7 +86,7 @@ export default defineConfig([globalIgnores([
     files: ["**/*.ts", "**/*.tsx"],
 
     rules: {
-        "no-console": "warn",
+        "no-console": ["warn", { allow: ["warn", "error"] }],
         "react/prop-types": "off",
         "react/no-unescaped-entities": "off",
         "react/jsx-uses-react": "off",
@@ -148,5 +148,11 @@ export default defineConfig([globalIgnores([
             prev: ["const", "let", "var"],
             next: ["const", "let", "var"],
         }],
+    },
+}, {
+    files: ["prisma/**/*.ts", "scripts/**/*.ts"],
+
+    rules: {
+        "no-console": "off",
     },
 }]);

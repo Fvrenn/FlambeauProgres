@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 
 import EtapeDetailClientPage from "./ClientPage";
 
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 
 type PageProps = {
   params: Promise<{ id: string }>;

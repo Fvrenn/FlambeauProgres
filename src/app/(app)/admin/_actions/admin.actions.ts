@@ -4,7 +4,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { UserRole } from "@prisma/client";
 
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { authorizeRole } from "@/lib/auth-guards";
 import { FormationService } from "@/services/formation.service";
 

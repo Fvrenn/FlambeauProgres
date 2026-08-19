@@ -3,7 +3,7 @@ import { tv, type VariantProps } from "tailwind-variants";
 import { cn } from "@heroui/react";
 import { Icon } from "@iconify/react";
 
-export const badgeVariants = tv({
+const badgeVariants = tv({
   base: [
     "inline-flex items-center gap-1.5 rounded-full font-medium",
     "transition-colors duration-fast",
@@ -135,9 +135,9 @@ const DOT_COLORS: Record<string, string> = {
   default: "bg-foreground",
 };
 
-export type BadgeVariants = VariantProps<typeof badgeVariants>;
+type BadgeVariants = VariantProps<typeof badgeVariants>;
 
-export interface BadgeProps
+interface BadgeProps
   extends Omit<React.HTMLAttributes<HTMLSpanElement>, "color">,
     BadgeVariants {
   icon?: string;

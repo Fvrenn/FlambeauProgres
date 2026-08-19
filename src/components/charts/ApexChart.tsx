@@ -15,7 +15,7 @@ const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
 });
 
-export type ApexChartType = "bar" | "line" | "area" | "heatmap";
+type ApexChartType = "bar" | "line" | "area" | "heatmap";
 
 type ApexChartProps = {
   type: ApexChartType;

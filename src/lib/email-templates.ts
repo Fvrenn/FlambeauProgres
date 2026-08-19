@@ -81,10 +81,11 @@ ${opts.extraHtml ?? ""}
 <a href="${opts.buttonUrl}" style="display:inline-block;padding:13px 28px;font-size:14px;font-weight:bold;color:${COLORS.buttonText};text-decoration:none;font-family:Arial,Helvetica,sans-serif;">${escapeHtml(opts.buttonLabel)}</a>
 </td></tr></table>
 </td></tr></table>
-${opts.footNote
-      ? `<p style="margin:14px 0 0;font-size:13px;text-align:center;color:${COLORS.muted};font-family:Arial,Helvetica,sans-serif;">${escapeHtml(opts.footNote)}</p>`
-      : ""
-    }
+${
+  opts.footNote
+    ? `<p style="margin:14px 0 0;font-size:13px;text-align:center;color:${COLORS.muted};font-family:Arial,Helvetica,sans-serif;">${escapeHtml(opts.footNote)}</p>`
+    : ""
+}
 </td></tr>
 
 <tr><td style="background:${COLORS.cardBg};padding:16px 28px;border-radius:0 0 16px 16px;text-align:center;">

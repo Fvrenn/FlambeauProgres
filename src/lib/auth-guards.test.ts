@@ -10,10 +10,10 @@ vi.mock("@/lib/prisma", () => {
     etapeReferent: { findFirst: vi.fn() },
   };
 
-  return { default: prisma, prisma };
+  return { prisma };
 });
 
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { getUser } from "@/lib/auth-server";
 import { authorizeRole, canAccessJustification } from "@/lib/auth-guards";
 

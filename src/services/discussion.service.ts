@@ -5,7 +5,7 @@ import {
   type UserRole,
 } from "@prisma/client";
 
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { canAccessJustification } from "@/lib/auth-guards";
 import { NotificationService } from "@/services/notification.service";
 import { EmailService } from "@/services/email.service";

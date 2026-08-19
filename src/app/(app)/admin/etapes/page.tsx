@@ -2,7 +2,7 @@ import React from "react";
 
 import EtapesClientPage from "./ClientPage";
 
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 
 export default async function AdminEtapesPage() {
   const etapes = await prisma.etape.findMany({

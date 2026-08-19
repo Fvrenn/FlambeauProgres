@@ -1,6 +1,6 @@
 "use client";
 
-/* eslint-disable react/no-unknown-property -- props React Three Fiber (position, intensity, ...) non reconnues par eslint-plugin-react */
+/* eslint-disable react/no-unknown-property -- React Three Fiber props (position, intensity, ...) unknown to eslint-plugin-react */
 
 import type { Branche } from "@/lib/wordpress-profile";
 

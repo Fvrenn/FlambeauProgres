@@ -1,7 +1,7 @@
 import { UserRole } from "@prisma/client";
 
 import { getUser } from "@/lib/auth-server";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 
 export async function authorizeRole(...roles: UserRole[]) {
   const user = await getUser();

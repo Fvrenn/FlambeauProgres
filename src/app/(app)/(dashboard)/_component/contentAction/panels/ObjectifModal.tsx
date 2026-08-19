@@ -172,11 +172,11 @@ export default function ObjectifModal({
             <ModalBody className="overflow-hidden p-0">
               <DiscussionThread
                 justificationId={existingJustification.id}
-                viewer={viewer}
                 objectif={{
                   code: objectif.code,
                   description: objectif.description,
                 }}
+                viewer={viewer}
               />
             </ModalBody>
           ) : (
@@ -283,7 +283,7 @@ export default function ObjectifModal({
                           <div className="border border-dashboard-border rounded-lg p-4">
                             {filePreview ? (
                               <div className="space-y-3">
-                                {/* eslint-disable-next-line @next/next/no-img-element -- aperçu local (data/blob URL) : non optimisable par next/image */}
+                                {/* eslint-disable-next-line @next/next/no-img-element -- local preview (data/blob URL), next/image cannot optimize it */}
                                 <img
                                   alt="Preview"
                                   className="w-full h-48 object-cover rounded-lg"

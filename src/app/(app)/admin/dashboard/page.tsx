@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { cn } from "@heroui/react";
 
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { roleColorMap } from "@/lib/roles";
 import { Badge, Card, CardBody } from "@/components/ui";
 

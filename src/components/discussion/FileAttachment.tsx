@@ -30,7 +30,7 @@ export default function FileAttachment({
   if (isImage) {
     return (
       <a href={url} rel="noopener noreferrer" target="_blank">
-        {/* eslint-disable-next-line @next/next/no-img-element -- fichier servi par la route authentifiée /api/files/[id] (no-store) : next/image le refetcherait sans session → 403 */}
+        {/* eslint-disable-next-line @next/next/no-img-element -- file served by the authenticated /api/files/[id] route (no-store); next/image would refetch it without the session and get a 403 */}
         <img
           alt={fichier.nomOriginal}
           className="max-h-48 rounded-lg object-cover"

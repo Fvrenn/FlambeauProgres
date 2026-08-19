@@ -85,8 +85,8 @@ export function FiltresBar({
 
       <Select
         aria-label="Filtrer par étape"
-        classNames={selectClassNames}
         className="sm:max-w-56"
+        classNames={selectClassNames}
         label="Étape"
         labelPlacement="outside"
         placeholder="Toutes les étapes"
@@ -103,8 +103,8 @@ export function FiltresBar({
 
       <Select
         aria-label="Filtrer par référent"
-        classNames={selectClassNames}
         className="sm:max-w-56"
+        classNames={selectClassNames}
         label="Référent"
         labelPlacement="outside"
         placeholder="Tous les référents"
