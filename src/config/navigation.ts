@@ -4,6 +4,15 @@ import type {
   SidebarNavItemClassNames,
 } from "@/components/application/sidebar/sidebar";
 
+export const BUG_REPORT_EMAIL = "timothehege@gmail.com";
+
+export const BUG_REPORT_NAV_ITEM = {
+  key: "bug-report",
+  href: "/signaler-un-bug",
+  icon: "solar:bug-linear",
+  title: "Remonter un bug",
+} as const;
+
 export const chefSidebarItems: SidebarItem[] = [
   {
     key: "dashboard",

@@ -1,13 +1,15 @@
 import type { SessionUser } from "@/types";
 
 import React from "react";
-import { ScrollShadow, Spacer } from "@heroui/react";
+import { ScrollShadow, Spacer, cn } from "@heroui/react";
 import Image from "next/image";
 
 import Sidebar, { SidebarItem, SidebarNavItemClassNames } from "./sidebar";
 import ContextSwitcher from "./ContextSwitcher";
+import { BugReportNavLink } from "./BugReportNavLink";
 
 import { siteConfig } from "@/config/site";
+import { BUG_REPORT_NAV_ITEM } from "@/config/navigation";
 
 type SidebarContentProps = {
   user: SessionUser;
@@ -28,6 +30,8 @@ export const SidebarContent = ({
   navItemClassNames,
   contextSwitcherClassName,
 }: SidebarContentProps) => {
+  const handleBugSelect = () => onItemSelect?.(BUG_REPORT_NAV_ITEM.key);
+
   return (
     <div
       className={`flex h-full w-full flex-col ${isCompact ? "p-2 items-center" : "p-6"}`}
@@ -68,6 +72,15 @@ export const SidebarContent = ({
           onItemSelect={onItemSelect}
         />
       </ScrollShadow>
+
+      <div
+        className={cn(
+          "shrink-0 pb-3",
+          isCompact ? "flex w-full justify-center" : "px-0",
+        )}
+      >
+        <BugReportNavLink isCompact={isCompact} onSelect={handleBugSelect} />
+      </div>
 
       <footer
         className={`shrink-0 border-t border-dashboard-border pt-3 text-center text-tiny leading-tight text-default-400 ${
