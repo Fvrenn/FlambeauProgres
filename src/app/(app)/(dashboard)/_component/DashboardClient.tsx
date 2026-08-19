@@ -178,7 +178,6 @@ export default function DashboardClient({
   return (
     <div className="flex items-stretch md:flex-1 gap-0 md:gap-4 md:pt-4 min-h-0 flex-auto md:flex-0">
       <ContentChemise
-        activeTab={activeTab}
         branche={branche}
         currentJalon={currentJalon}
         etapes={etapes}
@@ -189,7 +188,6 @@ export default function DashboardClient({
         viewer={viewer}
         onEtapeSelect={setSelectedEtape}
         onNotificationClick={handleNotificationClick}
-        onTabChange={setActiveTab}
         onUpdateJustification={updateJustification}
       />
       <div className="hidden md:flex flex-1 h-full min-h-0">

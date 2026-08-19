@@ -38,7 +38,7 @@ export function debutPeriode(
   return new Date(maintenant.getTime() - jours * 24 * 60 * 60 * 1000);
 }
 
-export type TypeValidation = "REALISATION" | "BADGE";
+type TypeValidation = "REALISATION" | "BADGE";
 
 export type ValidationEvent = {
   id: string;

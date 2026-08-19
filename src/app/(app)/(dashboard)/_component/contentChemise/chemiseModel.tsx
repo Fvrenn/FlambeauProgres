@@ -4,9 +4,16 @@
 
 import type { Branche } from "@/lib/wordpress-profile";
 
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useGLTF, Center } from "@react-three/drei";
-import { Suspense, useRef, useLayoutEffect, useMemo } from "react";
+import {
+  Suspense,
+  useRef,
+  useLayoutEffect,
+  useMemo,
+  useEffect,
+  useState,
+} from "react";
 import { MathUtils, Group, Mesh, MeshStandardMaterial } from "three";
 
 import {
@@ -14,6 +21,13 @@ import {
   getChemiseVisibility,
   type EtapeAvancement,
 } from "@/lib/chemise-parts";
+
+const CAMERA_CONFIG = {
+  fov: 20,
+  distance: { mobile: 3.5, desktop: 5 },
+};
+
+const MOBILE_QUERY = "(max-width: 767px)";
 
 const LIGHTING_CONFIG = {
   ambient: { intensity: 0.8, color: "#ffffff" },
@@ -34,15 +48,29 @@ const LIGHTING_CONFIG = {
 };
 
 const ANIMATION_CONFIG = {
-  selected: {
-    rotation: [0.1, -1.4, 0] as [number, number, number],
-    scale: 2,
-    position: [-0.2, -3, 0] as [number, number, number],
+  desktop: {
+    default: {
+      rotation: [0, -0.3, 0] as [number, number, number],
+      scale: 1.0,
+      position: [0, 0, 0] as [number, number, number],
+    },
+    selected: {
+      rotation: [0.1, -1.4, 0] as [number, number, number],
+      scale: 2,
+      position: [-0.2, -3, 0] as [number, number, number],
+    },
   },
-  default: {
-    rotation: [0, -0.3, 0] as [number, number, number],
-    scale: 1.0,
-    position: [0, 0, 0] as [number, number, number],
+  mobile: {
+    default: {
+      rotation: [0, -0.3, 0] as [number, number, number],
+      scale: 1.0,
+      position: [0, -0.17, 0] as [number, number, number],
+    },
+    selected: {
+      rotation: [0.1, -1.4, 0] as [number, number, number],
+      scale: 1.45,
+      position: [-0.14, -1.25, 0] as [number, number, number],
+    },
   },
   lerpSpeed: 5,
 };
@@ -62,10 +90,12 @@ function ChemiseGLB({
   selectedBadge,
   branche,
   etapes,
+  isMobile,
 }: {
   selectedBadge?: string | null;
   branche?: Branche | null;
   etapes?: EtapeAvancement[];
+  isMobile: boolean;
 }) {
   const { scene } = useGLTF("/chemise/chemise.glb", "/draco/");
   const meshRef = useRef<Group>(null);
@@ -75,9 +105,10 @@ function ChemiseGLB({
 
     if (!group) return;
 
-    const target = selectedBadge
-      ? ANIMATION_CONFIG.selected
-      : ANIMATION_CONFIG.default;
+    const config = isMobile
+      ? ANIMATION_CONFIG.mobile
+      : ANIMATION_CONFIG.desktop;
+    const target = selectedBadge ? config.selected : config.default;
     const lerpFactor = delta * ANIMATION_CONFIG.lerpSpeed;
 
     group.rotation.x = MathUtils.lerp(
@@ -184,6 +215,33 @@ interface ChemiseModelProps {
   etapes?: EtapeAvancement[];
 }
 
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const query = window.matchMedia(MOBILE_QUERY);
+    const sync = () => setIsMobile(query.matches);
+
+    sync();
+    query.addEventListener("change", sync);
+
+    return () => query.removeEventListener("change", sync);
+  }, []);
+
+  return isMobile;
+}
+
+function CameraRig({ distance }: { distance: number }) {
+  const { camera } = useThree();
+
+  useEffect(() => {
+    camera.position.set(0, 0, distance);
+    camera.updateProjectionMatrix();
+  }, [camera, distance]);
+
+  return null;
+}
+
 function detectLowEndDevice() {
   if (typeof navigator === "undefined") return false;
   const isMobile = /Mobi|Android/i.test(navigator.userAgent);
@@ -199,15 +257,20 @@ export const ChemiseModel = ({
 }: ChemiseModelProps) => {
   const { ambient, directional, spot, point } = LIGHTING_CONFIG;
   const isLowEnd = useMemo(detectLowEndDevice, []);
+  const isMobile = useIsMobile();
+  const distance = isMobile
+    ? CAMERA_CONFIG.distance.mobile
+    : CAMERA_CONFIG.distance.desktop;
 
   return (
     <div className="w-full h-full">
       <Canvas
-        camera={{ position: [0, 0, 5], fov: 20 }}
+        camera={{ position: [0, 0, distance], fov: CAMERA_CONFIG.fov }}
         dpr={isLowEnd ? [1, 1.5] : [1, 2]}
         gl={{ antialias: !isLowEnd, powerPreference: "high-performance" }}
         shadows={false}
       >
+        <CameraRig distance={distance} />
         <ambientLight color={ambient.color} intensity={ambient.intensity} />
         <directionalLight
           color="#ffffff"
@@ -234,6 +297,7 @@ export const ChemiseModel = ({
             <ChemiseGLB
               branche={branche}
               etapes={etapes}
+              isMobile={isMobile}
               selectedBadge={selectedBadge}
             />
           </Center>

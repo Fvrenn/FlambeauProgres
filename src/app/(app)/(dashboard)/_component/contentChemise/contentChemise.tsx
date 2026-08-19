@@ -2,7 +2,7 @@
 
 import type { Branche } from "@/lib/wordpress-profile";
 
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { Icon } from "@iconify/react";
@@ -10,10 +10,19 @@ import { Justification, Notification } from "@prisma/client";
 
 import { EtapeAvecObjectifs } from "../DashboardClient";
 import "./CardEtapes.css";
-import ContentAction from "../contentAction/contentAction";
+import ObjectifPanel from "../contentAction/panels/ObjectifPanel";
+import NotificationDrawer from "../contentAction/NotificationDrawer";
 import JalonBadge from "../JalonBadge";
 
 import { type DiscussionViewer } from "@/components/discussion/DiscussionThread";
+
+const OBJECTIFS_OFFSET_SELECTED = -100;
+const OBJECTIFS_OFFSET_EXPANDED = -200;
+const OBJECTIFS_EXPAND_GAIN =
+  OBJECTIFS_OFFSET_SELECTED - OBJECTIFS_OFFSET_EXPANDED;
+const OBJECTIFS_EXPAND_THRESHOLD = OBJECTIFS_EXPAND_GAIN + 50;
+const OBJECTIFS_COLLAPSE_THRESHOLD = 8;
+const DESKTOP_QUERY = "(min-width: 768px)";
 
 const ChemiseModel = dynamic(
   () => import("./chemiseModel").then((mod) => mod.ChemiseModel),
@@ -53,8 +62,6 @@ interface ContentChemiseProps {
   currentJalon: EtapeAvecObjectifs | null;
   selectedEtape: EtapeAvecObjectifs | null;
   onEtapeSelect: (etape: EtapeAvecObjectifs | null) => void;
-  activeTab: React.Key;
-  onTabChange: (key: React.Key) => void;
   onUpdateJustification: (
     objectifId: string,
     justification: Partial<Justification>,
@@ -72,8 +79,6 @@ export default function ContentChemise({
   currentJalon,
   selectedEtape,
   onEtapeSelect,
-  activeTab,
-  onTabChange,
   onUpdateJustification,
   notifications,
   unreadCount,
@@ -82,6 +87,47 @@ export default function ContentChemise({
   viewer,
   branche,
 }: ContentChemiseProps) {
+  const objectifsRef = useRef<HTMLDivElement>(null);
+  const [isObjectifsExpanded, setIsObjectifsExpanded] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const query = window.matchMedia(DESKTOP_QUERY);
+    const sync = () => setIsDesktop(query.matches);
+
+    sync();
+    query.addEventListener("change", sync);
+
+    return () => query.removeEventListener("change", sync);
+  }, []);
+
+  useEffect(() => {
+    setIsObjectifsExpanded(false);
+    objectifsRef.current?.scrollTo({ top: 0 });
+  }, [selectedEtape?.id]);
+
+  const handleObjectifsScroll = (event: React.UIEvent<HTMLDivElement>) => {
+    const element = event.currentTarget;
+    const { scrollTop } = element;
+
+    if (!isObjectifsExpanded && scrollTop > OBJECTIFS_EXPAND_THRESHOLD) {
+      setIsObjectifsExpanded(true);
+      element.scrollTop = scrollTop - OBJECTIFS_EXPAND_GAIN;
+
+      return;
+    }
+
+    if (isObjectifsExpanded && scrollTop < OBJECTIFS_COLLAPSE_THRESHOLD) {
+      setIsObjectifsExpanded(false);
+    }
+  };
+
+  const objectifsOffset = !selectedEtape
+    ? 0
+    : isObjectifsExpanded
+      ? OBJECTIFS_OFFSET_EXPANDED
+      : OBJECTIFS_OFFSET_SELECTED;
+
   const handleBadgeClick = (etape: EtapeAvecObjectifs) => {
     const newSelection = selectedEtape?.id === etape.id ? null : etape;
 
@@ -90,7 +136,7 @@ export default function ContentChemise({
 
   return (
     <div className="md:bg-dashboard-card h-full min-h-0 w-full md:w-[345px] flex flex-col justify-between p-0.5 rounded-3xl">
-      <div className="flex h-2/4 justify-center">
+      <div className="flex h-2/4 shrink-0 overflow-hidden justify-center">
         <ChemiseBoundary>
           <ChemiseModel
             branche={branche}
@@ -99,9 +145,15 @@ export default function ContentChemise({
         </ChemiseBoundary>
       </div>
 
-      <div className="md:bg-dashboard w-full flex-1 min-h-0 md:h-2/4 md:flex-none rounded-3xl border md:p-7 border-dashboard-border flex flex-col">
+      <div
+        className="bg-dashboard relative z-10 w-full flex-1 min-h-0 rounded-3xl border md:p-7 border-dashboard-border flex flex-col md:static md:z-auto md:h-2/4 md:flex-none"
+        style={{
+          marginTop: isDesktop ? 0 : objectifsOffset,
+          transition: "margin-top 300ms ease-out",
+        }}
+      >
         {currentJalon ? (
-          <div className="flex h-full items-center justify-center py-2 mt-[-80px] md:mt-0">
+          <div className="flex flex-1 items-center justify-center py-2">
             <JalonBadge key={currentJalon.id} jalon={currentJalon} />
           </div>
         ) : (
@@ -141,20 +193,27 @@ export default function ContentChemise({
               ))}
           </div>
         )}
-        <div className="md:hidden flex-1 min-h-0 w-full rounded-t-3xl md:p-4 overflow-y-auto">
-          <ContentAction
-            activeTab={activeTab}
-            notifications={notifications}
-            selectedEtape={selectedEtape}
-            targetSubTab={targetSubTab}
-            unreadCount={unreadCount}
-            viewer={viewer}
-            onNotificationClick={onNotificationClick}
-            onTabChange={onTabChange}
-            onUpdateJustification={onUpdateJustification}
-          />
-        </div>
+        {!currentJalon && (
+          <div
+            ref={objectifsRef}
+            className="md:hidden flex-1 min-h-0 w-full rounded-t-3xl px-3 pt-4 md:p-4 overflow-y-auto pb-24"
+            onScroll={handleObjectifsScroll}
+          >
+            <ObjectifPanel
+              selectedEtape={selectedEtape}
+              targetSubTab={targetSubTab}
+              viewer={viewer}
+              onUpdateJustification={onUpdateJustification}
+            />
+          </div>
+        )}
       </div>
+
+      <NotificationDrawer
+        notifications={notifications}
+        unreadCount={unreadCount}
+        onNotificationClick={onNotificationClick}
+      />
     </div>
   );
 }
