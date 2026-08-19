@@ -72,7 +72,6 @@ export const getCurrentUser = cache(async () => {
         email: wp.email,
         name: displayName,
         image: wp.avatar_url,
-        emailVerified: true,
       },
     });
   } else if (

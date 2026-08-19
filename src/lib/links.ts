@@ -1,5 +1,4 @@
-const APP_URL =
-  process.env.APP_URL || process.env.BETTER_AUTH_URL || "http://localhost:3000";
+const APP_URL = process.env.APP_URL || "http://localhost:3000";
 
 export function chefThreadUrl(justificationId: string): string {
   const params = new URLSearchParams({ justification: justificationId });

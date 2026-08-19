@@ -1,17 +1,6 @@
 import { PrismaClient } from "@prisma/client";
-import { betterAuth } from "better-auth";
-import { prismaAdapter } from "better-auth/adapters/prisma";
 
 const prisma = new PrismaClient();
-
-const authForSeed = betterAuth({
-  database: prismaAdapter(prisma, { provider: "postgresql" }),
-  emailAndPassword: {
-    enabled: true,
-  },
-});
-
-const defaultPassword = "password123";
 
 async function main() {
   console.log("Start seeding...");
@@ -23,50 +12,29 @@ async function main() {
   await prisma.justification.deleteMany();
   await prisma.objectif.deleteMany();
   await prisma.etape.deleteMany();
-  await prisma.session.deleteMany();
-  await prisma.account.deleteMany();
   await prisma.user.deleteMany();
   console.log("Database cleaned.");
 
-  const adminResult = await authForSeed.api.signUpEmail({
-    body: {
+  const admin = await prisma.user.create({
+    data: {
       email: "admin@flambeau.dev",
       name: "Admin",
-      password: defaultPassword,
+      role: "ADMIN",
     },
   });
 
-  const admin = await prisma.user.update({
-    where: { id: adminResult.user.id },
-    data: { role: "ADMIN" },
-  });
-
-  const chef1Result = await authForSeed.api.signUpEmail({
-    body: {
+  const chef1 = await prisma.user.create({
+    data: {
       email: "chef@flambeau.dev",
       name: "Timothé Chef",
-      password: defaultPassword,
-    },
-  });
-
-  const chef1 = await prisma.user.update({
-    where: { id: chef1Result.user.id },
-    data: {
       role: "CHEF",
     },
   });
 
-  const referentResult = await authForSeed.api.signUpEmail({
-    body: {
+  const referent = await prisma.user.create({
+    data: {
       email: "referent@flambeau.dev",
       name: "Martin Référent",
-      password: defaultPassword,
-    },
-  });
-
-  const referent = await prisma.user.update({
-    where: { id: referentResult.user.id },
-    data: {
       role: "REFERENT",
     },
   });
@@ -1086,9 +1054,7 @@ async function main() {
     `Updated couleur for ${Object.keys(ETAPE_COULEURS).length} etapes`,
   );
 
-  console.log(
-    `\nSeeding finished. \nDefault password for all users: "${defaultPassword}"`,
-  );
+  console.log("\nSeeding finished.");
 }
 
 main()

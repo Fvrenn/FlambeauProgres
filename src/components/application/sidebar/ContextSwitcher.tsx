@@ -16,13 +16,9 @@ import {
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import Image from "next/image";
-import { redirect } from "next/navigation";
 import { cn } from "@heroui/react";
 
-import { signOut } from "@/lib/auth-client";
 import { Avatar } from "@/components/ui";
-
-const AUTH_PROVIDER = process.env.NEXT_PUBLIC_AUTH_PROVIDER ?? "better-auth";
 
 function DropdownIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -272,18 +268,11 @@ export default function ContextSwitcher({
                     icon="solar:logout-2-linear"
                   />
                 }
-                onPress={async () => {
-                  if (AUTH_PROVIDER === "wordpress") {
-                    // TODO: fetch the WordPress 'log-out' nonce (from
-                    // wp_logout_url() on the WP side) to skip the
-                    // wp-login.php?action=logout confirmation screen
-                    window.location.href = `${process.env.NEXT_PUBLIC_WORDPRESS_URL}/wp-login.php?action=logout`;
-
-                    return;
-                  }
-
-                  await signOut();
-                  redirect("/login");
+                onPress={() => {
+                  // TODO: fetch the WordPress 'log-out' nonce (from
+                  // wp_logout_url() on the WP side) to skip the
+                  // wp-login.php?action=logout confirmation screen
+                  window.location.href = `${process.env.NEXT_PUBLIC_WORDPRESS_URL}/wp-login.php?action=logout`;
                 }}
               >
                 Déconnexion

@@ -61,15 +61,14 @@ enum TypeNotification {
 }
 
 model User {
-  id            String   @id @default(cuid())
-  wpUserId      Int?     @unique
-  email         String   @unique
-  name          String
-  image         String?
-  emailVerified Boolean?
-  role          UserRole @default(CHEF)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id        String   @id @default(cuid())
+  wpUserId  Int?     @unique
+  email     String   @unique
+  name      String
+  image     String?
+  role      UserRole @default(CHEF)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   justifications        Justification[]
   assigneEtapes         EtapeReferent[]
@@ -81,15 +80,12 @@ model User {
 
   realisationsValidees Justification[] @relation("ReferentJustificationValidations")
 
-  accounts Account[]
-  sessions Session[]
-
   @@map("users")
 }
 
 model Etape {
-  id          String   @id @default(cuid())
-  number      String   @unique
+  id          String    @id @default(cuid())
+  number      String    @unique
   name        String
   description String
   image_src   String?
@@ -101,11 +97,11 @@ model Etape {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  objectifs        Objectif[]
+  objectifs      Objectif[]
   referents      EtapeReferent[]
   justifications Justification[]
 
-  statutsChefs     ChefEtapeStatut[]
+  statutsChefs ChefEtapeStatut[]
 
   @@map("etapes")
 }
@@ -129,9 +125,9 @@ model ChefEtapeStatut {
   valideeAt    DateTime?
   valideeParId String?
 
-  chef       User   @relation("ChefStatuts", fields: [chefId], references: [id], onDelete: Cascade)
-  etape      Etape  @relation(fields: [etapeId], references: [id], onDelete: Cascade)
-  valideePar User?  @relation("ReferentValidations", fields: [valideeParId], references: [id], onDelete: SetNull)
+  chef       User  @relation("ChefStatuts", fields: [chefId], references: [id], onDelete: Cascade)
+  etape      Etape @relation(fields: [etapeId], references: [id], onDelete: Cascade)
+  valideePar User? @relation("ReferentValidations", fields: [valideeParId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -246,48 +242,4 @@ model Notification {
   justification Justification? @relation(fields: [justificationId], references: [id], onDelete: Cascade)
 
   @@map("notifications")
-}
-
-model Session {
-  id        String   @id
-  expiresAt DateTime
-  token     String   @unique
-  createdAt DateTime
-  updatedAt DateTime
-  ipAddress String?
-  userAgent String?
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("session")
-}
-
-model Account {
-  id                    String    @id
-  accountId             String
-  providerId            String
-  userId                String
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  accessToken           String?
-  refreshToken          String?
-  idToken               String?
-  accessTokenExpiresAt  DateTime?
-  refreshTokenExpiresAt DateTime?
-  scope                 String?
-  password              String?
-  createdAt             DateTime
-  updatedAt             DateTime
-
-  @@map("account")
-}
-
-model Verification {
-  id         String    @id
-  identifier String
-  value      String
-  expiresAt  DateTime
-  createdAt  DateTime?
-  updatedAt  DateTime?
-
-  @@map("verification")
 }
