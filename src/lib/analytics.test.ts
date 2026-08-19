@@ -22,7 +22,7 @@ function evenement(surcharge: Partial<ValidationEvent> = {}): ValidationEvent {
     chefName: "Chef A",
     etapeId: "et1",
     etapeName: "Cuisine",
-    objet: "3.2 — Cuisiner",
+    objet: "3.2 - Cuisiner",
     justificationId: "j1",
     ...surcharge,
   };

@@ -7,7 +7,6 @@ export default async function TestSSO() {
   const all = store.getAll();
   const wp = all.filter(c => c.name.startsWith('wordpress'));
 
-  // On ré-encode les valeurs et on ne garde que les cookies utiles
   const cookieHeader = all
     .filter(c => c.name.startsWith('wordpress') || c.name.startsWith('wfwaf'))
     .map(c => `${c.name}=${encodeURIComponent(c.value)}`)
@@ -27,7 +26,7 @@ export default async function TestSSO() {
   return (
     <div style={{ fontFamily: 'monospace', padding: 24 }}>
       <h1>Test SSO</h1>
-      <p>Cookies reçus : {all.length} — dont WordPress : {wp.length}</p>
+      <p>Cookies reçus : {all.length} - dont WordPress : {wp.length}</p>
       <pre>{JSON.stringify(all.map(c => c.name), null, 2)}</pre>
 
       <h2>Header envoyé</h2>

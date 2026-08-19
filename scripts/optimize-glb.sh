@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Compresse un GLB exporté depuis Blender sans altérer la hiérarchie ni les noms
-# de nodes (chemise-parts.ts et chemiseModel.tsx s'appuient dessus).
-# Usage : ./scripts/optimize-glb.sh <source.glb> [destination.glb] [ratio]
-# ratio : fraction de vertices à conserver ; "none" (défaut) désactive la décimation.
+# Compresses a Blender-exported GLB while preserving the node hierarchy and node
+# names, which chemise-parts.ts and chemiseModel.tsx rely on to toggle visibility.
+# Usage: ./scripts/optimize-glb.sh <source.glb> [destination.glb] [ratio]
+# ratio: fraction of vertices to keep; "none" (default) disables decimation.
 #
-# Draco et non Meshopt : Meshopt réencode les NORMAL en octaédrique 8 bits, ce qui
-# produit du banding sur les surfaces planes (poches). Le décodeur Draco est servi
-# depuis public/draco/ — voir le second argument de useGLTF dans chemiseModel.tsx.
+# Draco over Meshopt: Meshopt re-encodes NORMAL as 8-bit octahedral, which bands
+# on flat surfaces such as the shirt pockets. The Draco decoder is served from
+# public/draco/, wired through the second argument of useGLTF in chemiseModel.tsx.
 
 SRC="${1:?Usage: optimize-glb.sh <source.glb> [dest.glb] [ratio]}"
 DEST="${2:-$SRC}"

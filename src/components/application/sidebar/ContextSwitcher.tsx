@@ -273,9 +273,9 @@ export default function ContextSwitcher({
                 }
                 onPress={async () => {
                   if (AUTH_PROVIDER === "wordpress") {
-                    // TODO: récupérer le nonce WordPress 'log-out' (via
-                    // wp_logout_url() côté WP) pour éviter l'écran de
-                    // confirmation de wp-login.php?action=logout
+                    // TODO: fetch the WordPress 'log-out' nonce (from
+                    // wp_logout_url() on the WP side) to skip the
+                    // wp-login.php?action=logout confirmation screen
                     window.location.href = `${process.env.NEXT_PUBLIC_WORDPRESS_URL}/wp-login.php?action=logout`;
 
                     return;

@@ -44,7 +44,6 @@ export default function AssignationsClientPage({
             key={etape.id}
             className="flex flex-col rounded-[22px] overflow-hidden bg-[#FAF6EB]"
           >
-            {/* Header */}
             <div className="flex items-center gap-4 px-6 pt-6 pb-4">
               <div className="w-11 h-11 rounded-full bg-dashboard-border flex items-center justify-center overflow-hidden shrink-0">
                 {etape.image_src ? (
@@ -69,10 +68,8 @@ export default function AssignationsClientPage({
               </div>
             </div>
 
-            {/* Separator */}
             <div className="h-px bg-dashboard-border mx-6" />
 
-            {/* Referents */}
             <div className="flex flex-col gap-3 px-6 py-4">
               <p className="text-[11px] font-semibold uppercase tracking-wider text-foreground/40">
                 Référents assignés
@@ -104,7 +101,6 @@ export default function AssignationsClientPage({
               )}
             </div>
 
-            {/* Footer */}
             <div className="px-6 pb-6">
               <button
                 className="w-full rounded-[12px] py-2 text-[13px] font-semibold text-white cursor-pointer transition-colors"

@@ -4,7 +4,7 @@ Flambeau Progrès — app **Next.js 16** (App Router, Turbopack) de suivi de pro
 
 ## Refactors par phases
 
-Les gros refactors sont planifiés dans `/docs/*.md` (ex. `docs/refactor-discussion.md`) avec une checklist de phases.
+Les gros refactors sont planifiés dans `/docs/*.md` avec une checklist de phases.
 
 **Règle : à la fin de chaque phase terminée ET validée, mettre à jour le doc correspondant** — cocher la phase `[x]` et ajouter une courte note **« ✅ Fait — quoi / où (fichiers) / comment »**. Le doc reste la source de vérité de l'avancement.
 

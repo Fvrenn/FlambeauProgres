@@ -46,7 +46,7 @@ function hasDiscussion(justification: JustificationAValider): boolean {
 }
 
 function formatSoumiseAt(date: Date | null): string {
-  if (!date) return "—";
+  if (!date) return "-";
 
   return new Date(date).toLocaleDateString("fr-FR", {
     day: "2-digit",
@@ -192,7 +192,7 @@ export default function ValidationPanel({
                   {justification.chef.name}
                 </span>
                 <span className="text-xs text-default-400 truncate">
-                  {justification.objectif.code} —{" "}
+                  {justification.objectif.code} -{" "}
                   {justification.objectif.description}
                 </span>
                 <span className="text-[11px] text-default-400 mt-0.5">

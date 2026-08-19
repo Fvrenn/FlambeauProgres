@@ -28,7 +28,6 @@ export default function FormationClientPage({
           key={f.id}
           className="flex flex-col rounded-[22px] overflow-hidden h-[270px] bg-dashboard-panel"
         >
-          {/* Zone image — 160px */}
           <div
             className="w-full shrink-0 bg-dashboard-card border-b border-dashed border-dashboard-border overflow-hidden"
             style={{ height: 160, borderRadius: "22px 22px 0 0" }}
@@ -48,7 +47,6 @@ export default function FormationClientPage({
             )}
           </div>
 
-          {/* Corps — 110px */}
           <div
             className="flex flex-col justify-between bg-dashboard-panel"
             style={{ height: 110, padding: "18px 20px 20px" }}

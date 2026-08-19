@@ -2,7 +2,7 @@
 
 Application web de suivi pédagogique pour les Chefs Flambeaux. Permet aux animateurs de valider leurs compétences et réalisations pour obtenir leurs badges, avec un système de validation par référents.
 
-**Stack :** Next.js 15, MySQL, Prisma, TypeScript
+**Stack :** Next.js 16, MySQL, Prisma, TypeScript
 
 ---
 
@@ -27,6 +27,8 @@ npm install
 # Avec XAMPP : Démarrez MySQL et créez la base "flambeau_progres" dans phpMyAdmin
 # Ou en CLI : mysql -u root -p puis CREATE DATABASE flambeau_progres;
 
+# 4. Configurer les variables d'environnement
+cp .env.example .env
 
 # 5. Initialiser la base de données
 npx prisma migrate dev
@@ -50,7 +52,10 @@ npm run dev
 ## Scripts
 
 ```bash
-npm run dev    # Développement
-npm run build  # Build production
-npm start      # Lancer en production
+npm run dev           # Développement
+npm run build         # Build production
+npm start             # Lancer en production
+npm test              # Tests (vitest)
+npm run lint          # ESLint avec --fix
+npm run glb:optimize  # Recompresse public/chemise/chemise.glb
 ```

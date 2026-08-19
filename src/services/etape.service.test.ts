@@ -53,7 +53,7 @@ beforeEach(() => {
   db.etape.findMany.mockResolvedValue(etapes as never);
 });
 
-describe("EtapeService.getDashboardEtapesForChef — déverrouillage", () => {
+describe("EtapeService.getDashboardEtapesForChef - déverrouillage", () => {
   it("ne débloque que l'Allume-feu pour un chef sans validation", async () => {
     db.chefEtapeStatut.findMany.mockResolvedValue([] as never);
 

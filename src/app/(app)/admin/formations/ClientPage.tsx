@@ -71,7 +71,6 @@ export default function FormationsClientPage({
               className="p-0 overflow-hidden h-[270px] bg-dashboard-panel"
               size="sm"
             >
-              {/* Zone image — 160px, arrondie en haut seulement */}
               <div
                 className="w-full shrink-0 bg-dashboard-card border-b border-dashed border-dashboard-border overflow-hidden"
                 style={{ height: 160, borderRadius: "22px 22px 0 0" }}
@@ -97,7 +96,6 @@ export default function FormationsClientPage({
                 )}
               </div>
 
-              {/* Corps de la card — 110px, fond blanc, padding 18 20 20 */}
               <CardBody
                 className="gap-3 flex-col justify-between bg-dashboard-panel"
                 style={{
@@ -113,7 +111,6 @@ export default function FormationsClientPage({
                   {formation.titre}
                 </p>
 
-                {/* Actions */}
                 <div className="flex items-center gap-2">
                   <Button
                     fullWidth

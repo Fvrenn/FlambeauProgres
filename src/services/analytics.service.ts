@@ -99,7 +99,7 @@ export class AnalyticsService {
         chefName: realisation.chef.name,
         etapeId: realisation.etapeId,
         etapeName: realisation.etape.name,
-        objet: `${realisation.objectif.code} — ${realisation.objectif.description}`,
+        objet: `${realisation.objectif.code} - ${realisation.objectif.description}`,
         justificationId: realisation.id,
       })),
       ...badges.map((badge) => ({
