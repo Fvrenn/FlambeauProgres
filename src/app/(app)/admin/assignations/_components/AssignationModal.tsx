@@ -110,7 +110,7 @@ export default function AssignationModal({
       scrollBehavior="inside"
       onClose={onClose}
     >
-      <ModalContent>
+      <ModalContent className="bg-dashboard">
         {(onClose) => (
           <>
             <ModalHeader className="flex flex-col gap-1">
@@ -129,7 +129,7 @@ export default function AssignationModal({
                     return (
                       <div
                         key={referent.id}
-                        className="flex items-center justify-between p-2 rounded-lg hover:bg-default-100 transition-colors cursor-pointer"
+                        className="flex items-center justify-between p-2 rounded-lg hover:bg-dashboard-tab transition-colors cursor-pointer"
                         {...clickable(() => {
                           if (!isPending) handleToggle(referent.id, !assigned);
                         })}

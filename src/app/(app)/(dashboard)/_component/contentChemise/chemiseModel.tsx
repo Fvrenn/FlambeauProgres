@@ -2,10 +2,18 @@
 
 /* eslint-disable react/no-unknown-property -- props React Three Fiber (position, intensity, ...) non reconnues par eslint-plugin-react */
 
+import type { Branche } from "@/lib/wordpress-profile";
+
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useGLTF, Center } from "@react-three/drei";
 import { Suspense, useRef, useLayoutEffect, useMemo } from "react";
 import { MathUtils, Group, Mesh, MeshStandardMaterial } from "three";
+
+import {
+  evaluerAvancementBarettes,
+  getChemiseVisibility,
+  type EtapeAvancement,
+} from "@/lib/chemise-parts";
 
 const LIGHTING_CONFIG = {
   ambient: { intensity: 0.8, color: "#ffffff" },
@@ -50,8 +58,16 @@ const MATERIAL_CONFIG = {
   },
 };
 
-function ChemiseGLB({ selectedBadge }: { selectedBadge?: string | null }) {
-  const { scene } = useGLTF("/chemise/chemise.glb");
+function ChemiseGLB({
+  selectedBadge,
+  branche,
+  etapes,
+}: {
+  selectedBadge?: string | null;
+  branche?: Branche | null;
+  etapes?: EtapeAvancement[];
+}) {
+  const { scene } = useGLTF("/chemise/chemise.glb", "/draco/");
   const meshRef = useRef<Group>(null);
 
   useFrame((_, delta) => {
@@ -109,6 +125,26 @@ function ChemiseGLB({ selectedBadge }: { selectedBadge?: string | null }) {
     });
   }, [scene]);
 
+  const { etape1Validee, etape2Validee } = useMemo(
+    () => evaluerAvancementBarettes(etapes ?? []),
+    [etapes],
+  );
+
+  const nodeVisibility = useMemo(
+    () => getChemiseVisibility(branche ?? null, etape1Validee, etape2Validee),
+    [branche, etape1Validee, etape2Validee],
+  );
+
+  useLayoutEffect(() => {
+    scene.traverse((obj) => {
+      const visible = nodeVisibility.get(obj.name);
+
+      if (visible !== undefined) {
+        obj.visible = visible;
+      }
+    });
+  }, [scene, nodeVisibility]);
+
   useLayoutEffect(() => {
     scene.traverse((obj) => {
       if (obj.type === "Group" && obj.name.startsWith("badge_")) {
@@ -144,6 +180,8 @@ function ChemiseGLB({ selectedBadge }: { selectedBadge?: string | null }) {
 
 interface ChemiseModelProps {
   selectedBadge?: string | null;
+  branche?: Branche | null;
+  etapes?: EtapeAvancement[];
 }
 
 function detectLowEndDevice() {
@@ -154,7 +192,11 @@ function detectLowEndDevice() {
   return isMobile && cores <= 4;
 }
 
-export const ChemiseModel = ({ selectedBadge }: ChemiseModelProps) => {
+export const ChemiseModel = ({
+  selectedBadge,
+  branche,
+  etapes,
+}: ChemiseModelProps) => {
   const { ambient, directional, spot, point } = LIGHTING_CONFIG;
   const isLowEnd = useMemo(detectLowEndDevice, []);
 
@@ -189,7 +231,11 @@ export const ChemiseModel = ({ selectedBadge }: ChemiseModelProps) => {
 
         <Suspense fallback={null}>
           <Center>
-            <ChemiseGLB selectedBadge={selectedBadge} />
+            <ChemiseGLB
+              branche={branche}
+              etapes={etapes}
+              selectedBadge={selectedBadge}
+            />
           </Center>
         </Suspense>
       </Canvas>

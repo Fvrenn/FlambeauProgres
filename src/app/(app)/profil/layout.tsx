@@ -4,7 +4,10 @@ import AppClientLayout from "../AppClientLayout";
 
 import { getUser } from "@/lib/auth-server";
 import { redirectToLogin } from "@/lib/auth-redirect";
-import { type SidebarItem } from "@/components/application/sidebar/sidebar";
+import {
+  allSidebarItemsForUser,
+  appShellClassNames,
+} from "@/config/navigation";
 
 export default async function ProfilLayout({
   children,
@@ -19,17 +22,12 @@ export default async function ProfilLayout({
     return null;
   }
 
-  const sidebarItems: SidebarItem[] = [
-    {
-      key: "dashboard",
-      href: "/",
-      icon: "solar:home-2-linear",
-      title: "Tableau de bord",
-    },
-  ];
-
   return (
-    <AppClientLayout sidebarItems={sidebarItems} user={user}>
+    <AppClientLayout
+      {...appShellClassNames}
+      sidebarItems={allSidebarItemsForUser(user)}
+      user={user}
+    >
       {children}
     </AppClientLayout>
   );

@@ -38,8 +38,8 @@ type StatTone = "default" | "warning" | "success";
 
 const TONE_STYLES: Record<StatTone, string> = {
   default: "bg-dashboard-card text-nav-active",
-  warning: "bg-warning/15 text-[#a67300]",
-  success: "bg-success/15 text-[#127f51]",
+  warning: "bg-warning/15 text-warning-700",
+  success: "bg-success/15 text-success-700",
 };
 
 function StatCard({

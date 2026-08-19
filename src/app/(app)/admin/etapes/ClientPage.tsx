@@ -142,7 +142,7 @@ export default function EtapesClientPage({ etapes }: EtapesClientPageProps) {
           >
             <CardBody className="flex-row gap-4 items-start">
               <div className="flex-none">
-                <div className="w-12 h-12 rounded-lg bg-content1 flex items-center justify-center overflow-hidden">
+                <div className="w-12 h-12 rounded-lg bg-dashboard-card flex items-center justify-center overflow-hidden">
                   {etape.image_src ? (
                     <Image
                       alt={etape.name}

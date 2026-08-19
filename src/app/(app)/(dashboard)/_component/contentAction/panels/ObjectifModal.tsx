@@ -254,7 +254,7 @@ export default function ObjectifModal({
                         </p>
 
                         {!selectedFile ? (
-                          <div className="border-2 border-dashed border-default-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
+                          <div className="border-2 border-dashed border-dashboard-border rounded-lg p-6 text-center hover:border-primary transition-colors">
                             <input
                               accept="image/*,.pdf,.doc,.docx"
                               className="hidden"
@@ -280,7 +280,7 @@ export default function ObjectifModal({
                             </label>
                           </div>
                         ) : (
-                          <div className="border border-default-300 rounded-lg p-4">
+                          <div className="border border-dashboard-border rounded-lg p-4">
                             {filePreview ? (
                               <div className="space-y-3">
                                 {/* eslint-disable-next-line @next/next/no-img-element -- aperçu local (data/blob URL) : non optimisable par next/image */}

@@ -212,7 +212,7 @@ export default function EtapeModal({
                 {fields.map((field, index) => (
                   <Card
                     key={field.id}
-                    className="border-none bg-default-200 shadow-none"
+                    className="border-none bg-dashboard-tab shadow-none"
                   >
                     <CardBody className="p-3 gap-3">
                       <div className="flex justify-between items-start">
@@ -281,7 +281,7 @@ export default function EtapeModal({
                   </Card>
                 ))}
                 {fields.length === 0 && (
-                  <div className="flex flex-col items-center justify-center py-8 text-default-400 gap-2 border border-dashed border-default-200 rounded-medium">
+                  <div className="flex flex-col items-center justify-center py-8 text-default-400 gap-2 border border-dashed border-dashboard-border rounded-medium">
                     <Icon icon="solar:target-linear" width={32} />
                     <p className="text-small">Aucun objectif ajouté</p>
                   </div>

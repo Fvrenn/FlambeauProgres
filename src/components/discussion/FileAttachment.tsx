@@ -17,7 +17,7 @@ export default function FileAttachment({
 }: FileAttachmentProps) {
   if (pending) {
     return (
-      <div className="flex items-center gap-2 rounded-lg border border-default-200 bg-default-50 px-3 py-2">
+      <div className="flex items-center gap-2 rounded-lg border border-dashboard-border bg-dashboard-panel px-3 py-2">
         <Spinner color="current" size="sm" />
         <span className="text-xs truncate">{fichier.nomOriginal}</span>
       </div>
@@ -43,7 +43,7 @@ export default function FileAttachment({
   return (
     <a
       download
-      className="flex items-center gap-2 rounded-lg border border-default-200 bg-default-50 px-3 py-2 text-default-700 hover:border-default-300"
+      className="flex items-center gap-2 rounded-lg border border-dashboard-border bg-dashboard-panel px-3 py-2 text-default-700 hover:border-nav-hover"
       href={url}
       rel="noopener noreferrer"
       target="_blank"

@@ -148,7 +148,7 @@ export default function AdminDataTable<T extends { id: string | number }>({
       classNames={{
         wrapper: [
           "rounded-[22px]",
-          "bg-[#FAF6EB]",
+          "bg-dashboard-panel",
           "shadow-none",
           "border-none",
           "p-0",

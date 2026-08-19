@@ -20,6 +20,7 @@ import { redirect } from "next/navigation";
 import { cn } from "@heroui/react";
 
 import { signOut } from "@/lib/auth-client";
+import { Avatar } from "@/components/ui";
 
 const AUTH_PROVIDER = process.env.NEXT_PUBLIC_AUTH_PROVIDER ?? "better-auth";
 
@@ -192,16 +193,7 @@ export default function ContextSwitcher({
                   width={32}
                 />
               ) : (
-                <div
-                  className={cn(
-                    "flex items-center justify-center w-full h-full rounded-full",
-                    triggerClassName ?? "bg-default-100",
-                  )}
-                >
-                  <span className="text-xs font-medium text-default-600">
-                    {user.name?.charAt(0) || "U"}
-                  </span>
-                </div>
+                <Avatar name={user.name} size="sm" src={user.image} />
               )}
             </Button>
           ) : (
@@ -209,12 +201,12 @@ export default function ContextSwitcher({
               fullWidth
               className={cn(
                 "h-auto justify-between gap-3 rounded-xl border-1 border-divider p-2",
-                triggerClassName ?? "bg-default-100",
+                triggerClassName ?? "bg-dashboard-card",
               )}
               endContent={<DropdownIcon />}
             >
               <div className="flex w-full items-center gap-2">
-                {currentEtape?.image_src && (
+                {currentEtape?.image_src ? (
                   <Image
                     alt={`Badge ${currentEtape.name}`}
                     className="shrink-0"
@@ -222,6 +214,8 @@ export default function ContextSwitcher({
                     src={currentEtape.image_src}
                     width={36}
                   />
+                ) : (
+                  <Avatar name={user.name} size="sm" src={user.image} />
                 )}
                 <div className="flex flex-col text-left">
                   <p className="text-small font-medium text-foreground">

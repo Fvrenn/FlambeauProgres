@@ -106,7 +106,7 @@ export default function JalonBadge({ jalon }: { jalon: EtapeAvecObjectifs }) {
         size="xl"
         onOpenChange={onOpenChange}
       >
-        <ModalContent>
+        <ModalContent className="bg-dashboard">
           <ModalHeader className="flex items-center gap-3">
             <span className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/15">
               <Image

@@ -61,7 +61,7 @@ export default function LoginForm() {
   }
 
   return (
-    <div className="rounded-large bg-content1 shadow-small flex w-full max-w-sm flex-col gap-4 px-8 pt-6 pb-10">
+    <div className="rounded-large bg-dashboard-panel border border-dashboard-border shadow-none flex w-full max-w-sm flex-col gap-4 px-8 pt-6 pb-10">
       <div className="flex flex-col items-center pb-6">
         <Image
           alt="Logo Flambeau Progrès"

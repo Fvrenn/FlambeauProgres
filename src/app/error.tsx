@@ -14,7 +14,7 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="flex h-screen flex-col items-center justify-center gap-4 p-6 text-center">
+    <div className="bg-dashboard flex h-screen flex-col items-center justify-center gap-4 p-6 text-center">
       <h2 className="text-2xl font-semibold">Une erreur est survenue</h2>
       <p className="max-w-md text-default-500">
         Quelque chose s&apos;est mal passé. Vous pouvez réessayer.

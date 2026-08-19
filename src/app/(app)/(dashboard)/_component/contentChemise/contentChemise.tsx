@@ -1,5 +1,7 @@
 "use client";
 
+import type { Branche } from "@/lib/wordpress-profile";
+
 import React from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
@@ -62,6 +64,7 @@ interface ContentChemiseProps {
   onNotificationClick: (notification: Notification) => void;
   targetSubTab: string | null;
   viewer: DiscussionViewer;
+  branche: Branche | null;
 }
 
 export default function ContentChemise({
@@ -77,6 +80,7 @@ export default function ContentChemise({
   onNotificationClick,
   targetSubTab,
   viewer,
+  branche,
 }: ContentChemiseProps) {
   const handleBadgeClick = (etape: EtapeAvecObjectifs) => {
     const newSelection = selectedEtape?.id === etape.id ? null : etape;
@@ -88,7 +92,10 @@ export default function ContentChemise({
     <div className="md:bg-dashboard-card h-full min-h-0 w-full md:w-[345px] flex flex-col justify-between p-0.5 rounded-3xl">
       <div className="flex h-2/4 justify-center">
         <ChemiseBoundary>
-          <ChemiseModel selectedBadge={selectedEtape?.number} />
+          <ChemiseModel
+            branche={branche}
+            selectedBadge={selectedEtape?.number}
+          />
         </ChemiseBoundary>
       </div>
 
@@ -134,7 +141,7 @@ export default function ContentChemise({
               ))}
           </div>
         )}
-        <div className="md:hidden flex-1 min-h-0 w-full md:bg-white rounded-t-3xl md:p-4 overflow-y-auto">
+        <div className="md:hidden flex-1 min-h-0 w-full rounded-t-3xl md:p-4 overflow-y-auto">
           <ContentAction
             activeTab={activeTab}
             notifications={notifications}

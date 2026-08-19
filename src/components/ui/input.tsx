@@ -6,7 +6,7 @@ import { mergeClasses } from "@heroui/theme";
 
 const inputClassNames: InputProps["classNames"] = {
   inputWrapper: [
-    "bg-[#FAF6EB]",
+    "bg-dashboard-panel",
     "border",
     "border-dashboard-border",
     "rounded-[12px]",

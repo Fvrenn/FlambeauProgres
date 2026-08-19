@@ -1,3 +1,5 @@
+import type { WpProfile } from "@/lib/wordpress-profile";
+
 import { SVGProps } from "react";
 import { Prisma, UserRole } from "@prisma/client";
 
@@ -12,6 +14,7 @@ export type SessionUser = {
   image?: string | null;
   role?: UserRole;
   etapesReferent?: { id: string; name: string; image_src: string | null }[];
+  wp?: WpProfile | null;
 };
 
 export type AdminEtapeListItem = Prisma.EtapeGetPayload<{

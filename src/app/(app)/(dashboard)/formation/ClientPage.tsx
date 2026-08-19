@@ -26,12 +26,11 @@ export default function FormationClientPage({
       {formations.map((f) => (
         <div
           key={f.id}
-          className="flex flex-col rounded-[22px] overflow-hidden h-[270px]"
-          style={{ background: "#FAF6EB" }}
+          className="flex flex-col rounded-[22px] overflow-hidden h-[270px] bg-dashboard-panel"
         >
           {/* Zone image — 160px */}
           <div
-            className="w-full shrink-0 bg-default-100 border-b border-dashed border-dashboard-border overflow-hidden"
+            className="w-full shrink-0 bg-dashboard-card border-b border-dashed border-dashboard-border overflow-hidden"
             style={{ height: 160, borderRadius: "22px 22px 0 0" }}
           >
             {f.imageUrl ? (

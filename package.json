@@ -1,13 +1,14 @@
 {
   "name": "flambeau-progres",
-  "version": "0.0.1",
+  "version": "1.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "eslint --fix",
-    "test": "vitest run"
+    "test": "vitest run",
+    "glb:optimize": "bash scripts/optimize-glb.sh public/chemise/chemise.glb"
   },
   "prisma": {
     "seed": "ts-node-dev --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
@@ -42,6 +43,7 @@
   },
   "devDependencies": {
     "@eslint/compat": "^2.1.0",
+    "@gltf-transform/cli": "^4.4.2",
     "@iconify/react": "^6.0.2",
     "@next/eslint-plugin-next": "15.3.4",
     "@react-types/shared": "3.32.1",

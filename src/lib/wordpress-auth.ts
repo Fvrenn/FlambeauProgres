@@ -1,35 +1,40 @@
-import { cache } from 'react';
-import { cookies } from 'next/headers';
-import { prisma } from '@/lib/prisma';
+import { cache } from "react";
+import { cookies } from "next/headers";
+
+import { prisma } from "@/lib/prisma";
+import { parseWpProfile } from "@/lib/wordpress-profile";
 
 const WP_URL = process.env.WORDPRESS_URL!;
 
 type WpUser = {
   id: number;
-  username: string;
-  email: string;
+  nickname: string;
   first_name: string;
   last_name: string;
-  name: string;
-  roles: string[];
+  email: string;
+  avatar_url: string;
+  group: string;
+  fonction: { value: string; label: string }[];
+  progression: { value: string; label: string }[];
 };
 
 async function fetchWpUser(): Promise<WpUser | null> {
   const store = await cookies();
   const all = store.getAll();
 
-  if (!all.some(c => c.name.startsWith('wordpress_logged_in'))) return null;
+  if (!all.some((c) => c.name.startsWith("wordpress_logged_in"))) return null;
 
   const cookieHeader = all
-    .filter(c => c.name.startsWith('wordpress') || c.name.startsWith('wfwaf'))
-    .map(c => `${c.name}=${encodeURIComponent(c.value)}`)
-    .join('; ');
+    .filter((c) => c.name.startsWith("wordpress") || c.name.startsWith("wfwaf"))
+    .map((c) => `${c.name}=${encodeURIComponent(c.value)}`)
+    .join("; ");
 
   try {
-    const res = await fetch(
-      `${WP_URL}/wp-json/wp/v2/users/me?context=edit&_wpnonce=1`,
-      { headers: { cookie: cookieHeader }, cache: 'no-store' }
-    );
+    const res = await fetch(`${WP_URL}/wp-json/flbx/v1/user-info?_wpnonce=1`, {
+      headers: { cookie: cookieHeader },
+      cache: "no-store",
+    });
+
     return res.ok ? await res.json() : null;
   } catch {
     return null;
@@ -38,17 +43,20 @@ async function fetchWpUser(): Promise<WpUser | null> {
 
 export const getCurrentUser = cache(async () => {
   const wp = await fetchWpUser();
+
   if (!wp) return null;
 
   const displayName =
-    [wp.first_name, wp.last_name].filter(Boolean).join(' ').trim()
-    || wp.name
-    || wp.username;
+    [wp.first_name, wp.last_name].filter(Boolean).join(" ").trim() ||
+    wp.nickname;
 
   let user = await prisma.user.findUnique({ where: { wpUserId: wp.id } });
 
   if (!user) {
-    const byEmail = await prisma.user.findUnique({ where: { email: wp.email } });
+    const byEmail = await prisma.user.findUnique({
+      where: { email: wp.email },
+    });
+
     if (byEmail) {
       user = await prisma.user.update({
         where: { id: byEmail.id },
@@ -63,15 +71,20 @@ export const getCurrentUser = cache(async () => {
         wpUserId: wp.id,
         email: wp.email,
         name: displayName,
+        image: wp.avatar_url,
         emailVerified: true,
       },
     });
-  } else if (user.email !== wp.email || user.name !== displayName) {
+  } else if (
+    user.email !== wp.email ||
+    user.name !== displayName ||
+    user.image !== wp.avatar_url
+  ) {
     user = await prisma.user.update({
       where: { id: user.id },
-      data: { email: wp.email, name: displayName },
+      data: { email: wp.email, name: displayName, image: wp.avatar_url },
     });
   }
 
-  return user;
+  return { ...user, wp: parseWpProfile(wp) };
 });

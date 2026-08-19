@@ -99,7 +99,7 @@ export default function ValidationPanel({
       case "objectif":
         return (
           <div className="flex items-center gap-2">
-            <span className="text-xs font-medium border border-default-300 rounded-full px-2 py-1 flex-shrink-0">
+            <span className="text-xs font-medium border border-dashboard-border rounded-full px-2 py-1 flex-shrink-0">
               {justification.objectif.code}
             </span>
             <span className="text-sm text-foreground line-clamp-1">

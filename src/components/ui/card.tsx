@@ -15,7 +15,7 @@ export const cardVariants = tv({
   variants: {
     variant: {
       elevated: {
-        root: "bg-default-100 shadow-inset-border",
+        root: "bg-dashboard-panel shadow-inset-border",
       },
       flat: {
         root: "bg-default/60 border border-transparent",

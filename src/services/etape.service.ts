@@ -22,6 +22,7 @@ export type EtapeProgressForChef = {
   done: number;
   total: number;
   verrouille: boolean;
+  isValidated: boolean;
 };
 
 export class EtapeService {
@@ -71,6 +72,7 @@ export class EtapeService {
       done: doneByEtape.get(etape.id) ?? 0,
       total: etape._count.objectifs,
       verrouille: !etapeEstDebloquee(etape.niveau, niveauMax),
+      isValidated: etapesValidees.has(etape.id),
     }));
   }
 

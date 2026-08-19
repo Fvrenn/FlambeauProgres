@@ -44,7 +44,7 @@ export function FormModal({
       size={size}
       onClose={onClose}
     >
-      <ModalContent>
+      <ModalContent className="bg-dashboard">
         {(close) => (
           <form onSubmit={onSubmit}>
             <ModalHeader className="flex flex-col gap-1">{title}</ModalHeader>

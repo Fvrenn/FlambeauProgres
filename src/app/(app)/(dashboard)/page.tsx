@@ -3,6 +3,7 @@ import { getUser } from "@/lib/auth-server";
 import { redirectToLogin } from "@/lib/auth-redirect";
 import { getMyNotifications } from "@/actions/notification/notification.actions";
 import { EtapeService } from "@/services/etape.service";
+import { getWpProfile } from "@/lib/wordpress-profile";
 
 export default async function Home() {
   const user = await getUser();
@@ -24,6 +25,7 @@ export default async function Home() {
         Tableau de bord
       </h4>
       <DashboardClient
+        branche={getWpProfile(user)?.branche ?? null}
         etapes={etapes}
         notifications={notifications}
         viewer={{

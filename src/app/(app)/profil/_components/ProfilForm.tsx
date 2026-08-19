@@ -43,7 +43,7 @@ function ProfilIdentity({ user }: { user: ProfilUser }) {
 
 function ProfilFormWordpress({ user }: { user: ProfilUser }) {
   return (
-    <Card className="w-full shadow-small border-1 border-divider">
+    <Card className="w-full bg-dashboard-panel shadow-none border border-dashboard-border">
       <CardBody className="p-6 gap-6">
         <ProfilIdentity user={user} />
         <p className="text-small text-default-500">
@@ -106,7 +106,7 @@ function ProfilFormBetterAuth({ user }: { user: ProfilUser }) {
   };
 
   return (
-    <Card className="w-full shadow-small border-1 border-divider">
+    <Card className="w-full bg-dashboard-panel shadow-none border border-dashboard-border">
       <CardBody className="p-6 gap-6">
         <ProfilIdentity user={user} />
 

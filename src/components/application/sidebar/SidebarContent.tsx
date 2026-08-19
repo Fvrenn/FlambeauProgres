@@ -7,6 +7,8 @@ import Image from "next/image";
 import Sidebar, { SidebarItem, SidebarNavItemClassNames } from "./sidebar";
 import ContextSwitcher from "./ContextSwitcher";
 
+import { siteConfig } from "@/config/site";
+
 type SidebarContentProps = {
   user: SessionUser;
   sidebarItems: SidebarItem[];
@@ -66,6 +68,20 @@ export const SidebarContent = ({
           onItemSelect={onItemSelect}
         />
       </ScrollShadow>
+
+      <footer
+        className={`shrink-0 border-t border-dashboard-border pt-3 text-center text-tiny leading-tight text-default-400 ${
+          isCompact ? "w-full px-1" : "px-2"
+        }`}
+      >
+        {isCompact ? (
+          <span>v{siteConfig.version}</span>
+        ) : (
+          <span>
+            Développé par {siteConfig.author} - v{siteConfig.version}
+          </span>
+        )}
+      </footer>
     </div>
   );
 };

@@ -59,7 +59,7 @@ export default function FormationsClientPage({
       </div>
 
       {formations.length === 0 ? (
-        <div className="flex flex-col items-center gap-2 py-10 text-default-400 border border-dashed border-default-300 rounded-large">
+        <div className="flex flex-col items-center gap-2 py-10 text-default-400 border border-dashed border-dashboard-border rounded-large">
           <Icon className="text-3xl" icon="solar:gallery-add-linear" />
           <p className="text-sm">Aucune carte de formation pour le moment.</p>
         </div>
@@ -68,12 +68,12 @@ export default function FormationsClientPage({
           {formations.map((formation) => (
             <Card
               key={formation.id}
-              className="p-0 overflow-hidden h-[270px]"
+              className="p-0 overflow-hidden h-[270px] bg-dashboard-panel"
               size="sm"
             >
               {/* Zone image — 160px, arrondie en haut seulement */}
               <div
-                className="w-full shrink-0 bg-default-100 border-b border-dashed border-default-300 overflow-hidden"
+                className="w-full shrink-0 bg-dashboard-card border-b border-dashed border-dashboard-border overflow-hidden"
                 style={{ height: 160, borderRadius: "22px 22px 0 0" }}
               >
                 {formation.imageUrl ? (

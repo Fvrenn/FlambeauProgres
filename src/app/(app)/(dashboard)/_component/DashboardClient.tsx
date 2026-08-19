@@ -1,5 +1,7 @@
 "use client";
 
+import type { Branche } from "@/lib/wordpress-profile";
+
 import { Etape, Objectif, Justification, Notification } from "@prisma/client";
 import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
@@ -25,12 +27,14 @@ interface DashboardClientProps {
   etapes: EtapeAvecObjectifs[];
   notifications: Notification[];
   viewer: DiscussionViewer;
+  branche: Branche | null;
 }
 
 export default function DashboardClient({
   etapes: initialEtapes,
   notifications,
   viewer,
+  branche,
 }: DashboardClientProps) {
   const [etapes, setEtapes] = useState<EtapeAvecObjectifs[]>(initialEtapes);
 
@@ -175,6 +179,7 @@ export default function DashboardClient({
     <div className="flex items-stretch md:flex-1 gap-0 md:gap-4 md:pt-4 min-h-0 flex-auto md:flex-0">
       <ContentChemise
         activeTab={activeTab}
+        branche={branche}
         currentJalon={currentJalon}
         etapes={etapes}
         notifications={notifications}
