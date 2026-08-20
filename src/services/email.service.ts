@@ -88,6 +88,7 @@ export class EmailService {
         subject: content.subject,
         html: content.html,
         text: content.text,
+        replyTo: process.env.EMAIL_REPLY_TO || undefined,
         messageId: options?.messageId,
         headers: options?.headers,
       });
