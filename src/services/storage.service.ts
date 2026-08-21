@@ -1,5 +1,6 @@
 import path from "path";
 import { writeFile, mkdir, unlink } from "fs/promises";
+import { mkdirSync } from "fs";
 
 const ALLOWED_MIME_TYPES = new Set<string>([
   "image/jpeg",
@@ -16,6 +17,8 @@ const MAX_FILE_SIZE = 8 * 1024 * 1024;
 const UPLOAD_DIR =
   process.env.UPLOAD_DIR ||
   path.join(/*turbopackIgnore: true*/ process.cwd(), "uploads");
+
+mkdirSync(UPLOAD_DIR, { recursive: true });
 
 export interface StoredFile {
   storedPath: string;
