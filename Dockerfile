@@ -24,12 +24,20 @@ RUN groupadd -g 1001 nodejs && useradd -u 1001 -g nodejs nextjs
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-# nécessaires pour lancer les migrations au démarrage
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 
+RUN mkdir -p node_modules/.bin && \
+    ln -sf ../prisma/build/index.js node_modules/.bin/prisma && \
+    chmod +x node_modules/prisma/build/index.js
+
+RUN mkdir -p /app/uploads && chown nextjs:nodejs /app/uploads
+RUN chown -R nextjs:nodejs /app/node_modules /app/prisma
+
+VOLUME /app/uploads
+
 USER nextjs
 EXPOSE 8022
-CMD ["node", "server.js"]
+CMD ["sh", "-c", "node node_modules/prisma/build/index.js migrate deploy && node server.js"]
