@@ -59,6 +59,7 @@ async function main() {
   const etapeDecouvrir = await prisma.etape.create({
     data: {
       number: "1",
+      wpValue: "101",
       name: "Découvrir",
       description:
         "Étape 1 du Parcours du Chef. Une fois validée par ton Chef de Groupe, certifie-la pour débloquer les badges de l'Étape 2.",
@@ -74,6 +75,7 @@ async function main() {
   const etape2B = await prisma.etape.create({
     data: {
       number: "2b",
+      wpValue: "202",
       name: "Branche Petits Flambeaux",
       description:
         "Cette spécialité s'adresse bien entendu aux Chefs de la branche Petits Flambeaux. C'est une étape indispensable pour être Chef de Troupe de cette branche...",
@@ -147,6 +149,7 @@ async function main() {
   const etape2C = await prisma.etape.create({
     data: {
       number: "2c",
+      wpValue: "203",
       name: "Branche Flambeaux",
       description:
         "Cette spécialité s'adresse bien entendu aux Chefs de la branche Flambeaux. C'est une étape indispensable pour être Chef de Troupe de cette branche...",
@@ -220,6 +223,7 @@ async function main() {
   const etape2E = await prisma.etape.create({
     data: {
       number: "2e",
+      wpValue: "205",
       name: "Animation",
       description:
         "Qui parmi les Chefs n’est pas animateur? A tous de lancer un jeu impromptu et de savoir gérer une courbe de veillée...",
@@ -292,6 +296,7 @@ async function main() {
   const etape2F = await prisma.etape.create({
     data: {
       number: "2f",
+      wpValue: "206",
       name: "Communication",
       description:
         "La communication est le système nerveux du groupe, qu’elle soit interne ou en lien avec les différents partenaires...",
@@ -365,6 +370,7 @@ async function main() {
   const etapeConstruction = await prisma.etape.create({
     data: {
       number: "2g",
+      wpValue: "207",
       name: "Construction",
       description:
         "Vivre dans la nature d'accord, mais pas à n'importe quelle condition ! La maîtrise des nœuds, des outils et des techniques...",
@@ -438,6 +444,7 @@ async function main() {
   const etapeCuisine = await prisma.etape.create({
     data: {
       number: "2h",
+      wpValue: "208",
       name: "Cuisine",
       description:
         "Savoir cuisiner est un art, un devoir lorsqu'on veut défendre la gastronomie française...",
@@ -518,6 +525,7 @@ async function main() {
   const etape2I = await prisma.etape.create({
     data: {
       number: "2i",
+      wpValue: "209",
       name: "Exploration",
       description:
         "Vous vous passionnez pour les cartes, boussoles et signes de piste car chaque voyage est une aventure...",
@@ -591,6 +599,7 @@ async function main() {
   const etape2J = await prisma.etape.create({
     data: {
       number: "2j",
+      wpValue: "210",
       name: "Intendance",
       description:
         "Le trésorier a une fonction stratégique. Même si la gestion des finances demande un peu de discipline...",
@@ -664,6 +673,7 @@ async function main() {
   const etape2K = await prisma.etape.create({
     data: {
       number: "2k",
+      wpValue: "211",
       name: "Matériel",
       description:
         "En tant que responsable matériel, tu es le fournisseur de moyens de ton équipe...",
@@ -737,6 +747,7 @@ async function main() {
   const etape2L = await prisma.etape.create({
     data: {
       number: "2l",
+      wpValue: "212",
       name: "Nature",
       description:
         "Apprendre à connaître la nature c'est apprendre à l'aimer et donc à la protéger...",
@@ -810,6 +821,7 @@ async function main() {
   const etape2M = await prisma.etape.create({
     data: {
       number: "2m",
+      wpValue: "213",
       name: "Santé",
       description:
         "En camp ou au cours de l'année, l'assistant sanitaire joue un rôle indispensable...",
@@ -888,6 +900,7 @@ async function main() {
   const etape2N = await prisma.etape.create({
     data: {
       number: "2n",
+      wpValue: "214",
       name: "Vie Spirituelle",
       description:
         "Cercle du Feu, engagement spirituel, échanges personnels ... chaque Chef est concerné par la vie spirituelle du groupe...",

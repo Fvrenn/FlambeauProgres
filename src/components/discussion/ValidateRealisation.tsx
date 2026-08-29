@@ -2,7 +2,8 @@
 
 import React, { useState, useTransition } from "react";
 import { Button, Popover, PopoverContent, PopoverTrigger } from "@heroui/react";
-import { Icon } from "@iconify/react";
+
+import { Icon } from "@/lib/icons";
 
 interface ValidateRealisationProps {
   disabled?: boolean;

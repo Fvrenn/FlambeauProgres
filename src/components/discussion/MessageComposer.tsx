@@ -2,9 +2,10 @@
 
 import React, { useRef, useState, useTransition } from "react";
 import { Button, Chip, Textarea } from "@heroui/react";
-import { Icon } from "@iconify/react";
 
 import { validateFileClient } from "./useDiscussionThread";
+
+import { Icon } from "@/lib/icons";
 
 interface MessageComposerProps {
   disabled?: boolean;

@@ -38,6 +38,11 @@ enum StatutChefEtape {
   VALIDE
 }
 
+enum OrigineValidation {
+  APP
+  PLATEFORME
+}
+
 enum TypeFichier {
   IMAGE
   DOCUMENT
@@ -61,14 +66,15 @@ enum TypeNotification {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  wpUserId  Int?     @unique
-  email     String   @unique
-  name      String
-  image     String?
-  role      UserRole @default(CHEF)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                  String    @id @default(cuid())
+  wpUserId            Int?      @unique
+  email               String    @unique
+  name                String
+  image               String?
+  role                UserRole  @default(CHEF)
+  wpProgressionSyncAt DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
   justifications        Justification[]
   assigneEtapes         EtapeReferent[]
@@ -94,6 +100,7 @@ model Etape {
   niveau      Int       @default(2)
   type        TypeEtape @default(BADGE)
   actif       Boolean   @default(true)
+  wpValue     String?   @unique
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
@@ -118,10 +125,11 @@ model FormationCard {
 }
 
 model ChefEtapeStatut {
-  id           String          @id @default(cuid())
+  id           String            @id @default(cuid())
   chefId       String
   etapeId      String
-  statut       StatutChefEtape @default(EN_COURS)
+  statut       StatutChefEtape   @default(EN_COURS)
+  origine      OrigineValidation @default(APP)
   valideeAt    DateTime?
   valideeParId String?
 

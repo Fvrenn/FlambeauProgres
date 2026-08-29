@@ -1,7 +1,8 @@
 import React from "react";
 import { tv, type VariantProps } from "tailwind-variants";
 import { cn } from "@heroui/react";
-import { Icon } from "@iconify/react";
+
+import { Icon } from "@/lib/icons";
 
 const badgeVariants = tv({
   base: [

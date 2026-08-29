@@ -4,13 +4,13 @@ import type { FormationCard } from "@prisma/client";
 
 import React from "react";
 import { Image } from "@heroui/react";
-import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 
 import { deleteFormation } from "../_actions/admin.actions";
 
 import FormationModal from "./_components/FormationModal";
 
+import { Icon } from "@/lib/icons";
 import { Button, Card, CardBody } from "@/components/ui";
 
 type FormationsClientPageProps = {

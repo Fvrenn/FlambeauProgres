@@ -13,6 +13,26 @@ export function niveauMaxDebloque(
     : Math.min(...bloquants);
 }
 
+export function jalonsImplicites(
+  etapesDeclarees: JalonNiveau[],
+  jalons: JalonNiveau[],
+): string[] {
+  if (etapesDeclarees.length === 0) {
+    return [];
+  }
+
+  const niveauMaxDeclare = Math.max(
+    ...etapesDeclarees.map((etape) => etape.niveau),
+  );
+  const declarees = new Set(etapesDeclarees.map((etape) => etape.id));
+
+  return jalons
+    .filter(
+      (jalon) => jalon.niveau < niveauMaxDeclare && !declarees.has(jalon.id),
+    )
+    .map((jalon) => jalon.id);
+}
+
 export function etapeEstDebloquee(
   niveauEtape: number,
   niveauMax: number,

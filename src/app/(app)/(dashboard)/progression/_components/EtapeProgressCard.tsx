@@ -1,5 +1,7 @@
 "use client";
 
+import type { OrigineValidation } from "@prisma/client";
+
 import Image from "next/image";
 
 import ProgressBar from "./ProgressBar";
@@ -14,6 +16,8 @@ type EtapeProgressCardProps = {
   color: string;
   done: number;
   total: number;
+  isValidated?: boolean;
+  origineValidation?: OrigineValidation | null;
 };
 
 export default function EtapeProgressCard({
@@ -23,8 +27,10 @@ export default function EtapeProgressCard({
   color,
   done,
   total,
+  isValidated = false,
+  origineValidation = null,
 }: EtapeProgressCardProps) {
-  const completed = total > 0 && done >= total;
+  const completed = isValidated || (total > 0 && done >= total);
 
   let percentage = total > 0 ? Math.round((done / total) * 100) : 0;
 
@@ -78,7 +84,11 @@ export default function EtapeProgressCard({
         />
 
         <span className="text-xs text-default-400">
-          {done}/{total} objectifs validés
+          {isValidated
+            ? origineValidation === "PLATEFORME"
+              ? "Validée sur la plateforme"
+              : "Validée"
+            : `${done}/${total} objectifs validés`}
         </span>
       </CardBody>
     </Card>

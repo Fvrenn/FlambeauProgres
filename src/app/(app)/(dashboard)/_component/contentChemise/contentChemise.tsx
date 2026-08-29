@@ -5,7 +5,6 @@ import type { Branche } from "@/lib/wordpress-profile";
 import React, { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { Icon } from "@iconify/react";
 import { Justification, Notification } from "@prisma/client";
 
 import { EtapeAvecObjectifs } from "../DashboardClient";
@@ -14,6 +13,7 @@ import ObjectifPanel from "../contentAction/panels/ObjectifPanel";
 import NotificationDrawer from "../contentAction/NotificationDrawer";
 import JalonBadge from "../JalonBadge";
 
+import { Icon } from "@/lib/icons";
 import { type DiscussionViewer } from "@/components/discussion/DiscussionThread";
 
 const OBJECTIFS_OFFSET_SELECTED = -100;

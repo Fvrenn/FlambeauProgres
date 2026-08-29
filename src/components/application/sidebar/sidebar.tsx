@@ -9,8 +9,9 @@ import {
 } from "@heroui/react";
 import React from "react";
 import { Listbox, Tooltip, ListboxItem, ListboxSection } from "@heroui/react";
-import { Icon } from "@iconify/react";
 import { cn } from "@heroui/react";
+
+import { Icon } from "@/lib/icons";
 import "./sidebar.css";
 
 const DEFAULT_NAV_ITEM_BASE_CLASSES =

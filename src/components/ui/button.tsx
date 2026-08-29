@@ -2,8 +2,9 @@
 
 import React from "react";
 import { tv, type VariantProps } from "tailwind-variants";
-import { Icon } from "@iconify/react";
 import { cn } from "@heroui/react";
+
+import { Icon } from "@/lib/icons";
 
 const buttonVariants = tv({
   base: [

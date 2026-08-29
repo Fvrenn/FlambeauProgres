@@ -19,10 +19,10 @@ ENV NODE_ENV=production
 ENV PORT=8022
 ENV HOSTNAME=0.0.0.0
 
-RUN groupadd -g 1001 nodejs && useradd -u 1001 -g nodejs nextjs
+RUN groupadd -g 1001 nodejs && useradd -u 1001 -g nodejs -m -d /home/nextjs nextjs
 
 COPY --from=builder /app/package.json /app/package-lock.json ./
-RUN npm install prisma --no-save --omit=dev
+RUN npm install prisma tsx --no-save --omit=dev
 
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./

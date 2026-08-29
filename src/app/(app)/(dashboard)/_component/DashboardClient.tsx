@@ -2,7 +2,13 @@
 
 import type { Branche } from "@/lib/wordpress-profile";
 
-import { Etape, Objectif, Justification, Notification } from "@prisma/client";
+import {
+  Etape,
+  Objectif,
+  Justification,
+  Notification,
+  OrigineValidation,
+} from "@prisma/client";
 import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 
@@ -20,6 +26,7 @@ export type ObjectifAvecJustification = Objectif & {
 export type EtapeAvecObjectifs = Etape & {
   objectifs: ObjectifAvecJustification[];
   isValidated?: boolean;
+  origineValidation?: OrigineValidation | null;
   verrouille?: boolean;
 };
 

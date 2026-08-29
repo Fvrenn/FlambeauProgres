@@ -3,7 +3,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { type User, type Justification } from "@prisma/client";
 import { useRouter } from "next/navigation";
-import { Icon } from "@iconify/react";
 import { cn } from "@heroui/react";
 
 import ReferentValidationModal, {
@@ -13,6 +12,7 @@ import ReferentTabs from "./_components/ReferentTabs";
 import ValidationPanel from "./_components/panels/ValidationPanel";
 import RevisionPanel from "./_components/panels/RevisionPanel";
 
+import { Icon } from "@/lib/icons";
 import { Card, CardBody } from "@/components/ui";
 import { type DiscussionViewer } from "@/components/discussion/DiscussionThread";
 

@@ -10,8 +10,8 @@ import {
   ModalFooter,
   useDisclosure,
 } from "@heroui/react";
-import { Icon } from "@iconify/react";
 
+import { Icon } from "@/lib/icons";
 import { validateEtape } from "@/actions/etape/etape.actions";
 
 type ValidationFinaleButtonProps = {

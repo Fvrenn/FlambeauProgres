@@ -1,8 +1,8 @@
 import React from "react";
 import Link from "next/link";
-import { Icon } from "@iconify/react";
 import { cn } from "@heroui/react";
 
+import { Icon } from "@/lib/icons";
 import { prisma } from "@/lib/prisma";
 import { roleColorMap } from "@/lib/roles";
 import { Badge, Card, CardBody } from "@/components/ui";

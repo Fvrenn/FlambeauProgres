@@ -1,8 +1,11 @@
+import type { WpTaxonomyEntry } from "@/lib/wordpress-profile";
+
 import { cache } from "react";
 import { cookies } from "next/headers";
 
 import { prisma } from "@/lib/prisma";
 import { parseWpProfile } from "@/lib/wordpress-profile";
+import { WpProgressionService } from "@/services/wp-progression.service";
 
 const WP_URL = process.env.WORDPRESS_URL!;
 
@@ -18,16 +21,22 @@ type WpUser = {
   progression: { value: string; label: string }[];
 };
 
-async function fetchWpUser(): Promise<WpUser | null> {
+export async function getWordpressCookieHeader(): Promise<string | null> {
   const store = await cookies();
   const all = store.getAll();
 
   if (!all.some((c) => c.name.startsWith("wordpress_logged_in"))) return null;
 
-  const cookieHeader = all
+  return all
     .filter((c) => c.name.startsWith("wordpress") || c.name.startsWith("wfwaf"))
     .map((c) => `${c.name}=${encodeURIComponent(c.value)}`)
     .join("; ");
+}
+
+async function fetchWpUser(): Promise<WpUser | null> {
+  const cookieHeader = await getWordpressCookieHeader();
+
+  if (!cookieHeader) return null;
 
   try {
     const res = await fetch(`${WP_URL}/wp-json/flbx/v1/user-info?_wpnonce=1`, {
@@ -39,6 +48,12 @@ async function fetchWpUser(): Promise<WpUser | null> {
   } catch {
     return null;
   }
+}
+
+export async function fetchWpProgression(): Promise<WpTaxonomyEntry[] | null> {
+  const wp = await fetchWpUser();
+
+  return Array.isArray(wp?.progression) ? wp.progression : null;
 }
 
 export const getCurrentUser = cache(async () => {
@@ -85,5 +100,15 @@ export const getCurrentUser = cache(async () => {
     });
   }
 
-  return { ...user, wp: parseWpProfile(wp) };
+  const profile = parseWpProfile(wp);
+
+  if (Array.isArray(wp.progression)) {
+    await WpProgressionService.synchroniserSiNecessaire(
+      user.id,
+      profile.progressionEntries,
+      user.wpProgressionSyncAt,
+    );
+  }
+
+  return { ...user, wp: profile };
 });

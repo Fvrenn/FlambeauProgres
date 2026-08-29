@@ -11,12 +11,12 @@ import {
   BreadcrumbItem,
   Image,
 } from "@heroui/react";
-import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 
 import ObjectifModal from "../_components/ObjectifModal";
 import { updateEtapeBadge, deleteObjectif } from "../../_actions/admin.actions";
 
+import { Icon } from "@/lib/icons";
 import AdminDataTable, { Column } from "@/components/admin/AdminDataTable";
 import { Input } from "@/components/ui";
 import { DEFAULT_ETAPE_COLOR } from "@/lib/color";

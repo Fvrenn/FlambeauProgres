@@ -12,12 +12,12 @@ import {
   cn,
 } from "@heroui/react";
 import { Divider } from "@heroui/divider";
-import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 import { Justification } from "@prisma/client";
 
 import { ObjectifAvecJustification } from "../../DashboardClient";
 
+import { Icon } from "@/lib/icons";
 import DiscussionThread, {
   type DiscussionViewer,
 } from "@/components/discussion/DiscussionThread";
@@ -389,7 +389,7 @@ export default function ObjectifModal({
                     isLoading={isSubmitting}
                     startContent={
                       !isSubmitting && (
-                        <Icon icon="solar:send-linear" width={20} />
+                        <Icon icon="solar:plain-linear" width={20} />
                       )
                     }
                     onPress={handleSubmit}

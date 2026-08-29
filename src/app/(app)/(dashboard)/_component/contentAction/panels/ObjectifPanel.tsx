@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { Justification } from "@prisma/client";
 import { Tabs, Tab, useDisclosure } from "@heroui/react";
-import { Icon } from "@iconify/react";
 import { Button } from "@heroui/react";
 import { Divider } from "@heroui/divider";
 
@@ -16,6 +15,7 @@ import {
 import StatusChip from "./StatusChip";
 import ObjectifModal from "./ObjectifModal";
 
+import { Icon } from "@/lib/icons";
 import { DEFAULT_ETAPE_COLOR, getReadableTextColor } from "@/lib/color";
 import { type DiscussionViewer } from "@/components/discussion/DiscussionThread";
 

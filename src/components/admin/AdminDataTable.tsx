@@ -11,8 +11,8 @@ import {
   Pagination,
   SortDescriptor,
 } from "@heroui/react";
-import { Icon } from "@iconify/react";
 
+import { Icon } from "@/lib/icons";
 import { Input } from "@/components/ui";
 
 export type Column = {

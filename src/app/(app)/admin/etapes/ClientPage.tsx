@@ -4,11 +4,11 @@ import type { AdminEtapeListItem } from "@/types";
 
 import React from "react";
 import { Image, Button as HeroButton, Tooltip } from "@heroui/react";
-import { Icon } from "@iconify/react";
 import Link from "next/link";
 
 import EtapeModal from "./_components/EtapeModal";
 
+import { Icon } from "@/lib/icons";
 import AdminDataTable, { Column } from "@/components/admin/AdminDataTable";
 import { Button, Card, CardBody } from "@/components/ui";
 

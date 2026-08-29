@@ -61,6 +61,7 @@ export class AnalyticsService {
         prisma.chefEtapeStatut.findMany({
           where: {
             statut: "VALIDE",
+            origine: "APP",
             valideeParId: filtres.referentId ?? { not: null },
             valideeAt: filtreDate,
             etapeId: filtres.etapeId,

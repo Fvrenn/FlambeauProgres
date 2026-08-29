@@ -1,7 +1,8 @@
 import React from "react";
 import { Chip } from "@heroui/react";
-import { Icon } from "@iconify/react";
 import { StatutJustification } from "@prisma/client";
+
+import { Icon } from "@/lib/icons";
 
 interface StatusChipProps {
   statut: StatutJustification | null;

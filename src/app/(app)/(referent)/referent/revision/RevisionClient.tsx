@@ -4,9 +4,9 @@ import type { User, Etape, Justification, Objectif } from "@prisma/client";
 
 import React from "react";
 import { Divider, Button, Chip } from "@heroui/react";
-import { Icon } from "@iconify/react";
 import Link from "next/link";
 
+import { Icon } from "@/lib/icons";
 import ValidationFinaleButton from "@/components/application/referent/ValidationFinaleButton";
 import { Avatar, Card, CardBody } from "@/components/ui";
 

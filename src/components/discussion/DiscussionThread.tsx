@@ -4,12 +4,13 @@ import type { UserRole } from "@prisma/client";
 import type { ThreadObjectif } from "./types";
 
 import React from "react";
-import { Icon } from "@iconify/react";
 
 import MessageList from "./MessageList";
 import MessageComposer from "./MessageComposer";
 import ValidateRealisation from "./ValidateRealisation";
 import { useDiscussionThread } from "./useDiscussionThread";
+
+import { Icon } from "@/lib/icons";
 
 export type DiscussionViewer = {
   id: string;

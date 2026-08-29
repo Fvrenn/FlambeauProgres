@@ -23,6 +23,12 @@ const etapeInfoSchema = z.object({
   name: z.string().min(1).max(120),
   description: z.string().max(2000),
   ordre: z.number().int(),
+  wpValue: z
+    .string()
+    .max(50)
+    .transform((value) => value.trim() || null)
+    .nullable()
+    .optional(),
 });
 
 const createEtapeSchema = etapeInfoSchema.extend({
@@ -133,6 +139,7 @@ export async function createEtape(data: {
   name: string;
   description: string;
   ordre: number;
+  wpValue?: string | null;
   objectifs: {
     code: string;
     description: string;
@@ -158,6 +165,7 @@ export async function createEtape(data: {
         name: parsed.data.name,
         description: parsed.data.description,
         ordre: parsed.data.ordre,
+        wpValue: parsed.data.wpValue ?? null,
         objectifs: {
           create: parsed.data.objectifs,
         },
@@ -181,6 +189,7 @@ export async function updateEtape(
     name: string;
     description: string;
     ordre: number;
+    wpValue?: string | null;
   },
 ) {
   if (!(await authorizeRole("ADMIN"))) {
@@ -202,6 +211,7 @@ export async function updateEtape(
         name: parsed.data.name,
         description: parsed.data.description,
         ordre: parsed.data.ordre,
+        wpValue: parsed.data.wpValue ?? null,
       },
     });
 

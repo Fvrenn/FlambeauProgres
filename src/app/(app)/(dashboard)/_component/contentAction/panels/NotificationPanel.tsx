@@ -3,8 +3,8 @@
 import React, { useTransition } from "react";
 import { type Notification, TypeNotification } from "@prisma/client";
 import { Button } from "@heroui/react";
-import { Icon } from "@iconify/react";
 
+import { Icon } from "@/lib/icons";
 import {
   markAllNotificationsAsRead,
   markNotificationAsRead,

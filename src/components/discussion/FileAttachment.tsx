@@ -4,7 +4,8 @@ import type { ThreadFile } from "./types";
 
 import React from "react";
 import { Spinner } from "@heroui/react";
-import { Icon } from "@iconify/react";
+
+import { Icon } from "@/lib/icons";
 
 interface FileAttachmentProps {
   fichier: ThreadFile;

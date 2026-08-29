@@ -11,10 +11,10 @@ import {
   ModalHeader,
   useDisclosure,
 } from "@heroui/react";
-import { Icon } from "@iconify/react";
 
 import { EtapeAvecObjectifs } from "./DashboardClient";
 
+import { Icon } from "@/lib/icons";
 import { validerJalon } from "@/actions/etape/etape.actions";
 import { Button } from "@/components/ui";
 

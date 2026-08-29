@@ -1,7 +1,8 @@
 import React from "react";
 import { Button, cn } from "@heroui/react";
-import { Icon } from "@iconify/react";
 import { motion, AnimatePresence } from "framer-motion";
+
+import { Icon } from "@/lib/icons";
 
 type SidebarDrawerProps = {
   isOpen: boolean;

@@ -19,10 +19,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
 import { TypeObjectif } from "@prisma/client";
-import { Icon } from "@iconify/react";
 
 import { createEtape, updateEtape } from "../../_actions/admin.actions";
 
+import { Icon } from "@/lib/icons";
 import { FormModal } from "@/components/admin/FormModal";
 import { Input } from "@/components/ui";
 
@@ -31,6 +31,7 @@ const etapeSchema = z.object({
   name: z.string().min(1, "Le nom est requis"),
   description: z.string().min(1, "La description est requise"),
   ordre: z.number().min(1, "L'ordre doit être positif"),
+  wpValue: z.string(),
   objectifs: z.array(
     z.object({
       code: z.string().min(1, "Code requis"),
@@ -72,6 +73,7 @@ export default function EtapeModal({
       name: "",
       description: "",
       ordre: 1,
+      wpValue: "",
       objectifs: [],
     },
   });
@@ -88,6 +90,7 @@ export default function EtapeModal({
         setValue("name", etape.name);
         setValue("description", etape.description);
         setValue("ordre", etape.ordre);
+        setValue("wpValue", etape.wpValue ?? "");
         setValue("objectifs", []);
       } else {
         reset({
@@ -95,6 +98,7 @@ export default function EtapeModal({
           name: "",
           description: "",
           ordre: 1,
+          wpValue: "",
           objectifs: [
             {
               code: "",
@@ -118,6 +122,7 @@ export default function EtapeModal({
           name: data.name,
           description: data.description,
           ordre: data.ordre,
+          wpValue: data.wpValue,
         });
       } else {
         await createEtape(data);
@@ -171,6 +176,16 @@ export default function EtapeModal({
                 isInvalid={!!errors.name}
               />
             </div>
+
+            <Input
+              className="w-full sm:w-1/3"
+              description="Identifiant de la taxonomie progression de la plateforme (ex: 203)"
+              label="Identifiant plateforme"
+              placeholder="Ex: 203"
+              {...register("wpValue")}
+              errorMessage={errors.wpValue?.message}
+              isInvalid={!!errors.wpValue}
+            />
 
             <Textarea
               label="Description"

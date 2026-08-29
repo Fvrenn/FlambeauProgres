@@ -3,10 +3,10 @@
 import { User, UserRole } from "@prisma/client";
 import React from "react";
 import { Tooltip } from "@heroui/react";
-import { Icon } from "@iconify/react";
 
 import UserModal from "./_components/UserModal";
 
+import { Icon } from "@/lib/icons";
 import AdminDataTable, { Column } from "@/components/admin/AdminDataTable";
 import { Badge, Avatar, Card, CardBody, Button } from "@/components/ui";
 import { roleColorMap } from "@/lib/roles";

@@ -1,4 +1,4 @@
-import type { TypeEtape } from "@prisma/client";
+import type { OrigineValidation, TypeEtape } from "@prisma/client";
 
 import { STATUTS_VALIDES } from "@/lib/justification";
 import { etapeEstDebloquee, niveauMaxDebloque } from "@/lib/parcours";
@@ -23,6 +23,7 @@ export type EtapeProgressForChef = {
   total: number;
   verrouille: boolean;
   isValidated: boolean;
+  origineValidation: OrigineValidation | null;
 };
 
 export class EtapeService {
@@ -50,11 +51,14 @@ export class EtapeService {
       }),
       prisma.chefEtapeStatut.findMany({
         where: { chefId, statut: "VALIDE" },
-        select: { etapeId: true },
+        select: { etapeId: true, origine: true },
       }),
     ]);
 
     const doneByEtape = new Map(validees.map((v) => [v.etapeId, v._count.id]));
+    const originesParEtape = new Map(
+      statutsValides.map((s) => [s.etapeId, s.origine]),
+    );
     const etapesValidees = new Set(statutsValides.map((s) => s.etapeId));
     const jalons = etapes
       .filter((etape) => etape.type === "JALON")
@@ -73,6 +77,7 @@ export class EtapeService {
       total: etape._count.objectifs,
       verrouille: !etapeEstDebloquee(etape.niveau, niveauMax),
       isValidated: etapesValidees.has(etape.id),
+      origineValidation: originesParEtape.get(etape.id) ?? null,
     }));
   }
 
@@ -88,10 +93,13 @@ export class EtapeService {
       }),
       prisma.chefEtapeStatut.findMany({
         where: { chefId, statut: "VALIDE" },
-        select: { etapeId: true },
+        select: { etapeId: true, origine: true },
       }),
     ]);
 
+    const originesParEtape = new Map(
+      statutsValides.map((s) => [s.etapeId, s.origine]),
+    );
     const etapesIdsValidees = new Set(statutsValides.map((s) => s.etapeId));
     const jalons = etapes
       .filter((etape) => etape.type === "JALON")
@@ -101,6 +109,7 @@ export class EtapeService {
     return etapes.map((etape) => ({
       ...etape,
       isValidated: etapesIdsValidees.has(etape.id),
+      origineValidation: originesParEtape.get(etape.id) ?? null,
       verrouille: !etapeEstDebloquee(etape.niveau, niveauMax),
     }));
   }
@@ -138,6 +147,7 @@ export class EtapeService {
       },
       update: {
         statut: "VALIDE",
+        origine: "APP",
         valideeAt: new Date(),
         valideeParId: referentId,
       },
@@ -145,6 +155,7 @@ export class EtapeService {
         chefId: chefId,
         etapeId: etapeId,
         statut: "VALIDE",
+        origine: "APP",
         valideeAt: new Date(),
         valideeParId: referentId,
       },
@@ -198,11 +209,17 @@ export class EtapeService {
 
     await prisma.chefEtapeStatut.upsert({
       where: { chefId_etapeId: { chefId, etapeId } },
-      update: { statut: "VALIDE", valideeAt: new Date(), valideeParId: null },
+      update: {
+        statut: "VALIDE",
+        origine: "APP",
+        valideeAt: new Date(),
+        valideeParId: null,
+      },
       create: {
         chefId,
         etapeId,
         statut: "VALIDE",
+        origine: "APP",
         valideeAt: new Date(),
         valideeParId: null,
       },

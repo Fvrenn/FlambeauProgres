@@ -3,9 +3,9 @@
 import React from "react";
 import { Chip } from "@heroui/react";
 import { type User as UserType } from "@prisma/client";
-import { Icon } from "@iconify/react";
 import { useRouter, useSearchParams } from "next/navigation";
 
+import { Icon } from "@/lib/icons";
 import AdminDataTable, { Column } from "@/components/admin/AdminDataTable";
 import { Avatar, Card, CardBody, Button } from "@/components/ui";
 

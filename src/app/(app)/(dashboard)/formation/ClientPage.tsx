@@ -3,7 +3,8 @@
 import type { FormationCard } from "@prisma/client";
 
 import { Image as HeroImage } from "@heroui/react";
-import { Icon } from "@iconify/react";
+
+import { Icon } from "@/lib/icons";
 
 type FormationClientPageProps = {
   formations: FormationCard[];

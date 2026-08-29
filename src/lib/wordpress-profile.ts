@@ -7,6 +7,7 @@ export type WpProfile = {
   branche: Branche | null;
   fonctions: string[];
   progression: string[];
+  progressionEntries: WpTaxonomyEntry[];
 };
 
 const BRANCHE_BY_FONCTION_VALUE: Record<string, Branche> = {
@@ -22,6 +23,10 @@ export function normalizeWpLabel(label: string): string {
     .replace(/[\u0300-\u036f]/g, "")
     .trim()
     .toLowerCase();
+}
+
+export function estEntreeSelectionnable(entry: WpTaxonomyEntry): boolean {
+  return !/<b[\s>]/i.test(entry.label);
 }
 
 export function detectBranche(
@@ -68,6 +73,7 @@ export function parseWpProfile(wp: {
     progression: (wp.progression ?? []).map((entry) =>
       normalizeWpLabel(entry.label),
     ),
+    progressionEntries: (wp.progression ?? []).filter(estEntreeSelectionnable),
   };
 }
 

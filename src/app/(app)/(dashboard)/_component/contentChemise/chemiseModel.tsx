@@ -16,6 +16,10 @@ import {
 } from "react";
 import { MathUtils, Group, Mesh, MeshStandardMaterial } from "three";
 
+const DRACO_DECODER_PATH = "/draco/";
+
+useGLTF.setDecoderPath(DRACO_DECODER_PATH);
+
 import {
   evaluerAvancementBarettes,
   getChemiseVisibility,
@@ -97,7 +101,7 @@ function ChemiseGLB({
   etapes?: EtapeAvancement[];
   isMobile: boolean;
 }) {
-  const { scene } = useGLTF("/chemise/chemise.glb", "/draco/");
+  const { scene } = useGLTF("/chemise/chemise.glb", DRACO_DECODER_PATH);
   const meshRef = useRef<Group>(null);
 
   useFrame((_, delta) => {
@@ -307,4 +311,4 @@ export const ChemiseModel = ({
   );
 };
 
-useGLTF.preload("/chemise/chemise.glb");
+useGLTF.preload("/chemise/chemise.glb", DRACO_DECODER_PATH);

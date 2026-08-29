@@ -15,8 +15,8 @@ import {
   TableRow,
   cn,
 } from "@heroui/react";
-import { Icon } from "@iconify/react";
 
+import { Icon } from "@/lib/icons";
 import { Badge, Button, Input } from "@/components/ui";
 
 const LIGNES_PAR_PAGE = 20;

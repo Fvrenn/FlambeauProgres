@@ -10,9 +10,10 @@ import {
   DrawerHeader,
   useDisclosure,
 } from "@heroui/react";
-import { Icon } from "@iconify/react";
 
 import NotificationPanel from "./panels/NotificationPanel";
+
+import { Icon } from "@/lib/icons";
 
 interface NotificationDrawerProps {
   notifications: Notification[];

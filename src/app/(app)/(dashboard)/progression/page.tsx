@@ -55,8 +55,10 @@ export default async function ProgressionPage() {
                 color={etape.couleur ?? DEFAULT_ETAPE_COLOR}
                 done={etape.done}
                 imageSrc={etape.imageSrc}
+                isValidated={etape.isValidated}
                 name={etape.name}
                 number={etape.number}
+                origineValidation={etape.origineValidation}
                 total={etape.total}
               />
             </Link>

@@ -4,8 +4,8 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Tooltip, cn } from "@heroui/react";
-import { Icon } from "@iconify/react";
 
+import { Icon } from "@/lib/icons";
 import { BUG_REPORT_NAV_ITEM } from "@/config/navigation";
 
 type BugReportNavLinkProps = {

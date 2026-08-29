@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint --fix",
     "test": "vitest run",
-    "glb:optimize": "bash scripts/optimize-glb.sh public/chemise/chemise.glb"
+    "glb:optimize": "bash scripts/optimize-glb.sh public/chemise/chemise.glb",
+    "build:icons": "node scripts/build-icons.mjs",
+    "prebuild": "node scripts/build-icons.mjs"
   },
   "prisma": {
     "seed": "ts-node-dev --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
@@ -45,6 +47,7 @@
     "@eslint/eslintrc": "^3.3.6",
     "@eslint/js": "^9.39.5",
     "@gltf-transform/cli": "^4.4.2",
+    "@iconify-json/solar": "^1.2.10",
     "@iconify/react": "^6.0.2",
     "@next/eslint-plugin-next": "15.3.4",
     "@react-types/shared": "3.32.1",

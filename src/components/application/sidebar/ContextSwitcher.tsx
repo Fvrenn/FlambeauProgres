@@ -13,11 +13,11 @@ import {
   Spacer,
   Button,
 } from "@heroui/react";
-import { Icon } from "@iconify/react";
 import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@heroui/react";
 
+import { Icon } from "@/lib/icons";
 import { Avatar } from "@/components/ui";
 
 function DropdownIcon(props: React.SVGProps<SVGSVGElement>) {

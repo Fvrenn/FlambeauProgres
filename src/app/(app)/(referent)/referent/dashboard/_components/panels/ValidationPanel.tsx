@@ -1,9 +1,9 @@
 "use client";
 import React from "react";
 import { Chip } from "@heroui/react";
-import { Icon } from "@iconify/react";
 import { Justification } from "@prisma/client";
 
+import { Icon } from "@/lib/icons";
 import AdminDataTable, { Column } from "@/components/admin/AdminDataTable";
 import { Avatar, Card, CardBody, Button } from "@/components/ui";
 

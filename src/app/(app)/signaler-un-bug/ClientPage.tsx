@@ -4,8 +4,8 @@ import type { SessionUser } from "@/types";
 
 import React from "react";
 import { Button, Card, CardBody, Chip, Divider } from "@heroui/react";
-import { Icon } from "@iconify/react";
 
+import { Icon } from "@/lib/icons";
 import { BUG_REPORT_EMAIL } from "@/config/navigation";
 
 const ETAPES = [
