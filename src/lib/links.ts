@@ -1,9 +1,9 @@
-const APP_URL = process.env.APP_URL || "http://localhost:3000";
+import { origineApplication } from "@/lib/public-url";
 
 export function chefThreadUrl(justificationId: string): string {
   const params = new URLSearchParams({ justification: justificationId });
 
-  return `${APP_URL}/?${params.toString()}`;
+  return `${origineApplication()}/?${params.toString()}`;
 }
 
 export function referentThreadUrl(
@@ -15,5 +15,5 @@ export function referentThreadUrl(
     justification: justificationId,
   });
 
-  return `${APP_URL}/referent/dashboard?${params.toString()}`;
+  return `${origineApplication()}/referent/dashboard?${params.toString()}`;
 }
