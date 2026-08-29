@@ -14,6 +14,7 @@ import NotificationDrawer from "../contentAction/NotificationDrawer";
 import JalonBadge from "../JalonBadge";
 
 import { Icon } from "@/lib/icons";
+import { NIVEAU_PROFILS, NIVEAU_SPECIALITES } from "@/lib/parcours";
 import { type DiscussionViewer } from "@/components/discussion/DiscussionThread";
 
 const OBJECTIFS_OFFSET_SELECTED = -100;
@@ -90,6 +91,19 @@ export default function ContentChemise({
   const objectifsRef = useRef<HTMLDivElement>(null);
   const [isObjectifsExpanded, setIsObjectifsExpanded] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
+  const [niveauChoisi, setNiveauChoisi] = useState<number>(NIVEAU_SPECIALITES);
+
+  const specialites = etapes.filter(
+    (etape) => etape.type === "BADGE" && etape.niveau === NIVEAU_SPECIALITES,
+  );
+  const profils = etapes.filter(
+    (etape) =>
+      etape.type === "BADGE" &&
+      etape.niveau === NIVEAU_PROFILS &&
+      !etape.verrouille,
+  );
+  const niveauActif = profils.length > 0 ? niveauChoisi : NIVEAU_SPECIALITES;
+  const badgesAffiches = niveauActif === NIVEAU_PROFILS ? profils : specialites;
 
   useEffect(() => {
     const query = window.matchMedia(DESKTOP_QUERY);
@@ -128,6 +142,15 @@ export default function ContentChemise({
       ? OBJECTIFS_OFFSET_EXPANDED
       : OBJECTIFS_OFFSET_SELECTED;
 
+  const handleNiveauChange = (niveau: number) => {
+    if (niveau === niveauActif) {
+      return;
+    }
+
+    setNiveauChoisi(niveau);
+    onEtapeSelect(null);
+  };
+
   const handleBadgeClick = (etape: EtapeAvecObjectifs) => {
     const newSelection = selectedEtape?.id === etape.id ? null : etape;
 
@@ -157,10 +180,36 @@ export default function ContentChemise({
             <JalonBadge key={currentJalon.id} jalon={currentJalon} />
           </div>
         ) : (
-          <div className="md:grid md:grid-cols-3 md:gap-4 gap-2 place-items-center flex overflow-x-auto md:px-4 px-0 mt-[-80px] md:mt-0 overflow-y-hidden py-2 flex-none">
-            {etapes
-              .filter((etape) => etape.type === "BADGE")
-              .map((etape) => (
+          <div className="flex flex-col gap-2 mt-[-80px] md:mt-0 flex-none">
+            {profils.length > 0 && (
+              <div className="flex justify-center">
+                <div
+                  aria-label="Choisir l’étape à afficher"
+                  className="inline-flex gap-0.5 rounded-full bg-dashboard-panel p-0.5"
+                  role="tablist"
+                >
+                  {[NIVEAU_SPECIALITES, NIVEAU_PROFILS].map((niveau) => (
+                    <button
+                      key={niveau}
+                      aria-selected={niveau === niveauActif}
+                      className={`cursor-pointer rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                        niveau === niveauActif
+                          ? "bg-dashboard-card text-foreground"
+                          : "text-default-500 hover:text-foreground"
+                      }`}
+                      role="tab"
+                      type="button"
+                      onClick={() => handleNiveauChange(niveau)}
+                    >
+                      Étape {niveau}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="md:grid md:grid-cols-3 md:gap-4 gap-2 place-items-center flex overflow-x-auto md:px-4 px-0 overflow-y-hidden py-2">
+              {badgesAffiches.map((etape) => (
                 <div key={etape.id} className="relative flex-shrink-0">
                   <button
                     aria-label={`Sélectionner l'étape ${etape.name}`}
@@ -171,7 +220,7 @@ export default function ContentChemise({
                     } ${selectedEtape?.id === etape.id ? "active" : ""}`}
                     onClick={() => handleBadgeClick(etape)}
                   >
-                    {etape.image_src && (
+                    {etape.image_src ? (
                       <Image
                         alt={etape.name}
                         className="w-[50px] h-auto md:w-[67px] md:h-[77px]"
@@ -180,6 +229,13 @@ export default function ContentChemise({
                         src={etape.image_src}
                         width={67}
                       />
+                    ) : (
+                      <span
+                        className="flex w-[50px] h-[58px] md:w-[67px] md:h-[77px] items-center justify-center rounded-medium border border-dashboard-border text-sm font-semibold"
+                        style={{ color: etape.couleur ?? undefined }}
+                      >
+                        {etape.number}
+                      </span>
                     )}
                   </button>
                   {etape.isValidated && (
@@ -191,6 +247,7 @@ export default function ContentChemise({
                   )}
                 </div>
               ))}
+            </div>
           </div>
         )}
         {!currentJalon && (

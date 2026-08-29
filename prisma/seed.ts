@@ -1044,6 +1044,153 @@ async function main() {
     );
   }
 
+  const etapeFormateur = await prisma.etape.create({
+    data: {
+      number: "3b",
+      wpValue: "302",
+      name: "Formateur",
+      description:
+        "L’étape 3 « Formateur » apprend à former, c’est-à-dire à transmettre, accompagner et évaluer. On peut former dans un domaine quand on a validé la ou les spécialités correspondantes.",
+      image_src: "/etapes/3b-profil_formateur.png",
+      ordre: 2,
+      niveau: 3,
+      objectifs: {
+        create: [
+          {
+            code: "F0",
+            description:
+              "Passer une spé au choix. Précise laquelle dans ta justification.",
+            type: "COMPETENCE",
+          },
+          {
+            code: "F1",
+            description:
+              "Définir les objectifs à atteindre et les moyens adaptés en concevant un plan de formation détaillé.",
+            type: "COMPETENCE",
+          },
+          {
+            code: "F2",
+            description:
+              "Définir et utiliser une ou plusieurs méthodes pédagogiques dans le cadre de formations.",
+            type: "COMPETENCE",
+          },
+          {
+            code: "F3",
+            description: "Savoir animer un temps de formation.",
+            type: "COMPETENCE",
+          },
+          {
+            code: "F4",
+            description: "Gérer le groupe et savoir s’adapter au public.",
+            type: "COMPETENCE",
+          },
+          {
+            code: "F5",
+            description: "Savoir animer et rédiger un bilan.",
+            type: "COMPETENCE",
+          },
+          {
+            code: "F7",
+            description:
+              "Créer un support de formation pour le Mouvement et le présenter.",
+            type: "REALISATION",
+            fichiersRequis: true,
+          },
+          {
+            code: "F8",
+            description:
+              "Concevoir et animer des formations de groupe d’une durée minimale totale de 10h sur au moins 2 formations. Faire le bilan de ces formations en mettant en évidence les compétences ci-dessus. Les formations peuvent être effectuées hors du cadre des Flambeaux.",
+            type: "REALISATION",
+            fichiersRequis: true,
+          },
+        ],
+      },
+    },
+  });
+
+  console.log(`Created etape: ${etapeFormateur.name}`);
+
+  const etapeLeader = await prisma.etape.create({
+    data: {
+      number: "3c",
+      wpValue: "303",
+      name: "Leader",
+      description:
+        "L’étape 3 « Leader » est liée à un engagement dans une équipe (maîtrise, équipe régionale, commission) et accompagne l’acquisition de compétences d’organisation, de gestion d’équipe et de projets.",
+      image_src: "/etapes/3c-profil_leader.png",
+      ordre: 3,
+      niveau: 3,
+      objectifs: {
+        create: [
+          {
+            code: "L0",
+            description:
+              "Passer une spé au choix. Précise laquelle dans ta justification.",
+            type: "COMPETENCE",
+          },
+          {
+            code: "L1",
+            description:
+              "Savoir faire émerger une vision et être fédérateur, avec dynamisme et ouverture.",
+            type: "COMPETENCE",
+          },
+          {
+            code: "L2",
+            description:
+              "Déléguer aux équipiers les missions en discernant leurs compétences.",
+            type: "COMPETENCE",
+          },
+          {
+            code: "L3",
+            description:
+              "Savoir travailler en équipe : écoute et remise en question, prendre en compte les idées et avis de tous les équipiers.",
+            type: "COMPETENCE",
+          },
+          {
+            code: "L4",
+            description:
+              "Connaître des techniques de médiation et savoir les mettre en œuvre entre les équipiers.",
+            type: "COMPETENCE",
+          },
+          {
+            code: "L5",
+            description:
+              "Gérer un projet en listant les objectifs et les moyens nécessaires. Élaborer un planning. Animer au travers de réunions l’avancement du projet. Rédiger un bilan.",
+            type: "COMPETENCE",
+          },
+          {
+            code: "L6",
+            description:
+              "Être capable de s’adapter et trouver des solutions aux difficultés rencontrées.",
+            type: "COMPETENCE",
+          },
+          {
+            code: "L7",
+            description:
+              "Veiller à l’information des partenaires (Églises, Mouvement, Parents, ...) en adaptant les moyens et messages tout en ayant conscience des enjeux.",
+            type: "COMPETENCE",
+          },
+          {
+            code: "L8",
+            description:
+              "Gérer une équipe de travail sur 2 années ou 2 camps. Cette réalisation peut être effectuée en dehors du cadre Flambeaux.",
+            type: "REALISATION",
+            fichiersRequis: true,
+          },
+          {
+            code: "L9",
+            description:
+              "Présenter un rapport de projet Flambeaux mettant en évidence les compétences ci-dessus, à l’écrit ou sous forme de vidéo/audio.",
+            type: "REALISATION",
+            fichiersRequis: true,
+          },
+        ],
+      },
+    },
+  });
+
+  console.log(`Created etape: ${etapeLeader.name}`);
+
   const ETAPE_COULEURS: Record<string, string> = {
     "2b": "#ece835",
     "2c": "#2357a7",
@@ -1057,6 +1204,8 @@ async function main() {
     "2l": "#4bbe97",
     "2m": "#9a1622",
     "2n": "#9d57a2",
+    "3b": "#26bebc",
+    "3c": "#71b747",
   };
 
   for (const [number, couleur] of Object.entries(ETAPE_COULEURS)) {

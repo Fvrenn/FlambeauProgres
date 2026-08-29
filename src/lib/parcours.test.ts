@@ -4,6 +4,8 @@ import {
   niveauMaxDebloque,
   etapeEstDebloquee,
   jalonsImplicites,
+  auMoinsUneSpecialiteValidee,
+  etapeEstAccessible,
 } from "@/lib/parcours";
 
 const jalons = [
@@ -87,5 +89,59 @@ describe("jalonsImplicites", () => {
 
   it("ne deduit rien sans etape declaree", () => {
     expect(jalonsImplicites([], jalons)).toEqual([]);
+  });
+});
+
+const catalogue = [
+  { id: "af", niveau: 0, type: "JALON" },
+  { id: "e1", niveau: 1, type: "JALON" },
+  { id: "2h", niveau: 2, type: "BADGE" },
+  { id: "3c", niveau: 3, type: "BADGE" },
+];
+
+const profil = { id: "3c", niveau: 3, type: "BADGE" };
+
+describe("auMoinsUneSpecialiteValidee", () => {
+  it("detecte une specialite de niveau 2 validee", () => {
+    expect(auMoinsUneSpecialiteValidee(catalogue, new Set(["2h"]))).toBe(true);
+  });
+
+  it("ignore les jalons et les profils", () => {
+    expect(
+      auMoinsUneSpecialiteValidee(catalogue, new Set(["af", "e1", "3c"])),
+    ).toBe(false);
+  });
+});
+
+describe("etapeEstAccessible", () => {
+  it("verrouille un profil sans specialite validee", () => {
+    expect(
+      etapeEstAccessible(profil, Number.POSITIVE_INFINITY, false, new Set()),
+    ).toBe(false);
+  });
+
+  it("ouvre un profil des qu'une specialite est validee", () => {
+    expect(
+      etapeEstAccessible(profil, Number.POSITIVE_INFINITY, true, new Set()),
+    ).toBe(true);
+  });
+
+  it("n'ouvre pas un profil si le niveau reste bloque par un jalon", () => {
+    expect(etapeEstAccessible(profil, 1, true, new Set())).toBe(false);
+  });
+
+  it("laisse toujours visible un profil deja valide", () => {
+    expect(etapeEstAccessible(profil, 0, false, new Set(["3c"]))).toBe(true);
+  });
+
+  it("n'impose pas de specialite aux etapes de niveau inferieur", () => {
+    expect(
+      etapeEstAccessible(
+        { id: "2h", niveau: 2, type: "BADGE" },
+        Number.POSITIVE_INFINITY,
+        false,
+        new Set(),
+      ),
+    ).toBe(true);
   });
 });

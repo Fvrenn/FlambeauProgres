@@ -93,7 +93,7 @@ model Etape {
   id          String    @id @default(cuid())
   number      String    @unique
   name        String
-  description String
+  description String    @db.Text
   image_src   String?
   couleur     String?
   ordre       Int
@@ -148,7 +148,7 @@ model Objectif {
   id             String       @id @default(cuid())
   etapeId        String
   code           String
-  description    String
+  description    String       @db.Text
   type           TypeObjectif
   fichiersRequis Boolean      @default(false)
   texteRequis    Boolean      @default(true)

@@ -1,7 +1,12 @@
 import type { OrigineValidation, TypeEtape } from "@prisma/client";
 
 import { STATUTS_VALIDES } from "@/lib/justification";
-import { etapeEstDebloquee, niveauMaxDebloque } from "@/lib/parcours";
+import {
+  auMoinsUneSpecialiteValidee,
+  etapeEstAccessible,
+  etapeEstDebloquee,
+  niveauMaxDebloque,
+} from "@/lib/parcours";
 import { prisma } from "@/lib/prisma";
 import { NotificationService } from "@/services/notification.service";
 
@@ -64,6 +69,10 @@ export class EtapeService {
       .filter((etape) => etape.type === "JALON")
       .map((etape) => ({ id: etape.id, niveau: etape.niveau }));
     const niveauMax = niveauMaxDebloque(jalons, etapesValidees);
+    const specialiteValidee = auMoinsUneSpecialiteValidee(
+      etapes,
+      etapesValidees,
+    );
 
     return etapes.map((etape) => ({
       id: etape.id,
@@ -75,7 +84,12 @@ export class EtapeService {
       type: etape.type,
       done: doneByEtape.get(etape.id) ?? 0,
       total: etape._count.objectifs,
-      verrouille: !etapeEstDebloquee(etape.niveau, niveauMax),
+      verrouille: !etapeEstAccessible(
+        etape,
+        niveauMax,
+        specialiteValidee,
+        etapesValidees,
+      ),
       isValidated: etapesValidees.has(etape.id),
       origineValidation: originesParEtape.get(etape.id) ?? null,
     }));
@@ -105,12 +119,21 @@ export class EtapeService {
       .filter((etape) => etape.type === "JALON")
       .map((etape) => ({ id: etape.id, niveau: etape.niveau }));
     const niveauMax = niveauMaxDebloque(jalons, etapesIdsValidees);
+    const specialiteValidee = auMoinsUneSpecialiteValidee(
+      etapes,
+      etapesIdsValidees,
+    );
 
     return etapes.map((etape) => ({
       ...etape,
       isValidated: etapesIdsValidees.has(etape.id),
       origineValidation: originesParEtape.get(etape.id) ?? null,
-      verrouille: !etapeEstDebloquee(etape.niveau, niveauMax),
+      verrouille: !etapeEstAccessible(
+        etape,
+        niveauMax,
+        specialiteValidee,
+        etapesIdsValidees,
+      ),
     }));
   }
 
