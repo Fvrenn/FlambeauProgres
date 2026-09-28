@@ -11,6 +11,8 @@ enum UserRole {
   CHEF
   REFERENT
   ADMIN
+  COMMISSION_FORMATION
+  COORDINATEUR_NATIONAL
 }
 
 enum TypeObjectif {
@@ -63,6 +65,7 @@ enum TypeNotification {
   ETAPE_COMPLETE
   JUSTIFICATION_URGENTE
   NOUVEAU_COMMENTAIRE
+  DOSSIER_A_VALIDER
 }
 
 model User {
@@ -93,7 +96,7 @@ model Etape {
   id          String    @id @default(cuid())
   number      String    @unique
   name        String
-  description String
+  description String    @db.Text
   image_src   String?
   couleur     String?
   ordre       Int
@@ -148,7 +151,7 @@ model Objectif {
   id             String       @id @default(cuid())
   etapeId        String
   code           String
-  description    String
+  description    String       @db.Text
   type           TypeObjectif
   fichiersRequis Boolean      @default(false)
   texteRequis    Boolean      @default(true)

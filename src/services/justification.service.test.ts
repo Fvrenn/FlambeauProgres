@@ -8,7 +8,9 @@ vi.mock("@/lib/prisma", () => {
       findFirst: vi.fn(),
       create: vi.fn(),
     },
+    etape: { findUnique: vi.fn() },
     etapeReferent: { findFirst: vi.fn(), findMany: vi.fn() },
+    user: { findMany: vi.fn() },
     message: { create: vi.fn() },
     notification: { create: vi.fn(), createMany: vi.fn() },
     objectif: { findUnique: vi.fn() },
@@ -18,10 +20,16 @@ vi.mock("@/lib/prisma", () => {
   return { prisma };
 });
 
+vi.mock("@/services/etape.service", () => ({
+  EtapeService: { estAccessiblePourChef: vi.fn() },
+}));
+
 import { prisma } from "@/lib/prisma";
+import { EtapeService } from "@/services/etape.service";
 import { JustificationService } from "@/services/justification.service";
 
 const db = vi.mocked(prisma, true);
+const etapeService = vi.mocked(EtapeService, true);
 
 beforeEach(() => {
   vi.resetAllMocks();
@@ -30,17 +38,137 @@ beforeEach(() => {
   );
   db.message.create.mockResolvedValue({ id: "m1" } as never);
   db.notification.createMany.mockResolvedValue({ count: 1 } as never);
+  etapeService.estAccessiblePourChef.mockResolvedValue(true);
+});
+
+describe("JustificationService - étape verrouillée", () => {
+  beforeEach(() => {
+    etapeService.estAccessiblePourChef.mockResolvedValue(false);
+  });
+
+  it("refuse une compétence d'une étape verrouillée", async () => {
+    db.objectif.findUnique.mockResolvedValue({
+      id: "o1",
+      type: "COMPETENCE",
+      etapeId: "e1",
+      etape: { niveau: 2 },
+      texteRequis: false,
+    } as never);
+
+    const result = await JustificationService.submitCompetence({
+      chefId: "c1",
+      chefName: "Chef",
+      objectifId: "o1",
+      contenu: "txt",
+    });
+
+    expect(result).toEqual({
+      success: false,
+      error: "Cette étape n'est pas encore débloquée",
+    });
+    expect(db.justification.create).not.toHaveBeenCalled();
+    expect(db.justification.update).not.toHaveBeenCalled();
+  });
+
+  it("refuse une réalisation d'une étape verrouillée", async () => {
+    db.objectif.findUnique.mockResolvedValue({
+      id: "o1",
+      type: "REALISATION",
+      etapeId: "e1",
+      texteRequis: false,
+    } as never);
+
+    const result = await JustificationService.submitRealisation({
+      chefId: "c1",
+      chefName: "Chef",
+      objectifId: "o1",
+      contenu: "txt",
+      fichierData: null,
+    });
+
+    expect(result.success).toBe(false);
+    expect(db.$transaction).not.toHaveBeenCalled();
+  });
+});
+
+describe("JustificationService.submitCompetence - étape 3", () => {
+  const competenceEtape3 = {
+    id: "o1",
+    code: "L1",
+    description: "Vision",
+    type: "COMPETENCE",
+    etapeId: "e3",
+    etape: { niveau: 3 },
+    texteRequis: true,
+  };
+
+  it("envoie la compétence en évaluation à la commission au lieu de l'auto-valider", async () => {
+    db.objectif.findUnique.mockResolvedValue(competenceEtape3 as never);
+    db.justification.findFirst.mockResolvedValue(null as never);
+    db.justification.create.mockResolvedValue({ id: "j1" } as never);
+    db.etape.findUnique.mockResolvedValue({
+      id: "e3",
+      name: "Leader",
+      niveau: 3,
+    } as never);
+    db.etapeReferent.findMany.mockResolvedValue([] as never);
+    db.user.findMany.mockResolvedValue([
+      { id: "cf1", name: "Commission", email: "cf@x.fr" },
+    ] as never);
+
+    const result = await JustificationService.submitCompetence({
+      chefId: "c1",
+      chefName: "Chef",
+      objectifId: "o1",
+      contenu: "Mon expérience",
+    });
+
+    expect(result.success).toBe(true);
+    expect(db.justification.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({ statut: "SOUMISE" }),
+    });
+    expect(db.message.create).toHaveBeenCalled();
+    expect(db.notification.createMany).toHaveBeenCalledWith({
+      data: [
+        expect.objectContaining({
+          destinataireId: "cf1",
+          titre: "Nouvelle compétence à valider",
+        }),
+      ],
+    });
+  });
+
+  it("refuse de resoumettre une compétence déjà validée par la commission", async () => {
+    db.objectif.findUnique.mockResolvedValue(competenceEtape3 as never);
+    db.justification.findFirst.mockResolvedValue({
+      id: "j1",
+      statut: "VALIDEE",
+    } as never);
+
+    const result = await JustificationService.submitCompetence({
+      chefId: "c1",
+      chefName: "Chef",
+      objectifId: "o1",
+      contenu: "Encore",
+    });
+
+    expect(result).toEqual({
+      success: false,
+      error: "Cette compétence est déjà validée",
+    });
+  });
 });
 
 describe("JustificationService.submitCompetence", () => {
   it("fails when the objectif is not found", async () => {
     db.objectif.findUnique.mockResolvedValue(null as never);
 
-    const result = await JustificationService.submitCompetence(
-      "c1",
-      "o1",
-      "txt",
-    );
+    const result = await JustificationService.submitCompetence({
+      chefId: "c1",
+      chefName: "Chef",
+      objectifId: "o1",
+      contenu: "txt",
+    });
 
     expect(result.success).toBe(false);
   });
@@ -52,11 +180,12 @@ describe("JustificationService.submitCompetence", () => {
       etapeId: "e1",
     } as never);
 
-    const result = await JustificationService.submitCompetence(
-      "c1",
-      "o1",
-      "txt",
-    );
+    const result = await JustificationService.submitCompetence({
+      chefId: "c1",
+      chefName: "Chef",
+      objectifId: "o1",
+      contenu: "txt",
+    });
 
     expect(result.success).toBe(false);
     expect(db.justification.create).not.toHaveBeenCalled();
@@ -67,15 +196,17 @@ describe("JustificationService.submitCompetence", () => {
       id: "o1",
       type: "COMPETENCE",
       etapeId: "e1",
+      etape: { niveau: 2 },
     } as never);
     db.justification.findFirst.mockResolvedValue(null as never);
     db.justification.create.mockResolvedValue({} as never);
 
-    const result = await JustificationService.submitCompetence(
-      "c1",
-      "o1",
-      "txt",
-    );
+    const result = await JustificationService.submitCompetence({
+      chefId: "c1",
+      chefName: "Chef",
+      objectifId: "o1",
+      contenu: "txt",
+    });
 
     expect(result.success).toBe(true);
     expect(db.justification.create).toHaveBeenCalledWith(
@@ -94,15 +225,17 @@ describe("JustificationService.submitCompetence", () => {
       id: "o1",
       type: "COMPETENCE",
       etapeId: "e1",
+      etape: { niveau: 2 },
     } as never);
     db.justification.findFirst.mockResolvedValue({ id: "j-existing" } as never);
     db.justification.update.mockResolvedValue({} as never);
 
-    const result = await JustificationService.submitCompetence(
-      "c1",
-      "o1",
-      "txt",
-    );
+    const result = await JustificationService.submitCompetence({
+      chefId: "c1",
+      chefName: "Chef",
+      objectifId: "o1",
+      contenu: "txt",
+    });
 
     expect(result.success).toBe(true);
     expect(db.justification.update).toHaveBeenCalledWith(
@@ -118,7 +251,7 @@ describe("JustificationService.submitRealisation", () => {
       id: "o1",
       type: "COMPETENCE",
       etapeId: "e1",
-      etape: { name: "E" },
+      etape: { name: "E", niveau: 2 },
     } as never);
 
     const result = await JustificationService.submitRealisation({
@@ -162,8 +295,13 @@ describe("JustificationService.submitRealisation", () => {
     } as never);
     db.justification.findFirst.mockResolvedValue(null as never);
     db.justification.create.mockResolvedValue({ id: "j-new" } as never);
+    db.etape.findUnique.mockResolvedValue({
+      id: "e1",
+      name: "E",
+      niveau: 2,
+    } as never);
     db.etapeReferent.findMany.mockResolvedValue([
-      { referent: { id: "ref1" }, etape: { name: "E" } },
+      { referent: { id: "ref1" } },
     ] as never);
 
     const result = await JustificationService.submitRealisation({
@@ -193,8 +331,13 @@ describe("JustificationService.submitRealisation", () => {
     } as never);
     db.justification.findFirst.mockResolvedValue({ id: "j-existing" } as never);
     db.justification.update.mockResolvedValue({ id: "j-existing" } as never);
+    db.etape.findUnique.mockResolvedValue({
+      id: "e1",
+      name: "E",
+      niveau: 2,
+    } as never);
     db.etapeReferent.findMany.mockResolvedValue([
-      { referent: { id: "ref1" }, etape: { name: "E" } },
+      { referent: { id: "ref1" } },
     ] as never);
 
     const result = await JustificationService.submitRealisation({

@@ -1,11 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { redirect } from "next/navigation";
 
 vi.mock("@/lib/auth-server", () => ({
   getUser: vi.fn(),
 }));
 
+vi.mock("next/navigation", () => ({
+  redirect: vi.fn(() => {
+    throw new Error("NEXT_REDIRECT");
+  }),
+}));
+
 vi.mock("@/lib/prisma", () => {
   const prisma = {
+    etape: { findUnique: vi.fn() },
     justification: { findUnique: vi.fn() },
     etapeReferent: { findFirst: vi.fn() },
   };
@@ -15,7 +23,12 @@ vi.mock("@/lib/prisma", () => {
 
 import { prisma } from "@/lib/prisma";
 import { getUser } from "@/lib/auth-server";
-import { authorizeRole, canAccessJustification } from "@/lib/auth-guards";
+import {
+  authorizeRole,
+  canAccessJustification,
+  exigerRole,
+  suitEtape,
+} from "@/lib/auth-guards";
 
 const mockedGetUser = vi.mocked(getUser);
 const db = vi.mocked(prisma, true);
@@ -73,6 +86,7 @@ describe("canAccessJustification", () => {
     db.justification.findUnique.mockResolvedValue({
       chefId: "u1",
       etapeId: "e1",
+      etape: { niveau: 2 },
     } as never);
 
     expect(await canAccessJustification("u1", "CHEF", "j1")).toBe(true);
@@ -82,6 +96,7 @@ describe("canAccessJustification", () => {
     db.justification.findUnique.mockResolvedValue({
       chefId: "other",
       etapeId: "e1",
+      etape: { niveau: 2 },
     } as never);
     db.etapeReferent.findFirst.mockResolvedValue({ id: "a1" } as never);
 
@@ -92,6 +107,7 @@ describe("canAccessJustification", () => {
     db.justification.findUnique.mockResolvedValue({
       chefId: "other",
       etapeId: "e1",
+      etape: { niveau: 2 },
     } as never);
     db.etapeReferent.findFirst.mockResolvedValue(null as never);
 
@@ -102,6 +118,7 @@ describe("canAccessJustification", () => {
     db.justification.findUnique.mockResolvedValue({
       chefId: "other",
       etapeId: "e1",
+      etape: { niveau: 2 },
     } as never);
     db.etapeReferent.findFirst.mockResolvedValue({ id: "a1" } as never);
 
@@ -112,6 +129,7 @@ describe("canAccessJustification", () => {
     db.justification.findUnique.mockResolvedValue({
       chefId: "other",
       etapeId: "e1",
+      etape: { niveau: 2 },
     } as never);
     db.etapeReferent.findFirst.mockResolvedValue(null as never);
 
@@ -122,8 +140,100 @@ describe("canAccessJustification", () => {
     db.justification.findUnique.mockResolvedValue({
       chefId: "other",
       etapeId: "e1",
+      etape: { niveau: 2 },
     } as never);
 
     expect(await canAccessJustification("u1", "CHEF", "j1")).toBe(false);
+  });
+
+  it("returns true for the commission Formation on an etape 3 without assignation", async () => {
+    db.justification.findUnique.mockResolvedValue({
+      chefId: "other",
+      etapeId: "e3",
+      etape: { niveau: 3 },
+    } as never);
+
+    expect(
+      await canAccessJustification("cf1", "COMMISSION_FORMATION", "j1"),
+    ).toBe(true);
+    expect(db.etapeReferent.findFirst).not.toHaveBeenCalled();
+  });
+
+  it("returns true for the Coordinateur National on an etape 3 without assignation", async () => {
+    db.justification.findUnique.mockResolvedValue({
+      chefId: "other",
+      etapeId: "e3",
+      etape: { niveau: 3 },
+    } as never);
+
+    expect(
+      await canAccessJustification("cn1", "COORDINATEUR_NATIONAL", "j1"),
+    ).toBe(true);
+  });
+
+  it("still requires an assignation for the commission on an etape 2", async () => {
+    db.justification.findUnique.mockResolvedValue({
+      chefId: "other",
+      etapeId: "e1",
+      etape: { niveau: 2 },
+    } as never);
+    db.etapeReferent.findFirst.mockResolvedValue(null as never);
+
+    expect(
+      await canAccessJustification("cf1", "COMMISSION_FORMATION", "j1"),
+    ).toBe(false);
+  });
+});
+
+describe("exigerRole", () => {
+  it("redirige vers l'accueil quand le rôle manque", async () => {
+    mockedGetUser.mockResolvedValue({ id: "u1", role: "CHEF" } as never);
+
+    await expect(exigerRole("ADMIN")).rejects.toThrow("NEXT_REDIRECT");
+    expect(redirect).toHaveBeenCalledWith("/");
+  });
+
+  it("renvoie l'utilisateur quand le rôle est autorisé", async () => {
+    const user = { id: "u1", role: "ADMIN" };
+
+    mockedGetUser.mockResolvedValue(user as never);
+
+    expect(await exigerRole("ADMIN")).toBe(user);
+  });
+});
+
+describe("suitEtape", () => {
+  it("refuse une étape inexistante", async () => {
+    db.etape.findUnique.mockResolvedValue(null as never);
+
+    expect(await suitEtape("ref1", "REFERENT", "e1")).toBe(false);
+  });
+
+  it("refuse un référent qui n'est pas assigné à l'étape", async () => {
+    db.etape.findUnique.mockResolvedValue({ niveau: 2 } as never);
+    db.etapeReferent.findFirst.mockResolvedValue(null as never);
+
+    expect(await suitEtape("ref1", "REFERENT", "e1")).toBe(false);
+  });
+
+  it("accepte un référent assigné à l'étape", async () => {
+    db.etape.findUnique.mockResolvedValue({ niveau: 2 } as never);
+    db.etapeReferent.findFirst.mockResolvedValue({ id: "a1" } as never);
+
+    expect(await suitEtape("ref1", "REFERENT", "e1")).toBe(true);
+  });
+
+  it("accepte la commission Formation sur l'étape 3 sans assignation", async () => {
+    db.etape.findUnique.mockResolvedValue({ niveau: 3 } as never);
+
+    expect(await suitEtape("cf1", "COMMISSION_FORMATION", "e3")).toBe(true);
+    expect(db.etapeReferent.findFirst).not.toHaveBeenCalled();
+  });
+
+  it("refuse un chef même assigné par erreur", async () => {
+    db.etape.findUnique.mockResolvedValue({ niveau: 2 } as never);
+    db.etapeReferent.findFirst.mockResolvedValue({ id: "a1" } as never);
+
+    expect(await suitEtape("u1", "CHEF", "e1")).toBe(false);
   });
 });

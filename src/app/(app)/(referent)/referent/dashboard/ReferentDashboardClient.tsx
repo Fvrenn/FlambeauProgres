@@ -1,7 +1,9 @@
 "use client";
 
+import type { UserResume } from "@/types";
+
 import React, { useEffect, useRef, useState } from "react";
-import { type User, type Justification } from "@prisma/client";
+import { type Justification, type TypeObjectif } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { cn } from "@heroui/react";
 
@@ -66,6 +68,7 @@ type ObjectifInfo = {
   id: string;
   code: string;
   description: string;
+  type: TypeObjectif;
 };
 
 type JustificationAValider = Justification & {
@@ -79,21 +82,23 @@ type JustificationEnDiscussion = Justification & {
   objectif: ObjectifInfo;
 };
 
-interface ReferentDashboardClientV2Props {
+interface ReferentDashboardClientProps {
   justificationsAValider: JustificationAValider[];
   justificationsEnDiscussion: JustificationEnDiscussion[];
-  chefsAReviser: User[];
+  chefsAReviser: UserResume[];
   targetJustificationId?: string;
   viewer: DiscussionViewer;
+  peutEvaluer: boolean;
 }
 
-export default function ReferentDashboardClientV2({
+export default function ReferentDashboardClient({
   justificationsAValider,
   justificationsEnDiscussion,
   chefsAReviser,
   targetJustificationId,
   viewer,
-}: ReferentDashboardClientV2Props) {
+  peutEvaluer,
+}: ReferentDashboardClientProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<React.Key>("a-valider");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -194,6 +199,7 @@ export default function ReferentDashboardClientV2({
       <ReferentValidationModal
         isOpen={isModalOpen}
         justification={selectedJustification}
+        peutEvaluer={peutEvaluer}
         viewer={viewer}
         onOpenChange={handleCloseModal}
       />

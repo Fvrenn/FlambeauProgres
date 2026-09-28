@@ -17,3 +17,9 @@ export function referentThreadUrl(
 
   return `${origineApplication()}/referent/dashboard?${params.toString()}`;
 }
+
+export function referentRevisionUrl(chefId: string, etapeId: string): string {
+  const params = new URLSearchParams({ chefId, etapeId });
+
+  return `${origineApplication()}/referent/revision?${params.toString()}`;
+}

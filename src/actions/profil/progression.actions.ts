@@ -4,6 +4,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 
 import { authorizeRole } from "@/lib/auth-guards";
+import { ROLES_REFERENT } from "@/lib/roles";
 import { WpProgressionService } from "@/services/wp-progression.service";
 
 const declarerProgressionSchema = z.object({
@@ -12,7 +13,7 @@ const declarerProgressionSchema = z.object({
 
 export async function declarerProgressionPlateforme(etapeIds: string[]) {
   try {
-    const user = await authorizeRole("CHEF", "REFERENT", "ADMIN");
+    const user = await authorizeRole("CHEF", ...ROLES_REFERENT);
 
     if (!user) {
       return { success: false, error: "Non autorisé" };

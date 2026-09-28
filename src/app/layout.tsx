@@ -8,8 +8,8 @@ import { fontSans } from "@/config/fonts";
 
 export const metadata: Metadata = {
   title: {
-    default: "Flambeau Progrès",
-    template: `%s - Flambeau Progrès`,
+    default: "Flambeaux Progrès",
+    template: `%s - Flambeaux Progrès`,
   },
   description:
     "Application de suivi pédagogique des Chefs Flambeaux pour l'acquisition de badges, compétences et réalisations.",

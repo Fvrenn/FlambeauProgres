@@ -6,6 +6,7 @@ import { Icon } from "@/lib/icons";
 
 interface StatusChipProps {
   statut: StatutJustification | null;
+  endContent?: React.ReactNode;
 }
 
 const STATUS_CONFIG: Record<
@@ -29,7 +30,7 @@ const STATUS_CONFIG: Record<
   SOUMISE: {
     color: "warning",
     icon: "solar:clock-circle-linear",
-    label: "En attente référent",
+    label: "En attente d'évaluation",
   },
   DEMANDE_PRECISION: {
     color: "secondary",
@@ -43,12 +44,13 @@ const STATUS_CONFIG: Record<
   },
 };
 
-export default function StatusChip({ statut }: StatusChipProps) {
+export default function StatusChip({ statut, endContent }: StatusChipProps) {
   if (!statut) {
     return (
       <Chip
         className="bg-dashboard-tab"
         color="default"
+        endContent={endContent}
         size="sm"
         variant="flat"
       >
@@ -62,6 +64,7 @@ export default function StatusChip({ statut }: StatusChipProps) {
   return (
     <Chip
       color={config.color}
+      endContent={endContent}
       size="sm"
       startContent={<Icon icon={config.icon} width={16} />}
       variant="flat"

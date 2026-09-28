@@ -2,9 +2,11 @@ import React from "react";
 import Link from "next/link";
 import { cn } from "@heroui/react";
 
+import { RafraichissementArrierePlan } from "@/components/application/rafraichissement/RafraichissementArrierePlan";
+import { exigerRole } from "@/lib/auth-guards";
 import { Icon } from "@/lib/icons";
-import { prisma } from "@/lib/prisma";
-import { roleColorMap } from "@/lib/roles";
+import { AdminDashboardService } from "@/services/admin-dashboard.service";
+import { ROLES_ADMIN, roleColorMap } from "@/lib/roles";
 import { Badge, Card, CardBody } from "@/components/ui";
 
 const quickLinks = [
@@ -74,119 +76,110 @@ function StatCard({
 }
 
 export default async function AdminDashboardPage() {
-  const [
-    chefCount,
-    referentCount,
-    adminCount,
-    etapesCount,
-    objectifsCount,
-    formationsCount,
-    etapesSansReferent,
-    justificationsEnAttente,
-  ] = await Promise.all([
-    prisma.user.count({ where: { role: "CHEF" } }),
-    prisma.user.count({ where: { role: "REFERENT" } }),
-    prisma.user.count({ where: { role: "ADMIN" } }),
-    prisma.etape.count(),
-    prisma.objectif.count(),
-    prisma.formationCard.count(),
-    prisma.etape.count({ where: { referents: { none: {} } } }),
-    prisma.justification.count({ where: { statut: "SOUMISE" } }),
-  ]);
+  await exigerRole(...ROLES_ADMIN);
 
-  const totalUsers = chefCount + referentCount + adminCount;
+  const stats = await AdminDashboardService.getStats();
+
+  const totalUsers = stats.chefs + stats.referents + stats.admins;
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-extrabold">Tableau de bord admin</h1>
-        <p className="text-default-500">
-          Vue d&apos;ensemble de la plateforme Flambeau Progrès.
-        </p>
-      </div>
+    <>
+      <RafraichissementArrierePlan />
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-extrabold">Tableau de bord admin</h1>
+          <p className="text-default-500">
+            Vue d&apos;ensemble de la plateforme Flambeaux Progrès.
+          </p>
+        </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-        <Card className="bg-dashboard-panel">
-          <CardBody className="gap-3">
-            <div className="flex items-center justify-center w-11 h-11 rounded-full bg-dashboard-card text-nav-active">
-              <Icon icon="solar:users-group-rounded-linear" width={22} />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-3xl font-extrabold leading-none">
-                {totalUsers}
-              </span>
-              <span className="text-small text-default-500 mt-1">
-                Utilisateurs
-              </span>
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              <Badge color={roleColorMap.CHEF} size="sm">
-                {chefCount} Chefs
-              </Badge>
-              <Badge color={roleColorMap.REFERENT} size="sm">
-                {referentCount} Référents
-              </Badge>
-              <Badge color={roleColorMap.ADMIN} size="sm">
-                {adminCount} Admins
-              </Badge>
-            </div>
-          </CardBody>
-        </Card>
-
-        <StatCard icon="solar:flag-linear" label="Étapes" value={etapesCount} />
-        <StatCard
-          icon="solar:target-linear"
-          label="Objectifs"
-          value={objectifsCount}
-        />
-        <StatCard
-          icon="solar:book-bookmark-linear"
-          label="Formations"
-          value={formationsCount}
-        />
-        <StatCard
-          icon="solar:user-cross-rounded-linear"
-          label="Étapes sans référent"
-          tone={etapesSansReferent > 0 ? "warning" : "success"}
-          value={etapesSansReferent}
-        />
-        <StatCard
-          icon="solar:clock-circle-linear"
-          label="Justifications en attente"
-          tone={justificationsEnAttente > 0 ? "warning" : "success"}
-          value={justificationsEnAttente}
-        />
-      </div>
-
-      <div className="flex flex-col gap-3">
-        <h2 className="text-lg font-bold">Accès rapide</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {quickLinks.map((item) => (
-            <Link
-              key={item.href}
-              className="group flex flex-col gap-4 rounded-[22px] bg-dashboard-panel shadow-inset-border p-5 transition-all duration-fast hover:-translate-y-0.5"
-              href={item.href}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-dashboard-card text-nav-active">
-                  <Icon icon={item.icon} width={20} />
-                </div>
-                <Icon
-                  className="text-default-400 group-hover:text-nav-active group-hover:translate-x-0.5 transition-all"
-                  icon="solar:arrow-right-up-linear"
-                  width={18}
-                />
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+          <Card className="bg-dashboard-panel">
+            <CardBody className="gap-3">
+              <div className="flex items-center justify-center w-11 h-11 rounded-full bg-dashboard-card text-nav-active">
+                <Icon icon="solar:users-group-rounded-linear" width={22} />
               </div>
-              <div className="flex flex-col gap-0.5">
-                <span className="font-bold">{item.title}</span>
-                <span className="text-tiny text-default-500">
-                  {item.description}
+              <div className="flex flex-col">
+                <span className="text-3xl font-extrabold leading-none">
+                  {totalUsers}
+                </span>
+                <span className="text-small text-default-500 mt-1">
+                  Utilisateurs
                 </span>
               </div>
-            </Link>
-          ))}
+              <div className="flex flex-wrap gap-1.5">
+                <Badge color={roleColorMap.CHEF} size="sm">
+                  {stats.chefs} Chefs
+                </Badge>
+                <Badge color={roleColorMap.REFERENT} size="sm">
+                  {stats.referents} Référents
+                </Badge>
+                <Badge color={roleColorMap.ADMIN} size="sm">
+                  {stats.admins} Admins
+                </Badge>
+              </div>
+            </CardBody>
+          </Card>
+
+          <StatCard
+            icon="solar:flag-linear"
+            label="Étapes"
+            value={stats.etapes}
+          />
+          <StatCard
+            icon="solar:target-linear"
+            label="Objectifs"
+            value={stats.objectifs}
+          />
+          <StatCard
+            icon="solar:book-bookmark-linear"
+            label="Formations"
+            value={stats.formations}
+          />
+          <StatCard
+            icon="solar:user-cross-rounded-linear"
+            label="Étapes sans référent"
+            tone={stats.etapesSansReferent > 0 ? "warning" : "success"}
+            value={stats.etapesSansReferent}
+          />
+          <StatCard
+            icon="solar:clock-circle-linear"
+            label="Justifications en attente"
+            tone={stats.justificationsEnAttente > 0 ? "warning" : "success"}
+            value={stats.justificationsEnAttente}
+          />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <h2 className="text-lg font-bold">Accès rapide</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {quickLinks.map((item) => (
+              <Link
+                key={item.href}
+                className="group flex flex-col gap-4 rounded-[22px] bg-dashboard-panel shadow-inset-border p-5 transition-all duration-fast hover:-translate-y-0.5"
+                href={item.href}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-dashboard-card text-nav-active">
+                    <Icon icon={item.icon} width={20} />
+                  </div>
+                  <Icon
+                    className="text-default-400 group-hover:text-nav-active group-hover:translate-x-0.5 transition-all"
+                    icon="solar:arrow-right-up-linear"
+                    width={18}
+                  />
+                </div>
+                <div className="flex flex-col gap-0.5">
+                  <span className="font-bold">{item.title}</span>
+                  <span className="text-tiny text-default-500">
+                    {item.description}
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

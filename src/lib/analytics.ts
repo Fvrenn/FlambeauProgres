@@ -117,3 +117,38 @@ export function calculerKpis(evenements: ValidationEvent[]): Kpis {
     etapesConcernees: new Set(evenements.map((e) => e.etapeId)).size,
   };
 }
+
+const ENTETES_CSV = [
+  "Date",
+  "Type",
+  "Valide par",
+  "Role",
+  "Chef",
+  "Etape",
+  "Objet",
+];
+const DEBUT_DE_FORMULE = /^[=+\-@\t\r]/;
+
+export function versCsv(evenements: ValidationEvent[]): string {
+  const lignes = evenements.map((evenement) =>
+    [
+      evenement.date.toISOString(),
+      evenement.type,
+      evenement.referentName,
+      evenement.referentRole,
+      evenement.chefName,
+      evenement.etapeName,
+      evenement.objet,
+    ]
+      .map(celluleCsv)
+      .join(";"),
+  );
+
+  return [ENTETES_CSV.map(celluleCsv).join(";"), ...lignes].join("\r\n");
+}
+
+function celluleCsv(valeur: string): string {
+  const texte = DEBUT_DE_FORMULE.test(valeur) ? `'${valeur}` : valeur;
+
+  return `"${texte.replace(/"/g, '""')}"`;
+}

@@ -29,6 +29,9 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     authInterrupts: true,
+    staleTimes: {
+      dynamic: 300,
+    },
     serverActions: {
       bodySizeLimit: "10mb",
     },

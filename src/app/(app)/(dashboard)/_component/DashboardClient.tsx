@@ -17,6 +17,7 @@ import ContentAction from "./contentAction/contentAction";
 import ObjectifModal from "./contentAction/panels/ObjectifModal";
 
 import { markNotificationAsRead } from "@/actions/notification/notification.actions";
+import { NIVEAU_PROFILS } from "@/lib/parcours";
 import { type DiscussionViewer } from "@/components/discussion/DiscussionThread";
 
 export type ObjectifAvecJustification = Objectif & {
@@ -179,7 +180,10 @@ export default function DashboardClient({
   const currentJalon =
     etapes.find(
       (etape) =>
-        etape.type === "JALON" && !etape.isValidated && !etape.verrouille,
+        etape.type === "JALON" &&
+        etape.niveau < NIVEAU_PROFILS &&
+        !etape.isValidated &&
+        !etape.verrouille,
     ) ?? null;
 
   return (
@@ -213,6 +217,10 @@ export default function DashboardClient({
 
       <ObjectifModal
         isOpen={!!deepLinkObjectif}
+        niveauEtape={
+          etapes.find((etape) => etape.id === deepLinkObjectif?.etapeId)
+            ?.niveau ?? 0
+        }
         objectif={deepLinkObjectif}
         viewer={viewer}
         onOpenChange={() => setDeepLinkObjectif(null)}

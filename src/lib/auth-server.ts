@@ -3,12 +3,13 @@ import { cache } from "react";
 import { getCurrentUser as getWordpressUser } from "./wordpress-auth";
 
 import { prisma } from "@/lib/prisma";
+import { NIVEAU_ETAPE_3, suitEtapeSansAssignation } from "@/lib/roles";
 
-const getSession = cache(async () => {
+export const getUser = cache(async () => {
   const user = await getWordpressUser();
 
   if (!user) {
-    return null;
+    return undefined;
   }
 
   const assignations = await prisma.etapeReferent.findMany({
@@ -24,17 +25,21 @@ const getSession = cache(async () => {
     },
   });
 
-  return {
-    session: null,
-    user: {
-      ...user,
-      etapesReferent: assignations.map((assignation) => assignation.etape),
-    },
-  };
+  const etapesReferent = assignations.map((assignation) => assignation.etape);
+
+  if (suitEtapeSansAssignation(user.role, NIVEAU_ETAPE_3)) {
+    const etapes3 = await prisma.etape.findMany({
+      where: { niveau: { gte: NIVEAU_ETAPE_3 }, actif: true },
+      orderBy: { ordre: "asc" },
+      select: { id: true, name: true, image_src: true },
+    });
+
+    for (const etape of etapes3) {
+      if (!etapesReferent.some((existante) => existante.id === etape.id)) {
+        etapesReferent.push(etape);
+      }
+    }
+  }
+
+  return { ...user, etapesReferent };
 });
-
-export const getUser = async () => {
-  const session = await getSession();
-
-  return session?.user;
-};

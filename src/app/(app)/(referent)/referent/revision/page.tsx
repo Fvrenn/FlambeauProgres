@@ -3,7 +3,10 @@ import { redirect } from "next/navigation";
 
 import RevisionClient from "./RevisionClient";
 
-import { prisma } from "@/lib/prisma";
+import { RafraichissementArrierePlan } from "@/components/application/rafraichissement/RafraichissementArrierePlan";
+import { exigerRole, suitEtape } from "@/lib/auth-guards";
+import { ROLES_REFERENT } from "@/lib/roles";
+import { ReferentService } from "@/services/referent.service";
 
 type RevisionPageProps = {
   searchParams: Promise<{
@@ -15,6 +18,7 @@ type RevisionPageProps = {
 export default async function RevisionPage({
   searchParams,
 }: RevisionPageProps) {
+  const user = await exigerRole(...ROLES_REFERENT);
   const params = await searchParams;
   const { chefId, etapeId } = params;
 
@@ -22,34 +26,29 @@ export default async function RevisionPage({
     redirect("/referent/dashboard");
   }
 
-  const [chef, etape, justifications] = await Promise.all([
-    prisma.user.findUnique({ where: { id: chefId } }),
-    prisma.etape.findUnique({ where: { id: etapeId } }),
-    prisma.justification.findMany({
-      where: {
-        chefId,
-        etapeId,
-        objectif: {
-          type: "COMPETENCE",
-        },
-        statut: "AUTO_VALIDEE",
-      },
-      include: {
-        objectif: true,
-      },
-      orderBy: {
-        objectif: {
-          code: "asc",
-        },
-      },
-    }),
-  ]);
-
-  if (!chef || !etape) {
+  if (!(await suitEtape(user.id, user.role, etapeId))) {
     redirect("/referent/dashboard");
   }
 
+  const revision = await ReferentService.getRevision(chefId, etapeId, user);
+
+  if (!revision) {
+    redirect("/referent/dashboard");
+  }
+
+  const { chef, etape, justifications, peutValider, refusValidation } =
+    revision;
+
   return (
-    <RevisionClient chef={chef} etape={etape} justifications={justifications} />
+    <>
+      <RafraichissementArrierePlan />
+      <RevisionClient
+        chef={chef}
+        etape={etape}
+        justifications={justifications}
+        peutValider={peutValider}
+        refusValidation={refusValidation}
+      />
+    </>
   );
 }

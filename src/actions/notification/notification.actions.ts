@@ -1,9 +1,12 @@
 "use server";
 
+import { z } from "zod";
 import { revalidatePath } from "next/cache";
 
 import { getUser } from "@/lib/auth-server";
 import { NotificationService } from "@/services/notification.service";
+
+const idSchema = z.string().min(1);
 
 export async function getMyNotifications() {
   const user = await getUser();
@@ -22,9 +25,15 @@ export async function markNotificationAsRead(notificationId: string) {
     return { success: false, error: "Non autorisé" };
   }
 
+  const parsed = idSchema.safeParse(notificationId);
+
+  if (!parsed.success) {
+    return { success: false, error: "Données invalides" };
+  }
+
   try {
-    await NotificationService.markAsRead(notificationId, user.id);
-    revalidatePath("/dashboard");
+    await NotificationService.markAsRead(parsed.data, user.id);
+    revalidatePath("/");
 
     return { success: true };
   } catch (error) {
@@ -43,7 +52,7 @@ export async function markAllNotificationsAsRead() {
 
   try {
     await NotificationService.markAllAsRead(user.id);
-    revalidatePath("/dashboard");
+    revalidatePath("/");
 
     return { success: true };
   } catch (error) {
@@ -65,11 +74,14 @@ export async function markNotificationsAsReadForJustification(
     return { success: false, error: "Non autorisé" };
   }
 
+  const parsed = idSchema.safeParse(justificationId);
+
+  if (!parsed.success) {
+    return { success: false, error: "Données invalides" };
+  }
+
   try {
-    await NotificationService.markAsReadForJustification(
-      user.id,
-      justificationId,
-    );
+    await NotificationService.markAsReadForJustification(user.id, parsed.data);
     revalidatePath("/referent/dashboard");
 
     return { success: true };

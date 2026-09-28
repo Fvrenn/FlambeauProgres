@@ -1,16 +1,18 @@
 "use client";
 
+import type { UserResume } from "@/types";
+
 import React from "react";
 import { Select, SelectItem } from "@heroui/react";
-import { UserRole, type User } from "@prisma/client";
+import { UserRole } from "@prisma/client";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useRouter } from "next/navigation";
 
-import { updateUserRole } from "../../_actions/admin.actions";
+import { updateUserRole } from "../../_actions/user.actions";
 
 import { FormModal } from "@/components/admin/FormModal";
+import { roleLabelMap } from "@/lib/roles";
 import { Avatar } from "@/components/ui";
 
 const userSchema = z.object({
@@ -22,12 +24,12 @@ type UserFormData = z.infer<typeof userSchema>;
 type UserModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  user: User;
+  user: UserResume;
 };
 
 export default function UserModal({ isOpen, onClose, user }: UserModalProps) {
-  const router = useRouter();
-  const [isPending, setIsPending] = React.useState(false);
+  const [isPending, startTransition] = React.useTransition();
+  const [erreur, setErreur] = React.useState<string | null>(null);
 
   const {
     handleSubmit,
@@ -43,25 +45,29 @@ export default function UserModal({ isOpen, onClose, user }: UserModalProps) {
 
   React.useEffect(() => {
     if (user) {
+      setErreur(null);
       setValue("role", user.role);
     }
   }, [user, setValue]);
 
-  const onSubmit = async (data: UserFormData) => {
-    setIsPending(true);
-    try {
-      await updateUserRole(user.id, data.role);
+  const onSubmit = (data: UserFormData) => {
+    setErreur(null);
+    startTransition(async () => {
+      const result = await updateUserRole(user.id, data.role);
+
+      if (!result.success) {
+        setErreur(result.error ?? "Une erreur est survenue");
+
+        return;
+      }
+
       onClose();
-      router.refresh();
-    } catch (error) {
-      console.error("Failed to update user", error);
-    } finally {
-      setIsPending(false);
-    }
+    });
   };
 
   return (
     <FormModal
+      erreur={erreur}
       isOpen={isOpen}
       isPending={isPending}
       submitLabel="Enregistrer"
@@ -86,7 +92,7 @@ export default function UserModal({ isOpen, onClose, user }: UserModalProps) {
         onChange={(e) => setValue("role", e.target.value as UserRole)}
       >
         {Object.values(UserRole).map((role) => (
-          <SelectItem key={role}>{role}</SelectItem>
+          <SelectItem key={role}>{roleLabelMap[role]}</SelectItem>
         ))}
       </Select>
     </FormModal>

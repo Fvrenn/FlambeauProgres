@@ -5,10 +5,12 @@ import { Image } from "@heroui/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useRouter } from "next/navigation";
 import { type FormationCard } from "@prisma/client";
 
-import { createFormation, updateFormation } from "../../_actions/admin.actions";
+import {
+  createFormation,
+  updateFormation,
+} from "../../_actions/formation.actions";
 
 import { FormModal } from "@/components/admin/FormModal";
 import { Input } from "@/components/ui";
@@ -32,8 +34,8 @@ export default function FormationModal({
   onClose,
   formation,
 }: FormationModalProps) {
-  const router = useRouter();
-  const [isPending, setIsPending] = React.useState(false);
+  const [isPending, startTransition] = React.useTransition();
+  const [erreur, setErreur] = React.useState<string | null>(null);
 
   const {
     register,
@@ -48,6 +50,7 @@ export default function FormationModal({
 
   React.useEffect(() => {
     if (isOpen) {
+      setErreur(null);
       reset({
         titre: formation?.titre ?? "",
         imageUrl: formation?.imageUrl ?? "",
@@ -58,25 +61,26 @@ export default function FormationModal({
 
   const imageUrl = watch("imageUrl");
 
-  const onSubmit = async (data: FormationFormData) => {
-    setIsPending(true);
-    try {
-      if (formation) {
-        await updateFormation(formation.id, data);
-      } else {
-        await createFormation(data);
+  const onSubmit = (data: FormationFormData) => {
+    setErreur(null);
+    startTransition(async () => {
+      const result = formation
+        ? await updateFormation(formation.id, data)
+        : await createFormation(data);
+
+      if (!result.success) {
+        setErreur(result.error ?? "Une erreur est survenue");
+
+        return;
       }
+
       onClose();
-      router.refresh();
-    } catch (error) {
-      console.error("Failed to save formation", error);
-    } finally {
-      setIsPending(false);
-    }
+    });
   };
 
   return (
     <FormModal
+      erreur={erreur}
       isOpen={isOpen}
       isPending={isPending}
       submitLabel={formation ? "Mettre à jour" : "Créer"}

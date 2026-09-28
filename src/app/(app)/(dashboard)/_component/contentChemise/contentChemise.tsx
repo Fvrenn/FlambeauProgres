@@ -4,7 +4,6 @@ import type { Branche } from "@/lib/wordpress-profile";
 
 import React, { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import Image from "next/image";
 import { Justification, Notification } from "@prisma/client";
 
 import { EtapeAvecObjectifs } from "../DashboardClient";
@@ -13,7 +12,9 @@ import ObjectifPanel from "../contentAction/panels/ObjectifPanel";
 import NotificationDrawer from "../contentAction/NotificationDrawer";
 import JalonBadge from "../JalonBadge";
 
-import { Icon } from "@/lib/icons";
+import GrilleBadges from "./GrilleBadges";
+
+import { NIVEAU_PROFILS, NIVEAU_SPECIALITES } from "@/lib/parcours";
 import { type DiscussionViewer } from "@/components/discussion/DiscussionThread";
 
 const OBJECTIFS_OFFSET_SELECTED = -100;
@@ -90,6 +91,27 @@ export default function ContentChemise({
   const objectifsRef = useRef<HTMLDivElement>(null);
   const [isObjectifsExpanded, setIsObjectifsExpanded] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
+  const [niveauChoisi, setNiveauChoisi] = useState<number>(NIVEAU_SPECIALITES);
+
+  const specialites = etapes.filter(
+    (etape) => etape.type === "BADGE" && etape.niveau === NIVEAU_SPECIALITES,
+  );
+  const profils = etapes.filter(
+    (etape) =>
+      etape.type === "BADGE" &&
+      etape.niveau === NIVEAU_PROFILS &&
+      !etape.verrouille,
+  );
+  const livretProfils =
+    etapes.find(
+      (etape) =>
+        etape.type === "JALON" &&
+        etape.niveau === NIVEAU_PROFILS &&
+        !etape.verrouille &&
+        !etape.isValidated,
+    ) ?? null;
+  const etape3Disponible = profils.length > 0 || livretProfils !== null;
+  const niveauActif = etape3Disponible ? niveauChoisi : NIVEAU_SPECIALITES;
 
   useEffect(() => {
     const query = window.matchMedia(DESKTOP_QUERY);
@@ -128,15 +150,50 @@ export default function ContentChemise({
       ? OBJECTIFS_OFFSET_EXPANDED
       : OBJECTIFS_OFFSET_SELECTED;
 
+  const handleNiveauChange = (niveau: number) => {
+    if (niveau === niveauActif) {
+      return;
+    }
+
+    setNiveauChoisi(niveau);
+    onEtapeSelect(null);
+  };
+
   const handleBadgeClick = (etape: EtapeAvecObjectifs) => {
     const newSelection = selectedEtape?.id === etape.id ? null : etape;
 
     onEtapeSelect(newSelection);
   };
 
+  const renderGrille = (badges: EtapeAvecObjectifs[]) => (
+    <GrilleBadges
+      badges={badges}
+      selectedEtapeId={selectedEtape?.id}
+      onBadgeClick={handleBadgeClick}
+    />
+  );
+
+  const vues = [
+    { niveau: NIVEAU_SPECIALITES, contenu: renderGrille(specialites) },
+    ...(etape3Disponible
+      ? [
+          {
+            niveau: NIVEAU_PROFILS,
+            contenu: livretProfils ? (
+              <div className="flex items-center justify-center py-2">
+                <JalonBadge compact={!isDesktop} jalon={livretProfils} />
+              </div>
+            ) : (
+              renderGrille(profils)
+            ),
+          },
+        ]
+      : []),
+  ];
+
   return (
     <div className="md:bg-dashboard-card h-full min-h-0 w-full md:w-[345px] flex flex-col justify-between p-0.5 rounded-3xl">
-      <div className="flex h-2/4 shrink-0 overflow-hidden justify-center">
+      <div className="flex h-2/4 shrink-0 overflow-hidden justify-center md:h-auto md:min-h-0 md:flex-1 md:shrink">
         <ChemiseBoundary>
           <ChemiseModel
             branche={branche}
@@ -146,7 +203,7 @@ export default function ContentChemise({
       </div>
 
       <div
-        className="bg-dashboard relative z-10 w-full flex-1 min-h-0 rounded-3xl border md:p-7 border-dashboard-border flex flex-col md:static md:z-auto md:h-2/4 md:flex-none"
+        className="bg-dashboard relative z-10 w-full flex-1 min-h-0 rounded-3xl border md:p-7 border-dashboard-border flex flex-col md:static md:z-auto md:flex-none md:pt-5 md:pb-2.5"
         style={{
           marginTop: isDesktop ? 0 : objectifsOffset,
           transition: "margin-top 300ms ease-out",
@@ -157,40 +214,45 @@ export default function ContentChemise({
             <JalonBadge key={currentJalon.id} jalon={currentJalon} />
           </div>
         ) : (
-          <div className="md:grid md:grid-cols-3 md:gap-4 gap-2 place-items-center flex overflow-x-auto md:px-4 px-0 mt-[-80px] md:mt-0 overflow-y-hidden py-2 flex-none">
-            {etapes
-              .filter((etape) => etape.type === "BADGE")
-              .map((etape) => (
-                <div key={etape.id} className="relative flex-shrink-0">
+          <div className="relative flex flex-col mt-[-80px] md:mt-0 flex-none">
+            {etape3Disponible && (
+              <div
+                aria-label="Choisir l’étape à afficher"
+                className="absolute -top-10 left-1/2 z-20 inline-flex -translate-x-1/2 gap-1 rounded-full bg-dashboard-panel p-1 md:static md:mx-auto md:mb-3 md:translate-x-0"
+                role="tablist"
+              >
+                {[NIVEAU_SPECIALITES, NIVEAU_PROFILS].map((niveau) => (
                   <button
-                    aria-label={`Sélectionner l'étape ${etape.name}`}
-                    className={`cursor-pointer opacity-100 holographic-card ${
-                      etape.isValidated
-                        ? "validated md:opacity-80"
-                        : "md:opacity-50"
-                    } ${selectedEtape?.id === etape.id ? "active" : ""}`}
-                    onClick={() => handleBadgeClick(etape)}
+                    key={niveau}
+                    aria-selected={niveau === niveauActif}
+                    className={`cursor-pointer rounded-full px-4 py-1.5 text-xs font-medium transition-colors ${
+                      niveau === niveauActif
+                        ? "bg-dashboard-card text-foreground"
+                        : "text-default-500 hover:text-foreground"
+                    }`}
+                    role="tab"
+                    type="button"
+                    onClick={() => handleNiveauChange(niveau)}
                   >
-                    {etape.image_src && (
-                      <Image
-                        alt={etape.name}
-                        className="w-[50px] h-auto md:w-[67px] md:h-[77px]"
-                        height={77}
-                        sizes="(max-width: 768px) 50px, 67px"
-                        src={etape.image_src}
-                        width={67}
-                      />
-                    )}
+                    Étape {niveau}
                   </button>
-                  {etape.isValidated && (
-                    <Icon
-                      aria-label="Badge validé"
-                      className="absolute -top-1 -right-1 z-10 w-5 h-5 text-primary drop-shadow-[0_1px_1px_rgba(0,0,0,0.35)]"
-                      icon="solar:verified-check-bold"
-                    />
-                  )}
+                ))}
+              </div>
+            )}
+
+            <div className="grid">
+              {vues.map(({ niveau, contenu }) => (
+                <div
+                  key={niveau}
+                  aria-hidden={niveau !== niveauActif}
+                  className={`[grid-area:1/1] flex flex-col justify-center ${
+                    niveau === niveauActif ? "" : "invisible"
+                  }`}
+                >
+                  {contenu}
                 </div>
               ))}
+            </div>
           </div>
         )}
         {!currentJalon && (

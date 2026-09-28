@@ -1,18 +1,18 @@
 "use client";
 
-import type { User } from "@prisma/client";
-import type { AdminEtapeWithReferents } from "@/types";
+import type { AdminEtapeWithReferents, UserResume } from "@/types";
 
 import React from "react";
-import { Image } from "@heroui/react";
+import Image from "next/image";
 
 import AssignationModal from "./_components/AssignationModal";
 
+import { Icon } from "@/lib/icons";
 import { Avatar } from "@/components/ui";
 
 type AssignationsClientPageProps = {
   etapes: AdminEtapeWithReferents[];
-  allReferents: User[];
+  allReferents: UserResume[];
 };
 
 export default function AssignationsClientPage({
@@ -34,7 +34,22 @@ export default function AssignationsClientPage({
         <h1 className="text-2xl font-extrabold">Assignation des Référents</h1>
         <p className="text-default-500">
           Gérez quels référents sont responsables de la validation de chaque
-          étape.
+          spécialité.
+        </p>
+      </div>
+
+      <div className="flex items-start gap-3 rounded-[16px] border border-dashboard-border bg-dashboard-panel px-4 py-3 text-sm text-default-600">
+        <Icon
+          className="mt-0.5 shrink-0 text-default-400"
+          icon="solar:info-circle-linear"
+          width={18}
+        />
+        <p>
+          L&apos;étape 3 « Servir » ne se gère pas ici : ses compétences et
+          réalisations sont évaluées par la{" "}
+          <strong>commission Formation</strong>, puis l&apos;étape est validée
+          par le <strong>Coordinateur National</strong>. Ces rôles
+          s&apos;attribuent dans la page Utilisateurs.
         </p>
       </div>
 
@@ -45,16 +60,17 @@ export default function AssignationsClientPage({
             className="flex flex-col rounded-[22px] overflow-hidden bg-[#FAF6EB]"
           >
             <div className="flex items-center gap-4 px-6 pt-6 pb-4">
-              <div className="w-11 h-11 rounded-full bg-dashboard-border flex items-center justify-center overflow-hidden shrink-0">
+              <div className="w-11 h-11 flex items-center justify-center shrink-0">
                 {etape.image_src ? (
                   <Image
                     alt={etape.name}
+                    className="object-contain"
                     height={44}
                     src={etape.image_src}
                     width={44}
                   />
                 ) : (
-                  <span className="text-base font-bold text-foreground/40">
+                  <span className="flex h-full w-full items-center justify-center rounded-full bg-dashboard-border text-base font-bold text-foreground/40">
                     {etape.number}
                   </span>
                 )}

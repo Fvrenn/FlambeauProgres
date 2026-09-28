@@ -8,6 +8,7 @@ import {
   calculerKpis,
   debutPeriode,
   parsePeriode,
+  versCsv,
 } from "@/lib/analytics";
 
 function evenement(surcharge: Partial<ValidationEvent> = {}): ValidationEvent {
@@ -123,5 +124,38 @@ describe("calculerKpis", () => {
       chefsConcernes: 0,
       etapesConcernees: 0,
     });
+  });
+});
+
+describe("versCsv", () => {
+  const evenement = {
+    id: "r-1",
+    type: "REALISATION" as const,
+    date: new Date("2026-09-01T10:00:00.000Z"),
+    referentId: "ref1",
+    referentName: "Référent",
+    referentRole: "REFERENT" as const,
+    chefId: "c1",
+    chefName: "Jean",
+    etapeId: "e1",
+    etapeName: "Cuisine",
+    objet: 'H1 - Dire "bonjour"',
+    justificationId: "j1",
+  };
+
+  it("sépare par des points-virgules et double les guillemets", () => {
+    const [, ligne] = versCsv([evenement]).split("\r\n");
+
+    expect(ligne).toBe(
+      '"2026-09-01T10:00:00.000Z";"REALISATION";"Référent";"REFERENT";"Jean";"Cuisine";"H1 - Dire ""bonjour"""',
+    );
+  });
+
+  it("empêche Excel d'interpréter une valeur comme une formule", () => {
+    const [, ligne] = versCsv([
+      { ...evenement, chefName: '=HYPERLINK("http://x")' },
+    ]).split("\r\n");
+
+    expect(ligne).toContain(`"'=HYPERLINK(""http://x"")"`);
   });
 });

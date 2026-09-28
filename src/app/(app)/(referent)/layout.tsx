@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import AppClientLayout from "../AppClientLayout";
 
 import { getUser } from "@/lib/auth-server";
+import { estReferent } from "@/lib/roles";
 import { appShellClassNames, referentSidebarItems } from "@/config/navigation";
 
 export default async function ReferentLayout({
@@ -13,11 +14,7 @@ export default async function ReferentLayout({
 }) {
   const user = await getUser();
 
-  if (
-    !user ||
-    !("role" in user) ||
-    (user.role !== "REFERENT" && user.role !== "ADMIN")
-  ) {
+  if (!user || !("role" in user) || !estReferent(user.role)) {
     redirect("/");
   }
 

@@ -4,14 +4,13 @@ import type { FormationCard } from "@prisma/client";
 
 import React from "react";
 import { Image } from "@heroui/react";
-import { useRouter } from "next/navigation";
 
-import { deleteFormation } from "../_actions/admin.actions";
+import { deleteFormation } from "../_actions/formation.actions";
 
 import FormationModal from "./_components/FormationModal";
 
 import { Icon } from "@/lib/icons";
-import { Button, Card, CardBody } from "@/components/ui";
+import { Button, Card, CardBody, ConfirmPopover } from "@/components/ui";
 
 type FormationsClientPageProps = {
   formations: FormationCard[];
@@ -20,7 +19,6 @@ type FormationsClientPageProps = {
 export default function FormationsClientPage({
   formations,
 }: FormationsClientPageProps) {
-  const router = useRouter();
   const [selectedFormation, setSelectedFormation] =
     React.useState<FormationCard | null>(null);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
@@ -33,13 +31,6 @@ export default function FormationsClientPage({
   const handleEdit = (formation: FormationCard) => {
     setSelectedFormation(formation);
     setIsModalOpen(true);
-  };
-
-  const handleDelete = async (formationId: string) => {
-    if (confirm("Êtes-vous sûr de vouloir supprimer cette carte ?")) {
-      await deleteFormation(formationId);
-      router.refresh();
-    }
   };
 
   return (
@@ -122,15 +113,21 @@ export default function FormationsClientPage({
                   >
                     Modifier
                   </Button>
-                  <Button
-                    className="!bg-[#fbe4b8] hover:!bg-[#fbe7c2] !rounded-[12px] !text-[13px] !font-semibold !text-[#8a5a1f] cursor-pointer"
-                    color="primary"
-                    size="sm"
-                    variant="solid"
-                    onClick={() => handleDelete(formation.id)}
+                  <ConfirmPopover
+                    confirmLabel="Supprimer"
+                    message="La carte disparaîtra de la page Formation des Chefs."
+                    titre="Supprimer cette carte ?"
+                    onConfirm={() => deleteFormation(formation.id)}
                   >
-                    Suppr.
-                  </Button>
+                    <Button
+                      className="!bg-[#fbe4b8] hover:!bg-[#fbe7c2] !rounded-[12px] !text-[13px] !font-semibold !text-[#8a5a1f] cursor-pointer"
+                      color="primary"
+                      size="sm"
+                      variant="solid"
+                    >
+                      Suppr.
+                    </Button>
+                  </ConfirmPopover>
                 </div>
               </CardBody>
             </Card>

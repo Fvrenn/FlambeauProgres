@@ -1,9 +1,15 @@
+import type { ContexteParcours } from "@/lib/parcours";
+
 import { describe, it, expect } from "vitest";
 
 import {
   niveauMaxDebloque,
   etapeEstDebloquee,
   jalonsImplicites,
+  auMoinsUneSpecialiteValidee,
+  construireContexteParcours,
+  etapeEstAccessible,
+  jalonProfilsEstValide,
 } from "@/lib/parcours";
 
 const jalons = [
@@ -87,5 +93,143 @@ describe("jalonsImplicites", () => {
 
   it("ne deduit rien sans etape declaree", () => {
     expect(jalonsImplicites([], jalons)).toEqual([]);
+  });
+});
+
+const catalogue = [
+  { id: "af", niveau: 0, type: "JALON" },
+  { id: "e1", niveau: 1, type: "JALON" },
+  { id: "2h", niveau: 2, type: "BADGE" },
+  { id: "3c", niveau: 3, type: "BADGE" },
+];
+
+const profil = { id: "3c", niveau: 3, type: "BADGE" };
+
+describe("auMoinsUneSpecialiteValidee", () => {
+  it("detecte une specialite de niveau 2 validee", () => {
+    expect(auMoinsUneSpecialiteValidee(catalogue, new Set(["2h"]))).toBe(true);
+  });
+
+  it("ignore les jalons et les profils", () => {
+    expect(
+      auMoinsUneSpecialiteValidee(catalogue, new Set(["af", "e1", "3c"])),
+    ).toBe(false);
+  });
+});
+
+describe("jalonProfilsEstValide", () => {
+  const avecJalon = [
+    { id: "3", niveau: 3, type: "JALON" },
+    { id: "3c", niveau: 3, type: "BADGE" },
+  ];
+
+  it("est vrai quand aucun jalon de niveau 3 n'existe", () => {
+    expect(jalonProfilsEstValide(catalogue, new Set())).toBe(true);
+  });
+
+  it("est faux tant que le livret Servir n'est pas validé", () => {
+    expect(jalonProfilsEstValide(avecJalon, new Set())).toBe(false);
+  });
+
+  it("est vrai une fois le livret Servir validé", () => {
+    expect(jalonProfilsEstValide(avecJalon, new Set(["3"]))).toBe(true);
+  });
+});
+
+describe("etapeEstAccessible", () => {
+  const contexte = (surcharge: Partial<ContexteParcours> = {}) => ({
+    niveauMax: Number.POSITIVE_INFINITY,
+    specialiteValidee: true,
+    jalonProfilsValide: true,
+    etapesValidees: new Set<string>(),
+    ...surcharge,
+  });
+
+  it("verrouille un profil sans specialite validee", () => {
+    expect(
+      etapeEstAccessible(profil, contexte({ specialiteValidee: false })),
+    ).toBe(false);
+  });
+
+  it("ouvre un profil des qu'une specialite est validee", () => {
+    expect(etapeEstAccessible(profil, contexte())).toBe(true);
+  });
+
+  it("n'ouvre pas un profil si le niveau reste bloque par un jalon", () => {
+    expect(etapeEstAccessible(profil, contexte({ niveauMax: 1 }))).toBe(false);
+  });
+
+  it("laisse toujours visible un profil deja valide", () => {
+    expect(
+      etapeEstAccessible(
+        profil,
+        contexte({
+          niveauMax: 0,
+          specialiteValidee: false,
+          etapesValidees: new Set(["3c"]),
+        }),
+      ),
+    ).toBe(true);
+  });
+
+  it("n'impose pas de specialite aux etapes de niveau inferieur", () => {
+    expect(
+      etapeEstAccessible(
+        { id: "2h", niveau: 2, type: "BADGE" },
+        contexte({ specialiteValidee: false }),
+      ),
+    ).toBe(true);
+  });
+
+  it("verrouille un profil tant que le livret Servir n'est pas lu", () => {
+    expect(
+      etapeEstAccessible(profil, contexte({ jalonProfilsValide: false })),
+    ).toBe(false);
+  });
+
+  it("laisse le jalon Servir accessible avant sa propre validation", () => {
+    expect(
+      etapeEstAccessible(
+        { id: "3", niveau: 3, type: "JALON" },
+        contexte({ jalonProfilsValide: false }),
+      ),
+    ).toBe(true);
+  });
+
+  it("verrouille le jalon Servir sans specialite validee", () => {
+    expect(
+      etapeEstAccessible(
+        { id: "3", niveau: 3, type: "JALON" },
+        contexte({ specialiteValidee: false, jalonProfilsValide: false }),
+      ),
+    ).toBe(false);
+  });
+});
+
+describe("construireContexteParcours", () => {
+  const parcours = [
+    { id: "af", niveau: 0, type: "JALON" },
+    { id: "e1", niveau: 1, type: "JALON" },
+    { id: "b2", niveau: 2, type: "BADGE" },
+    { id: "servir", niveau: 3, type: "JALON" },
+  ];
+
+  it("s'arrête au premier jalon non validé", () => {
+    const contexte = construireContexteParcours(parcours, new Set(["af"]));
+
+    expect(contexte.niveauMax).toBe(1);
+    expect(contexte.specialiteValidee).toBe(false);
+    expect(contexte.jalonProfilsValide).toBe(false);
+  });
+
+  it("repère la spécialité et le jalon Servir validés", () => {
+    const contexte = construireContexteParcours(
+      parcours,
+      new Set(["af", "e1", "b2", "servir"]),
+    );
+
+    expect(contexte.niveauMax).toBe(Number.POSITIVE_INFINITY);
+    expect(contexte.specialiteValidee).toBe(true);
+    expect(contexte.jalonProfilsValide).toBe(true);
   });
 });

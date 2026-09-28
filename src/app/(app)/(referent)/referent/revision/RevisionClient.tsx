@@ -1,6 +1,7 @@
 "use client";
 
-import type { User, Etape, Justification, Objectif } from "@prisma/client";
+import type { Etape, Justification, Objectif } from "@prisma/client";
+import type { UserResume } from "@/types";
 
 import React from "react";
 import { Divider, Button, Chip } from "@heroui/react";
@@ -15,15 +16,19 @@ type JustificationAvecObjectif = Justification & {
 };
 
 type RevisionClientProps = {
-  chef: User;
+  chef: UserResume;
   etape: Etape;
   justifications: JustificationAvecObjectif[];
+  peutValider: boolean;
+  refusValidation: string;
 };
 
 export default function RevisionClient({
   chef,
   etape,
   justifications,
+  peutValider,
+  refusValidation,
 }: RevisionClientProps) {
   return (
     <div className="h-full max-h-screen flex flex-col md:overflow-hidden bg-dashboard">
@@ -109,11 +114,19 @@ export default function RevisionClient({
           <div className="hidden md:flex flex-col">
             <span className="font-medium">Tout semble correct ?</span>
             <span className="text-xs text-default-500">
-              Validez le badge pour notifier le chef.
+              {peutValider
+                ? "Validez le badge pour notifier le chef."
+                : refusValidation}
             </span>
           </div>
           <div className="w-full md:w-auto">
-            <ValidationFinaleButton chefId={chef.id} etapeId={etape.id} />
+            {peutValider ? (
+              <ValidationFinaleButton chefId={chef.id} etapeId={etape.id} />
+            ) : (
+              <span className="text-xs text-default-500 md:hidden">
+                {refusValidation}
+              </span>
+            )}
           </div>
         </div>
       </div>

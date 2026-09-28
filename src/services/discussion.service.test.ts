@@ -3,7 +3,9 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 vi.mock("@/lib/prisma", () => {
   const prisma = {
     justification: { findUnique: vi.fn(), update: vi.fn() },
+    etape: { findUnique: vi.fn() },
     etapeReferent: { findFirst: vi.fn(), findMany: vi.fn() },
+    user: { findMany: vi.fn() },
     notification: { create: vi.fn(), createMany: vi.fn() },
     message: { create: vi.fn() },
     $transaction: vi.fn(),
@@ -16,11 +18,17 @@ vi.mock("@/lib/auth-guards", () => ({
   canAccessJustification: vi.fn(),
 }));
 
+vi.mock("@/services/etape.service", () => ({
+  EtapeService: { estDossierComplet: vi.fn() },
+}));
+
 import { prisma } from "@/lib/prisma";
 import { canAccessJustification } from "@/lib/auth-guards";
 import { DiscussionService } from "@/services/discussion.service";
+import { EtapeService } from "@/services/etape.service";
 
 const db = vi.mocked(prisma, true);
+const etapeService = vi.mocked(EtapeService, true);
 const canAccess = vi.mocked(canAccessJustification);
 
 const fichierData = {
@@ -110,7 +118,7 @@ describe("DiscussionService.getThread", () => {
     db.justification.findUnique.mockResolvedValue({
       id: "j1",
       statut: "SOUMISE",
-      objectif: { code: "G8", description: "desc" },
+      objectif: { code: "G8", description: "desc", type: "REALISATION" },
       chef: { id: "c1", name: "Chef" },
       messages: [{ id: "m1" }, { id: "m2" }],
     } as never);
@@ -162,7 +170,8 @@ describe("DiscussionService.postMessage", () => {
       chefId: "c1",
       etapeId: "e1",
       statut: "VALIDEE",
-      objectif: { code: "G8" },
+      objectif: { code: "G8", type: "REALISATION" },
+      etape: { name: "E", niveau: 2 },
       chef: { name: "Chef" },
     } as never);
 
@@ -185,9 +194,14 @@ describe("DiscussionService.postMessage", () => {
       chefId: "c1",
       etapeId: "e1",
       statut: "DEMANDE_PRECISION",
-      objectif: { code: "G8" },
+      objectif: { code: "G8", type: "REALISATION" },
       etape: { name: "E" },
       chef: { name: "Chef" },
+    } as never);
+    db.etape.findUnique.mockResolvedValue({
+      id: "e1",
+      name: "E",
+      niveau: 2,
     } as never);
     db.etapeReferent.findMany.mockResolvedValue([
       { referent: { id: "ref1", email: "ref@x.fr", name: "Ref" } },
@@ -222,10 +236,11 @@ describe("DiscussionService.postMessage", () => {
       chefId: "c1",
       etapeId: "e1",
       statut: "SOUMISE",
-      objectif: { code: "G8" },
-      etape: { name: "E" },
+      objectif: { code: "G8", type: "REALISATION" },
+      etape: { name: "E", niveau: 2 },
       chef: { name: "Chef" },
     } as never);
+    db.etapeReferent.findFirst.mockResolvedValue({ id: "a1" } as never);
 
     const result = await DiscussionService.postMessage({
       viewerId: "ref1",
@@ -255,9 +270,14 @@ describe("DiscussionService.postMessage", () => {
       chefId: "c1",
       etapeId: "e1",
       statut: "DEMANDE_PRECISION",
-      objectif: { code: "G8" },
+      objectif: { code: "G8", type: "REALISATION" },
       etape: { name: "E" },
       chef: { name: "Chef" },
+    } as never);
+    db.etape.findUnique.mockResolvedValue({
+      id: "e1",
+      name: "E",
+      niveau: 2,
     } as never);
     db.etapeReferent.findMany.mockResolvedValue([
       { referent: { id: "ref1", email: "ref@x.fr", name: "Ref" } },
@@ -280,6 +300,137 @@ describe("DiscussionService.postMessage", () => {
   });
 });
 
+describe("DiscussionService.postMessage - étape 3", () => {
+  const justificationEtape3 = {
+    id: "j1",
+    chefId: "c1",
+    etapeId: "e3",
+    statut: "SOUMISE",
+    objectif: { code: "L1", type: "COMPETENCE" },
+    etape: { name: "Leader", niveau: 3 },
+    chef: { name: "Chef" },
+  };
+
+  it("laisse le Coordinateur National lire mais pas demander de précisions", async () => {
+    canAccess.mockResolvedValue(true);
+    db.justification.findUnique.mockResolvedValue(justificationEtape3 as never);
+    db.etapeReferent.findFirst.mockResolvedValue(null as never);
+
+    const result = await DiscussionService.postMessage({
+      viewerId: "cn1",
+      viewerRole: "COORDINATEUR_NATIONAL",
+      authorName: "CN",
+      justificationId: "j1",
+      contenu: "précise",
+    });
+
+    expect(result.success).toBe(false);
+    expect(db.$transaction).not.toHaveBeenCalled();
+  });
+
+  it("laisse un référent assigné par erreur à l'étape 3 hors de l'évaluation", async () => {
+    canAccess.mockResolvedValue(true);
+    db.justification.findUnique.mockResolvedValue(justificationEtape3 as never);
+    db.etapeReferent.findFirst.mockResolvedValue({ id: "a1" } as never);
+
+    const result = await DiscussionService.postMessage({
+      viewerId: "ref1",
+      viewerRole: "REFERENT",
+      authorName: "Ref",
+      justificationId: "j1",
+      contenu: "précise",
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it("laisse la commission Formation demander des précisions", async () => {
+    canAccess.mockResolvedValue(true);
+    db.justification.findUnique.mockResolvedValue(justificationEtape3 as never);
+    db.etapeReferent.findFirst.mockResolvedValue(null as never);
+
+    const result = await DiscussionService.postMessage({
+      viewerId: "cf1",
+      viewerRole: "COMMISSION_FORMATION",
+      authorName: "Commission",
+      justificationId: "j1",
+      contenu: "précise",
+    });
+
+    expect(result.success).toBe(true);
+  });
+});
+
+describe("DiscussionService.validateRealisation - dossier", () => {
+  const justificationEtape3 = {
+    id: "j1",
+    chefId: "c1",
+    etapeId: "e3",
+    statut: "SOUMISE",
+    objectif: { code: "L9", description: "Rapport", type: "REALISATION" },
+    etape: { name: "Leader", niveau: 3 },
+    chef: { name: "Chef", email: "chef@x.fr" },
+  };
+
+  it("refuse de valider son propre travail", async () => {
+    db.justification.findUnique.mockResolvedValue({
+      ...justificationEtape3,
+      chefId: "cf1",
+    } as never);
+    db.etapeReferent.findFirst.mockResolvedValue(null as never);
+
+    const result = await DiscussionService.validateRealisation({
+      referentId: "cf1",
+      referentName: "Commission",
+      referentRole: "COMMISSION_FORMATION",
+      justificationId: "j1",
+    });
+
+    expect(result.success).toBe(false);
+    expect(db.$transaction).not.toHaveBeenCalled();
+  });
+
+  it("prévient le Coordinateur National quand le dossier devient complet", async () => {
+    db.justification.findUnique.mockResolvedValue(justificationEtape3 as never);
+    db.etapeReferent.findFirst.mockResolvedValue(null as never);
+    etapeService.estDossierComplet.mockResolvedValue(true);
+    db.user.findMany.mockResolvedValue([
+      { id: "cn1", email: "cn@x.fr" },
+    ] as never);
+
+    await DiscussionService.validateRealisation({
+      referentId: "cf1",
+      referentName: "Commission",
+      referentRole: "COMMISSION_FORMATION",
+      justificationId: "j1",
+    });
+
+    expect(db.notification.createMany).toHaveBeenCalledWith({
+      data: [
+        expect.objectContaining({
+          destinataireId: "cn1",
+          type: "DOSSIER_A_VALIDER",
+        }),
+      ],
+    });
+  });
+
+  it("ne prévient personne tant que le dossier est incomplet", async () => {
+    db.justification.findUnique.mockResolvedValue(justificationEtape3 as never);
+    db.etapeReferent.findFirst.mockResolvedValue(null as never);
+    etapeService.estDossierComplet.mockResolvedValue(false);
+
+    await DiscussionService.validateRealisation({
+      referentId: "cf1",
+      referentName: "Commission",
+      referentRole: "COMMISSION_FORMATION",
+      justificationId: "j1",
+    });
+
+    expect(db.notification.createMany).not.toHaveBeenCalled();
+  });
+});
+
 describe("DiscussionService.validateRealisation", () => {
   it("fails when the justification does not exist", async () => {
     db.justification.findUnique.mockResolvedValue(null as never);
@@ -287,6 +438,7 @@ describe("DiscussionService.validateRealisation", () => {
     const result = await DiscussionService.validateRealisation({
       referentId: "ref1",
       referentName: "Ref",
+      referentRole: "REFERENT",
       justificationId: "j1",
     });
 
@@ -300,7 +452,8 @@ describe("DiscussionService.validateRealisation", () => {
       chefId: "c1",
       etapeId: "e1",
       statut: "SOUMISE",
-      objectif: { code: "G8" },
+      objectif: { code: "G8", type: "REALISATION" },
+      etape: { name: "E", niveau: 2 },
       chef: { name: "Chef" },
     } as never);
     db.etapeReferent.findFirst.mockResolvedValue(null as never);
@@ -308,6 +461,7 @@ describe("DiscussionService.validateRealisation", () => {
     const result = await DiscussionService.validateRealisation({
       referentId: "ref1",
       referentName: "Ref",
+      referentRole: "REFERENT",
       justificationId: "j1",
     });
 
@@ -321,7 +475,8 @@ describe("DiscussionService.validateRealisation", () => {
       chefId: "c1",
       etapeId: "e1",
       statut: "VALIDEE",
-      objectif: { code: "G8" },
+      objectif: { code: "G8", type: "REALISATION" },
+      etape: { name: "E", niveau: 2 },
       chef: { name: "Chef" },
     } as never);
     db.etapeReferent.findFirst.mockResolvedValue({ id: "a1" } as never);
@@ -329,6 +484,7 @@ describe("DiscussionService.validateRealisation", () => {
     const result = await DiscussionService.validateRealisation({
       referentId: "ref1",
       referentName: "Ref",
+      referentRole: "REFERENT",
       justificationId: "j1",
     });
 
@@ -342,8 +498,12 @@ describe("DiscussionService.validateRealisation", () => {
       chefId: "c1",
       etapeId: "e1",
       statut: "SOUMISE",
-      objectif: { code: "G8", description: "Description G8" },
-      etape: { name: "E" },
+      objectif: {
+        code: "G8",
+        description: "Description G8",
+        type: "REALISATION",
+      },
+      etape: { name: "E", niveau: 2 },
       chef: { name: "Chef" },
     } as never);
     db.etapeReferent.findFirst.mockResolvedValue({ id: "a1" } as never);
@@ -351,6 +511,7 @@ describe("DiscussionService.validateRealisation", () => {
     const result = await DiscussionService.validateRealisation({
       referentId: "ref1",
       referentName: "Ref",
+      referentRole: "REFERENT",
       justificationId: "j1",
     });
 
@@ -376,5 +537,91 @@ describe("DiscussionService.validateRealisation", () => {
       db.justification.update.mock.calls[0][0].data.valideeAt,
     ).toBeInstanceOf(Date);
     expect(db.notification.create).toHaveBeenCalledTimes(1);
+  });
+
+  it("refuses a referent assigned to an etape 3 profil", async () => {
+    db.justification.findUnique.mockResolvedValue({
+      id: "j1",
+      chefId: "c1",
+      etapeId: "e3",
+      statut: "SOUMISE",
+      objectif: {
+        code: "L9",
+        description: "Description L9",
+        type: "REALISATION",
+      },
+      etape: { name: "Leader", niveau: 3 },
+      chef: { name: "Chef" },
+    } as never);
+    db.etapeReferent.findFirst.mockResolvedValue({ id: "a1" } as never);
+
+    const result = await DiscussionService.validateRealisation({
+      referentId: "ref1",
+      referentName: "Ref",
+      referentRole: "REFERENT",
+      justificationId: "j1",
+    });
+
+    expect(result.success).toBe(false);
+    expect(db.$transaction).not.toHaveBeenCalled();
+  });
+
+  it("laisse la commission Formation évaluer l'étape 3 sans assignation", async () => {
+    db.justification.findUnique.mockResolvedValue({
+      id: "j1",
+      chefId: "c1",
+      etapeId: "e3",
+      statut: "SOUMISE",
+      objectif: {
+        code: "L9",
+        description: "Description L9",
+        type: "REALISATION",
+      },
+      etape: { name: "Leader", niveau: 3 },
+      chef: { name: "Chef" },
+    } as never);
+    db.etapeReferent.findFirst.mockResolvedValue(null as never);
+
+    const result = await DiscussionService.validateRealisation({
+      referentId: "cf1",
+      referentName: "Commission",
+      referentRole: "COMMISSION_FORMATION",
+      justificationId: "j1",
+    });
+
+    expect(result.success).toBe(true);
+    expect(db.justification.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: "j1" },
+        data: expect.objectContaining({ statut: "VALIDEE" }),
+      }),
+    );
+  });
+
+  it("refuse au Coordinateur National d'évaluer une réalisation", async () => {
+    db.justification.findUnique.mockResolvedValue({
+      id: "j1",
+      chefId: "c1",
+      etapeId: "e3",
+      statut: "SOUMISE",
+      objectif: {
+        code: "L9",
+        description: "Description L9",
+        type: "REALISATION",
+      },
+      etape: { name: "Leader", niveau: 3 },
+      chef: { name: "Chef" },
+    } as never);
+    db.etapeReferent.findFirst.mockResolvedValue(null as never);
+
+    const result = await DiscussionService.validateRealisation({
+      referentId: "cn1",
+      referentName: "Coordinateur",
+      referentRole: "COORDINATEUR_NATIONAL",
+      justificationId: "j1",
+    });
+
+    expect(result.success).toBe(false);
+    expect(db.$transaction).not.toHaveBeenCalled();
   });
 });

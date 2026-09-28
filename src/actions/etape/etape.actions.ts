@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 
 import { authorizeRole } from "@/lib/auth-guards";
 import { getUser } from "@/lib/auth-server";
+import { estReferent, ROLES_REFERENT } from "@/lib/roles";
 import { EtapeService } from "@/services/etape.service";
 
 const validateEtapeSchema = z.object({
@@ -17,11 +18,7 @@ export async function validateEtape(chefId: string, etapeId: string) {
   try {
     const user = await getUser();
 
-    if (
-      !user ||
-      !("role" in user) ||
-      (user.role !== "REFERENT" && user.role !== "ADMIN")
-    ) {
+    if (!user || !("role" in user) || !estReferent(user.role)) {
       return { success: false, error: "Non autorisé" };
     }
 
@@ -31,17 +28,19 @@ export async function validateEtape(chefId: string, etapeId: string) {
       return { success: false, error: "Données invalides" };
     }
 
-    const result = await EtapeService.validateBadge(
-      parsed.data.chefId,
-      user.id,
-      parsed.data.etapeId,
-    );
+    const result = await EtapeService.validateBadge({
+      chefId: parsed.data.chefId,
+      referentId: user.id,
+      referentRole: user.role,
+      etapeId: parsed.data.etapeId,
+    });
 
     if (!result.success) {
       return result;
     }
 
-    revalidatePath(`/referent/dashboard?etapeId=${parsed.data.etapeId}`);
+    revalidatePath("/referent/dashboard");
+    revalidatePath("/referent/revision");
   } catch (error) {
     console.error("Erreur lors de la validation finale de l'étape:", error);
 
@@ -57,7 +56,7 @@ const validerJalonSchema = z.object({
 
 export async function validerJalon(etapeId: string) {
   try {
-    const user = await authorizeRole("CHEF", "REFERENT", "ADMIN");
+    const user = await authorizeRole("CHEF", ...ROLES_REFERENT);
 
     if (!user) {
       return { success: false, error: "Non autorisé" };

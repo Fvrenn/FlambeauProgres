@@ -1,5 +1,17 @@
 export type JalonNiveau = { id: string; niveau: number };
 
+export type EtapeParcours = { id: string; niveau: number; type: string };
+
+export type ContexteParcours = {
+  niveauMax: number;
+  specialiteValidee: boolean;
+  jalonProfilsValide: boolean;
+  etapesValidees: Set<string>;
+};
+
+export const NIVEAU_SPECIALITES = 2;
+export const NIVEAU_PROFILS = 3;
+
 export function niveauMaxDebloque(
   jalons: JalonNiveau[],
   etapesValidees: Set<string>,
@@ -38,4 +50,69 @@ export function etapeEstDebloquee(
   niveauMax: number,
 ): boolean {
   return niveauEtape <= niveauMax;
+}
+
+export function auMoinsUneSpecialiteValidee(
+  etapes: EtapeParcours[],
+  etapesValidees: Set<string>,
+): boolean {
+  return etapes.some(
+    (etape) =>
+      etape.niveau === NIVEAU_SPECIALITES &&
+      etape.type === "BADGE" &&
+      etapesValidees.has(etape.id),
+  );
+}
+
+export function jalonProfilsEstValide(
+  etapes: EtapeParcours[],
+  etapesValidees: Set<string>,
+): boolean {
+  return etapes
+    .filter(
+      (etape) => etape.type === "JALON" && etape.niveau === NIVEAU_PROFILS,
+    )
+    .every((jalon) => etapesValidees.has(jalon.id));
+}
+
+export function construireContexteParcours(
+  etapes: EtapeParcours[],
+  etapesValidees: Set<string>,
+): ContexteParcours {
+  const jalons = etapes
+    .filter((etape) => etape.type === "JALON")
+    .map(({ id, niveau }) => ({ id, niveau }));
+
+  return {
+    niveauMax: niveauMaxDebloque(jalons, etapesValidees),
+    specialiteValidee: auMoinsUneSpecialiteValidee(etapes, etapesValidees),
+    jalonProfilsValide: jalonProfilsEstValide(etapes, etapesValidees),
+    etapesValidees,
+  };
+}
+
+export function etapeEstAccessible(
+  etape: EtapeParcours,
+  contexte: ContexteParcours,
+): boolean {
+  const { niveauMax, specialiteValidee, jalonProfilsValide, etapesValidees } =
+    contexte;
+
+  if (etapesValidees.has(etape.id)) {
+    return true;
+  }
+
+  if (!etapeEstDebloquee(etape.niveau, niveauMax)) {
+    return false;
+  }
+
+  if (etape.niveau < NIVEAU_PROFILS) {
+    return true;
+  }
+
+  if (etape.type === "JALON") {
+    return specialiteValidee;
+  }
+
+  return specialiteValidee && jalonProfilsValide;
 }

@@ -17,14 +17,14 @@ import {
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useRouter } from "next/navigation";
 import { TypeObjectif } from "@prisma/client";
 
-import { createEtape, updateEtape } from "../../_actions/admin.actions";
+import { createEtape, updateEtape } from "../../_actions/etape.actions";
 
 import { Icon } from "@/lib/icons";
 import { FormModal } from "@/components/admin/FormModal";
-import { Input } from "@/components/ui";
+import { FileDropzone, Input } from "@/components/ui";
+import { REGLES_ICONE_ETAPE } from "@/lib/fichiers";
 
 const etapeSchema = z.object({
   number: z.string().min(1, "Le numéro est requis"),
@@ -56,8 +56,9 @@ export default function EtapeModal({
   onClose,
   etape,
 }: EtapeModalProps) {
-  const router = useRouter();
-  const [isPending, setIsPending] = React.useState(false);
+  const [isPending, startTransition] = React.useTransition();
+  const [icone, setIcone] = React.useState<File | null>(null);
+  const [erreur, setErreur] = React.useState<string | null>(null);
 
   const {
     register,
@@ -85,6 +86,9 @@ export default function EtapeModal({
 
   React.useEffect(() => {
     if (isOpen) {
+      setIcone(null);
+      setErreur(null);
+
       if (etape) {
         setValue("number", etape.number);
         setValue("name", etape.name);
@@ -113,31 +117,36 @@ export default function EtapeModal({
     }
   }, [isOpen, etape, setValue, reset]);
 
-  const onSubmit = async (data: EtapeFormData) => {
-    setIsPending(true);
-    try {
-      if (etape) {
-        await updateEtape(etape.id, {
-          number: data.number,
-          name: data.name,
-          description: data.description,
-          ordre: data.ordre,
-          wpValue: data.wpValue,
-        });
-      } else {
-        await createEtape(data);
+  const onSubmit = (data: EtapeFormData) => {
+    setErreur(null);
+    startTransition(async () => {
+      const result = etape
+        ? await updateEtape(
+            etape.id,
+            {
+              number: data.number,
+              name: data.name,
+              description: data.description,
+              ordre: data.ordre,
+              wpValue: data.wpValue,
+            },
+            icone ?? undefined,
+          )
+        : await createEtape(data, icone ?? undefined);
+
+      if (!result.success) {
+        setErreur(result.error ?? "Une erreur est survenue");
+
+        return;
       }
+
       onClose();
-      router.refresh();
-    } catch (error) {
-      console.error("Failed to save etape", error);
-    } finally {
-      setIsPending(false);
-    }
+    });
   };
 
   return (
     <FormModal
+      erreur={erreur}
       isOpen={isOpen}
       isPending={isPending}
       scrollBehavior="inside"
@@ -193,6 +202,15 @@ export default function EtapeModal({
               {...register("description")}
               errorMessage={errors.description?.message}
               isInvalid={!!errors.description}
+            />
+
+            <FileDropzone
+              aide="PNG uniquement, 1 Mo maximum"
+              apercuActuel={etape?.image_src}
+              fichier={icone}
+              label="Icône de l'étape"
+              regles={REGLES_ICONE_ETAPE}
+              onChange={setIcone}
             />
           </div>
         </Tab>

@@ -1,6 +1,7 @@
 import nodemailer, { type Transporter } from "nodemailer";
 
 import {
+  dossierAValiderEmail,
   newMessageEmail,
   newRealisationEmail,
   validationEmail,
@@ -122,12 +123,22 @@ export class EmailService {
     etapeName: string;
     objectifCode: string;
     objectifDescription: string;
+    libelle: string;
     reviewUrl: string;
     justificationId: string;
   }): Promise<void> {
     return this.send(opts.to, newRealisationEmail(opts), {
       messageId: threadMessageId(opts.justificationId),
     });
+  }
+
+  static sendDossierAValider(opts: {
+    to: string;
+    chefName: string;
+    etapeName: string;
+    revisionUrl: string;
+  }): Promise<void> {
+    return this.send(opts.to, dossierAValiderEmail(opts));
   }
 
   static sendValidation(opts: {
@@ -137,6 +148,7 @@ export class EmailService {
     etapeName: string;
     objectifCode: string;
     objectifDescription: string;
+    libelle: string;
     viewUrl: string;
     justificationId: string;
   }): Promise<void> {

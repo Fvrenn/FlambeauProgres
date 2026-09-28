@@ -1,18 +1,8 @@
 import path from "path";
-import { writeFile, mkdir, unlink } from "fs/promises";
+import { writeFile, mkdir, readFile, unlink } from "fs/promises";
 import { mkdirSync } from "fs";
 
-const ALLOWED_MIME_TYPES = new Set<string>([
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/gif",
-  "application/pdf",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-]);
-
-const MAX_FILE_SIZE = 8 * 1024 * 1024;
+import { type ReglesFichier, validerFichier } from "@/lib/fichiers";
 
 const UPLOAD_DIR =
   process.env.UPLOAD_DIR ||
@@ -26,30 +16,33 @@ export interface StoredFile {
 }
 
 export class StorageService {
-  static validate(file: File): void {
+  static validate(file: File, regles: ReglesFichier): void {
     if (!file) {
       throw new Error("Aucun fichier fourni");
     }
 
-    if (!ALLOWED_MIME_TYPES.has(file.type)) {
-      throw new Error(
-        "Type de fichier non autorisé (images, PDF ou Word uniquement)",
-      );
-    }
+    const erreur = validerFichier(file, regles);
 
-    if (file.size > MAX_FILE_SIZE) {
-      throw new Error("Fichier trop volumineux (8 Mo maximum)");
+    if (erreur) {
+      throw new Error(erreur);
     }
   }
 
-  static async uploadFile(file: File, folder = "uploads"): Promise<StoredFile> {
-    this.validate(file);
+  static async uploadFile(
+    file: File,
+    folder: string,
+    regles: ReglesFichier,
+  ): Promise<StoredFile> {
+    this.validate(file, regles);
 
     const buffer = Buffer.from(await file.arrayBuffer());
 
     const safeFolder =
       folder.replace(/[^a-z0-9_-]/gi, "").toLowerCase() || "uploads";
-    const targetDir = path.join(UPLOAD_DIR, safeFolder);
+    const targetDir = path.join(
+      /*turbopackIgnore: true*/ UPLOAD_DIR,
+      safeFolder,
+    );
 
     await mkdir(targetDir, { recursive: true });
 
@@ -64,12 +57,19 @@ export class StorageService {
     const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
     const fileName = `${basename || "fichier"}-${uniqueSuffix}${extension}`;
 
-    await writeFile(path.join(targetDir, fileName), buffer);
+    await writeFile(
+      path.join(/*turbopackIgnore: true*/ targetDir, fileName),
+      buffer,
+    );
 
     return {
       storedPath: `${safeFolder}/${fileName}`,
       fileName,
     };
+  }
+
+  static async read(storedPath: string): Promise<Buffer> {
+    return readFile(this.resolvePath(storedPath));
   }
 
   static async deleteFile(storedPath: string): Promise<void> {
@@ -81,9 +81,9 @@ export class StorageService {
   }
 
   static resolvePath(storedPath: string): string {
-    const baseDir = path.resolve(UPLOAD_DIR);
+    const baseDir = path.resolve(/*turbopackIgnore: true*/ UPLOAD_DIR);
     const relative = storedPath.replace(/^[/\\]+/, "");
-    const resolved = path.resolve(baseDir, relative);
+    const resolved = path.resolve(/*turbopackIgnore: true*/ baseDir, relative);
 
     if (resolved !== baseDir && !resolved.startsWith(baseDir + path.sep)) {
       throw new Error("Chemin de fichier invalide");

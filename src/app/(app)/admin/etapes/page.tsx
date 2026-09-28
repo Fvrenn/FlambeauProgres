@@ -2,19 +2,20 @@ import React from "react";
 
 import EtapesClientPage from "./ClientPage";
 
-import { prisma } from "@/lib/prisma";
+import { RafraichissementArrierePlan } from "@/components/application/rafraichissement/RafraichissementArrierePlan";
+import { exigerRole } from "@/lib/auth-guards";
+import { ROLES_ADMIN } from "@/lib/roles";
+import { EtapeAdminService } from "@/services/etape-admin.service";
 
 export default async function AdminEtapesPage() {
-  const etapes = await prisma.etape.findMany({
-    include: {
-      _count: {
-        select: { objectifs: true },
-      },
-    },
-    orderBy: {
-      ordre: "asc",
-    },
-  });
+  await exigerRole(...ROLES_ADMIN);
 
-  return <EtapesClientPage etapes={etapes} />;
+  const etapes = await EtapeAdminService.list();
+
+  return (
+    <>
+      <RafraichissementArrierePlan />
+      <EtapesClientPage etapes={etapes} />
+    </>
+  );
 }

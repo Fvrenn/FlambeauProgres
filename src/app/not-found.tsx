@@ -1,6 +1,9 @@
 import Link from "next/link";
+import { connection } from "next/server";
 
-export default function NotFound() {
+export default async function NotFound() {
+  await connection();
+
   return (
     <div className="bg-dashboard flex h-screen flex-col items-center justify-center gap-4 p-6 text-center">
       <p className="text-6xl font-bold text-default-300">404</p>

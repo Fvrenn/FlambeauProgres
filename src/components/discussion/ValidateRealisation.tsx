@@ -6,11 +6,13 @@ import { Button, Popover, PopoverContent, PopoverTrigger } from "@heroui/react";
 import { Icon } from "@/lib/icons";
 
 interface ValidateRealisationProps {
+  libelle: string;
   disabled?: boolean;
   onValidate: () => Promise<void>;
 }
 
 export default function ValidateRealisation({
+  libelle,
   disabled,
   onValidate,
 }: ValidateRealisationProps) {
@@ -32,7 +34,7 @@ export default function ValidateRealisation({
           isDisabled={disabled}
           startContent={<Icon icon="solar:check-circle-bold" width={18} />}
         >
-          Valider la réalisation
+          Valider la {libelle}
         </Button>
       </PopoverTrigger>
 
@@ -40,7 +42,7 @@ export default function ValidateRealisation({
         <div className="flex flex-col gap-3">
           <div>
             <p className="text-sm font-semibold text-foreground">
-              Valider la réalisation ?
+              Valider la {libelle} ?
             </p>
             <p className="text-xs text-default-500">
               Le fil sera clôturé : cette action est définitive.

@@ -1,3 +1,5 @@
+import type { ServiceResult } from "@/types";
+
 import {
   Prisma,
   type MessageType,
@@ -7,13 +9,14 @@ import {
 
 import { prisma } from "@/lib/prisma";
 import { canAccessJustification } from "@/lib/auth-guards";
+import {
+  estNiveauEtape3,
+  messageRefusEvaluation,
+  peutEvaluerEtape,
+} from "@/lib/roles";
+import { LIBELLE_TYPE_OBJECTIF, TITRE_VALIDATION } from "@/lib/justification";
+import { EtapeService } from "@/services/etape.service";
 import { NotificationService } from "@/services/notification.service";
-import { EmailService } from "@/services/email.service";
-import { chefThreadUrl, referentThreadUrl } from "@/lib/links";
-
-export type ServiceResult<T> =
-  | { success: true; data: T }
-  | { success: false; error: string };
 
 export type FichierData = {
   nomOriginal: string;
@@ -35,14 +38,6 @@ export type ThreadData = {
   chef: { id: string; name: string };
   messages: ThreadMessage[];
 };
-
-type JustificationForNotify = Prisma.JustificationGetPayload<{
-  include: {
-    objectif: { select: { code: true; description: true } };
-    etape: { select: { name: true } };
-    chef: { select: { name: true; email: true } };
-  };
-}>;
 
 export class DiscussionService {
   static addMessage(
@@ -90,7 +85,7 @@ export class DiscussionService {
       where: { id: justificationId },
       include: {
         chef: { select: { id: true, name: true } },
-        objectif: { select: { code: true, description: true } },
+        objectif: { select: { code: true, description: true, type: true } },
         messages: {
           include: { auteur: true, fichier: true },
           orderBy: { createdAt: "asc" },
@@ -150,8 +145,8 @@ export class DiscussionService {
     const justification = await prisma.justification.findUnique({
       where: { id: justificationId },
       include: {
-        objectif: { select: { code: true, description: true } },
-        etape: { select: { name: true } },
+        objectif: { select: { code: true, description: true, type: true } },
+        etape: { select: { name: true, niveau: true } },
         chef: { select: { name: true, email: true } },
       },
     });
@@ -163,11 +158,21 @@ export class DiscussionService {
     if (["VALIDEE", "AUTO_VALIDEE"].includes(justification.statut)) {
       return {
         success: false,
-        error: "Cette réalisation est validée, le fil est clôturé",
+        error: `Cette ${LIBELLE_TYPE_OBJECTIF[justification.objectif.type]} est validée, le fil est clôturé`,
       };
     }
 
     const fromChef = justification.chefId === viewerId;
+
+    if (
+      !fromChef &&
+      !(await estEvaluateur(viewerId, viewerRole, justification))
+    ) {
+      return {
+        success: false,
+        error: messageRefusEvaluation(justification.etape.niveau),
+      };
+    }
 
     const message = await prisma.$transaction(async (tx) => {
       const created = await this.addMessage(tx, {
@@ -189,10 +194,19 @@ export class DiscussionService {
       return created;
     });
 
-    await this.notifyNewMessage(justification, fromChef, {
-      authorName,
-      messageText: trimmed,
-    });
+    const nouveauMessage = { auteur: authorName, texte: trimmed };
+
+    if (fromChef) {
+      await NotificationService.notifierMessageDuChef(
+        justification,
+        nouveauMessage,
+      );
+    } else {
+      await NotificationService.notifierMessageAuChef(
+        justification,
+        nouveauMessage,
+      );
+    }
 
     return { success: true, data: message };
   }
@@ -200,15 +214,16 @@ export class DiscussionService {
   static async validateRealisation(input: {
     referentId: string;
     referentName: string;
+    referentRole: UserRole | undefined;
     justificationId: string;
   }): Promise<ServiceResult<ThreadMessage>> {
-    const { referentId, referentName, justificationId } = input;
+    const { referentId, referentName, referentRole, justificationId } = input;
 
     const justification = await prisma.justification.findUnique({
       where: { id: justificationId },
       include: {
-        objectif: { select: { code: true, description: true } },
-        etape: { select: { name: true } },
+        objectif: { select: { code: true, description: true, type: true } },
+        etape: { select: { name: true, niveau: true } },
         chef: { select: { name: true, email: true } },
       },
     });
@@ -217,26 +232,32 @@ export class DiscussionService {
       return { success: false, error: "Justification introuvable" };
     }
 
-    const assignation = await prisma.etapeReferent.findFirst({
-      where: { referentId, etapeId: justification.etapeId },
-    });
-
-    if (!assignation) {
+    if (!(await estEvaluateur(referentId, referentRole, justification))) {
       return {
         success: false,
-        error: "Vous n'êtes pas référent de cette étape",
+        error: messageRefusEvaluation(justification.etape.niveau),
+      };
+    }
+
+    if (justification.chefId === referentId) {
+      return {
+        success: false,
+        error: "Vous ne pouvez pas valider votre propre travail",
       };
     }
 
     if (justification.statut === "VALIDEE") {
-      return { success: false, error: "Cette réalisation est déjà validée" };
+      return {
+        success: false,
+        error: `Cette ${LIBELLE_TYPE_OBJECTIF[justification.objectif.type]} est déjà validée`,
+      };
     }
 
     const message = await prisma.$transaction(async (tx) => {
       const created = await this.addMessage(tx, {
         justificationId,
         auteurId: referentId,
-        contenu: "✓ Réalisation validée",
+        contenu: `✓ ${TITRE_VALIDATION[justification.objectif.type]}`,
         type: "SYSTEM",
       });
 
@@ -252,94 +273,38 @@ export class DiscussionService {
       return created;
     });
 
-    await NotificationService.createNotification({
-      destinataireId: justification.chefId,
-      justificationId,
-      type: "JUSTIFICATION_VALIDEE",
-      titre: "Réalisation validée !",
-      message: `Votre réalisation "${justification.objectif.code}" a été validée par votre référent.`,
-    });
+    await NotificationService.notifierValidation(justification, referentName);
 
-    await EmailService.sendValidation({
-      to: justification.chef.email,
-      chefName: justification.chef.name,
-      referentName,
-      etapeName: justification.etape.name,
-      objectifCode: justification.objectif.code,
-      objectifDescription: justification.objectif.description,
-      viewUrl: chefThreadUrl(justificationId),
-      justificationId,
-    });
+    if (
+      estNiveauEtape3(justification.etape.niveau) &&
+      (await EtapeService.estDossierComplet(
+        justification.chefId,
+        justification.etapeId,
+      ))
+    ) {
+      await NotificationService.notifierDossierAValider({
+        chefId: justification.chefId,
+        chefName: justification.chef.name,
+        etape: { id: justification.etapeId, name: justification.etape.name },
+      });
+    }
 
     return { success: true, data: message };
   }
+}
 
-  private static async notifyNewMessage(
-    justification: JustificationForNotify,
-    fromChef: boolean,
-    ctx: { authorName: string; messageText: string | null },
-  ) {
-    if (fromChef) {
-      const referents = await prisma.etapeReferent.findMany({
-        where: { etapeId: justification.etapeId },
-        select: {
-          referent: { select: { id: true, name: true, email: true } },
-        },
-      });
+async function estEvaluateur(
+  userId: string,
+  role: UserRole | undefined,
+  justification: { etapeId: string; etape: { niveau: number } },
+): Promise<boolean> {
+  const assignation = await prisma.etapeReferent.findFirst({
+    where: { referentId: userId, etapeId: justification.etapeId },
+  });
 
-      if (referents.length === 0) {
-        return;
-      }
-
-      await prisma.notification.createMany({
-        data: referents.map((er) => ({
-          destinataireId: er.referent.id,
-          justificationId: justification.id,
-          type: "NOUVEAU_COMMENTAIRE" as const,
-          titre: "Nouveau message du chef",
-          message: `${ctx.authorName} a répondu pour "${justification.objectif.code}".`,
-          lue: false,
-        })),
-      });
-
-      const replyUrl = referentThreadUrl(
-        justification.etapeId,
-        justification.id,
-      );
-
-      await Promise.all(
-        referents.map((er) =>
-          EmailService.sendNewMessage({
-            to: er.referent.email,
-            authorName: ctx.authorName,
-            etapeName: justification.etape.name,
-            objectifCode: justification.objectif.code,
-            messageText: ctx.messageText,
-            replyUrl,
-            justificationId: justification.id,
-          }),
-        ),
-      );
-
-      return;
-    }
-
-    await NotificationService.createNotification({
-      destinataireId: justification.chefId,
-      justificationId: justification.id,
-      type: "DEMANDE_PRECISION",
-      titre: "Demande de précisions",
-      message: `Votre référent a écrit au sujet de "${justification.objectif.code}".`,
-    });
-
-    await EmailService.sendNewMessage({
-      to: justification.chef.email,
-      authorName: ctx.authorName,
-      etapeName: justification.etape.name,
-      objectifCode: justification.objectif.code,
-      messageText: ctx.messageText,
-      replyUrl: chefThreadUrl(justification.id),
-      justificationId: justification.id,
-    });
-  }
+  return peutEvaluerEtape(
+    role,
+    justification.etape.niveau,
+    Boolean(assignation),
+  );
 }

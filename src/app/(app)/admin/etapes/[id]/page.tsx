@@ -3,29 +3,29 @@ import { redirect } from "next/navigation";
 
 import EtapeDetailClientPage from "./ClientPage";
 
-import { prisma } from "@/lib/prisma";
+import { RafraichissementArrierePlan } from "@/components/application/rafraichissement/RafraichissementArrierePlan";
+import { exigerRole } from "@/lib/auth-guards";
+import { ROLES_ADMIN } from "@/lib/roles";
+import { EtapeAdminService } from "@/services/etape-admin.service";
 
 type PageProps = {
   params: Promise<{ id: string }>;
 };
 
 export default async function AdminEtapeDetailPage({ params }: PageProps) {
-  const { id } = await params;
+  await exigerRole(...ROLES_ADMIN);
 
-  const etape = await prisma.etape.findUnique({
-    where: { id },
-    include: {
-      objectifs: {
-        orderBy: {
-          code: "asc",
-        },
-      },
-    },
-  });
+  const { id } = await params;
+  const etape = await EtapeAdminService.getWithObjectifs(id);
 
   if (!etape) {
     redirect("/admin/etapes");
   }
 
-  return <EtapeDetailClientPage etape={etape} />;
+  return (
+    <>
+      <RafraichissementArrierePlan />
+      <EtapeDetailClientPage etape={etape} />
+    </>
+  );
 }

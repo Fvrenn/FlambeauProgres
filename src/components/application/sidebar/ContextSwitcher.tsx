@@ -18,7 +18,9 @@ import Image from "next/image";
 import { cn } from "@heroui/react";
 
 import { Icon } from "@/lib/icons";
+import { estAdmin, estReferent } from "@/lib/roles";
 import { Avatar } from "@/components/ui";
+import { ROUTE_DECONNEXION } from "@/config/navigation";
 
 function DropdownIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -128,8 +130,7 @@ export default function ContextSwitcher({
             Mon Progrès (Chef)
           </DropdownItem>,
         ]),
-    ...((user.role === "REFERENT" || user.role === "ADMIN") &&
-    user.etapesReferent
+    ...(estReferent(user.role) && user.etapesReferent
       ? user.etapesReferent
           .filter((etape) => etape.id !== currentEtapeId)
           .map((etape) => (
@@ -141,7 +142,7 @@ export default function ContextSwitcher({
                 etape.image_src ? (
                   <Image
                     alt={`Badge ${etape.name}`}
-                    className="shrink-0"
+                    className="shrink-0 object-contain"
                     height={24}
                     src={etape.image_src}
                     width={24}
@@ -155,7 +156,7 @@ export default function ContextSwitcher({
             </DropdownItem>
           ))
       : []),
-    ...(user.role === "ADMIN" && !pathname.startsWith("/admin")
+    ...(estAdmin(user.role) && !pathname.startsWith("/admin")
       ? [
           <DropdownItem
             key="admin"
@@ -184,7 +185,7 @@ export default function ContextSwitcher({
               {currentEtape?.image_src ? (
                 <Image
                   alt={`Badge ${currentEtape.name}`}
-                  className="rounded-full"
+                  className="rounded-full object-contain"
                   height={32}
                   src={currentEtape.image_src}
                   width={32}
@@ -197,16 +198,16 @@ export default function ContextSwitcher({
             <Button
               fullWidth
               className={cn(
-                "h-auto justify-between gap-3 rounded-xl border-1 border-divider p-2",
+                "h-auto justify-between gap-3 whitespace-normal rounded-xl border-1 border-divider p-2",
                 triggerClassName ?? "bg-dashboard-card",
               )}
               endContent={<DropdownIcon />}
             >
-              <div className="flex w-full items-center gap-2">
+              <div className="flex min-w-0 w-full items-center gap-2">
                 {currentEtape?.image_src ? (
                   <Image
                     alt={`Badge ${currentEtape.name}`}
-                    className="shrink-0"
+                    className="shrink-0 object-contain"
                     height={36}
                     src={currentEtape.image_src}
                     width={36}
@@ -214,7 +215,7 @@ export default function ContextSwitcher({
                 ) : (
                   <Avatar name={user.name} size="sm" src={user.image} />
                 )}
-                <div className="flex flex-col text-left">
+                <div className="flex min-w-0 flex-col text-left">
                   <p className="text-small font-medium text-foreground">
                     {user.name}
                   </p>
@@ -233,6 +234,7 @@ export default function ContextSwitcher({
               "data-[hover=true]:border-divider",
               "data-[hover=true]:bg-dashboard-tab",
             ],
+            title: "whitespace-normal break-words",
           }}
           variant="faded"
         >
@@ -269,10 +271,7 @@ export default function ContextSwitcher({
                   />
                 }
                 onPress={() => {
-                  // TODO: fetch the WordPress 'log-out' nonce (from
-                  // wp_logout_url() on the WP side) to skip the
-                  // wp-login.php?action=logout confirmation screen
-                  window.location.href = `${process.env.NEXT_PUBLIC_WORDPRESS_URL}/wp-login.php?action=logout`;
+                  window.location.href = ROUTE_DECONNEXION;
                 }}
               >
                 Déconnexion

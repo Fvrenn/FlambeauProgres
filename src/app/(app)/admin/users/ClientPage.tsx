@@ -1,6 +1,8 @@
 "use client";
 
-import { User, UserRole } from "@prisma/client";
+import type { UserResume } from "@/types";
+
+import { UserRole } from "@prisma/client";
 import React from "react";
 import { Tooltip } from "@heroui/react";
 
@@ -9,10 +11,10 @@ import UserModal from "./_components/UserModal";
 import { Icon } from "@/lib/icons";
 import AdminDataTable, { Column } from "@/components/admin/AdminDataTable";
 import { Badge, Avatar, Card, CardBody, Button } from "@/components/ui";
-import { roleColorMap } from "@/lib/roles";
+import { roleColorMap, roleLabelMap } from "@/lib/roles";
 
 type UsersClientPageProps = {
-  users: User[];
+  users: UserResume[];
 };
 
 const columns: Column[] = [
@@ -22,60 +24,68 @@ const columns: Column[] = [
 ];
 
 export default function UsersClientPage({ users }: UsersClientPageProps) {
-  const [selectedUser, setSelectedUser] = React.useState<User | null>(null);
+  const [selectedUser, setSelectedUser] = React.useState<UserResume | null>(
+    null,
+  );
   const [isModalOpen, setIsModalOpen] = React.useState(false);
 
-  const handleEdit = (user: User) => {
+  const handleEdit = (user: UserResume) => {
     setSelectedUser(user);
     setIsModalOpen(true);
   };
 
-  const renderCell = React.useCallback((user: User, columnKey: React.Key) => {
-    const cellValue = user[columnKey as keyof User];
+  const renderCell = React.useCallback(
+    (user: UserResume, columnKey: React.Key) => {
+      const cellValue = user[columnKey as keyof UserResume];
 
-    switch (columnKey) {
-      case "user":
-        return (
-          <div className="flex items-center gap-3">
-            <Avatar name={user.name} size="sm" src={user.image || undefined} />
-            <div className="flex flex-col">
-              <p className="text-bold text-small capitalize">{user.name}</p>
-              <p className="text-bold text-tiny capitalize text-default-400">
-                {user.email}
-              </p>
-            </div>
-          </div>
-        );
-      case "role":
-        return (
-          <Badge
-            className="capitalize"
-            color={roleColorMap[user.role as UserRole]}
-            size="sm"
-            variant="flat"
-          >
-            {user.role}
-          </Badge>
-        );
-      case "actions":
-        return (
-          <div className="flex items-center justify-end w-full pr-8">
-            <Tooltip content="Modifier l'utilisateur">
-              <Button
-                isIconOnly
-                color="default"
+      switch (columnKey) {
+        case "user":
+          return (
+            <div className="flex items-center gap-3">
+              <Avatar
+                name={user.name}
                 size="sm"
-                startIcon="solar:pen-linear"
-                variant="ghost"
-                onClick={() => handleEdit(user)}
+                src={user.image || undefined}
               />
-            </Tooltip>
-          </div>
-        );
-      default:
-        return cellValue as React.ReactNode;
-    }
-  }, []);
+              <div className="flex flex-col">
+                <p className="text-bold text-small">{user.name}</p>
+                <p className="text-bold text-tiny text-default-400">
+                  {user.email}
+                </p>
+              </div>
+            </div>
+          );
+        case "role":
+          return (
+            <Badge
+              color={roleColorMap[user.role as UserRole]}
+              size="sm"
+              variant="flat"
+            >
+              {roleLabelMap[user.role as UserRole]}
+            </Badge>
+          );
+        case "actions":
+          return (
+            <div className="flex items-center justify-end w-full pr-8">
+              <Tooltip content="Modifier l'utilisateur">
+                <Button
+                  isIconOnly
+                  color="default"
+                  size="sm"
+                  startIcon="solar:pen-linear"
+                  variant="ghost"
+                  onClick={() => handleEdit(user)}
+                />
+              </Tooltip>
+            </div>
+          );
+        default:
+          return cellValue as React.ReactNode;
+      }
+    },
+    [],
+  );
 
   return (
     <div className="flex flex-col gap-4">
@@ -119,7 +129,7 @@ export default function UsersClientPage({ users }: UsersClientPageProps) {
                       color={roleColorMap[user.role as UserRole]}
                       size="sm"
                     >
-                      {user.role}
+                      {roleLabelMap[user.role as UserRole]}
                     </Badge>
                   </div>
                 </div>

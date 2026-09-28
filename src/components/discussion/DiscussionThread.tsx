@@ -11,6 +11,8 @@ import ValidateRealisation from "./ValidateRealisation";
 import { useDiscussionThread } from "./useDiscussionThread";
 
 import { Icon } from "@/lib/icons";
+import { LIBELLE_TYPE_OBJECTIF } from "@/lib/justification";
+import { estReferent } from "@/lib/roles";
 
 export type DiscussionViewer = {
   id: string;
@@ -23,13 +25,18 @@ interface DiscussionThreadProps {
   justificationId: string;
   objectif: ThreadObjectif;
   viewer: DiscussionViewer;
+  peutValider?: boolean;
+  peutEcrire?: boolean;
 }
 
 export default function DiscussionThread({
   justificationId,
   objectif,
   viewer,
+  peutValider,
+  peutEcrire = true,
 }: DiscussionThreadProps) {
+  const libelle = LIBELLE_TYPE_OBJECTIF[objectif.type];
   const viewerId = viewer?.id;
   const viewerRole = viewer?.role;
   const author = viewer
@@ -61,17 +68,29 @@ export default function DiscussionThread({
         {readOnly ? (
           <div className="flex items-center justify-center gap-2 text-sm text-success-600">
             <Icon icon="solar:check-circle-bold" width={18} />
-            Réalisation validée, fil clôturé
+            {libelle.charAt(0).toUpperCase()}
+            {libelle.slice(1)} validée, fil clôturé
           </div>
         ) : (
           <>
-            {(viewerRole === "REFERENT" || viewerRole === "ADMIN") && (
-              <ValidateRealisation disabled={!viewerId} onValidate={validate} />
+            {(peutValider ?? estReferent(viewerRole)) && (
+              <ValidateRealisation
+                disabled={!viewerId}
+                libelle={libelle}
+                onValidate={validate}
+              />
             )}
-            <MessageComposer
-              disabled={!viewerId}
-              onSend={(text, file) => sendMessage({ text, file })}
-            />
+            {peutEcrire ? (
+              <MessageComposer
+                disabled={!viewerId}
+                onSend={(text, file) => sendMessage({ text, file })}
+              />
+            ) : (
+              <p className="text-center text-xs text-default-500">
+                Lecture seule : l&apos;évaluation revient à la commission
+                Formation.
+              </p>
+            )}
           </>
         )}
       </footer>

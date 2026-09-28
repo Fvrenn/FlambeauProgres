@@ -1,15 +1,28 @@
-import type { OrigineValidation, TypeEtape } from "@prisma/client";
+import type { ServiceResult } from "@/types";
+import type { OrigineValidation, TypeEtape, UserRole } from "@prisma/client";
 
-import { STATUTS_VALIDES } from "@/lib/justification";
-import { etapeEstDebloquee, niveauMaxDebloque } from "@/lib/parcours";
+import {
+  chefsAyantToutValide,
+  compterParType,
+  filtreJustificationsValidantes,
+  MESSAGE_DOSSIER_INCOMPLET,
+  STATUTS_VALIDES,
+} from "@/lib/justification";
+import {
+  auMoinsUneSpecialiteValidee,
+  construireContexteParcours,
+  etapeEstAccessible,
+  etapeEstDebloquee,
+  NIVEAU_PROFILS,
+  niveauMaxDebloque,
+} from "@/lib/parcours";
 import { prisma } from "@/lib/prisma";
+import {
+  estNiveauEtape3,
+  messageRefusValidation,
+  peutValiderEtape,
+} from "@/lib/roles";
 import { NotificationService } from "@/services/notification.service";
-
-export type ServiceResult<T = void> = {
-  success: boolean;
-  data?: T;
-  error?: string;
-};
 
 export type EtapeProgressForChef = {
   id: string;
@@ -60,10 +73,7 @@ export class EtapeService {
       statutsValides.map((s) => [s.etapeId, s.origine]),
     );
     const etapesValidees = new Set(statutsValides.map((s) => s.etapeId));
-    const jalons = etapes
-      .filter((etape) => etape.type === "JALON")
-      .map((etape) => ({ id: etape.id, niveau: etape.niveau }));
-    const niveauMax = niveauMaxDebloque(jalons, etapesValidees);
+    const contexte = construireContexteParcours(etapes, etapesValidees);
 
     return etapes.map((etape) => ({
       id: etape.id,
@@ -75,10 +85,38 @@ export class EtapeService {
       type: etape.type,
       done: doneByEtape.get(etape.id) ?? 0,
       total: etape._count.objectifs,
-      verrouille: !etapeEstDebloquee(etape.niveau, niveauMax),
+      verrouille: !etapeEstAccessible(etape, contexte),
       isValidated: etapesValidees.has(etape.id),
       origineValidation: originesParEtape.get(etape.id) ?? null,
     }));
+  }
+
+  static async estAccessiblePourChef(
+    chefId: string,
+    etapeId: string,
+  ): Promise<boolean> {
+    const [etapes, statutsValides] = await Promise.all([
+      prisma.etape.findMany({
+        select: { id: true, niveau: true, type: true },
+      }),
+      prisma.chefEtapeStatut.findMany({
+        where: { chefId, statut: "VALIDE" },
+        select: { etapeId: true },
+      }),
+    ]);
+
+    const etape = etapes.find((candidate) => candidate.id === etapeId);
+
+    if (!etape) {
+      return false;
+    }
+
+    const etapesValidees = new Set(statutsValides.map((s) => s.etapeId));
+
+    return etapeEstAccessible(
+      etape,
+      construireContexteParcours(etapes, etapesValidees),
+    );
   }
 
   static async getDashboardEtapesForChef(chefId: string) {
@@ -101,24 +139,24 @@ export class EtapeService {
       statutsValides.map((s) => [s.etapeId, s.origine]),
     );
     const etapesIdsValidees = new Set(statutsValides.map((s) => s.etapeId));
-    const jalons = etapes
-      .filter((etape) => etape.type === "JALON")
-      .map((etape) => ({ id: etape.id, niveau: etape.niveau }));
-    const niveauMax = niveauMaxDebloque(jalons, etapesIdsValidees);
+    const contexte = construireContexteParcours(etapes, etapesIdsValidees);
 
     return etapes.map((etape) => ({
       ...etape,
       isValidated: etapesIdsValidees.has(etape.id),
       origineValidation: originesParEtape.get(etape.id) ?? null,
-      verrouille: !etapeEstDebloquee(etape.niveau, niveauMax),
+      verrouille: !etapeEstAccessible(etape, contexte),
     }));
   }
 
-  static async validateBadge(
-    chefId: string,
-    referentId: string,
-    etapeId: string,
-  ): Promise<ServiceResult> {
+  static async validateBadge(input: {
+    chefId: string;
+    referentId: string;
+    referentRole: UserRole | undefined;
+    etapeId: string;
+  }): Promise<ServiceResult> {
+    const { chefId, referentId, referentRole, etapeId } = input;
+
     const [etape, chef, assignation] = await Promise.all([
       prisma.etape.findUnique({ where: { id: etapeId } }),
       prisma.user.findUnique({ where: { id: chefId } }),
@@ -131,11 +169,19 @@ export class EtapeService {
       return { success: false, error: "Étape ou Chef introuvable" };
     }
 
-    if (!assignation) {
+    if (!peutValiderEtape(referentRole, etape.niveau, Boolean(assignation))) {
+      return { success: false, error: messageRefusValidation(etape.niveau) };
+    }
+
+    if (referentId === chefId) {
       return {
         success: false,
-        error: "Vous n'êtes pas référent de cette étape",
+        error: "Vous ne pouvez pas valider votre propre étape",
       };
+    }
+
+    if (!(await this.estDossierComplet(chefId, etapeId))) {
+      return { success: false, error: MESSAGE_DOSSIER_INCOMPLET };
     }
 
     await prisma.chefEtapeStatut.upsert({
@@ -161,28 +207,69 @@ export class EtapeService {
       },
     });
 
+    const validateur = estNiveauEtape3(etape.niveau)
+      ? "le Coordinateur National"
+      : "votre référent";
+
     await NotificationService.createNotification({
       destinataireId: chefId,
       type: "ETAPE_COMPLETE",
       titre: "Badge validé !",
-      message: `Félicitations ! Votre badge "${etape.name}" a été officiellement validé par votre référent. Vous pouvez le coudre sur votre chemise !`,
+      message: `Félicitations ! Votre badge "${etape.name}" a été officiellement validé par ${validateur}. Vous pouvez le coudre sur votre chemise !`,
     });
 
     return { success: true };
+  }
+
+  static async estDossierComplet(
+    chefId: string,
+    etapeId: string,
+  ): Promise<boolean> {
+    const etape = await prisma.etape.findUnique({
+      where: { id: etapeId },
+      select: { niveau: true },
+    });
+
+    if (!etape) {
+      return false;
+    }
+
+    const [totaux, validations] = await Promise.all([
+      prisma.objectif.groupBy({
+        by: ["type"],
+        where: { etapeId },
+        _count: { id: true },
+      }),
+      prisma.justification.findMany({
+        where: {
+          chefId,
+          etapeId,
+          ...filtreJustificationsValidantes(etape.niveau),
+        },
+        select: { chefId: true, objectif: { select: { type: true } } },
+      }),
+    ]);
+
+    return chefsAyantToutValide(
+      validations.map(({ objectif }) => ({ chefId, type: objectif.type })),
+      {
+        competences: compterParType(totaux, "COMPETENCE"),
+        realisations: compterParType(totaux, "REALISATION"),
+      },
+    ).includes(chefId);
   }
 
   static async autoValiderJalon(
     chefId: string,
     etapeId: string,
   ): Promise<ServiceResult> {
-    const [etape, jalons, statutsValides] = await Promise.all([
+    const [etape, etapes, statutsValides] = await Promise.all([
       prisma.etape.findUnique({
         where: { id: etapeId },
         select: { id: true, niveau: true, type: true },
       }),
       prisma.etape.findMany({
-        where: { type: "JALON" },
-        select: { id: true, niveau: true },
+        select: { id: true, niveau: true, type: true },
       }),
       prisma.chefEtapeStatut.findMany({
         where: { chefId, statut: "VALIDE" },
@@ -198,12 +285,23 @@ export class EtapeService {
     }
 
     const etapesValidees = new Set(statutsValides.map((s) => s.etapeId));
+    const jalons = etapes.filter((candidate) => candidate.type === "JALON");
     const niveauMax = niveauMaxDebloque(jalons, etapesValidees);
 
     if (!etapeEstDebloquee(etape.niveau, niveauMax)) {
       return {
         success: false,
         error: "Tu dois d'abord valider l'étape précédente",
+      };
+    }
+
+    if (
+      etape.niveau >= NIVEAU_PROFILS &&
+      !auMoinsUneSpecialiteValidee(etapes, etapesValidees)
+    ) {
+      return {
+        success: false,
+        error: "Tu dois d'abord valider une spécialité",
       };
     }
 

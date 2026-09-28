@@ -2,30 +2,24 @@ import React from "react";
 
 import AssignationsClientPage from "./ClientPage";
 
-import { prisma } from "@/lib/prisma";
+import { RafraichissementArrierePlan } from "@/components/application/rafraichissement/RafraichissementArrierePlan";
+import { exigerRole } from "@/lib/auth-guards";
+import { ROLES_ADMIN } from "@/lib/roles";
+import { AssignationService } from "@/services/assignation.service";
+import { UserService } from "@/services/user.service";
 
 export default async function AdminAssignationsPage() {
-  const etapes = await prisma.etape.findMany({
-    include: {
-      referents: {
-        include: {
-          referent: true,
-        },
-      },
-    },
-    orderBy: {
-      ordre: "asc",
-    },
-  });
+  await exigerRole(...ROLES_ADMIN);
 
-  const allReferents = await prisma.user.findMany({
-    where: {
-      role: { in: ["REFERENT", "ADMIN"] },
-    },
-    orderBy: {
-      name: "asc",
-    },
-  });
+  const [etapes, allReferents] = await Promise.all([
+    AssignationService.listEtapesAvecReferents(),
+    UserService.listReferents(),
+  ]);
 
-  return <AssignationsClientPage allReferents={allReferents} etapes={etapes} />;
+  return (
+    <>
+      <RafraichissementArrierePlan />
+      <AssignationsClientPage allReferents={allReferents} etapes={etapes} />
+    </>
+  );
 }

@@ -18,13 +18,14 @@ ressources qu'on est justement en train de rapatrier.
 
 ## Arbitrages
 
-- **Le CSP vit dans `middleware.ts`**, pas au niveau du reverse proxy : le nonce ne peut être
+- **Le CSP vit dans `src/proxy.ts`**, pas au niveau du reverse proxy : le nonce ne peut être
   généré que là, et deux CSP qui s'intersectent rendraient le diagnostic impossible. L'admin retire
   le sien.
-- **Tous les en-têtes de sécurité sont centralisés dans le middleware** : ceux de `next.config.ts`
-  (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Strict-Transport-Security`,
-  `Permissions-Policy`) y seront déplacés en phase 3. Ils sont laissés en place jusque-là pour ne
-  pas ouvrir une fenêtre sans aucun en-tête de sécurité.
+- **Seule la CSP vit dans le proxy** (elle dépend d'un nonce par requête). Les cinq en-têtes
+  fixes (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`,
+  `Strict-Transport-Security`, `Permissions-Policy`) restent dans `next.config.ts`, qui les pose
+  sur toutes les réponses, fichiers statiques compris, que le proxy ne voit pas. La
+  centralisation prévue au départ a été abandonnée en phase 3 pour cette raison.
 - **Icônes : bundle local des icônes utilisées** (option A), pas de SVG statiques. À poids quasi
   identique (10,7 Ko contre 10,6 Ko gzip), c'est le coût de migration qui tranche : les SVG
   statiques imposaient de réécrire une centaine de sites d'appel, dont 17 qui passent un nom
@@ -95,25 +96,84 @@ ressources qu'on est justement en train de rapatrier.
       alias vers `magnifier-linear` — le générateur résout les chaînes d'alias, sans quoi ces icônes
       disparaîtraient.
 
-- [ ] **Phase 3 — Centralisation des en-têtes et CSP en `Report-Only`**
+- [x] **Phase 3 — CSP en `Report-Only`** (la centralisation des en-têtes a été abandonnée, voir la note)
 
-      Déplacer les cinq en-têtes de `next.config.ts` vers `middleware.ts`, puis y ajouter le CSP en
+      Déplacer les cinq en-têtes de `next.config.ts` vers `src/proxy.ts`, puis y ajouter le CSP en
       `Content-Security-Policy-Report-Only` pour collecter les violations sans rien casser.
 
-      Nonce : le middleware en génère un par requête, le pose sur les en-têtes de la *requête* et
+      Nonce : le proxy en génère un par requête, le pose sur les en-têtes de la *requête* et
       sur le CSP de la *réponse* ; Next le relit depuis le CSP de la requête et l'applique à ses
       propres balises `<script>`. Ajouter `'strict-dynamic'` pour autoriser les chunks chargés par
       le runtime Next sans énumérer d'URL.
 
       Impact sur le rendu : **nul ici**. Le nonce force le rendu dynamique, mais 18 des 19 routes
-      sont déjà `ƒ` (dynamiques) à cause du middleware d'authentification qui lit les cookies
+      sont déjà `ƒ` (dynamiques) à cause du proxy d'authentification qui lit les cookies
       WordPress à chaque requête. Seule `/_not-found` est statique.
 
-      Attention au périmètre : le `matcher` du middleware exclut `_next/static` et les fichiers
+      Attention au périmètre : le `matcher` du proxy exclut `_next/static` et les fichiers
       statiques. Ce n'est pas un problème — le CSP ne s'applique qu'au document HTML, pas à chaque
       ressource.
 
+      **Valeurs imposées par l'admin, à conserver telles quelles :**
+
+      ```
+      report-uri https://glitchtip.logut.fr/api/2/security/?glitchtip_key=c934028aa3d54479ac024dc3312c2f92
+      connect-src 'self' blob: https://glitchtip.logut.fr
+      ```
+
+      - La clé `glitchtip_key` n'est pas un secret : elle part dans l'en-tête de chaque réponse.
+      - `https://glitchtip.logut.fr` dans `connect-src` ne sert pas aux rapports CSP : le navigateur
+        les envoie hors `connect-src`. Il n'est utile que si l'app appelle GlitchTip en `fetch`
+        (SDK Sentry/GlitchTip côté client), ce qui n'est pas le cas aujourd'hui. Inoffensif, gardé
+        à la demande de l'admin.
+      - `blob:` dans `connect-src` est nécessaire : `GLTFLoader` relit en `fetch` les `blob:` des
+        textures embarquées dans le GLB.
+
+      **`report-uri` seul, pas de `report-to` pour l'instant.** `report-uri` est déprécié mais reste
+      le seul mécanisme de Firefox. Surtout, quand les deux sont présents, Chrome **ignore**
+      `report-uri` et n'utilise que `report-to` (en-tête `Reporting-Endpoints`, POST en
+      `application/reports+json`, format différent de `application/csp-report`). La doc GlitchTip
+      ne documente que `report-uri` : ajouter `report-to` sans avoir vérifié que l'endpoint accepte
+      le format Reporting API ferait perdre silencieusement tous les rapports Chrome. À ajouter
+      seulement après un test réel côté GlitchTip.
+
+      **Prérequis :** `bebfa4c` (`public-url.ts`, et le proxy qui construit l'URL publique depuis
+      `APP_URL`) est sur `main` mais pas sur `feat/etape-3`. Partir de `main` à jour.
+      Le renommage `middleware.ts` → `src/proxy.ts` est fait (refacto code propre, phase 5) : le
+      fichier doit rester dans `src/`, au niveau de `app/`, sinon Next ne l'exécute pas.
+
+      ✅ Fait — **quoi** : CSP avec nonce par requête, envoyée en
+      `Content-Security-Policy-Report-Only`, qui contient **déjà la politique finale** de la phase 4
+      (pour que l'observation porte sur ce qui sera réellement appliqué). **Où** : `src/lib/csp.ts`
+      (`construireCsp`, `genererNonce`, `ENTETE_CSP`, constante `CSP_BLOQUANTE`) + `csp.test.ts`,
+      `src/proxy.ts` (pose le même en-tête sur la requête, où Next lit le nonce, et sur la
+      réponse), `src/app/not-found.tsx` (`await connection()` : c'était la seule route statique,
+      donc sans nonce). **Comment** : Next lit le nonce indifféremment dans
+      `content-security-policy` ou `content-security-policy-report-only`
+      (`server/app-render/app-render.js`), d'où un seul nom d'en-tête pour les deux sens.
+      `report-uri` n'est envoyé qu'en production, pour ne pas remplir GlitchTip avec le
+      développement. `img-src` accepte `https:` : les cartes Formation affichent des images à
+      l'URL libre (saisie par les admins) et les avatars viennent de WordPress ; une image
+      n'exécute pas de code, la protection est portée par `script-src`.
+
+      **Centralisation des en-têtes abandonnée** : les cinq en-têtes fixes restent dans
+      `next.config.ts`, qui les pose sur **toutes** les réponses, fichiers statiques compris. Le
+      proxy, lui, ne voit pas `_next/static` ni les fichiers exclus par son `matcher` : les y
+      déplacer aurait retiré `nosniff` et HSTS de ces réponses. Seule la CSP, qui dépend d'un nonce
+      par requête, vit dans le proxy.
+
+      **Vérifié dans Chrome, en mode bloquant** (`CSP_BLOQUANTE = true`, build de production) : une
+      page chargeant la chemise 3D (worker Draco `blob:`, WASM, textures `blob:`), HeroUI,
+      framer-motion et les icônes, puis la page 404 : **aucune violation**, hydratation OK,
+      chemise dessinée, aucune requête vers un domaine externe.
+
 - [ ] **Phase 4 — CSP appliqué**
+
+      ⏳ Prêt : il suffit de passer `CSP_BLOQUANTE` à `true` dans `src/lib/csp.ts`. **À faire
+      après quelques jours de rapports GlitchTip** en production sur la version `Report-Only`
+      (pages réellement connectées, avatars, cartes Formation, discussions avec fichiers), et une
+      fois que l'admin a retiré son propre CSP du reverse proxy (sinon les deux s'intersectent).
+
 
       Bascule de `Report-Only` vers `Content-Security-Policy` après observation.
 

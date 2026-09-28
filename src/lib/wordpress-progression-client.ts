@@ -1,4 +1,7 @@
-import { getWordpressCookieHeader } from "@/lib/wordpress-auth";
+import {
+  getWordpressCookieHeader,
+  oublierSessionWp,
+} from "@/lib/wordpress-auth";
 
 const WP_URL = process.env.WORDPRESS_URL!;
 
@@ -42,6 +45,8 @@ export async function pousserProgressionVersWp(
         error: `La plateforme a refusé la mise à jour (${res.status}).`,
       };
     }
+
+    await oublierSessionWp();
 
     return { success: true };
   } catch {

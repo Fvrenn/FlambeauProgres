@@ -17,7 +17,7 @@ où le Chef coche lui-même les étapes déjà obtenues :
 ```
 
 Ces étapes doivent apparaître comme **validées** dans l'app, sans jamais être comptées comme des
-validations effectuées _via_ Flambeau Progrès : l'onglet Analyse sert à savoir à qui remettre un
+validations effectuées _via_ Flambeaux Progrès : l'onglet Analyse sert à savoir à qui remettre un
 écusson, et un Chef qui a obtenu son badge avant le déploiement de l'app ne doit pas y figurer.
 
 ## Modèle
@@ -26,7 +26,7 @@ validations effectuées _via_ Flambeau Progrès : l'onglet Analyse sert à savoi
   Le `statut` reste `VALIDE` dans les deux cas : l'étape compte pour l'affichage, le déblocage des
   niveaux et la chemise. Seule l'origine change.
 - `Etape.wpValue` : identifiant de la taxonomie plateforme (`"203"`), modifiable depuis
-  `/admin/etapes`. Sert de correspondance de secours et de valeur d'envoi pour le futur POST.
+  `/admin/etapes`. Sert de correspondance de secours et de valeur d'envoi pour l'écriture (phase 5).
 - `User.wpProgressionSyncAt` : dernière synchronisation (throttle de 5 min).
 
 ### Correspondance étape ↔ entrée plateforme
@@ -101,7 +101,7 @@ plateforme n'apparaissent ni dans les KPI, ni dans le journal, ni dans les compt
 - [x] **Phase 4 — Restitution** : origine remontée jusqu'aux écrans Chef.
       ✅ Fait — `EtapeService` (`origineValidation`), carte `/progression`, `/profil`
       (`ProgressionPlateforme`), champ « Identifiant plateforme » dans `/admin/etapes`.
-- [ ] **Phase 5 — Écriture (POST)** : cocher depuis Flambeau Progrès et mettre à jour le profil de la
+- [ ] **Phase 5 — Écriture (POST)** : cocher depuis Flambeaux Progrès et mettre à jour le profil de la
       plateforme. Le chemin complet est en place mais désactivé tant que la route n'existe pas :
       `WORDPRESS_PROGRESSION_WRITE=true` active le bouton du profil,
       `pousserProgressionVersWp` (`src/lib/wordpress-progression-client.ts`) envoie
@@ -113,6 +113,10 @@ plateforme n'apparaissent ni dans les KPI, ni dans le journal, ni dans les compt
       Les étapes sans `wpValue` (`Allume-feu`, et tout jalon propre à l'app) n'existent pas dans la
       taxonomie de la plateforme : elles sont simplement exclues de l'envoi et signalées dans les
       logs, sans faire échouer l'opération.
+
+      La lecture du profil WordPress est gardée 60 s en mémoire (`getSessionWp`), mais
+      `declarerSurPlateforme` relit **toujours** en direct avant d'écrire (`fetchWpProgression`),
+      et le cache de la session est vidé après une écriture réussie.
 
       L'envoi part du principe qu'il remplace **toute** la taxonomie `progression` du profil.
       `declarerSurPlateforme` relit donc le profil juste avant d'écrire et réémet les valeurs que
