@@ -21,10 +21,11 @@ ressources qu'on est justement en train de rapatrier.
 - **Le CSP vit dans `src/proxy.ts`**, pas au niveau du reverse proxy : le nonce ne peut être
   généré que là, et deux CSP qui s'intersectent rendraient le diagnostic impossible. L'admin retire
   le sien.
-- **Tous les en-têtes de sécurité sont centralisés dans le proxy** : ceux de `next.config.ts`
-  (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Strict-Transport-Security`,
-  `Permissions-Policy`) y seront déplacés en phase 3. Ils sont laissés en place jusque-là pour ne
-  pas ouvrir une fenêtre sans aucun en-tête de sécurité.
+- **Seule la CSP vit dans le proxy** (elle dépend d'un nonce par requête). Les cinq en-têtes
+  fixes (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`,
+  `Strict-Transport-Security`, `Permissions-Policy`) restent dans `next.config.ts`, qui les pose
+  sur toutes les réponses, fichiers statiques compris, que le proxy ne voit pas. La
+  centralisation prévue au départ a été abandonnée en phase 3 pour cette raison.
 - **Icônes : bundle local des icônes utilisées** (option A), pas de SVG statiques. À poids quasi
   identique (10,7 Ko contre 10,6 Ko gzip), c'est le coût de migration qui tranche : les SVG
   statiques imposaient de réécrire une centaine de sites d'appel, dont 17 qui passent un nom
@@ -95,7 +96,7 @@ ressources qu'on est justement en train de rapatrier.
       alias vers `magnifier-linear` — le générateur résout les chaînes d'alias, sans quoi ces icônes
       disparaîtraient.
 
-- [ ] **Phase 3 — Centralisation des en-têtes et CSP en `Report-Only`**
+- [x] **Phase 3 — CSP en `Report-Only`** (la centralisation des en-têtes a été abandonnée, voir la note)
 
       Déplacer les cinq en-têtes de `next.config.ts` vers `src/proxy.ts`, puis y ajouter le CSP en
       `Content-Security-Policy-Report-Only` pour collecter les violations sans rien casser.
@@ -141,7 +142,38 @@ ressources qu'on est justement en train de rapatrier.
       Le renommage `middleware.ts` → `src/proxy.ts` est fait (refacto code propre, phase 5) : le
       fichier doit rester dans `src/`, au niveau de `app/`, sinon Next ne l'exécute pas.
 
+      ✅ Fait — **quoi** : CSP avec nonce par requête, envoyée en
+      `Content-Security-Policy-Report-Only`, qui contient **déjà la politique finale** de la phase 4
+      (pour que l'observation porte sur ce qui sera réellement appliqué). **Où** : `src/lib/csp.ts`
+      (`construireCsp`, `genererNonce`, `ENTETE_CSP`, constante `CSP_BLOQUANTE`) + `csp.test.ts`,
+      `src/proxy.ts` (pose le même en-tête sur la requête, où Next lit le nonce, et sur la
+      réponse), `src/app/not-found.tsx` (`await connection()` : c'était la seule route statique,
+      donc sans nonce). **Comment** : Next lit le nonce indifféremment dans
+      `content-security-policy` ou `content-security-policy-report-only`
+      (`server/app-render/app-render.js`), d'où un seul nom d'en-tête pour les deux sens.
+      `report-uri` n'est envoyé qu'en production, pour ne pas remplir GlitchTip avec le
+      développement. `img-src` accepte `https:` : les cartes Formation affichent des images à
+      l'URL libre (saisie par les admins) et les avatars viennent de WordPress ; une image
+      n'exécute pas de code, la protection est portée par `script-src`.
+
+      **Centralisation des en-têtes abandonnée** : les cinq en-têtes fixes restent dans
+      `next.config.ts`, qui les pose sur **toutes** les réponses, fichiers statiques compris. Le
+      proxy, lui, ne voit pas `_next/static` ni les fichiers exclus par son `matcher` : les y
+      déplacer aurait retiré `nosniff` et HSTS de ces réponses. Seule la CSP, qui dépend d'un nonce
+      par requête, vit dans le proxy.
+
+      **Vérifié dans Chrome, en mode bloquant** (`CSP_BLOQUANTE = true`, build de production) : une
+      page chargeant la chemise 3D (worker Draco `blob:`, WASM, textures `blob:`), HeroUI,
+      framer-motion et les icônes, puis la page 404 : **aucune violation**, hydratation OK,
+      chemise dessinée, aucune requête vers un domaine externe.
+
 - [ ] **Phase 4 — CSP appliqué**
+
+      ⏳ Prêt : il suffit de passer `CSP_BLOQUANTE` à `true` dans `src/lib/csp.ts`. **À faire
+      après quelques jours de rapports GlitchTip** en production sur la version `Report-Only`
+      (pages réellement connectées, avatars, cartes Formation, discussions avec fichiers), et une
+      fois que l'admin a retiré son propre CSP du reverse proxy (sinon les deux s'intersectent).
+
 
       Bascule de `Report-Only` vers `Content-Security-Policy` après observation.
 
