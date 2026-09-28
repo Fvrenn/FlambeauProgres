@@ -1,6 +1,6 @@
 import React from "react";
 
-import ReferentDashboardClientV2 from "./ReferentDashboardClientV2";
+import ReferentDashboardClient from "./ReferentDashboardClient";
 
 import { exigerRole, suitEtape } from "@/lib/auth-guards";
 import { ROLES_REFERENT } from "@/lib/roles";
@@ -49,7 +49,7 @@ export default async function ReferentDashboardPage({
   } = await ReferentService.getDashboard(etapeId, user);
 
   return (
-    <ReferentDashboardClientV2
+    <ReferentDashboardClient
       chefsAReviser={chefsAReviser}
       justificationsAValider={justificationsAValider}
       justificationsEnDiscussion={justificationsEnDiscussion}

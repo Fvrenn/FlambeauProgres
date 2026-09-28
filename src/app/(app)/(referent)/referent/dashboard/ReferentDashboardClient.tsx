@@ -81,7 +81,7 @@ type JustificationEnDiscussion = Justification & {
   objectif: ObjectifInfo;
 };
 
-interface ReferentDashboardClientV2Props {
+interface ReferentDashboardClientProps {
   justificationsAValider: JustificationAValider[];
   justificationsEnDiscussion: JustificationEnDiscussion[];
   chefsAReviser: UserResume[];
@@ -90,14 +90,14 @@ interface ReferentDashboardClientV2Props {
   peutEvaluer: boolean;
 }
 
-export default function ReferentDashboardClientV2({
+export default function ReferentDashboardClient({
   justificationsAValider,
   justificationsEnDiscussion,
   chefsAReviser,
   targetJustificationId,
   viewer,
   peutEvaluer,
-}: ReferentDashboardClientV2Props) {
+}: ReferentDashboardClientProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<React.Key>("a-valider");
   const [isModalOpen, setIsModalOpen] = useState(false);

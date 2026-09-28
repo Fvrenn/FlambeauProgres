@@ -5,11 +5,11 @@ import { getCurrentUser as getWordpressUser } from "./wordpress-auth";
 import { prisma } from "@/lib/prisma";
 import { NIVEAU_ETAPE_3, suitEtapeSansAssignation } from "@/lib/roles";
 
-const getSession = cache(async () => {
+export const getUser = cache(async () => {
   const user = await getWordpressUser();
 
   if (!user) {
-    return null;
+    return undefined;
   }
 
   const assignations = await prisma.etapeReferent.findMany({
@@ -41,17 +41,5 @@ const getSession = cache(async () => {
     }
   }
 
-  return {
-    session: null,
-    user: {
-      ...user,
-      etapesReferent,
-    },
-  };
+  return { ...user, etapesReferent };
 });
-
-export const getUser = async () => {
-  const session = await getSession();
-
-  return session?.user;
-};

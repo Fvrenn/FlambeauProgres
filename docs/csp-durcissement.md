@@ -18,10 +18,10 @@ ressources qu'on est justement en train de rapatrier.
 
 ## Arbitrages
 
-- **Le CSP vit dans `middleware.ts`**, pas au niveau du reverse proxy : le nonce ne peut être
+- **Le CSP vit dans `src/proxy.ts`**, pas au niveau du reverse proxy : le nonce ne peut être
   généré que là, et deux CSP qui s'intersectent rendraient le diagnostic impossible. L'admin retire
   le sien.
-- **Tous les en-têtes de sécurité sont centralisés dans le middleware** : ceux de `next.config.ts`
+- **Tous les en-têtes de sécurité sont centralisés dans le proxy** : ceux de `next.config.ts`
   (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Strict-Transport-Security`,
   `Permissions-Policy`) y seront déplacés en phase 3. Ils sont laissés en place jusque-là pour ne
   pas ouvrir une fenêtre sans aucun en-tête de sécurité.
@@ -97,19 +97,19 @@ ressources qu'on est justement en train de rapatrier.
 
 - [ ] **Phase 3 — Centralisation des en-têtes et CSP en `Report-Only`**
 
-      Déplacer les cinq en-têtes de `next.config.ts` vers `middleware.ts`, puis y ajouter le CSP en
+      Déplacer les cinq en-têtes de `next.config.ts` vers `src/proxy.ts`, puis y ajouter le CSP en
       `Content-Security-Policy-Report-Only` pour collecter les violations sans rien casser.
 
-      Nonce : le middleware en génère un par requête, le pose sur les en-têtes de la *requête* et
+      Nonce : le proxy en génère un par requête, le pose sur les en-têtes de la *requête* et
       sur le CSP de la *réponse* ; Next le relit depuis le CSP de la requête et l'applique à ses
       propres balises `<script>`. Ajouter `'strict-dynamic'` pour autoriser les chunks chargés par
       le runtime Next sans énumérer d'URL.
 
       Impact sur le rendu : **nul ici**. Le nonce force le rendu dynamique, mais 18 des 19 routes
-      sont déjà `ƒ` (dynamiques) à cause du middleware d'authentification qui lit les cookies
+      sont déjà `ƒ` (dynamiques) à cause du proxy d'authentification qui lit les cookies
       WordPress à chaque requête. Seule `/_not-found` est statique.
 
-      Attention au périmètre : le `matcher` du middleware exclut `_next/static` et les fichiers
+      Attention au périmètre : le `matcher` du proxy exclut `_next/static` et les fichiers
       statiques. Ce n'est pas un problème — le CSP ne s'applique qu'au document HTML, pas à chaque
       ressource.
 
@@ -136,10 +136,10 @@ ressources qu'on est justement en train de rapatrier.
       le format Reporting API ferait perdre silencieusement tous les rapports Chrome. À ajouter
       seulement après un test réel côté GlitchTip.
 
-      **Prérequis :** `bebfa4c` (`public-url.ts`, `middleware.ts` qui construit l'URL publique
-      depuis `APP_URL`) est sur `main` mais pas sur `feat/etape-3`. Partir de `main` à jour.
-      Next 16 déprécie `middleware.ts` au profit de `proxy.ts` : le renommage peut se faire dans la
-      même phase, le fichier étant de toute façon réécrit.
+      **Prérequis :** `bebfa4c` (`public-url.ts`, et le proxy qui construit l'URL publique depuis
+      `APP_URL`) est sur `main` mais pas sur `feat/etape-3`. Partir de `main` à jour.
+      Le renommage `middleware.ts` → `src/proxy.ts` est fait (refacto code propre, phase 5) : le
+      fichier doit rester dans `src/`, au niveau de `app/`, sinon Next ne l'exécute pas.
 
 - [ ] **Phase 4 — CSP appliqué**
 

@@ -1,6 +1,8 @@
 # CLAUDE.md
 
-Flambeau Progrès — app **Next.js 16** (App Router, Turbopack) de suivi de progression scoute (rôles CHEF / REFERENT / ADMIN). Stack : Prisma 6 (MySQL), better-auth, HeroUI, Tailwind 4, react-hook-form + Zod.
+Flambeau Progrès — app **Next.js 16** (App Router, Turbopack) de suivi de progression scoute (rôles CHEF / REFERENT / ADMIN). Stack : Prisma 6 (MySQL), HeroUI, Tailwind 4, react-hook-form + Zod. Rôles d'encadrement en plus : COMMISSION_FORMATION, COORDINATEUR_NATIONAL (`src/lib/roles.ts`).
+
+Auth : pas de compte propre à l'app. La session vient du WordPress de la plateforme (cookie `wordpress_logged_in*`) : `src/proxy.ts` redirige vers la connexion WordPress sans cookie, puis `getUser()` (`src/lib/auth-server.ts`) valide la session auprès de l'API WordPress. Chaque page et action revérifie le rôle (`exigerRole` / `authorizeRole` de `src/lib/auth-guards.ts`).
 
 ## Refactors par phases
 
@@ -9,6 +11,8 @@ Les gros refactors sont planifiés dans `/docs/*.md` avec une checklist de phase
 **Règle : à la fin de chaque phase terminée ET validée, mettre à jour le doc correspondant** — cocher la phase `[x]` et ajouter une courte note **« ✅ Fait — quoi / où (fichiers) / comment »**. Le doc reste la source de vérité de l'avancement.
 
 ## Conventions de code
+
+Les règles complètes sont dans `GUIDE-CODE-PROPRE.md` ; l'essentiel :
 
 - **Pas de commentaires explicatifs** dans le code : on garde uniquement les directives fonctionnelles (`eslint-disable*`, `@ts-*`, `prettier-ignore`, `turbopackIgnore`). Code auto-documenté.
 - **Server Actions** : toujours `auth (auth-guards) + validation Zod` en tête ; la logique métier vit dans `src/services/`, pas dans l'action.

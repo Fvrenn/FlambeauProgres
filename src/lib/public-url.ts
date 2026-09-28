@@ -1,5 +1,5 @@
-export const FORWARDED_HOST_HEADER = "x-forwarded-host";
-export const FORWARDED_PROTO_HEADER = "x-forwarded-proto";
+const FORWARDED_HOST_HEADER = "x-forwarded-host";
+const FORWARDED_PROTO_HEADER = "x-forwarded-proto";
 
 const APP_URL_PAR_DEFAUT = "http://localhost:3000";
 const HOTE_VALIDE = /^[a-z0-9.-]+(:\d{1,5})?$/i;
@@ -42,7 +42,7 @@ export function origineTransmise(entetes: LecteurEntetes): string | null {
   return `${protocole ?? "https"}://${hote}`;
 }
 
-export function originePublique(entetes: LecteurEntetes): string | null {
+function originePublique(entetes: LecteurEntetes): string | null {
   return origineConfiguree() ?? origineTransmise(entetes);
 }
 
