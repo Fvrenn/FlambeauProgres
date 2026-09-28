@@ -20,6 +20,7 @@ type FormModalProps = {
   title: string;
   submitLabel: string;
   isPending?: boolean;
+  erreur?: string | null;
   size?: ModalProps["size"];
   scrollBehavior?: ModalProps["scrollBehavior"];
   children: React.ReactNode;
@@ -32,6 +33,7 @@ export function FormModal({
   title,
   submitLabel,
   isPending = false,
+  erreur,
   size,
   scrollBehavior,
   children,
@@ -49,6 +51,11 @@ export function FormModal({
           <form className="flex min-h-0 flex-1 flex-col" onSubmit={onSubmit}>
             <ModalHeader className="flex flex-col gap-1">{title}</ModalHeader>
             <ModalBody>{children}</ModalBody>
+            {erreur && (
+              <p className="px-6 text-sm text-danger" role="alert">
+                {erreur}
+              </p>
+            )}
             <ModalFooter>
               <Button color="danger" variant="ghost" onClick={close}>
                 Annuler

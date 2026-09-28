@@ -6,7 +6,7 @@ import type { UserRole } from "@prisma/client";
 import React from "react";
 import { Card, CardBody, Avatar } from "@heroui/react";
 
-type ProfilUser = NonNullable<Awaited<ReturnType<typeof getUser>>> & {
+export type ProfilUser = NonNullable<Awaited<ReturnType<typeof getUser>>> & {
   role?: UserRole;
 };
 

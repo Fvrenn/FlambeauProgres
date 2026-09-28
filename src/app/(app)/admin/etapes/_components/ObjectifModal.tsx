@@ -5,7 +5,6 @@ import { Select, SelectItem, Textarea, Switch } from "@heroui/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useRouter } from "next/navigation";
 import { TypeObjectif, type Objectif } from "@prisma/client";
 
 import {
@@ -39,8 +38,8 @@ export default function ObjectifModal({
   objectif,
   etapeId,
 }: ObjectifModalProps) {
-  const router = useRouter();
-  const [isPending, setIsPending] = React.useState(false);
+  const [isPending, startTransition] = React.useTransition();
+  const [erreur, setErreur] = React.useState<string | null>(null);
 
   const {
     register,
@@ -62,6 +61,8 @@ export default function ObjectifModal({
 
   React.useEffect(() => {
     if (isOpen) {
+      setErreur(null);
+
       if (objectif) {
         setValue("code", objectif.code);
         setValue("description", objectif.description);
@@ -80,25 +81,26 @@ export default function ObjectifModal({
     }
   }, [isOpen, objectif, setValue, reset]);
 
-  const onSubmit = async (data: ObjectifFormData) => {
-    setIsPending(true);
-    try {
-      if (objectif) {
-        await updateObjectif(objectif.id, etapeId, data);
-      } else {
-        await createObjectif(etapeId, data);
+  const onSubmit = (data: ObjectifFormData) => {
+    setErreur(null);
+    startTransition(async () => {
+      const result = objectif
+        ? await updateObjectif(objectif.id, etapeId, data)
+        : await createObjectif(etapeId, data);
+
+      if (!result.success) {
+        setErreur(result.error ?? "Une erreur est survenue");
+
+        return;
       }
+
       onClose();
-      router.refresh();
-    } catch (error) {
-      console.error("Failed to save objectif", error);
-    } finally {
-      setIsPending(false);
-    }
+    });
   };
 
   return (
     <FormModal
+      erreur={erreur}
       isOpen={isOpen}
       isPending={isPending}
       submitLabel={objectif ? "Mettre à jour" : "Créer"}

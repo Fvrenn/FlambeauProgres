@@ -13,7 +13,6 @@ import {
   Checkbox,
   ScrollShadow,
 } from "@heroui/react";
-import { useRouter } from "next/navigation";
 
 import {
   assignReferentToEtape,
@@ -36,7 +35,7 @@ export default function AssignationModal({
   etape,
   allReferents,
 }: AssignationModalProps) {
-  const router = useRouter();
+  const [erreur, setErreur] = React.useState<string | null>(null);
   const [pendingIds, setPendingIds] = React.useState<Set<string>>(new Set());
   const [optimisticAssignments, setOptimisticAssignments] = React.useState<
     Set<string>
@@ -56,13 +55,11 @@ export default function AssignationModal({
     return optimisticAssignments.has(referentId);
   };
 
-  const handleToggle = async (referentId: string, isSelected: boolean) => {
-    setPendingIds((prev) => new Set(prev).add(referentId));
-
+  const basculerAssignation = (referentId: string, estAssigne: boolean) => {
     setOptimisticAssignments((prev) => {
       const next = new Set(prev);
 
-      if (isSelected) {
+      if (estAssigne) {
         next.add(referentId);
       } else {
         next.delete(referentId);
@@ -70,36 +67,29 @@ export default function AssignationModal({
 
       return next;
     });
+  };
 
-    try {
-      if (isSelected) {
-        await assignReferentToEtape(referentId, etape.id);
-      } else {
-        await removeReferentFromEtape(referentId, etape.id);
-      }
-      router.refresh();
-    } catch (error) {
-      console.error("Failed to toggle referent", error);
-      setOptimisticAssignments((prev) => {
-        const next = new Set(prev);
+  const handleToggle = async (referentId: string, isSelected: boolean) => {
+    setErreur(null);
+    setPendingIds((prev) => new Set(prev).add(referentId));
+    basculerAssignation(referentId, isSelected);
 
-        if (isSelected) {
-          next.delete(referentId);
-        } else {
-          next.add(referentId);
-        }
+    const result = isSelected
+      ? await assignReferentToEtape(referentId, etape.id)
+      : await removeReferentFromEtape(referentId, etape.id);
 
-        return next;
-      });
-    } finally {
-      setPendingIds((prev) => {
-        const next = new Set(prev);
-
-        next.delete(referentId);
-
-        return next;
-      });
+    if (!result.success) {
+      basculerAssignation(referentId, !isSelected);
+      setErreur(result.error ?? "Une erreur est survenue");
     }
+
+    setPendingIds((prev) => {
+      const next = new Set(prev);
+
+      next.delete(referentId);
+
+      return next;
+    });
   };
 
   return (
@@ -119,6 +109,11 @@ export default function AssignationModal({
               <p className="text-small text-default-500 mb-2">
                 Sélectionnez les référents qui peuvent valider cette étape.
               </p>
+              {erreur && (
+                <p className="text-sm text-danger" role="alert">
+                  {erreur}
+                </p>
+              )}
               <ScrollShadow className="h-[400px] w-full overflow-x-hidden">
                 <div className="flex flex-col gap-2">
                   {allReferents.map((referent) => {

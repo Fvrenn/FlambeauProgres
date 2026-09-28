@@ -85,7 +85,7 @@ export async function submitRealisation(
       return result;
     }
 
-    revalidatePath("/dashboard");
+    revalidatePath("/");
 
     return { success: true };
   } catch (error) {

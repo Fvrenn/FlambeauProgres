@@ -8,7 +8,6 @@ import { UserRole } from "@prisma/client";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useRouter } from "next/navigation";
 
 import { updateUserRole } from "../../_actions/user.actions";
 
@@ -29,8 +28,8 @@ type UserModalProps = {
 };
 
 export default function UserModal({ isOpen, onClose, user }: UserModalProps) {
-  const router = useRouter();
-  const [isPending, setIsPending] = React.useState(false);
+  const [isPending, startTransition] = React.useTransition();
+  const [erreur, setErreur] = React.useState<string | null>(null);
 
   const {
     handleSubmit,
@@ -46,25 +45,29 @@ export default function UserModal({ isOpen, onClose, user }: UserModalProps) {
 
   React.useEffect(() => {
     if (user) {
+      setErreur(null);
       setValue("role", user.role);
     }
   }, [user, setValue]);
 
-  const onSubmit = async (data: UserFormData) => {
-    setIsPending(true);
-    try {
-      await updateUserRole(user.id, data.role);
+  const onSubmit = (data: UserFormData) => {
+    setErreur(null);
+    startTransition(async () => {
+      const result = await updateUserRole(user.id, data.role);
+
+      if (!result.success) {
+        setErreur(result.error ?? "Une erreur est survenue");
+
+        return;
+      }
+
       onClose();
-      router.refresh();
-    } catch (error) {
-      console.error("Failed to update user", error);
-    } finally {
-      setIsPending(false);
-    }
+    });
   };
 
   return (
     <FormModal
+      erreur={erreur}
       isOpen={isOpen}
       isPending={isPending}
       submitLabel="Enregistrer"

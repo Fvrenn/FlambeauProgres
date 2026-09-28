@@ -49,14 +49,15 @@ export default function ObjectifModal({
   const [contenu, setContenu] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [erreur, setErreur] = useState<string | null>(null);
 
   React.useEffect(() => {
     if (isOpen && objectif) {
       const existingJustification = objectif.justifications[0];
 
       setContenu(existingJustification?.contenu || "");
-
       setSelectedFile(null);
+      setErreur(null);
     }
   }, [isOpen, objectif]);
 
@@ -68,11 +69,12 @@ export default function ObjectifModal({
     const isRealisation = objectif.type === "REALISATION";
 
     if (isRealisation && !selectedFile) {
-      alert("Veuillez sélectionner un fichier pour votre réalisation");
+      setErreur("Ajoute un fichier de preuve pour ta réalisation");
 
       return;
     }
 
+    setErreur(null);
     setIsSubmitting(true);
 
     onUpdateJustification(objectif.id, {
@@ -111,11 +113,11 @@ export default function ObjectifModal({
 
         router.refresh();
 
-        alert(result.error || "Une erreur est survenue");
+        setErreur(result.error || "Une erreur est survenue");
       }
     } catch (error) {
       console.error("Erreur lors de la soumission:", error);
-      alert("Une erreur est survenue lors de la soumission");
+      setErreur("Une erreur est survenue lors de la soumission");
     } finally {
       setIsSubmitting(false);
     }
@@ -233,6 +235,11 @@ export default function ObjectifModal({
                       onChange={setSelectedFile}
                     />
                   </>
+                )}
+                {erreur && (
+                  <p className="text-sm text-danger" role="alert">
+                    {erreur}
+                  </p>
                 )}
               </ModalBody>
 

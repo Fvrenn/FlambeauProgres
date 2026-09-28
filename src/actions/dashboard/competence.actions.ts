@@ -36,7 +36,7 @@ export async function submitCompetence(objectifId: string, contenu: string) {
       return result;
     }
 
-    revalidatePath("/dashboard");
+    revalidatePath("/");
 
     return { success: true };
   } catch (error) {

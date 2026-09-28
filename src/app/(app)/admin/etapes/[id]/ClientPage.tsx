@@ -5,7 +5,6 @@ import type { AdminEtapeWithObjectifs } from "@/types";
 
 import React from "react";
 import { Chip, Tooltip, Breadcrumbs, BreadcrumbItem } from "@heroui/react";
-import { useRouter } from "next/navigation";
 
 import ObjectifModal from "../_components/ObjectifModal";
 import { updateEtapeBadge } from "../../_actions/etape.actions";
@@ -13,7 +12,7 @@ import { deleteObjectif } from "../../_actions/objectif.actions";
 
 import { Icon } from "@/lib/icons";
 import AdminDataTable, { Column } from "@/components/admin/AdminDataTable";
-import { FileDropzone, Input } from "@/components/ui";
+import { ConfirmPopover, FileDropzone, Input } from "@/components/ui";
 import { REGLES_ICONE_ETAPE } from "@/lib/fichiers";
 import { DEFAULT_ETAPE_COLOR } from "@/lib/color";
 
@@ -33,7 +32,6 @@ const columns: Column[] = [
 export default function EtapeDetailClientPage({
   etape,
 }: EtapeDetailClientPageProps) {
-  const router = useRouter();
   const [selectedObjectif, setSelectedObjectif] =
     React.useState<Objectif | null>(null);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
@@ -52,13 +50,6 @@ export default function EtapeDetailClientPage({
   const handleCreate = () => {
     setSelectedObjectif(null);
     setIsModalOpen(true);
-  };
-
-  const handleDelete = async (objectifId: string) => {
-    if (confirm("Êtes-vous sûr de vouloir supprimer cet objectif ?")) {
-      await deleteObjectif(objectifId, etape.id);
-      router.refresh();
-    }
   };
 
   const handleSaveBadge = async () => {
@@ -80,73 +71,74 @@ export default function EtapeDetailClientPage({
     }
 
     setIcone(null);
-    router.refresh();
   };
 
-  const renderCell = React.useCallback(
-    (objectif: Objectif, columnKey: React.Key) => {
-      switch (columnKey) {
-        case "code":
-          return <span className="font-bold">{objectif.code}</span>;
-        case "description":
-          return <span className="text-small">{objectif.description}</span>;
-        case "type":
-          return (
-            <Chip
-              color={objectif.type === "COMPETENCE" ? "primary" : "success"}
-              size="sm"
-              variant="flat"
+  const renderCell = (objectif: Objectif, columnKey: React.Key) => {
+    switch (columnKey) {
+      case "code":
+        return <span className="font-bold">{objectif.code}</span>;
+      case "description":
+        return <span className="text-small">{objectif.description}</span>;
+      case "type":
+        return (
+          <Chip
+            color={objectif.type === "COMPETENCE" ? "primary" : "success"}
+            size="sm"
+            variant="flat"
+          >
+            {objectif.type}
+          </Chip>
+        );
+      case "fichiers":
+        return objectif.fichiersRequis ? (
+          <Icon
+            className="text-success text-lg"
+            icon="solar:file-check-linear"
+          />
+        ) : (
+          <span className="text-default-300">-</span>
+        );
+      case "texte":
+        return objectif.texteRequis ? (
+          <Icon
+            className="text-success text-lg"
+            icon="solar:document-text-linear"
+          />
+        ) : (
+          <span className="text-default-300">-</span>
+        );
+      case "actions":
+        return (
+          <div className="relative flex items-center gap-2">
+            <Tooltip content="Modifier">
+              <button
+                className="text-lg text-default-400 cursor-pointer active:opacity-50"
+                type="button"
+                onClick={() => handleEdit(objectif)}
+              >
+                <Icon icon="solar:pen-linear" />
+              </button>
+            </Tooltip>
+            <ConfirmPopover
+              confirmLabel="Supprimer"
+              message="Les justifications déjà déposées sur cet objectif seront aussi supprimées."
+              titre={`Supprimer l'objectif ${objectif.code} ?`}
+              onConfirm={() => deleteObjectif(objectif.id, etape.id)}
             >
-              {objectif.type}
-            </Chip>
-          );
-        case "fichiers":
-          return objectif.fichiersRequis ? (
-            <Icon
-              className="text-success text-lg"
-              icon="solar:file-check-linear"
-            />
-          ) : (
-            <span className="text-default-300">-</span>
-          );
-        case "texte":
-          return objectif.texteRequis ? (
-            <Icon
-              className="text-success text-lg"
-              icon="solar:document-text-linear"
-            />
-          ) : (
-            <span className="text-default-300">-</span>
-          );
-        case "actions":
-          return (
-            <div className="relative flex items-center gap-2">
-              <Tooltip content="Modifier">
-                <button
-                  className="text-lg text-default-400 cursor-pointer active:opacity-50"
-                  type="button"
-                  onClick={() => handleEdit(objectif)}
-                >
-                  <Icon icon="solar:pen-linear" />
-                </button>
-              </Tooltip>
-              <Tooltip color="danger" content="Supprimer">
-                <button
-                  className="text-lg text-danger cursor-pointer active:opacity-50"
-                  type="button"
-                  onClick={() => handleDelete(objectif.id)}
-                >
-                  <Icon icon="solar:trash-bin-trash-linear" />
-                </button>
-              </Tooltip>
-            </div>
-          );
-        default:
-          return null;
-      }
-    },
-    [etape.id, router],
-  );
+              <button
+                aria-label={`Supprimer l'objectif ${objectif.code}`}
+                className="text-lg text-danger cursor-pointer active:opacity-50"
+                type="button"
+              >
+                <Icon icon="solar:trash-bin-trash-linear" />
+              </button>
+            </ConfirmPopover>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="flex flex-col gap-6">

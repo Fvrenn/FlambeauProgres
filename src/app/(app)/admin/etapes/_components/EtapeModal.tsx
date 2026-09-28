@@ -17,7 +17,6 @@ import {
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useRouter } from "next/navigation";
 import { TypeObjectif } from "@prisma/client";
 
 import { createEtape, updateEtape } from "../../_actions/etape.actions";
@@ -57,8 +56,7 @@ export default function EtapeModal({
   onClose,
   etape,
 }: EtapeModalProps) {
-  const router = useRouter();
-  const [isPending, setIsPending] = React.useState(false);
+  const [isPending, startTransition] = React.useTransition();
   const [icone, setIcone] = React.useState<File | null>(null);
   const [erreur, setErreur] = React.useState<string | null>(null);
 
@@ -119,38 +117,36 @@ export default function EtapeModal({
     }
   }, [isOpen, etape, setValue, reset]);
 
-  const onSubmit = async (data: EtapeFormData) => {
-    setIsPending(true);
+  const onSubmit = (data: EtapeFormData) => {
     setErreur(null);
+    startTransition(async () => {
+      const result = etape
+        ? await updateEtape(
+            etape.id,
+            {
+              number: data.number,
+              name: data.name,
+              description: data.description,
+              ordre: data.ordre,
+              wpValue: data.wpValue,
+            },
+            icone ?? undefined,
+          )
+        : await createEtape(data, icone ?? undefined);
 
-    const result = etape
-      ? await updateEtape(
-          etape.id,
-          {
-            number: data.number,
-            name: data.name,
-            description: data.description,
-            ordre: data.ordre,
-            wpValue: data.wpValue,
-          },
-          icone ?? undefined,
-        )
-      : await createEtape(data, icone ?? undefined);
+      if (!result.success) {
+        setErreur(result.error ?? "Une erreur est survenue");
 
-    setIsPending(false);
+        return;
+      }
 
-    if (!result.success) {
-      setErreur(result.error ?? "Une erreur est survenue");
-
-      return;
-    }
-
-    onClose();
-    router.refresh();
+      onClose();
+    });
   };
 
   return (
     <FormModal
+      erreur={erreur}
       isOpen={isOpen}
       isPending={isPending}
       scrollBehavior="inside"
@@ -328,8 +324,6 @@ export default function EtapeModal({
           </Tab>
         )}
       </Tabs>
-
-      {erreur && <p className="text-sm text-danger">{erreur}</p>}
     </FormModal>
   );
 }

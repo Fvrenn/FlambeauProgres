@@ -5,7 +5,7 @@ import type { EtatProgressionPlateforme } from "@/services/wp-progression.servic
 import React from "react";
 import { Spacer } from "@heroui/react";
 
-import { ProfilForm } from "./_components/ProfilForm";
+import { ProfilForm, type ProfilUser } from "./_components/ProfilForm";
 import { ProgressionPlateforme } from "./_components/ProgressionPlateforme";
 
 export default function ClientPage({
@@ -13,7 +13,7 @@ export default function ClientPage({
   progression,
   wordpressProfileUrl,
 }: {
-  user: any;
+  user: ProfilUser;
   progression: EtatProgressionPlateforme;
   wordpressProfileUrl: string;
 }) {
