@@ -16,11 +16,7 @@
     "seed": "ts-node-dev --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   },
   "dependencies": {
-    "@heroui/button": "2.2.27",
     "@heroui/divider": "2.2.20",
-    "@heroui/form": "2.1.27",
-    "@heroui/input": "2.4.28",
-    "@heroui/link": "2.2.23",
     "@heroui/react": "^2.8.5",
     "@heroui/system": "2.4.23",
     "@heroui/theme": "2.4.23",
@@ -32,13 +28,13 @@
     "apexcharts": "^6.6.1",
     "clsx": "2.1.1",
     "framer-motion": "11.18.2",
-    "next": "^16.2.4",
-    "nodemailer": "^9.0.5",
+    "next": "^16.3.6",
+    "nodemailer": "^9.1.1",
     "react": "^19.0.0",
     "react-apexcharts": "^2.1.1",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.65.0",
-    "sharp": "^0.35.3",
+    "sharp": "^0.35.5",
     "three": "^0.180.0",
     "zod": "^4.1.12"
   },
@@ -46,7 +42,7 @@
     "@eslint/compat": "^2.1.0",
     "@eslint/eslintrc": "^3.3.6",
     "@eslint/js": "^9.39.5",
-    "@gltf-transform/cli": "^4.4.2",
+    "@gltf-transform/cli": "^4.5.1",
     "@iconify-json/solar": "^1.2.10",
     "@iconify/react": "^6.0.2",
     "@next/eslint-plugin-next": "15.3.4",
@@ -68,17 +64,17 @@
     "eslint-plugin-react-hooks": "5.2.0",
     "eslint-plugin-unused-imports": "4.1.4",
     "globals": "16.0.0",
-    "postcss": "^8.5.12",
+    "postcss": "^8.5.28",
     "prettier": "3.5.3",
     "prisma": "^6.17.1",
     "tailwind-variants": "3.1.1",
     "tailwindcss": "4.1.11",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.6.3",
-    "vitest": "^4.1.8"
+    "vitest": "^4.1.11"
   },
   "overrides": {
-    "postcss": "^8.5.12"
+    "postcss": "^8.5.28"
   },
   "engines": {
     "node": ">=20.9.0"

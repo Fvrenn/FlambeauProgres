@@ -39,7 +39,10 @@ export class StorageService {
 
     const safeFolder =
       folder.replace(/[^a-z0-9_-]/gi, "").toLowerCase() || "uploads";
-    const targetDir = path.join(UPLOAD_DIR, safeFolder);
+    const targetDir = path.join(
+      /*turbopackIgnore: true*/ UPLOAD_DIR,
+      safeFolder,
+    );
 
     await mkdir(targetDir, { recursive: true });
 
@@ -54,7 +57,10 @@ export class StorageService {
     const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
     const fileName = `${basename || "fichier"}-${uniqueSuffix}${extension}`;
 
-    await writeFile(path.join(targetDir, fileName), buffer);
+    await writeFile(
+      path.join(/*turbopackIgnore: true*/ targetDir, fileName),
+      buffer,
+    );
 
     return {
       storedPath: `${safeFolder}/${fileName}`,
@@ -71,9 +77,9 @@ export class StorageService {
   }
 
   static resolvePath(storedPath: string): string {
-    const baseDir = path.resolve(UPLOAD_DIR);
+    const baseDir = path.resolve(/*turbopackIgnore: true*/ UPLOAD_DIR);
     const relative = storedPath.replace(/^[/\\]+/, "");
-    const resolved = path.resolve(baseDir, relative);
+    const resolved = path.resolve(/*turbopackIgnore: true*/ baseDir, relative);
 
     if (resolved !== baseDir && !resolved.startsWith(baseDir + path.sep)) {
       throw new Error("Chemin de fichier invalide");
