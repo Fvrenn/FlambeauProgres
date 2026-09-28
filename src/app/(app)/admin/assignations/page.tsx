@@ -2,6 +2,7 @@ import React from "react";
 
 import AssignationsClientPage from "./ClientPage";
 
+import { RafraichissementArrierePlan } from "@/components/application/rafraichissement/RafraichissementArrierePlan";
 import { exigerRole } from "@/lib/auth-guards";
 import { ROLES_ADMIN } from "@/lib/roles";
 import { AssignationService } from "@/services/assignation.service";
@@ -15,5 +16,10 @@ export default async function AdminAssignationsPage() {
     UserService.listReferents(),
   ]);
 
-  return <AssignationsClientPage allReferents={allReferents} etapes={etapes} />;
+  return (
+    <>
+      <RafraichissementArrierePlan />
+      <AssignationsClientPage allReferents={allReferents} etapes={etapes} />
+    </>
+  );
 }

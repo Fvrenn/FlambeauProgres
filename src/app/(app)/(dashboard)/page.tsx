@@ -1,3 +1,4 @@
+import { RafraichissementArrierePlan } from "@/components/application/rafraichissement/RafraichissementArrierePlan";
 import DashboardClient from "@/app/(app)/(dashboard)/_component/DashboardClient";
 import { getUser } from "@/lib/auth-server";
 import { redirectToLogin } from "@/lib/auth-redirect";
@@ -20,21 +21,24 @@ export default async function Home() {
   ]);
 
   return (
-    <div className="h-full flex flex-col overflow-hidden">
-      <h4 className="hidden md:block text-3xl font-extrabold flex-shrink-0">
-        Tableau de bord
-      </h4>
-      <DashboardClient
-        branche={getWpProfile(user)?.branche ?? null}
-        etapes={etapes}
-        notifications={notifications}
-        viewer={{
-          id: user.id,
-          name: user.name,
-          image: user.image ?? null,
-          role: "role" in user ? user.role : undefined,
-        }}
-      />
-    </div>
+    <>
+      <RafraichissementArrierePlan />
+      <div className="h-full flex flex-col overflow-hidden">
+        <h4 className="hidden md:block text-3xl font-extrabold flex-shrink-0">
+          Tableau de bord
+        </h4>
+        <DashboardClient
+          branche={getWpProfile(user)?.branche ?? null}
+          etapes={etapes}
+          notifications={notifications}
+          viewer={{
+            id: user.id,
+            name: user.name,
+            image: user.image ?? null,
+            role: "role" in user ? user.role : undefined,
+          }}
+        />
+      </div>
+    </>
   );
 }

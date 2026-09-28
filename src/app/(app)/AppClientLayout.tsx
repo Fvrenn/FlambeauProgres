@@ -13,6 +13,9 @@ import {
 import { SidebarContent } from "@/components/application/sidebar/SidebarContent";
 import { SidebarDrawer } from "@/components/application/sidebar/SidebarDrawer";
 import { MobileNavbar } from "@/components/application/sidebar/MobileNavbar";
+import { COOKIE_DERNIERE_VUE, vueDepuisChemin } from "@/lib/vue";
+
+const UN_AN_EN_SECONDES = 60 * 60 * 24 * 365;
 
 type AppClientLayoutProps = {
   children: React.ReactNode;
@@ -63,6 +66,14 @@ export default function AppClientLayout({
     activeItem || pathname.split("/")[1] || "dashboard";
 
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    const vue = vueDepuisChemin(pathname);
+
+    if (vue) {
+      document.cookie = `${COOKIE_DERNIERE_VUE}=${vue}; path=/; max-age=${UN_AN_EN_SECONDES}; samesite=lax`;
+    }
+  }, [pathname]);
 
   return (
     <div className="h-screen min-h-[48rem] flex flex-col md:flex-row">

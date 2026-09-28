@@ -2,6 +2,7 @@ import React from "react";
 
 import ReferentDashboardClient from "./ReferentDashboardClient";
 
+import { RafraichissementArrierePlan } from "@/components/application/rafraichissement/RafraichissementArrierePlan";
 import { exigerRole, suitEtape } from "@/lib/auth-guards";
 import { ROLES_REFERENT } from "@/lib/roles";
 import { ReferentService } from "@/services/referent.service";
@@ -49,18 +50,21 @@ export default async function ReferentDashboardPage({
   } = await ReferentService.getDashboard(etapeId, user);
 
   return (
-    <ReferentDashboardClient
-      chefsAReviser={chefsAReviser}
-      justificationsAValider={justificationsAValider}
-      justificationsEnDiscussion={justificationsEnDiscussion}
-      peutEvaluer={peutEvaluer}
-      targetJustificationId={targetJustificationId}
-      viewer={{
-        id: user.id,
-        name: user.name,
-        image: user.image ?? null,
-        role: user.role,
-      }}
-    />
+    <>
+      <RafraichissementArrierePlan />
+      <ReferentDashboardClient
+        chefsAReviser={chefsAReviser}
+        justificationsAValider={justificationsAValider}
+        justificationsEnDiscussion={justificationsEnDiscussion}
+        peutEvaluer={peutEvaluer}
+        targetJustificationId={targetJustificationId}
+        viewer={{
+          id: user.id,
+          name: user.name,
+          image: user.image ?? null,
+          role: user.role,
+        }}
+      />
+    </>
   );
 }

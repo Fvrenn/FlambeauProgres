@@ -6,6 +6,8 @@ import type { UserRole } from "@prisma/client";
 import React from "react";
 import { Card, CardBody, Avatar } from "@heroui/react";
 
+import { roleLabelMap } from "@/lib/roles";
+
 export type ProfilUser = NonNullable<Awaited<ReturnType<typeof getUser>>> & {
   role?: UserRole;
 };
@@ -24,10 +26,10 @@ function ProfilIdentity({ user }: { user: ProfilUser }) {
           {user?.name}
         </h3>
         <p className="text-small text-default-500">{user?.email}</p>
-        <p className="text-small text-default-500 capitalize mt-1">
+        <p className="text-small text-default-500 mt-1">
           Rôle :{" "}
           <span className="font-medium text-foreground">
-            {user?.role?.toLowerCase() || "chef"}
+            {roleLabelMap[user?.role ?? "CHEF"]}
           </span>
         </p>
       </div>

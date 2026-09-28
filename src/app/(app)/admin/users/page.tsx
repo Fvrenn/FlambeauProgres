@@ -2,6 +2,7 @@ import React from "react";
 
 import UsersClientPage from "./ClientPage";
 
+import { RafraichissementArrierePlan } from "@/components/application/rafraichissement/RafraichissementArrierePlan";
 import { exigerRole } from "@/lib/auth-guards";
 import { ROLES_ADMIN } from "@/lib/roles";
 import { UserService } from "@/services/user.service";
@@ -11,5 +12,10 @@ export default async function AdminUsersPage() {
 
   const users = await UserService.listForAdmin();
 
-  return <UsersClientPage users={users} />;
+  return (
+    <>
+      <RafraichissementArrierePlan />
+      <UsersClientPage users={users} />
+    </>
+  );
 }

@@ -1,13 +1,12 @@
 import React from "react";
+import { cookies } from "next/headers";
 
 import AppClientLayout from "../AppClientLayout";
 
 import { getUser } from "@/lib/auth-server";
 import { redirectToLogin } from "@/lib/auth-redirect";
-import {
-  allSidebarItemsForUser,
-  appShellClassNames,
-} from "@/config/navigation";
+import { appShellClassNames } from "@/config/navigation";
+import { COOKIE_DERNIERE_VUE, lireVue, sidebarItemsPourVue } from "@/lib/vue";
 
 export default async function SignalerBugLayout({
   children,
@@ -22,10 +21,12 @@ export default async function SignalerBugLayout({
     return null;
   }
 
+  const vue = lireVue((await cookies()).get(COOKIE_DERNIERE_VUE)?.value);
+
   return (
     <AppClientLayout
       {...appShellClassNames}
-      sidebarItems={allSidebarItemsForUser(user)}
+      sidebarItems={sidebarItemsPourVue(vue, user)}
       user={user}
     >
       {children}

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import EtapeDetailClientPage from "./ClientPage";
 
+import { RafraichissementArrierePlan } from "@/components/application/rafraichissement/RafraichissementArrierePlan";
 import { exigerRole } from "@/lib/auth-guards";
 import { ROLES_ADMIN } from "@/lib/roles";
 import { EtapeAdminService } from "@/services/etape-admin.service";
@@ -21,5 +22,10 @@ export default async function AdminEtapeDetailPage({ params }: PageProps) {
     redirect("/admin/etapes");
   }
 
-  return <EtapeDetailClientPage etape={etape} />;
+  return (
+    <>
+      <RafraichissementArrierePlan />
+      <EtapeDetailClientPage etape={etape} />
+    </>
+  );
 }

@@ -1,5 +1,6 @@
 import ClientPage from "./ClientPage";
 
+import { RafraichissementArrierePlan } from "@/components/application/rafraichissement/RafraichissementArrierePlan";
 import { getUser } from "@/lib/auth-server";
 import { redirectToLogin } from "@/lib/auth-redirect";
 import { buildWpProfileUrl } from "@/lib/wp-redirect";
@@ -21,10 +22,13 @@ export default async function ProfilPage() {
   const progression = await WpProgressionService.getEtat(user.id);
 
   return (
-    <ClientPage
-      progression={progression}
-      user={user}
-      wordpressProfileUrl={buildWpProfileUrl()}
-    />
+    <>
+      <RafraichissementArrierePlan />
+      <ClientPage
+        progression={progression}
+        user={user}
+        wordpressProfileUrl={buildWpProfileUrl()}
+      />
+    </>
   );
 }

@@ -4,8 +4,6 @@ import type {
   SidebarNavItemClassNames,
 } from "@/components/application/sidebar/sidebar";
 
-import { estAdmin, estReferent } from "@/lib/roles";
-
 export const ROUTE_DECONNEXION = "/deconnexion";
 
 export const BUG_REPORT_EMAIL = "timothehege@gmail.com";
@@ -91,37 +89,6 @@ export const adminSidebarItems: SidebarItem[] = [
     title: "Formation",
   },
 ];
-
-export function allSidebarItemsForUser(user: SessionUser): SidebarItem[] {
-  const isReferent = estReferent(user.role);
-  const isAdmin = estAdmin(user.role);
-
-  if (!isReferent && !isAdmin) {
-    return chefSidebarItems;
-  }
-
-  const sections: SidebarItem[] = [
-    { key: "section-chef", title: "Mon progrès", items: chefSidebarItems },
-  ];
-
-  if (isReferent) {
-    sections.push({
-      key: "section-referent",
-      title: "Référent",
-      items: referentSidebarItems(user),
-    });
-  }
-
-  if (isAdmin) {
-    sections.push({
-      key: "section-admin",
-      title: "Administration",
-      items: adminSidebarItems,
-    });
-  }
-
-  return sections;
-}
 
 export const appShellClassNames: {
   contextSwitcherClassName: string;

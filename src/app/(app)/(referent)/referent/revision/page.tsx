@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import RevisionClient from "./RevisionClient";
 
+import { RafraichissementArrierePlan } from "@/components/application/rafraichissement/RafraichissementArrierePlan";
 import { exigerRole, suitEtape } from "@/lib/auth-guards";
 import { messageRefusValidation, ROLES_REFERENT } from "@/lib/roles";
 import { ReferentService } from "@/services/referent.service";
@@ -38,12 +39,15 @@ export default async function RevisionPage({
   const { chef, etape, justifications, peutValider } = revision;
 
   return (
-    <RevisionClient
-      chef={chef}
-      etape={etape}
-      justifications={justifications}
-      peutValider={peutValider}
-      refusValidation={messageRefusValidation(etape.niveau)}
-    />
+    <>
+      <RafraichissementArrierePlan />
+      <RevisionClient
+        chef={chef}
+        etape={etape}
+        justifications={justifications}
+        peutValider={peutValider}
+        refusValidation={messageRefusValidation(etape.niveau)}
+      />
+    </>
   );
 }

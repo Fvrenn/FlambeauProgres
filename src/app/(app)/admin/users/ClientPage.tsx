@@ -48,8 +48,8 @@ export default function UsersClientPage({ users }: UsersClientPageProps) {
                 src={user.image || undefined}
               />
               <div className="flex flex-col">
-                <p className="text-bold text-small capitalize">{user.name}</p>
-                <p className="text-bold text-tiny capitalize text-default-400">
+                <p className="text-bold text-small">{user.name}</p>
+                <p className="text-bold text-tiny text-default-400">
                   {user.email}
                 </p>
               </div>
