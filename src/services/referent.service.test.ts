@@ -11,11 +11,17 @@ vi.mock("@/lib/prisma", () => ({
   },
 }));
 
+vi.mock("@/services/etape.service", () => ({
+  EtapeService: { estDossierComplet: vi.fn() },
+}));
+
 import { prisma } from "@/lib/prisma";
+import { EtapeService } from "@/services/etape.service";
 import { USER_RESUME_SELECT } from "@/services/user.service";
 import { ReferentService } from "@/services/referent.service";
 
 const db = vi.mocked(prisma, true);
+const etapeService = vi.mocked(EtapeService, true);
 const referent = { id: "ref1", role: "REFERENT" as const };
 
 beforeEach(() => {
@@ -83,6 +89,7 @@ describe("ReferentService.getRevision", () => {
 
   it("ne charge que le résumé du chef", async () => {
     db.user.findUnique.mockResolvedValue({ id: "c1" } as never);
+    etapeService.estDossierComplet.mockResolvedValue(true);
 
     const revision = await ReferentService.getRevision("c1", "e1", referent);
 
@@ -91,5 +98,28 @@ describe("ReferentService.getRevision", () => {
       select: USER_RESUME_SELECT,
     });
     expect(revision?.peutValider).toBe(true);
+  });
+
+  it("bloque la validation tant que le dossier est incomplet", async () => {
+    db.user.findUnique.mockResolvedValue({ id: "c1" } as never);
+    etapeService.estDossierComplet.mockResolvedValue(false);
+
+    const revision = await ReferentService.getRevision("c1", "e1", referent);
+
+    expect(revision?.peutValider).toBe(false);
+    expect(revision?.refusValidation).toContain("doivent être validées");
+  });
+
+  it("ne liste pour l'étape 3 que les compétences évaluées par la commission", async () => {
+    db.etape.findUnique.mockResolvedValue({ id: "e3", niveau: 3 } as never);
+    db.user.findUnique.mockResolvedValue({ id: "c1" } as never);
+
+    await ReferentService.getRevision("c1", "e3", referent);
+
+    expect(db.justification.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ statut: "VALIDEE" }),
+      }),
+    );
   });
 });

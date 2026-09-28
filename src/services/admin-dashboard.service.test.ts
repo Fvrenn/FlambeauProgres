@@ -42,11 +42,11 @@ describe("AdminDashboardService.getStats", () => {
     });
   });
 
-  it("ne compte comme sans référent que les étapes qui en ont besoin", async () => {
+  it("ne compte comme sans référent que les badges gérés par assignation", async () => {
     await AdminDashboardService.getStats();
 
     expect(db.etape.count).toHaveBeenCalledWith({
-      where: { referents: { none: {} }, niveau: { lt: 3 } },
+      where: { referents: { none: {} }, type: "BADGE", niveau: { lt: 3 } },
     });
   });
 });

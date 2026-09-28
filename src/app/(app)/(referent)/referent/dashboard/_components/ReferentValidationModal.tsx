@@ -1,5 +1,7 @@
 "use client";
 
+import type { TypeObjectif } from "@prisma/client";
+
 import React, { useEffect } from "react";
 import {
   Modal,
@@ -17,7 +19,7 @@ import { markNotificationsAsReadForJustification } from "@/actions/notification/
 export type ReferentThreadJustification = {
   id: string;
   chef: { name: string; email: string; image: string | null };
-  objectif: { code: string; description: string };
+  objectif: { code: string; description: string; type: TypeObjectif };
 };
 
 interface ReferentValidationModalProps {
@@ -78,7 +80,9 @@ export default function ReferentValidationModal({
             objectif={{
               code: justification.objectif.code,
               description: justification.objectif.description,
+              type: justification.objectif.type,
             }}
+            peutEcrire={peutEvaluer}
             peutValider={peutEvaluer}
             viewer={viewer}
           />

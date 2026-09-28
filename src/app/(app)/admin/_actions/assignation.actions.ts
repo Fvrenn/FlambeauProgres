@@ -29,10 +29,14 @@ export async function assignReferentToEtape(
   }
 
   try {
-    await AssignationService.assign(
+    const result = await AssignationService.assign(
       parsed.data.referentId,
       parsed.data.etapeId,
     );
+
+    if (!result.success) {
+      return result;
+    }
 
     revalidatePath("/admin/assignations");
 

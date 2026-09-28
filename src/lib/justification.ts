@@ -1,11 +1,45 @@
 import type { StatutJustification, TypeObjectif } from "@prisma/client";
 
+import { competenceSoumiseAEvaluation } from "@/lib/roles";
+
 export const LONGUEUR_MAX_CONTENU = 5000;
+
+export const MESSAGE_DOSSIER_INCOMPLET =
+  "Toutes les compétences et réalisations doivent être validées avant de valider l'étape";
 
 export const STATUTS_VALIDES: StatutJustification[] = [
   "AUTO_VALIDEE",
   "VALIDEE",
 ];
+
+export const LIBELLE_TYPE_OBJECTIF: Record<TypeObjectif, string> = {
+  COMPETENCE: "compétence",
+  REALISATION: "réalisation",
+};
+
+export function statutValidant(
+  type: TypeObjectif,
+  niveau: number,
+): StatutJustification {
+  return type === "COMPETENCE" && !competenceSoumiseAEvaluation(niveau)
+    ? "AUTO_VALIDEE"
+    : "VALIDEE";
+}
+
+export function filtreJustificationsValidantes(niveau: number) {
+  return {
+    OR: [
+      {
+        statut: statutValidant("COMPETENCE", niveau),
+        objectif: { type: "COMPETENCE" as const },
+      },
+      {
+        statut: statutValidant("REALISATION", niveau),
+        objectif: { type: "REALISATION" as const },
+      },
+    ],
+  };
+}
 
 export type ObjectifValide = { chefId: string; type: TypeObjectif };
 
@@ -36,4 +70,11 @@ export function chefsAyantToutValide(
         compte.realisations === total.realisations,
     )
     .map(([chefId]) => chefId);
+}
+
+export function compterParType(
+  totaux: { type: TypeObjectif; _count: { id: number } }[],
+  type: TypeObjectif,
+): number {
+  return totaux.find((total) => total.type === type)?._count.id ?? 0;
 }

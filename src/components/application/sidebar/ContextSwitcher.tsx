@@ -142,7 +142,7 @@ export default function ContextSwitcher({
                 etape.image_src ? (
                   <Image
                     alt={`Badge ${etape.name}`}
-                    className="shrink-0"
+                    className="shrink-0 object-contain"
                     height={24}
                     src={etape.image_src}
                     width={24}
@@ -185,7 +185,7 @@ export default function ContextSwitcher({
               {currentEtape?.image_src ? (
                 <Image
                   alt={`Badge ${currentEtape.name}`}
-                  className="rounded-full"
+                  className="rounded-full object-contain"
                   height={32}
                   src={currentEtape.image_src}
                   width={32}
@@ -207,7 +207,7 @@ export default function ContextSwitcher({
                 {currentEtape?.image_src ? (
                   <Image
                     alt={`Badge ${currentEtape.name}`}
-                    className="shrink-0"
+                    className="shrink-0 object-contain"
                     height={36}
                     src={currentEtape.image_src}
                     width={36}

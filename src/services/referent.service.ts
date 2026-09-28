@@ -1,21 +1,37 @@
 import type { UserRole } from "@prisma/client";
 
-import { chefsAyantToutValide } from "@/lib/justification";
+import {
+  chefsAyantToutValide,
+  compterParType,
+  filtreJustificationsValidantes,
+  MESSAGE_DOSSIER_INCOMPLET,
+  statutValidant,
+} from "@/lib/justification";
 import { prisma } from "@/lib/prisma";
-import { peutEvaluerEtape, peutValiderEtape } from "@/lib/roles";
+import {
+  messageRefusValidation,
+  peutEvaluerEtape,
+  peutValiderEtape,
+} from "@/lib/roles";
+import { EtapeService } from "@/services/etape.service";
 import { USER_RESUME_SELECT } from "@/services/user.service";
 
 export type ReferentConnecte = { id: string; role: UserRole };
 
 export class ReferentService {
   static async getDashboard(etapeId: string, referent: ReferentConnecte) {
+    const etape = await prisma.etape.findUnique({
+      where: { id: etapeId },
+      select: { niveau: true },
+    });
+    const niveau = etape?.niveau ?? 0;
+
     const [
       totaux,
       validations,
       badgesValides,
       justificationsAValider,
       justificationsEnDiscussion,
-      etape,
       assignation,
     ] = await Promise.all([
       prisma.objectif.groupBy({
@@ -24,13 +40,7 @@ export class ReferentService {
         _count: { id: true },
       }),
       prisma.justification.findMany({
-        where: {
-          etapeId,
-          OR: [
-            { statut: "AUTO_VALIDEE", objectif: { type: "COMPETENCE" } },
-            { statut: "VALIDEE", objectif: { type: "REALISATION" } },
-          ],
-        },
+        where: { etapeId, ...filtreJustificationsValidantes(niveau) },
         select: { chefId: true, objectif: { select: { type: true } } },
       }),
       prisma.chefEtapeStatut.findMany({
@@ -51,10 +61,6 @@ export class ReferentService {
         include: { chef: { select: USER_RESUME_SELECT }, objectif: true },
         orderBy: { updatedAt: "desc" },
       }),
-      prisma.etape.findUnique({
-        where: { id: etapeId },
-        select: { niveau: true },
-      }),
       prisma.etapeReferent.findFirst({
         where: { referentId: referent.id, etapeId },
       }),
@@ -67,8 +73,8 @@ export class ReferentService {
         type: objectif.type,
       })),
       {
-        competences: compterType(totaux, "COMPETENCE"),
-        realisations: compterType(totaux, "REALISATION"),
+        competences: compterParType(totaux, "COMPETENCE"),
+        realisations: compterParType(totaux, "REALISATION"),
       },
     ).filter((chefId) => !dejaValides.has(chefId));
 
@@ -97,17 +103,22 @@ export class ReferentService {
     etapeId: string,
     referent: ReferentConnecte,
   ) {
-    const [chef, etape, justifications, assignation] = await Promise.all([
+    const etape = await prisma.etape.findUnique({ where: { id: etapeId } });
+
+    if (!etape) {
+      return null;
+    }
+
+    const [chef, justifications, assignation, estComplet] = await Promise.all([
       prisma.user.findUnique({
         where: { id: chefId },
         select: USER_RESUME_SELECT,
       }),
-      prisma.etape.findUnique({ where: { id: etapeId } }),
       prisma.justification.findMany({
         where: {
           chefId,
           etapeId,
-          statut: "AUTO_VALIDEE",
+          statut: statutValidant("COMPETENCE", etape.niveau),
           objectif: { type: "COMPETENCE" },
         },
         include: { objectif: true },
@@ -116,28 +127,27 @@ export class ReferentService {
       prisma.etapeReferent.findFirst({
         where: { referentId: referent.id, etapeId },
       }),
+      EtapeService.estDossierComplet(chefId, etapeId),
     ]);
 
-    if (!chef || !etape) {
+    if (!chef) {
       return null;
     }
+
+    const aLeDroit = peutValiderEtape(
+      referent.role,
+      etape.niveau,
+      Boolean(assignation),
+    );
 
     return {
       chef,
       etape,
       justifications,
-      peutValider: peutValiderEtape(
-        referent.role,
-        etape.niveau,
-        Boolean(assignation),
-      ),
+      peutValider: aLeDroit && estComplet,
+      refusValidation: aLeDroit
+        ? MESSAGE_DOSSIER_INCOMPLET
+        : messageRefusValidation(etape.niveau),
     };
   }
-}
-
-function compterType(
-  totaux: { type: string; _count: { id: number } }[],
-  type: string,
-): number {
-  return totaux.find((total) => total.type === type)?._count.id ?? 0;
 }

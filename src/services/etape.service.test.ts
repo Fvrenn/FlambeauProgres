@@ -4,11 +4,18 @@ vi.mock("@/lib/prisma", () => {
   const prisma = {
     etape: { findMany: vi.fn(), findUnique: vi.fn() },
     chefEtapeStatut: { findMany: vi.fn(), upsert: vi.fn() },
-    justification: { groupBy: vi.fn() },
+    justification: { groupBy: vi.fn(), findMany: vi.fn() },
+    objectif: { groupBy: vi.fn() },
+    user: { findUnique: vi.fn() },
+    etapeReferent: { findFirst: vi.fn() },
   };
 
   return { prisma };
 });
+
+vi.mock("@/services/notification.service", () => ({
+  NotificationService: { createNotification: vi.fn() },
+}));
 
 import { prisma } from "@/lib/prisma";
 import { EtapeService } from "@/services/etape.service";
@@ -212,5 +219,94 @@ describe("EtapeService.autoValiderJalon", () => {
 
     expect(result.success).toBe(true);
     expect(db.chefEtapeStatut.upsert).toHaveBeenCalled();
+  });
+});
+
+describe("EtapeService.estDossierComplet", () => {
+  beforeEach(() => {
+    db.objectif.groupBy.mockResolvedValue([
+      { type: "COMPETENCE", _count: { id: 1 } },
+      { type: "REALISATION", _count: { id: 1 } },
+    ] as never);
+  });
+
+  it("exige pour l'étape 3 des compétences validées par la commission", async () => {
+    db.etape.findUnique.mockResolvedValue({ niveau: 3 } as never);
+    db.justification.findMany.mockResolvedValue([
+      { chefId: "c1", objectif: { type: "COMPETENCE" } },
+      { chefId: "c1", objectif: { type: "REALISATION" } },
+    ] as never);
+
+    expect(await EtapeService.estDossierComplet("c1", "e3")).toBe(true);
+    expect(db.justification.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          OR: expect.arrayContaining([
+            { statut: "VALIDEE", objectif: { type: "COMPETENCE" } },
+          ]),
+        }),
+      }),
+    );
+  });
+
+  it("considère incomplet un dossier auquel il manque une réalisation", async () => {
+    db.etape.findUnique.mockResolvedValue({ niveau: 2 } as never);
+    db.justification.findMany.mockResolvedValue([
+      { chefId: "c1", objectif: { type: "COMPETENCE" } },
+    ] as never);
+
+    expect(await EtapeService.estDossierComplet("c1", "e1")).toBe(false);
+  });
+});
+
+describe("EtapeService.validateBadge", () => {
+  const validation = {
+    chefId: "c1",
+    referentId: "cn1",
+    referentRole: "COORDINATEUR_NATIONAL" as const,
+    etapeId: "e3",
+  };
+
+  beforeEach(() => {
+    db.etape.findUnique.mockResolvedValue({
+      id: "e3",
+      name: "Leader",
+      niveau: 3,
+    } as never);
+    db.user.findUnique.mockResolvedValue({ id: "c1" } as never);
+    db.etapeReferent.findFirst.mockResolvedValue(null as never);
+    db.objectif.groupBy.mockResolvedValue([
+      { type: "REALISATION", _count: { id: 1 } },
+    ] as never);
+  });
+
+  it("refuse de valider un dossier que la commission n'a pas fini d'évaluer", async () => {
+    db.justification.findMany.mockResolvedValue([] as never);
+
+    const result = await EtapeService.validateBadge(validation);
+
+    expect(result.success).toBe(false);
+    expect(db.chefEtapeStatut.upsert).not.toHaveBeenCalled();
+  });
+
+  it("valide un dossier complet", async () => {
+    db.justification.findMany.mockResolvedValue([
+      { chefId: "c1", objectif: { type: "REALISATION" } },
+    ] as never);
+
+    const result = await EtapeService.validateBadge(validation);
+
+    expect(result.success).toBe(true);
+    expect(db.chefEtapeStatut.upsert).toHaveBeenCalled();
+  });
+
+  it("refuse de valider sa propre étape", async () => {
+    const result = await EtapeService.validateBadge({
+      ...validation,
+      chefId: "cn1",
+    });
+
+    expect(result.success).toBe(false);
+    expect(db.chefEtapeStatut.upsert).not.toHaveBeenCalled();
   });
 });

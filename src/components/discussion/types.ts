@@ -1,3 +1,4 @@
+import type { TypeObjectif } from "@prisma/client";
 import type { MessageType } from "@prisma/client";
 
 export type ThreadAuthor = {
@@ -26,4 +27,5 @@ export type UiMessage = {
 export type ThreadObjectif = {
   code: string;
   description: string;
+  type: TypeObjectif;
 };

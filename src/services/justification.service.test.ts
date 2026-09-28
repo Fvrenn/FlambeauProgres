@@ -51,14 +51,16 @@ describe("JustificationService - étape verrouillée", () => {
       id: "o1",
       type: "COMPETENCE",
       etapeId: "e1",
+      etape: { niveau: 2 },
       texteRequis: false,
     } as never);
 
-    const result = await JustificationService.submitCompetence(
-      "c1",
-      "o1",
-      "txt",
-    );
+    const result = await JustificationService.submitCompetence({
+      chefId: "c1",
+      chefName: "Chef",
+      objectifId: "o1",
+      contenu: "txt",
+    });
 
     expect(result).toEqual({
       success: false,
@@ -89,15 +91,84 @@ describe("JustificationService - étape verrouillée", () => {
   });
 });
 
+describe("JustificationService.submitCompetence - étape 3", () => {
+  const competenceEtape3 = {
+    id: "o1",
+    code: "L1",
+    description: "Vision",
+    type: "COMPETENCE",
+    etapeId: "e3",
+    etape: { niveau: 3 },
+    texteRequis: true,
+  };
+
+  it("envoie la compétence en évaluation à la commission au lieu de l'auto-valider", async () => {
+    db.objectif.findUnique.mockResolvedValue(competenceEtape3 as never);
+    db.justification.findFirst.mockResolvedValue(null as never);
+    db.justification.create.mockResolvedValue({ id: "j1" } as never);
+    db.etape.findUnique.mockResolvedValue({
+      id: "e3",
+      name: "Leader",
+      niveau: 3,
+    } as never);
+    db.etapeReferent.findMany.mockResolvedValue([] as never);
+    db.user.findMany.mockResolvedValue([
+      { id: "cf1", name: "Commission", email: "cf@x.fr" },
+    ] as never);
+
+    const result = await JustificationService.submitCompetence({
+      chefId: "c1",
+      chefName: "Chef",
+      objectifId: "o1",
+      contenu: "Mon expérience",
+    });
+
+    expect(result.success).toBe(true);
+    expect(db.justification.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({ statut: "SOUMISE" }),
+    });
+    expect(db.message.create).toHaveBeenCalled();
+    expect(db.notification.createMany).toHaveBeenCalledWith({
+      data: [
+        expect.objectContaining({
+          destinataireId: "cf1",
+          titre: "Nouvelle compétence à valider",
+        }),
+      ],
+    });
+  });
+
+  it("refuse de resoumettre une compétence déjà validée par la commission", async () => {
+    db.objectif.findUnique.mockResolvedValue(competenceEtape3 as never);
+    db.justification.findFirst.mockResolvedValue({
+      id: "j1",
+      statut: "VALIDEE",
+    } as never);
+
+    const result = await JustificationService.submitCompetence({
+      chefId: "c1",
+      chefName: "Chef",
+      objectifId: "o1",
+      contenu: "Encore",
+    });
+
+    expect(result).toEqual({
+      success: false,
+      error: "Cette compétence est déjà validée",
+    });
+  });
+});
+
 describe("JustificationService.submitCompetence", () => {
   it("fails when the objectif is not found", async () => {
     db.objectif.findUnique.mockResolvedValue(null as never);
 
-    const result = await JustificationService.submitCompetence(
-      "c1",
-      "o1",
-      "txt",
-    );
+    const result = await JustificationService.submitCompetence({
+      chefId: "c1",
+      chefName: "Chef",
+      objectifId: "o1",
+      contenu: "txt",
+    });
 
     expect(result.success).toBe(false);
   });
@@ -109,11 +180,12 @@ describe("JustificationService.submitCompetence", () => {
       etapeId: "e1",
     } as never);
 
-    const result = await JustificationService.submitCompetence(
-      "c1",
-      "o1",
-      "txt",
-    );
+    const result = await JustificationService.submitCompetence({
+      chefId: "c1",
+      chefName: "Chef",
+      objectifId: "o1",
+      contenu: "txt",
+    });
 
     expect(result.success).toBe(false);
     expect(db.justification.create).not.toHaveBeenCalled();
@@ -124,15 +196,17 @@ describe("JustificationService.submitCompetence", () => {
       id: "o1",
       type: "COMPETENCE",
       etapeId: "e1",
+      etape: { niveau: 2 },
     } as never);
     db.justification.findFirst.mockResolvedValue(null as never);
     db.justification.create.mockResolvedValue({} as never);
 
-    const result = await JustificationService.submitCompetence(
-      "c1",
-      "o1",
-      "txt",
-    );
+    const result = await JustificationService.submitCompetence({
+      chefId: "c1",
+      chefName: "Chef",
+      objectifId: "o1",
+      contenu: "txt",
+    });
 
     expect(result.success).toBe(true);
     expect(db.justification.create).toHaveBeenCalledWith(
@@ -151,15 +225,17 @@ describe("JustificationService.submitCompetence", () => {
       id: "o1",
       type: "COMPETENCE",
       etapeId: "e1",
+      etape: { niveau: 2 },
     } as never);
     db.justification.findFirst.mockResolvedValue({ id: "j-existing" } as never);
     db.justification.update.mockResolvedValue({} as never);
 
-    const result = await JustificationService.submitCompetence(
-      "c1",
-      "o1",
-      "txt",
-    );
+    const result = await JustificationService.submitCompetence({
+      chefId: "c1",
+      chefName: "Chef",
+      objectifId: "o1",
+      contenu: "txt",
+    });
 
     expect(result.success).toBe(true);
     expect(db.justification.update).toHaveBeenCalledWith(
@@ -175,7 +251,7 @@ describe("JustificationService.submitRealisation", () => {
       id: "o1",
       type: "COMPETENCE",
       etapeId: "e1",
-      etape: { name: "E" },
+      etape: { name: "E", niveau: 2 },
     } as never);
 
     const result = await JustificationService.submitRealisation({

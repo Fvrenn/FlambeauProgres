@@ -217,6 +217,10 @@ export default function DashboardClient({
 
       <ObjectifModal
         isOpen={!!deepLinkObjectif}
+        niveauEtape={
+          etapes.find((etape) => etape.id === deepLinkObjectif?.etapeId)
+            ?.niveau ?? 0
+        }
         objectif={deepLinkObjectif}
         viewer={viewer}
         onOpenChange={() => setDeepLinkObjectif(null)}

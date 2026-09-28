@@ -26,11 +26,13 @@ import DiscussionThread, {
 } from "@/components/discussion/DiscussionThread";
 import { submitCompetence } from "@/actions/dashboard/competence.actions";
 import { submitRealisation } from "@/actions/dashboard/realisation.actions";
+import { competenceSoumiseAEvaluation, estNiveauEtape3 } from "@/lib/roles";
 
 interface ObjectifModalProps {
   isOpen: boolean;
   onOpenChange: () => void;
   objectif: ObjectifAvecJustification | null;
+  niveauEtape: number;
   viewer: DiscussionViewer;
   onUpdateJustification: (
     objectifId: string,
@@ -42,6 +44,7 @@ export default function ObjectifModal({
   isOpen,
   onOpenChange,
   objectif,
+  niveauEtape,
   viewer,
   onUpdateJustification,
 }: ObjectifModalProps) {
@@ -67,6 +70,8 @@ export default function ObjectifModal({
 
     const isCompetence = objectif.type === "COMPETENCE";
     const isRealisation = objectif.type === "REALISATION";
+    const estAutoValidee =
+      isCompetence && !competenceSoumiseAEvaluation(niveauEtape);
 
     if (isRealisation && !selectedFile) {
       setErreur("Ajoute un fichier de preuve pour ta réalisation");
@@ -79,9 +84,9 @@ export default function ObjectifModal({
 
     onUpdateJustification(objectif.id, {
       contenu,
-      statut: isCompetence ? "AUTO_VALIDEE" : "SOUMISE",
-      valideeAt: isCompetence ? new Date() : null,
-      soumiseAt: isRealisation ? new Date() : null,
+      statut: estAutoValidee ? "AUTO_VALIDEE" : "SOUMISE",
+      valideeAt: estAutoValidee ? new Date() : null,
+      soumiseAt: estAutoValidee ? null : new Date(),
     });
 
     try {
@@ -126,11 +131,16 @@ export default function ObjectifModal({
   if (!objectif) return null;
 
   const isCompetence = objectif.type === "COMPETENCE";
-  const textRequired = objectif.texteRequis;
+  const competenceAEvaluer =
+    isCompetence && competenceSoumiseAEvaluation(niveauEtape);
+  const destinataire = estNiveauEtape3(niveauEtape)
+    ? "à la commission"
+    : "au référent";
+  const textRequired = objectif.texteRequis || competenceAEvaluer;
   const existingJustification = objectif.justifications[0];
   const isEditing = !!existingJustification;
   const showThread =
-    !isCompetence &&
+    (!isCompetence || competenceAEvaluer) &&
     !!existingJustification &&
     existingJustification.statut !== "BROUILLON" &&
     !existingJustification.id.startsWith("temp-");
@@ -153,7 +163,9 @@ export default function ObjectifModal({
                 objectif={{
                   code: objectif.code,
                   description: objectif.description,
+                  type: objectif.type,
                 }}
+                peutValider={false}
                 viewer={viewer}
               />
             </ModalBody>
@@ -174,8 +186,10 @@ export default function ObjectifModal({
                 {isCompetence ? (
                   <>
                     <p className="text-sm text-default-600 mb-4">
-                      Décris comment tu as acquis ou démontré cette compétence.
-                      Ta justification sera automatiquement validée.
+                      Décris comment tu as acquis ou démontré cette compétence.{" "}
+                      {competenceAEvaluer
+                        ? "Elle sera évaluée par la commission Formation."
+                        : "Ta justification sera automatiquement validée."}
                     </p>
 
                     <Textarea
@@ -202,7 +216,7 @@ export default function ObjectifModal({
                   <>
                     <p className="text-sm text-default-600 mb-4">
                       Décris ta réalisation et ajoute une preuve (photo, PDF,
-                      document). Ta soumission sera envoyée au référent pour
+                      document). Ta soumission sera envoyée {destinataire} pour
                       validation.
                     </p>
 
@@ -262,7 +276,11 @@ export default function ObjectifModal({
                     isLoading={isSubmitting}
                     onPress={handleSubmit}
                   >
-                    {isEditing ? "Mettre à jour" : "Valider la compétence"}
+                    {competenceAEvaluer
+                      ? "Soumettre à la commission"
+                      : isEditing
+                        ? "Mettre à jour"
+                        : "Valider la compétence"}
                   </Button>
                 )}
 
@@ -282,9 +300,7 @@ export default function ObjectifModal({
                     }
                     onPress={handleSubmit}
                   >
-                    {isEditing
-                      ? "Resoummettre au référent"
-                      : "Soumettre au référent"}
+                    {isEditing ? "Resoumettre" : "Soumettre"} {destinataire}
                   </Button>
                 )}
               </ModalFooter>

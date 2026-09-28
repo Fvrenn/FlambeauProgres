@@ -1,4 +1,7 @@
 "use client";
+
+import type { TypeObjectif } from "@prisma/client";
+
 import React from "react";
 import { Chip } from "@heroui/react";
 import { Justification } from "@prisma/client";
@@ -18,6 +21,7 @@ type ObjectifInfo = {
   id: string;
   code: string;
   description: string;
+  type: TypeObjectif;
 };
 
 type JustificationAValider = Justification & {

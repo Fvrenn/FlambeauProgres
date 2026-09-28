@@ -48,6 +48,14 @@ describe("EtapeAdminService", () => {
     });
   });
 
+  it("ne liste que les badges, pas les jalons", async () => {
+    await EtapeAdminService.list();
+
+    expect(db.etape.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { type: "BADGE" } }),
+    );
+  });
+
   it("charge les objectifs triés par code", async () => {
     await EtapeAdminService.getWithObjectifs("e1");
 

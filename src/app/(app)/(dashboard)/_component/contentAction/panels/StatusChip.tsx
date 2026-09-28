@@ -30,7 +30,7 @@ const STATUS_CONFIG: Record<
   SOUMISE: {
     color: "warning",
     icon: "solar:clock-circle-linear",
-    label: "En attente référent",
+    label: "En attente d'évaluation",
   },
   DEMANDE_PRECISION: {
     color: "secondary",

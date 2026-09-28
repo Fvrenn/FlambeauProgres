@@ -151,6 +151,44 @@ Côté écran, `peutEvaluer` / `peutValider` sont calculés sur le serveur et de
 (`ReferentDashboardClientV2` → `ReferentValidationModal` → `DiscussionThread`, et `RevisionClient`)
 pour masquer un bouton que l'action refuserait de toute façon.
 
+### Circuit d'évaluation (conforme au livret, p. 3 et 5)
+
+Le livret : « adresse-toi à la commission Formation pour l'évaluation de tes **compétences et des
+réalisations** », puis « la commission formation transmet au Coordinateur National pour
+validation ». Dans l'app, pour une étape de niveau ≥ 3 :
+
+1. **Compétences et réalisations sont soumises à la commission.** Contrairement à l'étape 2, une
+   compétence n'est plus auto-validée : `competenceSoumiseAEvaluation` (`src/lib/roles.ts`) la fait
+   passer par le même circuit qu'une réalisation (`SOUMISE`, fil de discussion, notification de la
+   commission), via `soumettreAEvaluation` dans `JustificationService`.
+2. **Seule la commission intervient dans les fils** : valider, mais aussi demander des précisions.
+   Le Coordinateur National, et tout référent assigné par erreur, les lisent sans pouvoir écrire
+   (`estEvaluateur` dans `DiscussionService.postMessage`, `peutEcrire` côté écran).
+3. **Le Coordinateur National est prévenu** (notification `DOSSIER_A_VALIDER` et email) dès que la
+   commission valide la dernière pièce d'un dossier (`NotificationService.notifierDossierAValider`).
+4. **Il ne peut valider qu'un dossier complet** : `EtapeService.validateBadge` refuse tant que
+   toutes les compétences et réalisations ne sont pas validées (`estDossierComplet`). La règle vaut
+   aussi pour l'étape 2, où le référent validait jusqu'ici sans contrôle serveur.
+5. **Personne ne valide son propre travail** : une réalisation, une compétence ou une étape.
+
+Ce qui « compte » comme validé dépend du niveau : `statutValidant` / `filtreJustificationsValidantes`
+(`src/lib/justification.ts`) — compétence d'étape 2 `AUTO_VALIDEE`, compétence d'étape 3 et toute
+réalisation `VALIDEE`. Le tableau de bord référent, la page de révision et `estDossierComplet`
+partagent ce filtre.
+
+**Pas d'assignation sur l'étape 3 ni sur les jalons** : `etapeSeGereParAssignation` et
+`FILTRE_ETAPES_PAR_ASSIGNATION` (`src/lib/roles.ts`) limitent la page Assignations, le refus serveur
+d'`AssignationService.assign` et le compteur « étapes sans référent » aux badges des niveaux 1 et 2.
+
+### Écarts restants avec le livret
+
+- **Badge et étoile.** Le livret remet le badge Leader / Formateur **au début** d'une réalisation,
+  puis une **étoile** et le 3ᵉ passant vert à la validation. L'app n'affiche l'écusson qu'une fois
+  l'étape validée et ne connaît pas l'étoile.
+- **Accord préalable pour E4** (« à valider avec la commission si possible en amont ») : sans
+  objet tant que le profil Expert n'est pas intégré.
+- **Règle du Formateur** (ne former que dans ses spécialités) : règle de conduite, non vérifiable.
+
 ## Note de migration
 
 `20260909150000_jalon_servir` insère l'étape jalon `3 Servir`. Comme pour les profils, la ligne est
@@ -166,3 +204,8 @@ MODIFY` de l'ENUM) puis appliquée avec `migrate deploy`.
 descriptions d'étape 2 existantes finissent toutes par « … ». Au passage, cela corrige une
 incohérence : `admin.actions.ts` validait déjà `description` jusqu'à 2000 caractères, donc une
 description longue saisie depuis l'admin échouait à l'écriture.
+
+`20260928160000_etape3_evaluation_commission` ajoute `DOSSIER_A_VALIDER` à `TypeNotification`,
+supprime les assignations existantes sur les jalons et l'étape 3, et renvoie en évaluation les
+compétences d'étape 3 déjà `AUTO_VALIDEE` (statut `SOUMISE`, avec le texte du chef en premier
+message du fil) pour qu'elles passent par la commission comme les autres.

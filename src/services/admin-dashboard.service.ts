@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { NIVEAU_ETAPE_3, ROLES_ADMIN } from "@/lib/roles";
+import { FILTRE_ETAPES_PAR_ASSIGNATION, ROLES_ADMIN } from "@/lib/roles";
 
 export type AdminDashboardStats = {
   chefs: number;
@@ -27,11 +27,11 @@ export class AdminDashboardService {
       prisma.user.count({ where: { role: "CHEF" } }),
       prisma.user.count({ where: { role: "REFERENT" } }),
       prisma.user.count({ where: { role: { in: ROLES_ADMIN } } }),
-      prisma.etape.count(),
+      prisma.etape.count({ where: { type: "BADGE" } }),
       prisma.objectif.count(),
       prisma.formationCard.count(),
       prisma.etape.count({
-        where: { referents: { none: {} }, niveau: { lt: NIVEAU_ETAPE_3 } },
+        where: { referents: { none: {} }, ...FILTRE_ETAPES_PAR_ASSIGNATION },
       }),
       prisma.justification.count({ where: { statut: "SOUMISE" } }),
     ]);

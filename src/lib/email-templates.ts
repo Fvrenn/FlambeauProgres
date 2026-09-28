@@ -134,20 +134,40 @@ export function newRealisationEmail(opts: {
   etapeName: string;
   objectifCode: string;
   objectifDescription: string;
+  libelle: string;
   reviewUrl: string;
 }): EmailContent {
   return {
-    subject: `[${opts.objectifCode}] Nouvelle réalisation à valider`,
+    subject: `[${opts.objectifCode}] Nouvelle ${opts.libelle} à valider`,
     html: layout({
       iconGlyph: "→",
       iconTone: "gold",
-      heading: "Nouvelle réalisation à valider",
-      bodyHtml: `${escapeHtml(opts.chefName)} a soumis une nouvelle réalisation.`,
+      heading: `Nouvelle ${opts.libelle} à valider`,
+      bodyHtml: `${escapeHtml(opts.chefName)} a soumis une nouvelle ${escapeHtml(opts.libelle)}.`,
       extraHtml: contextCard(opts.etapeName, opts.objectifDescription),
       buttonUrl: opts.reviewUrl,
-      buttonLabel: "Voir la réalisation",
+      buttonLabel: `Voir la ${opts.libelle}`,
     }),
-    text: `${opts.chefName} a soumis une nouvelle réalisation pour l'étape « ${opts.etapeName} » (${opts.objectifDescription}).\n\nVoir la réalisation : ${opts.reviewUrl}`,
+    text: `${opts.chefName} a soumis une nouvelle ${opts.libelle} pour l'étape « ${opts.etapeName} » (${opts.objectifDescription}).\n\nVoir la ${opts.libelle} : ${opts.reviewUrl}`,
+  };
+}
+
+export function dossierAValiderEmail(opts: {
+  chefName: string;
+  etapeName: string;
+  revisionUrl: string;
+}): EmailContent {
+  return {
+    subject: `[${opts.etapeName}] Dossier prêt à valider`,
+    html: layout({
+      iconGlyph: "★",
+      iconTone: "gold",
+      heading: "Dossier prêt à valider",
+      bodyHtml: `La commission Formation a évalué toutes les compétences et réalisations de ${escapeHtml(opts.chefName)} pour l'étape « ${escapeHtml(opts.etapeName)} ».`,
+      buttonUrl: opts.revisionUrl,
+      buttonLabel: "Voir le dossier",
+    }),
+    text: `La commission Formation a évalué toutes les compétences et réalisations de ${opts.chefName} pour l'étape « ${opts.etapeName} ». Le dossier attend ta validation.\n\nVoir le dossier : ${opts.revisionUrl}`,
   };
 }
 
@@ -157,20 +177,23 @@ export function validationEmail(opts: {
   etapeName: string;
   objectifCode: string;
   objectifDescription: string;
+  libelle: string;
   viewUrl: string;
 }): EmailContent {
+  const titre = `${opts.libelle.charAt(0).toUpperCase()}${opts.libelle.slice(1)} validée`;
+
   return {
-    subject: `[${opts.objectifCode}] Réalisation validée`,
+    subject: `[${opts.objectifCode}] ${titre}`,
     html: layout({
       iconGlyph: "✓",
       iconTone: "success",
-      heading: "Réalisation validée !",
-      bodyHtml: `Bravo ${escapeHtml(opts.chefName)}, ton référent ${escapeHtml(opts.referentName)} vient de valider ta réalisation.`,
+      heading: `${titre} !`,
+      bodyHtml: `Bravo ${escapeHtml(opts.chefName)}, ${escapeHtml(opts.referentName)} vient de valider ta ${escapeHtml(opts.libelle)}.`,
       extraHtml: contextCard(opts.etapeName, opts.objectifDescription),
       buttonUrl: opts.viewUrl,
       buttonLabel: "Voir la conversation",
       footNote: `Continue comme ça, ${opts.chefName} !`,
     }),
-    text: `Bravo ${opts.chefName}, ton référent ${opts.referentName} vient de valider ta réalisation « ${opts.objectifDescription} » (étape ${opts.etapeName}).\n\nVoir : ${opts.viewUrl}`,
+    text: `Bravo ${opts.chefName}, ${opts.referentName} vient de valider ta ${opts.libelle} « ${opts.objectifDescription} » (étape ${opts.etapeName}).\n\nVoir : ${opts.viewUrl}`,
   };
 }

@@ -6,6 +6,8 @@ import {
   peutEvaluerEtape,
   peutValiderEtape,
   suitEtapeSansAssignation,
+  competenceSoumiseAEvaluation,
+  etapeSeGereParAssignation,
 } from "@/lib/roles";
 
 describe("estAdmin / estReferent", () => {
@@ -61,5 +63,24 @@ describe("suitEtapeSansAssignation", () => {
     expect(suitEtapeSansAssignation("COORDINATEUR_NATIONAL", 3)).toBe(true);
     expect(suitEtapeSansAssignation("COMMISSION_FORMATION", 2)).toBe(false);
     expect(suitEtapeSansAssignation("ADMIN", 3)).toBe(false);
+  });
+});
+
+describe("etapeSeGereParAssignation", () => {
+  it("ne concerne que les badges des niveaux 1 et 2", () => {
+    expect(etapeSeGereParAssignation({ type: "BADGE", niveau: 2 })).toBe(true);
+    expect(etapeSeGereParAssignation({ type: "BADGE", niveau: 3 })).toBe(false);
+  });
+
+  it("exclut les jalons, validés par la lecture du livret", () => {
+    expect(etapeSeGereParAssignation({ type: "JALON", niveau: 0 })).toBe(false);
+    expect(etapeSeGereParAssignation({ type: "JALON", niveau: 3 })).toBe(false);
+  });
+});
+
+describe("competenceSoumiseAEvaluation", () => {
+  it("fait évaluer les compétences de l'étape 3 par la commission", () => {
+    expect(competenceSoumiseAEvaluation(3)).toBe(true);
+    expect(competenceSoumiseAEvaluation(2)).toBe(false);
   });
 });

@@ -14,6 +14,8 @@ import {
   messageRefusEvaluation,
   peutEvaluerEtape,
 } from "@/lib/roles";
+import { LIBELLE_TYPE_OBJECTIF } from "@/lib/justification";
+import { EtapeService } from "@/services/etape.service";
 import { NotificationService } from "@/services/notification.service";
 import { EmailService } from "@/services/email.service";
 import { chefThreadUrl, referentThreadUrl } from "@/lib/links";
@@ -93,7 +95,7 @@ export class DiscussionService {
       where: { id: justificationId },
       include: {
         chef: { select: { id: true, name: true } },
-        objectif: { select: { code: true, description: true } },
+        objectif: { select: { code: true, description: true, type: true } },
         messages: {
           include: { auteur: true, fichier: true },
           orderBy: { createdAt: "asc" },
@@ -153,7 +155,7 @@ export class DiscussionService {
     const justification = await prisma.justification.findUnique({
       where: { id: justificationId },
       include: {
-        objectif: { select: { code: true, description: true } },
+        objectif: { select: { code: true, description: true, type: true } },
         etape: { select: { name: true, niveau: true } },
         chef: { select: { name: true, email: true } },
       },
@@ -166,11 +168,21 @@ export class DiscussionService {
     if (["VALIDEE", "AUTO_VALIDEE"].includes(justification.statut)) {
       return {
         success: false,
-        error: "Cette réalisation est validée, le fil est clôturé",
+        error: `Cette ${LIBELLE_TYPE_OBJECTIF[justification.objectif.type]} est validée, le fil est clôturé`,
       };
     }
 
     const fromChef = justification.chefId === viewerId;
+
+    if (
+      !fromChef &&
+      !(await estEvaluateur(viewerId, viewerRole, justification))
+    ) {
+      return {
+        success: false,
+        error: messageRefusEvaluation(justification.etape.niveau),
+      };
+    }
 
     const message = await prisma.$transaction(async (tx) => {
       const created = await this.addMessage(tx, {
@@ -211,7 +223,7 @@ export class DiscussionService {
     const justification = await prisma.justification.findUnique({
       where: { id: justificationId },
       include: {
-        objectif: { select: { code: true, description: true } },
+        objectif: { select: { code: true, description: true, type: true } },
         etape: { select: { name: true, niveau: true } },
         chef: { select: { name: true, email: true } },
       },
@@ -221,32 +233,32 @@ export class DiscussionService {
       return { success: false, error: "Justification introuvable" };
     }
 
-    const assignation = await prisma.etapeReferent.findFirst({
-      where: { referentId, etapeId: justification.etapeId },
-    });
-
-    if (
-      !peutEvaluerEtape(
-        referentRole,
-        justification.etape.niveau,
-        Boolean(assignation),
-      )
-    ) {
+    if (!(await estEvaluateur(referentId, referentRole, justification))) {
       return {
         success: false,
         error: messageRefusEvaluation(justification.etape.niveau),
       };
     }
 
+    if (justification.chefId === referentId) {
+      return {
+        success: false,
+        error: "Vous ne pouvez pas valider votre propre travail",
+      };
+    }
+
+    const libelle = LIBELLE_TYPE_OBJECTIF[justification.objectif.type];
+    const titre = `${libelle.charAt(0).toUpperCase()}${libelle.slice(1)} validée`;
+
     if (justification.statut === "VALIDEE") {
-      return { success: false, error: "Cette réalisation est déjà validée" };
+      return { success: false, error: `Cette ${libelle} est déjà validée` };
     }
 
     const message = await prisma.$transaction(async (tx) => {
       const created = await this.addMessage(tx, {
         justificationId,
         auteurId: referentId,
-        contenu: "✓ Réalisation validée",
+        contenu: `✓ ${titre}`,
         type: "SYSTEM",
       });
 
@@ -270,8 +282,8 @@ export class DiscussionService {
       destinataireId: justification.chefId,
       justificationId,
       type: "JUSTIFICATION_VALIDEE",
-      titre: "Réalisation validée !",
-      message: `Votre réalisation "${justification.objectif.code}" a été validée par ${evaluateur}.`,
+      titre: `${titre} !`,
+      message: `Votre ${libelle} "${justification.objectif.code}" a été validée par ${evaluateur}.`,
     });
 
     await EmailService.sendValidation({
@@ -281,9 +293,24 @@ export class DiscussionService {
       etapeName: justification.etape.name,
       objectifCode: justification.objectif.code,
       objectifDescription: justification.objectif.description,
+      libelle,
       viewUrl: chefThreadUrl(justificationId),
       justificationId,
     });
+
+    if (
+      estNiveauEtape3(justification.etape.niveau) &&
+      (await EtapeService.estDossierComplet(
+        justification.chefId,
+        justification.etapeId,
+      ))
+    ) {
+      await NotificationService.notifierDossierAValider({
+        chefId: justification.chefId,
+        chefName: justification.chef.name,
+        etape: { id: justification.etapeId, name: justification.etape.name },
+      });
+    }
 
     return { success: true, data: message };
   }
@@ -353,4 +380,20 @@ export class DiscussionService {
       justificationId: justification.id,
     });
   }
+}
+
+async function estEvaluateur(
+  userId: string,
+  role: UserRole | undefined,
+  justification: { etapeId: string; etape: { niveau: number } },
+): Promise<boolean> {
+  const assignation = await prisma.etapeReferent.findFirst({
+    where: { referentId: userId, etapeId: justification.etapeId },
+  });
+
+  return peutEvaluerEtape(
+    role,
+    justification.etape.niveau,
+    Boolean(assignation),
+  );
 }

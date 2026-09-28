@@ -1,9 +1,10 @@
-import { type TypeNotification } from "@prisma/client";
+import { type Objectif, type TypeNotification } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
 import { estNiveauEtape3 } from "@/lib/roles";
 import { EmailService } from "@/services/email.service";
-import { referentThreadUrl } from "@/lib/links";
+import { referentRevisionUrl, referentThreadUrl } from "@/lib/links";
+import { LIBELLE_TYPE_OBJECTIF } from "@/lib/justification";
 
 export type DestinataireEtape = {
   id: string;
@@ -113,13 +114,15 @@ export class NotificationService {
     return { etape, evaluateurs };
   }
 
-  static async notifyReferentsOfNewJustification(
-    etapeId: string,
-    justificationId: string,
-    chefName: string,
-    objectifCode: string,
-    objectifDescription: string,
-  ) {
+  static async notifyReferentsOfNewJustification(input: {
+    etapeId: string;
+    justificationId: string;
+    chefName: string;
+    objectif: Pick<Objectif, "code" | "description" | "type">;
+  }) {
+    const { etapeId, justificationId, chefName, objectif } = input;
+    const libelle = LIBELLE_TYPE_OBJECTIF[objectif.type];
+
     try {
       const { etape, evaluateurs } = await this.getEvaluateursEtape(etapeId);
 
@@ -133,8 +136,8 @@ export class NotificationService {
         destinataireId: evaluateur.id,
         justificationId,
         type: "NOUVELLE_JUSTIFICATION" as const,
-        titre: "Nouvelle réalisation à valider",
-        message: `${chefName} a soumis une nouvelle réalisation pour l'étape "${etape.name}".`,
+        titre: `Nouvelle ${libelle} à valider`,
+        message: `${chefName} a soumis une nouvelle ${libelle} pour l'étape "${etape.name}".`,
         lue: false,
       }));
 
@@ -146,8 +149,9 @@ export class NotificationService {
             to: evaluateur.email,
             chefName,
             etapeName: etape.name,
-            objectifCode,
-            objectifDescription,
+            objectifCode: objectif.code,
+            objectifDescription: objectif.description,
+            libelle,
             reviewUrl: referentThreadUrl(etapeId, justificationId),
             justificationId,
           }),
@@ -155,6 +159,53 @@ export class NotificationService {
       );
     } catch (error) {
       console.error("Erreur lors de la création des notifications:", error);
+    }
+  }
+
+  static async notifierDossierAValider(input: {
+    chefId: string;
+    chefName: string;
+    etape: { id: string; name: string };
+  }) {
+    const { chefId, chefName, etape } = input;
+
+    try {
+      const coordinateurs = await prisma.user.findMany({
+        where: { role: "COORDINATEUR_NATIONAL" },
+        select: { id: true, email: true },
+      });
+
+      if (coordinateurs.length === 0) {
+        console.warn("Aucun Coordinateur National pour valider le dossier");
+
+        return;
+      }
+
+      await prisma.notification.createMany({
+        data: coordinateurs.map((coordinateur) => ({
+          destinataireId: coordinateur.id,
+          type: "DOSSIER_A_VALIDER" as const,
+          titre: "Dossier prêt à valider",
+          message: `La commission Formation a évalué tout le dossier de ${chefName} pour l'étape "${etape.name}".`,
+          lue: false,
+        })),
+      });
+
+      await Promise.all(
+        coordinateurs.map((coordinateur) =>
+          EmailService.sendDossierAValider({
+            to: coordinateur.email,
+            chefName,
+            etapeName: etape.name,
+            revisionUrl: referentRevisionUrl(chefId, etape.id),
+          }),
+        ),
+      );
+    } catch (error) {
+      console.error(
+        "Erreur lors de la notification du Coordinateur National:",
+        error,
+      );
     }
   }
 }

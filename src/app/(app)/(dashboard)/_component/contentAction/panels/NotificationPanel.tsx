@@ -44,6 +44,10 @@ const NOTIFICATION_CONFIG: Record<
     icon: "solar:chat-round-dots-linear",
     iconWrapperClassName: "bg-nav-active/10 text-nav-active",
   },
+  DOSSIER_A_VALIDER: {
+    icon: "solar:star-linear",
+    iconWrapperClassName: "bg-warning/10 text-warning",
+  },
   JUSTIFICATION_URGENTE: {
     icon: "solar:danger-circle-linear",
     iconWrapperClassName: "bg-danger/10 text-danger",

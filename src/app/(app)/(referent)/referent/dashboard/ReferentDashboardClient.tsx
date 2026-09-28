@@ -3,7 +3,7 @@
 import type { UserResume } from "@/types";
 
 import React, { useEffect, useRef, useState } from "react";
-import { type Justification } from "@prisma/client";
+import { type Justification, type TypeObjectif } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { cn } from "@heroui/react";
 
@@ -68,6 +68,7 @@ type ObjectifInfo = {
   id: string;
   code: string;
   description: string;
+  type: TypeObjectif;
 };
 
 type JustificationAValider = Justification & {

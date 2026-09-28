@@ -1,7 +1,13 @@
 import type { ServiceResult } from "@/types";
 import type { OrigineValidation, TypeEtape, UserRole } from "@prisma/client";
 
-import { STATUTS_VALIDES } from "@/lib/justification";
+import {
+  chefsAyantToutValide,
+  compterParType,
+  filtreJustificationsValidantes,
+  MESSAGE_DOSSIER_INCOMPLET,
+  STATUTS_VALIDES,
+} from "@/lib/justification";
 import {
   auMoinsUneSpecialiteValidee,
   construireContexteParcours,
@@ -167,6 +173,17 @@ export class EtapeService {
       return { success: false, error: messageRefusValidation(etape.niveau) };
     }
 
+    if (referentId === chefId) {
+      return {
+        success: false,
+        error: "Vous ne pouvez pas valider votre propre étape",
+      };
+    }
+
+    if (!(await this.estDossierComplet(chefId, etapeId))) {
+      return { success: false, error: MESSAGE_DOSSIER_INCOMPLET };
+    }
+
     await prisma.chefEtapeStatut.upsert({
       where: {
         chefId_etapeId: {
@@ -202,6 +219,44 @@ export class EtapeService {
     });
 
     return { success: true };
+  }
+
+  static async estDossierComplet(
+    chefId: string,
+    etapeId: string,
+  ): Promise<boolean> {
+    const etape = await prisma.etape.findUnique({
+      where: { id: etapeId },
+      select: { niveau: true },
+    });
+
+    if (!etape) {
+      return false;
+    }
+
+    const [totaux, validations] = await Promise.all([
+      prisma.objectif.groupBy({
+        by: ["type"],
+        where: { etapeId },
+        _count: { id: true },
+      }),
+      prisma.justification.findMany({
+        where: {
+          chefId,
+          etapeId,
+          ...filtreJustificationsValidantes(etape.niveau),
+        },
+        select: { chefId: true, objectif: { select: { type: true } } },
+      }),
+    ]);
+
+    return chefsAyantToutValide(
+      validations.map(({ objectif }) => ({ chefId, type: objectif.type })),
+      {
+        competences: compterParType(totaux, "COMPETENCE"),
+        realisations: compterParType(totaux, "REALISATION"),
+      },
+    ).includes(chefId);
   }
 
   static async autoValiderJalon(

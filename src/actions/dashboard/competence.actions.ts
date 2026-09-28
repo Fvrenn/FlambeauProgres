@@ -26,11 +26,12 @@ export async function submitCompetence(objectifId: string, contenu: string) {
       return { success: false, error: "Données invalides" };
     }
 
-    const result = await JustificationService.submitCompetence(
-      user.id,
-      parsed.data.objectifId,
-      parsed.data.contenu,
-    );
+    const result = await JustificationService.submitCompetence({
+      chefId: user.id,
+      chefName: user.name,
+      objectifId: parsed.data.objectifId,
+      contenu: parsed.data.contenu,
+    });
 
     if (!result.success) {
       return result;

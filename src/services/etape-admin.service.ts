@@ -13,6 +13,7 @@ export type EtapeInfoInput = {
 export class EtapeAdminService {
   static async list() {
     return prisma.etape.findMany({
+      where: { type: "BADGE" },
       include: { _count: { select: { objectifs: true } } },
       orderBy: { ordre: "asc" },
     });

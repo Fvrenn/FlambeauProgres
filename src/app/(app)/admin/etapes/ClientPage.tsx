@@ -3,7 +3,8 @@
 import type { AdminEtapeListItem } from "@/types";
 
 import React from "react";
-import { Image, Button as HeroButton, Tooltip } from "@heroui/react";
+import Image from "next/image";
+import { Button as HeroButton, Tooltip } from "@heroui/react";
 import Link from "next/link";
 
 import EtapeModal from "./_components/EtapeModal";
@@ -47,6 +48,7 @@ export default function EtapesClientPage({ etapes }: EtapesClientPageProps) {
               {etape.image_src ? (
                 <Image
                   alt={etape.name}
+                  className="object-contain"
                   height={48}
                   src={etape.image_src}
                   width={48}
@@ -142,17 +144,17 @@ export default function EtapesClientPage({ etapes }: EtapesClientPageProps) {
           >
             <CardBody className="flex-row gap-4 items-start">
               <div className="flex-none">
-                <div className="w-12 h-12 rounded-lg bg-dashboard-card flex items-center justify-center overflow-hidden">
+                <div className="w-12 h-12 flex items-center justify-center">
                   {etape.image_src ? (
                     <Image
                       alt={etape.name}
-                      className="object-cover"
+                      className="object-contain"
                       height={48}
                       src={etape.image_src}
                       width={48}
                     />
                   ) : (
-                    <span className="text-lg font-bold text-default-400">
+                    <span className="flex h-full w-full items-center justify-center rounded-lg bg-dashboard-card text-lg font-bold text-default-400">
                       {etape.number}
                     </span>
                   )}

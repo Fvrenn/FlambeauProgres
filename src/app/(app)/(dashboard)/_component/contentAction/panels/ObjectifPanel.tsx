@@ -86,7 +86,7 @@ export default function ObjectifPanel({
           {selectedEtape.image_src && (
             <Image
               alt={`Badge ${selectedEtape.name}`}
-              className="shrink-0"
+              className="shrink-0 object-contain"
               height={24}
               src={selectedEtape.image_src}
               width={24}
@@ -138,6 +138,7 @@ export default function ObjectifPanel({
 
       <ObjectifModal
         isOpen={isOpen}
+        niveauEtape={selectedEtape.niveau}
         objectif={selectedObjectif}
         viewer={viewer}
         onOpenChange={onOpenChange}

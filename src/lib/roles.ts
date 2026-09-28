@@ -75,9 +75,25 @@ export function peutValiderEtape(
   return estReferent(role) && estAssigne;
 }
 
+export const FILTRE_ETAPES_PAR_ASSIGNATION = {
+  type: "BADGE",
+  niveau: { lt: NIVEAU_ETAPE_3 },
+} as const;
+
+export function etapeSeGereParAssignation(etape: {
+  type: string;
+  niveau: number;
+}): boolean {
+  return etape.type === "BADGE" && !estNiveauEtape3(etape.niveau);
+}
+
+export function competenceSoumiseAEvaluation(niveau: number): boolean {
+  return estNiveauEtape3(niveau);
+}
+
 export function messageRefusEvaluation(niveau: number): string {
   return estNiveauEtape3(niveau)
-    ? "Seule la commission Formation évalue les réalisations de l'étape 3"
+    ? "Seule la commission Formation évalue les compétences et réalisations de l'étape 3"
     : "Vous n'êtes pas référent de cette étape";
 }
 
