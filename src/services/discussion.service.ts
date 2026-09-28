@@ -1,3 +1,5 @@
+import type { ServiceResult } from "@/types";
+
 import {
   Prisma,
   type MessageType,
@@ -15,10 +17,6 @@ import {
 import { NotificationService } from "@/services/notification.service";
 import { EmailService } from "@/services/email.service";
 import { chefThreadUrl, referentThreadUrl } from "@/lib/links";
-
-export type ServiceResult<T> =
-  | { success: true; data: T }
-  | { success: false; error: string };
 
 export type FichierData = {
   nomOriginal: string;

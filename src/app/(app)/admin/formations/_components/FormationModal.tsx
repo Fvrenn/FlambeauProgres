@@ -8,7 +8,10 @@ import { z } from "zod";
 import { useRouter } from "next/navigation";
 import { type FormationCard } from "@prisma/client";
 
-import { createFormation, updateFormation } from "../../_actions/admin.actions";
+import {
+  createFormation,
+  updateFormation,
+} from "../../_actions/formation.actions";
 
 import { FormModal } from "@/components/admin/FormModal";
 import { Input } from "@/components/ui";

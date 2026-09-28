@@ -1,5 +1,3 @@
-import { readFile } from "fs/promises";
-
 import { prisma } from "@/lib/prisma";
 import { REGLES_ICONE_ETAPE } from "@/lib/fichiers";
 import { StorageService } from "@/services/storage.service";
@@ -35,9 +33,7 @@ export class EtapeIconeService {
     }
 
     try {
-      return await readFile(
-        StorageService.resolvePath(`${DOSSIER_ICONES}/${nomFichier}`),
-      );
+      return await StorageService.read(`${DOSSIER_ICONES}/${nomFichier}`);
     } catch {
       return null;
     }

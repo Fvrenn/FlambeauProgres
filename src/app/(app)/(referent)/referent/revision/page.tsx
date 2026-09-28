@@ -4,12 +4,8 @@ import { redirect } from "next/navigation";
 import RevisionClient from "./RevisionClient";
 
 import { exigerRole, suitEtape } from "@/lib/auth-guards";
-import { prisma } from "@/lib/prisma";
-import {
-  messageRefusValidation,
-  peutValiderEtape,
-  ROLES_REFERENT,
-} from "@/lib/roles";
+import { messageRefusValidation, ROLES_REFERENT } from "@/lib/roles";
+import { ReferentService } from "@/services/referent.service";
 
 type RevisionPageProps = {
   searchParams: Promise<{
@@ -33,42 +29,13 @@ export default async function RevisionPage({
     redirect("/referent/dashboard");
   }
 
-  const [chef, etape, justifications] = await Promise.all([
-    prisma.user.findUnique({ where: { id: chefId } }),
-    prisma.etape.findUnique({ where: { id: etapeId } }),
-    prisma.justification.findMany({
-      where: {
-        chefId,
-        etapeId,
-        objectif: {
-          type: "COMPETENCE",
-        },
-        statut: "AUTO_VALIDEE",
-      },
-      include: {
-        objectif: true,
-      },
-      orderBy: {
-        objectif: {
-          code: "asc",
-        },
-      },
-    }),
-  ]);
+  const revision = await ReferentService.getRevision(chefId, etapeId, user);
 
-  if (!chef || !etape) {
+  if (!revision) {
     redirect("/referent/dashboard");
   }
 
-  const assignation = await prisma.etapeReferent.findFirst({
-    where: { referentId: user.id, etapeId },
-  });
-
-  const peutValider = peutValiderEtape(
-    user.role,
-    etape.niveau,
-    Boolean(assignation),
-  );
+  const { chef, etape, justifications, peutValider } = revision;
 
   return (
     <RevisionClient

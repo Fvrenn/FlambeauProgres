@@ -1,3 +1,4 @@
+import type { ServiceResult } from "@/types";
 import type { OrigineValidation, TypeEtape, UserRole } from "@prisma/client";
 
 import { STATUTS_VALIDES } from "@/lib/justification";
@@ -16,12 +17,6 @@ import {
   peutValiderEtape,
 } from "@/lib/roles";
 import { NotificationService } from "@/services/notification.service";
-
-export type ServiceResult<T = void> = {
-  success: boolean;
-  data?: T;
-  error?: string;
-};
 
 export type EtapeProgressForChef = {
   id: string;

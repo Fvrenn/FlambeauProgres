@@ -1,10 +1,11 @@
+import type { UserResume } from "@/types";
+
 import React from "react";
-import { User } from "@prisma/client";
 
 import ChefsAReviserList from "@/components/application/referent/ChefsAReviserList";
 
 interface RevisionPanelProps {
-  chefs: User[];
+  chefs: UserResume[];
 }
 
 export default function RevisionPanel({ chefs }: RevisionPanelProps) {

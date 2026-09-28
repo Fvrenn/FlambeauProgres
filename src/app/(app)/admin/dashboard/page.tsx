@@ -4,8 +4,8 @@ import { cn } from "@heroui/react";
 
 import { exigerRole } from "@/lib/auth-guards";
 import { Icon } from "@/lib/icons";
-import { prisma } from "@/lib/prisma";
-import { NIVEAU_ETAPE_3, ROLES_ADMIN, roleColorMap } from "@/lib/roles";
+import { AdminDashboardService } from "@/services/admin-dashboard.service";
+import { ROLES_ADMIN, roleColorMap } from "@/lib/roles";
 import { Badge, Card, CardBody } from "@/components/ui";
 
 const quickLinks = [
@@ -77,29 +77,9 @@ function StatCard({
 export default async function AdminDashboardPage() {
   await exigerRole(...ROLES_ADMIN);
 
-  const [
-    chefCount,
-    referentCount,
-    adminCount,
-    etapesCount,
-    objectifsCount,
-    formationsCount,
-    etapesSansReferent,
-    justificationsEnAttente,
-  ] = await Promise.all([
-    prisma.user.count({ where: { role: "CHEF" } }),
-    prisma.user.count({ where: { role: "REFERENT" } }),
-    prisma.user.count({ where: { role: { in: ROLES_ADMIN } } }),
-    prisma.etape.count(),
-    prisma.objectif.count(),
-    prisma.formationCard.count(),
-    prisma.etape.count({
-      where: { referents: { none: {} }, niveau: { lt: NIVEAU_ETAPE_3 } },
-    }),
-    prisma.justification.count({ where: { statut: "SOUMISE" } }),
-  ]);
+  const stats = await AdminDashboardService.getStats();
 
-  const totalUsers = chefCount + referentCount + adminCount;
+  const totalUsers = stats.chefs + stats.referents + stats.admins;
 
   return (
     <div className="flex flex-col gap-6">
@@ -126,40 +106,44 @@ export default async function AdminDashboardPage() {
             </div>
             <div className="flex flex-wrap gap-1.5">
               <Badge color={roleColorMap.CHEF} size="sm">
-                {chefCount} Chefs
+                {stats.chefs} Chefs
               </Badge>
               <Badge color={roleColorMap.REFERENT} size="sm">
-                {referentCount} Référents
+                {stats.referents} Référents
               </Badge>
               <Badge color={roleColorMap.ADMIN} size="sm">
-                {adminCount} Admins
+                {stats.admins} Admins
               </Badge>
             </div>
           </CardBody>
         </Card>
 
-        <StatCard icon="solar:flag-linear" label="Étapes" value={etapesCount} />
+        <StatCard
+          icon="solar:flag-linear"
+          label="Étapes"
+          value={stats.etapes}
+        />
         <StatCard
           icon="solar:target-linear"
           label="Objectifs"
-          value={objectifsCount}
+          value={stats.objectifs}
         />
         <StatCard
           icon="solar:book-bookmark-linear"
           label="Formations"
-          value={formationsCount}
+          value={stats.formations}
         />
         <StatCard
           icon="solar:user-cross-rounded-linear"
           label="Étapes sans référent"
-          tone={etapesSansReferent > 0 ? "warning" : "success"}
-          value={etapesSansReferent}
+          tone={stats.etapesSansReferent > 0 ? "warning" : "success"}
+          value={stats.etapesSansReferent}
         />
         <StatCard
           icon="solar:clock-circle-linear"
           label="Justifications en attente"
-          tone={justificationsEnAttente > 0 ? "warning" : "success"}
-          value={justificationsEnAttente}
+          tone={stats.justificationsEnAttente > 0 ? "warning" : "success"}
+          value={stats.justificationsEnAttente}
         />
       </div>
 

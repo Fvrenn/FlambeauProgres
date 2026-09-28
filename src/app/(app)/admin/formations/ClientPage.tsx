@@ -6,7 +6,7 @@ import React from "react";
 import { Image } from "@heroui/react";
 import { useRouter } from "next/navigation";
 
-import { deleteFormation } from "../_actions/admin.actions";
+import { deleteFormation } from "../_actions/formation.actions";
 
 import FormationModal from "./_components/FormationModal";
 

@@ -4,21 +4,12 @@ import EtapesClientPage from "./ClientPage";
 
 import { exigerRole } from "@/lib/auth-guards";
 import { ROLES_ADMIN } from "@/lib/roles";
-import { prisma } from "@/lib/prisma";
+import { EtapeAdminService } from "@/services/etape-admin.service";
 
 export default async function AdminEtapesPage() {
   await exigerRole(...ROLES_ADMIN);
 
-  const etapes = await prisma.etape.findMany({
-    include: {
-      _count: {
-        select: { objectifs: true },
-      },
-    },
-    orderBy: {
-      ordre: "asc",
-    },
-  });
+  const etapes = await EtapeAdminService.list();
 
   return <EtapesClientPage etapes={etapes} />;
 }

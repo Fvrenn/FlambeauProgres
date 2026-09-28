@@ -1,7 +1,9 @@
 "use client";
 
+import type { UserResume } from "@/types";
+
 import React, { useEffect, useRef, useState } from "react";
-import { type User, type Justification } from "@prisma/client";
+import { type Justification } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { cn } from "@heroui/react";
 
@@ -82,7 +84,7 @@ type JustificationEnDiscussion = Justification & {
 interface ReferentDashboardClientV2Props {
   justificationsAValider: JustificationAValider[];
   justificationsEnDiscussion: JustificationEnDiscussion[];
-  chefsAReviser: User[];
+  chefsAReviser: UserResume[];
   targetJustificationId?: string;
   viewer: DiscussionViewer;
   peutEvaluer: boolean;

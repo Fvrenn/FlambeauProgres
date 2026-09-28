@@ -1,5 +1,5 @@
 import path from "path";
-import { writeFile, mkdir, unlink } from "fs/promises";
+import { writeFile, mkdir, readFile, unlink } from "fs/promises";
 import { mkdirSync } from "fs";
 
 import { type ReglesFichier, validerFichier } from "@/lib/fichiers";
@@ -66,6 +66,10 @@ export class StorageService {
       storedPath: `${safeFolder}/${fileName}`,
       fileName,
     };
+  }
+
+  static async read(storedPath: string): Promise<Buffer> {
+    return readFile(this.resolvePath(storedPath));
   }
 
   static async deleteFile(storedPath: string): Promise<void> {

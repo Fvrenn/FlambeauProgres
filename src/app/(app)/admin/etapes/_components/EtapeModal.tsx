@@ -20,7 +20,7 @@ import { z } from "zod";
 import { useRouter } from "next/navigation";
 import { TypeObjectif } from "@prisma/client";
 
-import { createEtape, updateEtape } from "../../_actions/admin.actions";
+import { createEtape, updateEtape } from "../../_actions/etape.actions";
 
 import { Icon } from "@/lib/icons";
 import { FormModal } from "@/components/admin/FormModal";

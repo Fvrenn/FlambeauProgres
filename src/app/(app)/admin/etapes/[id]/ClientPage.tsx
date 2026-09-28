@@ -8,7 +8,8 @@ import { Chip, Tooltip, Breadcrumbs, BreadcrumbItem } from "@heroui/react";
 import { useRouter } from "next/navigation";
 
 import ObjectifModal from "../_components/ObjectifModal";
-import { updateEtapeBadge, deleteObjectif } from "../../_actions/admin.actions";
+import { updateEtapeBadge } from "../../_actions/etape.actions";
+import { deleteObjectif } from "../../_actions/objectif.actions";
 
 import { Icon } from "@/lib/icons";
 import AdminDataTable, { Column } from "@/components/admin/AdminDataTable";

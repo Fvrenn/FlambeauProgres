@@ -12,7 +12,7 @@ vi.mock("@/services/storage.service", () => ({
   StorageService: {
     uploadFile: vi.fn(),
     deleteFile: vi.fn(),
-    resolvePath: vi.fn(),
+    read: vi.fn(),
   },
 }));
 
@@ -76,6 +76,6 @@ describe("EtapeIconeService.replace", () => {
 describe("EtapeIconeService.read", () => {
   it("refuse un nom de fichier qui sort du dossier des icônes", async () => {
     expect(await EtapeIconeService.read("..%2F.env")).toBeNull();
-    expect(storage.resolvePath).not.toHaveBeenCalled();
+    expect(storage.read).not.toHaveBeenCalled();
   });
 });

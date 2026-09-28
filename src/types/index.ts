@@ -1,4 +1,5 @@
 import type { WpProfile } from "@/lib/wordpress-profile";
+import type { USER_RESUME_SELECT } from "@/services/user.service";
 
 import { Prisma, UserRole } from "@prisma/client";
 
@@ -20,6 +21,16 @@ export type AdminEtapeWithObjectifs = Prisma.EtapeGetPayload<{
   include: { objectifs: true };
 }>;
 
-export type AdminEtapeWithReferents = Prisma.EtapeGetPayload<{
-  include: { referents: { include: { referent: true } } };
+export type UserResume = Prisma.UserGetPayload<{
+  select: typeof USER_RESUME_SELECT;
 }>;
+
+export type AdminEtapeWithReferents = Prisma.EtapeGetPayload<{
+  include: {
+    referents: { include: { referent: { select: typeof USER_RESUME_SELECT } } };
+  };
+}>;
+
+export type ServiceResult<T = void> =
+  | ([T] extends [void] ? { success: true } : { success: true; data: T })
+  | { success: false; error: string };

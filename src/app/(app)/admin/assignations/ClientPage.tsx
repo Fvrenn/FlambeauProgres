@@ -1,7 +1,6 @@
 "use client";
 
-import type { User } from "@prisma/client";
-import type { AdminEtapeWithReferents } from "@/types";
+import type { AdminEtapeWithReferents, UserResume } from "@/types";
 
 import React from "react";
 import { Image } from "@heroui/react";
@@ -12,7 +11,7 @@ import { Avatar } from "@/components/ui";
 
 type AssignationsClientPageProps = {
   etapes: AdminEtapeWithReferents[];
-  allReferents: User[];
+  allReferents: UserResume[];
 };
 
 export default function AssignationsClientPage({

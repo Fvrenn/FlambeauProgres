@@ -8,7 +8,10 @@ import { z } from "zod";
 import { useRouter } from "next/navigation";
 import { TypeObjectif, type Objectif } from "@prisma/client";
 
-import { createObjectif, updateObjectif } from "../../_actions/admin.actions";
+import {
+  createObjectif,
+  updateObjectif,
+} from "../../_actions/objectif.actions";
 
 import { FormModal } from "@/components/admin/FormModal";
 import { Input } from "@/components/ui";

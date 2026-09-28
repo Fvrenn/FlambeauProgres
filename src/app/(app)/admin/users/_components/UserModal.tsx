@@ -1,14 +1,16 @@
 "use client";
 
+import type { UserResume } from "@/types";
+
 import React from "react";
 import { Select, SelectItem } from "@heroui/react";
-import { UserRole, type User } from "@prisma/client";
+import { UserRole } from "@prisma/client";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
 
-import { updateUserRole } from "../../_actions/admin.actions";
+import { updateUserRole } from "../../_actions/user.actions";
 
 import { FormModal } from "@/components/admin/FormModal";
 import { roleLabelMap } from "@/lib/roles";
@@ -23,7 +25,7 @@ type UserFormData = z.infer<typeof userSchema>;
 type UserModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  user: User;
+  user: UserResume;
 };
 
 export default function UserModal({ isOpen, onClose, user }: UserModalProps) {

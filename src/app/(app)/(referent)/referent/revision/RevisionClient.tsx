@@ -1,6 +1,7 @@
 "use client";
 
-import type { User, Etape, Justification, Objectif } from "@prisma/client";
+import type { Etape, Justification, Objectif } from "@prisma/client";
+import type { UserResume } from "@/types";
 
 import React from "react";
 import { Divider, Button, Chip } from "@heroui/react";
@@ -15,7 +16,7 @@ type JustificationAvecObjectif = Justification & {
 };
 
 type RevisionClientProps = {
-  chef: User;
+  chef: UserResume;
   etape: Etape;
   justifications: JustificationAvecObjectif[];
   peutValider: boolean;

@@ -1,7 +1,6 @@
 "use client";
 
-import type { User } from "@prisma/client";
-import type { AdminEtapeWithReferents } from "@/types";
+import type { AdminEtapeWithReferents, UserResume } from "@/types";
 
 import React from "react";
 import {
@@ -19,7 +18,7 @@ import { useRouter } from "next/navigation";
 import {
   assignReferentToEtape,
   removeReferentFromEtape,
-} from "../../_actions/admin.actions";
+} from "../../_actions/assignation.actions";
 
 import { clickable } from "@/lib/a11y";
 import { Button } from "@/components/ui";
@@ -28,7 +27,7 @@ type AssignationModalProps = {
   isOpen: boolean;
   onClose: () => void;
   etape: AdminEtapeWithReferents;
-  allReferents: User[];
+  allReferents: UserResume[];
 };
 
 export default function AssignationModal({

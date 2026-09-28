@@ -1,10 +1,8 @@
-import { readFile } from "fs/promises";
-
 import { NextRequest, NextResponse } from "next/server";
 
-import { prisma } from "@/lib/prisma";
 import { getUser } from "@/lib/auth-server";
 import { canAccessJustification } from "@/lib/auth-guards";
+import { FichierService } from "@/services/fichier.service";
 import { StorageService } from "@/services/storage.service";
 
 export const runtime = "nodejs";
@@ -21,15 +19,7 @@ export async function GET(
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
 
-    const fichier = await prisma.fichier.findUnique({
-      where: { id },
-      select: {
-        justificationId: true,
-        cheminFichier: true,
-        mimeType: true,
-        nomOriginal: true,
-      },
-    });
+    const fichier = await FichierService.getById(id);
 
     if (!fichier) {
       return NextResponse.json(
@@ -52,7 +42,7 @@ export async function GET(
     let data: Buffer;
 
     try {
-      data = await readFile(StorageService.resolvePath(fichier.cheminFichier));
+      data = await StorageService.read(fichier.cheminFichier);
     } catch {
       return NextResponse.json(
         { error: "Fichier introuvable" },

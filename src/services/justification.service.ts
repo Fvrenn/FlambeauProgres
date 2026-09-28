@@ -1,3 +1,5 @@
+import type { ServiceResult } from "@/types";
+
 import { prisma } from "@/lib/prisma";
 import { EtapeService } from "@/services/etape.service";
 import { NotificationService } from "@/services/notification.service";
@@ -5,12 +7,6 @@ import {
   DiscussionService,
   type FichierData,
 } from "@/services/discussion.service";
-
-export type ServiceResult<T = void> = {
-  success: boolean;
-  data?: T;
-  error?: string;
-};
 
 const ETAPE_VERROUILLEE = "Cette étape n'est pas encore débloquée";
 

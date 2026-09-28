@@ -1,12 +1,10 @@
 import React from "react";
-import { type User } from "@prisma/client";
 
 import ReferentDashboardClientV2 from "./ReferentDashboardClientV2";
 
 import { exigerRole, suitEtape } from "@/lib/auth-guards";
-import { STATUTS_VALIDES } from "@/lib/justification";
-import { prisma } from "@/lib/prisma";
-import { peutEvaluerEtape, ROLES_REFERENT } from "@/lib/roles";
+import { ROLES_REFERENT } from "@/lib/roles";
+import { ReferentService } from "@/services/referent.service";
 
 type ReferentDashboardPageProps = {
   searchParams: Promise<{
@@ -43,130 +41,12 @@ export default async function ReferentDashboardPage({
     );
   }
 
-  const objectifsCounts = await prisma.objectif.groupBy({
-    by: ["type"],
-    where: { etapeId: etapeId },
-    _count: {
-      id: true,
-    },
-  });
-
-  const totalCompetences =
-    objectifsCounts.find((c) => c.type === "COMPETENCE")?._count.id || 0;
-  const totalRealisations =
-    objectifsCounts.find((c) => c.type === "REALISATION")?._count.id || 0;
-
-  const chefsProgress = await prisma.justification.groupBy({
-    by: ["chefId"],
-    where: {
-      etapeId: etapeId,
-      statut: { in: STATUTS_VALIDES },
-    },
-    _count: {
-      id: true,
-    },
-  });
-
-  const chefsCompletsIds = [];
-
-  for (const chef of chefsProgress) {
-    const [competencesValidees, realisationsValidees] = await Promise.all([
-      prisma.justification.count({
-        where: {
-          chefId: chef.chefId,
-          etapeId: etapeId,
-          statut: "AUTO_VALIDEE",
-          objectif: { type: "COMPETENCE" },
-        },
-      }),
-      prisma.justification.count({
-        where: {
-          chefId: chef.chefId,
-          etapeId: etapeId,
-          statut: "VALIDEE",
-          objectif: { type: "REALISATION" },
-        },
-      }),
-    ]);
-
-    if (
-      competencesValidees === totalCompetences &&
-      realisationsValidees === totalRealisations
-    ) {
-      chefsCompletsIds.push(chef.chefId);
-    }
-  }
-
-  const chefsDejaValides = await prisma.chefEtapeStatut.findMany({
-    where: {
-      etapeId: etapeId,
-      statut: "VALIDE",
-      chefId: { in: chefsCompletsIds },
-    },
-    select: {
-      chefId: true,
-    },
-  });
-  const chefsDejaValidesIds = chefsDejaValides.map((statut) => statut.chefId);
-
-  const chefsEnAttenteDeRevisionIds = chefsCompletsIds.filter(
-    (id) => !chefsDejaValidesIds.includes(id),
-  );
-
-  let chefsAReviser: User[] = [];
-
-  if (chefsEnAttenteDeRevisionIds.length > 0) {
-    chefsAReviser = await prisma.user.findMany({
-      where: {
-        id: { in: chefsEnAttenteDeRevisionIds },
-      },
-    });
-  }
-
-  const [etape, assignation] = await Promise.all([
-    prisma.etape.findUnique({
-      where: { id: etapeId },
-      select: { niveau: true },
-    }),
-    prisma.etapeReferent.findFirst({
-      where: { referentId: user.id, etapeId },
-    }),
-  ]);
-
-  const peutEvaluer = peutEvaluerEtape(
-    user.role,
-    etape?.niveau ?? 0,
-    Boolean(assignation),
-  );
-
-  const justificationsAValider = await prisma.justification.findMany({
-    where: {
-      etapeId: etapeId,
-      statut: "SOUMISE",
-    },
-    include: {
-      chef: true,
-      objectif: true,
-      messages: { select: { auteurId: true } },
-    },
-    orderBy: {
-      soumiseAt: "asc",
-    },
-  });
-
-  const justificationsEnDiscussion = await prisma.justification.findMany({
-    where: {
-      etapeId: etapeId,
-      statut: "DEMANDE_PRECISION",
-    },
-    include: {
-      chef: true,
-      objectif: true,
-    },
-    orderBy: {
-      updatedAt: "desc",
-    },
-  });
+  const {
+    chefsAReviser,
+    justificationsAValider,
+    justificationsEnDiscussion,
+    peutEvaluer,
+  } = await ReferentService.getDashboard(etapeId, user);
 
   return (
     <ReferentDashboardClientV2
