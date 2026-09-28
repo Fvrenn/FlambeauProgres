@@ -1,13 +1,23 @@
 import type { WpTaxonomyEntry } from "@/lib/wordpress-profile";
 
+import { createHash } from "crypto";
+
 import { cache } from "react";
 import { cookies } from "next/headers";
 
+import { creerCacheMemoire } from "@/lib/cache-memoire";
 import { prisma } from "@/lib/prisma";
 import { parseWpProfile } from "@/lib/wordpress-profile";
 import { WpProgressionService } from "@/services/wp-progression.service";
 
 const WP_URL = process.env.WORDPRESS_URL!;
+const DUREE_CACHE_SESSION_MS = 60_000;
+const NOMBRE_MAX_SESSIONS_EN_CACHE = 1000;
+
+const sessionsWp = creerCacheMemoire<WpUser>({
+  dureeMs: DUREE_CACHE_SESSION_MS,
+  tailleMax: NOMBRE_MAX_SESSIONS_EN_CACHE,
+});
 
 type WpUser = {
   id: number;
@@ -33,11 +43,40 @@ export async function getWordpressCookieHeader(): Promise<string | null> {
     .join("; ");
 }
 
-async function fetchWpUser(): Promise<WpUser | null> {
+export async function getSessionWp(): Promise<WpUser | null> {
   const cookieHeader = await getWordpressCookieHeader();
 
   if (!cookieHeader) return null;
 
+  const cle = cleDeSession(cookieHeader);
+  const enCache = sessionsWp.get(cle);
+
+  if (enCache) return enCache;
+
+  const wp = await lireUtilisateurWp(cookieHeader);
+
+  if (wp) sessionsWp.set(cle, wp);
+
+  return wp;
+}
+
+export async function fetchWpProgression(): Promise<WpTaxonomyEntry[] | null> {
+  const cookieHeader = await getWordpressCookieHeader();
+
+  if (!cookieHeader) return null;
+
+  const wp = await lireUtilisateurWp(cookieHeader);
+
+  return Array.isArray(wp?.progression) ? wp.progression : null;
+}
+
+export async function oublierSessionWp(): Promise<void> {
+  const cookieHeader = await getWordpressCookieHeader();
+
+  if (cookieHeader) sessionsWp.delete(cleDeSession(cookieHeader));
+}
+
+async function lireUtilisateurWp(cookieHeader: string): Promise<WpUser | null> {
   try {
     const res = await fetch(`${WP_URL}/wp-json/flbx/v1/user-info?_wpnonce=1`, {
       headers: { cookie: cookieHeader },
@@ -50,14 +89,12 @@ async function fetchWpUser(): Promise<WpUser | null> {
   }
 }
 
-export async function fetchWpProgression(): Promise<WpTaxonomyEntry[] | null> {
-  const wp = await fetchWpUser();
-
-  return Array.isArray(wp?.progression) ? wp.progression : null;
+function cleDeSession(cookieHeader: string): string {
+  return createHash("sha256").update(cookieHeader).digest("hex");
 }
 
 export const getCurrentUser = cache(async () => {
-  const wp = await fetchWpUser();
+  const wp = await getSessionWp();
 
   if (!wp) return null;
 

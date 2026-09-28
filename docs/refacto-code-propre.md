@@ -185,6 +185,10 @@ confort.
 - Découper les fichiers qui dépassent un peu les seuils du guide mais restent lisibles
   (`sidebar.tsx`, `button.tsx`, `JournalTable.tsx`) : à faire par la règle du boy-scout quand on y
   touche, pas en refacto dédiée.
-- Mise en cache de la session WordPress entre requêtes : chaque page appelle l'API WordPress, mais
-  c'est ce qui garantit qu'une déconnexion côté WordPress s'applique tout de suite. À
-  reconsidérer seulement si des lenteurs sont mesurées.
+- ~~Mise en cache de la session WordPress entre requêtes~~ : ✅ fait ensuite à la demande —
+  `lib/wordpress-auth.ts` (`getSessionWp`) garde la réponse de WordPress 60 s en mémoire, par
+  empreinte SHA-256 des cookies de session (`lib/cache-memoire.ts`, testé). Seules les réponses
+  valides sont gardées ; la lecture avant écriture de la progression (`fetchWpProgression`) reste
+  en direct ; l'entrée est oubliée après une écriture de progression et à la déconnexion.
+  Contrepartie assumée : une session invalidée côté WordPress (expiration, mot de passe changé)
+  reste acceptée par l'app au plus 60 s. Les rôles, en base, ne sont pas concernés.

@@ -2,7 +2,7 @@
 
 Flambeau Progrès — app **Next.js 16** (App Router, Turbopack) de suivi de progression scoute (rôles CHEF / REFERENT / ADMIN). Stack : Prisma 6 (MySQL), HeroUI, Tailwind 4, react-hook-form + Zod. Rôles d'encadrement en plus : COMMISSION_FORMATION, COORDINATEUR_NATIONAL (`src/lib/roles.ts`).
 
-Auth : pas de compte propre à l'app. La session vient du WordPress de la plateforme (cookie `wordpress_logged_in*`) : `src/proxy.ts` redirige vers la connexion WordPress sans cookie, puis `getUser()` (`src/lib/auth-server.ts`) valide la session auprès de l'API WordPress. Chaque page et action revérifie le rôle (`exigerRole` / `authorizeRole` de `src/lib/auth-guards.ts`).
+Auth : pas de compte propre à l'app. La session vient du WordPress de la plateforme (cookie `wordpress_logged_in*`) : `src/proxy.ts` redirige vers la connexion WordPress sans cookie, puis `getUser()` (`src/lib/auth-server.ts`) valide la session auprès de l'API WordPress (réponse gardée 60 s en mémoire par session, `getSessionWp` dans `src/lib/wordpress-auth.ts`). Chaque page et action revérifie le rôle (`exigerRole` / `authorizeRole` de `src/lib/auth-guards.ts`).
 
 ## Refactors par phases
 
