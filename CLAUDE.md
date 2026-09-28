@@ -1,8 +1,12 @@
 # CLAUDE.md
 
-Flambeau Progrès — app **Next.js 16** (App Router, Turbopack) de suivi de progression scoute (rôles CHEF / REFERENT / ADMIN). Stack : Prisma 6 (MySQL), HeroUI, Tailwind 4, react-hook-form + Zod. Rôles d'encadrement en plus : COMMISSION_FORMATION, COORDINATEUR_NATIONAL (`src/lib/roles.ts`).
+Flambeaux Progrès — app **Next.js 16** (App Router, Turbopack) de suivi de progression scoute (rôles CHEF / REFERENT / ADMIN). Stack : Prisma 6 (MySQL), HeroUI, Tailwind 4, react-hook-form + Zod. Rôles d'encadrement en plus : COMMISSION_FORMATION, COORDINATEUR_NATIONAL (`src/lib/roles.ts`).
 
 Auth : pas de compte propre à l'app. La session vient du WordPress de la plateforme (cookie `wordpress_logged_in*`) : `src/proxy.ts` redirige vers la connexion WordPress sans cookie, puis `getUser()` (`src/lib/auth-server.ts`) valide la session auprès de l'API WordPress (réponse gardée 60 s en mémoire par session, `getSessionWp` dans `src/lib/wordpress-auth.ts`). Chaque page et action revérifie le rôle (`exigerRole` / `authorizeRole` de `src/lib/auth-guards.ts`).
+
+## Documentation
+
+Index dans `README.md` (section « Documentation ») ; les décisions métier et plans de refactor vivent dans `docs/*.md`.
 
 ## Refactors par phases
 
@@ -24,5 +28,6 @@ Les règles complètes sont dans `GUIDE-CODE-PROPRE.md` ; l'essentiel :
 - Build : `npm run build`
 - Tests : `npm test` (vitest)
 - DB (Prisma Migrate) : `npx prisma migrate dev --name <nom>` applique le schéma et relance le seed.
+  ⚠️ **Le seed vide toute la base** avant de la remplir : sur une base qui contient des données, préférer une migration écrite à la main (`prisma/migrations/<horodatage>_<nom>/migration.sql`), appliquée avec `npx prisma migrate deploy` puis `npx prisma generate`. Vérifier l'absence d'écart avec `npx prisma migrate diff --from-url "$DATABASE_URL" --to-schema-datamodel prisma/schema.prisma --script` (doit répondre « empty migration »).
   ⚠️ **Stopper `npm run dev` avant**, sinon le client Prisma est verrouillé (EPERM sur le query engine `.dll`).
 Ne jamais ajouter de trailer Co-Authored-By dans les messages de commit.

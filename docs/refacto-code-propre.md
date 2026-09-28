@@ -1,5 +1,9 @@
 # Refacto « code propre » et audit de sécurité
 
+> **Statut : terminé** (phases 1 à 5), sauf la bascule de la CSP en mode bloquant (phase 6), qui
+> attend quelques jours de rapports en production. Les noms de fichiers cités dans l'audit
+> (`admin.actions.ts`, `middleware.ts`…) décrivent l'état **avant** le refacto.
+
 ## Contexte
 
 Mise en conformité du projet avec `GUIDE-CODE-PROPRE.md` et `CLAUDE.md`, plus un audit de sécurité
@@ -24,14 +28,25 @@ confort.
 | S5 | Moyenne | Pas de Content-Security-Policy appliquée. | déjà planifié : `docs/csp-durcissement.md`, phases 3 et 4 | 6 |
 | S6 | Faible | Des pages passent des objets Prisma complets au client (`admin/users` envoie toutes les colonnes `User`). Rien de secret aujourd'hui, mais tout champ ajouté plus tard partira au navigateur. | pages admin | 3 |
 
-### À décider (règle métier, pas un bug)
+### Décisions prises
 
-- **Validation d'un badge sans objectifs complets.** `EtapeService.validateBadge` vérifie le droit du
-  référent sur l'étape, mais pas que le Chef a rempli ses objectifs. À confirmer : est-ce voulu (le
-  référent juge seul) ou faut-il bloquer ?
-- **Pas de limite de fréquence** sur l'envoi de messages, qui déclenche des emails. Risque de spam
-  par un utilisateur connecté. Acceptable tant que l'app reste interne ; à revoir si des abus
-  apparaissent.
+- **Export CSV de l'Analyse : formules Excel** : ✅ corrigé — les cellules qui commencent par `=`,
+  `+`, `-`, `@` sont préfixées d'une apostrophe (`versCsv` dans `src/lib/analytics.ts`, testé).
+- **Validation d'un badge sans objectifs complets** : ✅ tranché — refusée côté serveur, pour toutes
+  les étapes (`EtapeService.estDossierComplet`), voir `docs/etape-3-profils.md`, « Circuit
+  d'évaluation ».
+
+### Questions encore ouvertes
+
+- **Limite de fréquence des messages.** Chaque message déclenche des emails, sans limite. Acceptable
+  tant que l'app reste interne ; à revoir si des abus apparaissent.
+- **Page Analyse : visibilité.** Tout référent voit les validations de toutes les étapes et de tous
+  les Chefs. À limiter aux étapes suivies, ou à réserver à certains rôles ?
+- **Page Analyse : période par défaut.** « Depuis le début » renvoie tout l'historique au
+  navigateur ; « 12 mois » par défaut suffirait longtemps.
+- **Admins non assignés.** Depuis la phase 1, un admin non assigné à une spécialité ne voit plus son
+  tableau de bord référent (même règle que les discussions). À confirmer.
+- **Prisma / `deepmerge-ts`** : risque accepté (voir phase 2), à revoir à la prochaine version.
 
 ### Vérifié, rien à faire
 

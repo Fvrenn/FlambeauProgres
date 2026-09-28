@@ -1,6 +1,6 @@
-# Guide de code propre — Flambeau Progrès
+# Guide de code propre — Flambeaux Progrès
 
-Objectif : un code **facile à maintenir, à faire évoluer et à compléter**, y compris par quelqu'un qui n'est pas expert en développement web, et quel que soit l'auteur (humain ou IA). Ce document fixe les règles ; l'avancement des refactors est dans `docs/*.md`, les procédures dans `.claude/skills/`.
+Objectif : un code **facile à maintenir, à faire évoluer et à compléter**, y compris par quelqu'un qui n'est pas expert en développement web, et quel que soit l'auteur (humain ou IA). Ce document fixe les règles ; l'avancement des refactors et les décisions métier sont dans `docs/*.md`, les commandes et procédures (migrations, déploiement) dans `README.md` et `CLAUDE.md`.
 
 ---
 
@@ -23,7 +23,7 @@ Objectif : un code **facile à maintenir, à faire évoluer et à compléter**, 
 | Erreur d'une action dans un formulaire admin | `components/admin/FormModal.tsx` (prop `erreur`) + `admin/formations/_components/FormationModal.tsx` |
 | Composants partagés | `components/ui/*` (via `@/components/ui`), `components/admin/{FormModal, AdminDataTable}.tsx` |
 
-**Écarts connus dans le code, à ne pas imiter** (à corriger par la règle du boy-scout ou dans un refactor planifié) :
+**Écarts connus dans le code, à ne pas imiter** : aucun à ce jour, le refacto de septembre 2026 les a tous traités (`docs/refacto-code-propre.md`). En relever un ici quand on en repère un qu'on ne corrige pas tout de suite.
 
 ---
 

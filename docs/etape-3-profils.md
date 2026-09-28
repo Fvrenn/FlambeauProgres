@@ -83,10 +83,12 @@ L'illustration `public/livrets/servir/illustration.png` est extraite du PDF du l
 
 ## Affichage
 
-La bande d'icônes de la chemise (`contentChemise.tsx`) affiche un sélecteur `Étape 2 | Étape 3`
-au-dessus des écussons, qui n'apparaît que lorsqu'au moins un profil est déverrouillé. Changer de
-niveau désélectionne l'étape courante, pour que le panneau de droite et la surbrillance 3D restent
-cohérents avec ce qui est affiché.
+La bande d'écussons de la chemise (`contentChemise.tsx`) affiche un sélecteur `Étape 2 | Étape 3`
+au-dessus des écussons, dans les conditions décrites plus haut (profils déverrouillés ou livret à
+lire). Changer de niveau désélectionne l'étape courante, pour que le panneau de droite et la
+surbrillance 3D restent cohérents avec ce qui est affiché. Sur ordinateur, chaque onglet pagine ses
+écussons (`GrilleBadges.tsx`, 12 au plus par page selon la hauteur d'écran) ; sur téléphone, ils
+défilent sur une ligne.
 
 `/progression` n'a pas été séparée : les profils y apparaissent à la suite des spécialités.
 
@@ -126,8 +128,8 @@ rôles `UserRole` traduisent ce circuit :
 
 Tout ce que fait `ADMIN`, ces deux rôles le font : `ROLES_ADMIN` et `ROLES_REFERENT`
 (`src/lib/roles.ts`) remplacent partout les comparaisons littérales `=== "ADMIN"`, y compris les
-`authorizeRole` de `admin.actions.ts`, les layouts `/admin` et `(referent)`, la sidebar et le
-`ContextSwitcher`.
+gardes des actions admin (`admin/_actions/*.actions.ts`), les pages et layouts `/admin` et
+`(referent)`, la sidebar et le `ContextSwitcher`.
 
 ### Règle d'autorisation
 
@@ -138,17 +140,18 @@ les deux seules portes :
 - **niveau ≥ 3** : l'assignation ne joue plus, c'est le rôle qui décide. La commission évalue, le
   Coordinateur valide, et l'un ne peut pas faire le travail de l'autre.
 
-Ces deux rôles voient donc les profils `3b`/`3c` **sans assignation** : `getSession`
+Ces deux rôles voient donc les profils `3b`/`3c` **sans assignation** : `getUser`
 (`src/lib/auth-server.ts`) ajoute les étapes de niveau ≥ 3 à `etapesReferent`, ce qui alimente la
-sidebar et le sélecteur de contexte, et `canAccessJustification` les laisse ouvrir les fils.
-C'est pourquoi le compteur « étapes sans référent » du tableau de bord admin exclut le niveau 3.
+sidebar et le sélecteur de contexte, et `canAccessJustification` / `suitEtape` les laissent ouvrir
+les fils et les tableaux de bord. C'est pourquoi le compteur « étapes sans référent » du tableau de
+bord admin ne compte que les badges gérés par assignation (niveaux 1 et 2).
 
 Les notifications suivent : `NotificationService.getEvaluateursEtape` ajoute les membres de la
 commission aux destinataires d'une étape de niveau ≥ 3, sans quoi une réalisation soumise sur `3b`
 n'aurait alerté personne.
 
 Côté écran, `peutEvaluer` / `peutValider` sont calculés sur le serveur et descendus en props
-(`ReferentDashboardClientV2` → `ReferentValidationModal` → `DiscussionThread`, et `RevisionClient`)
+(`ReferentDashboardClient` → `ReferentValidationModal` → `DiscussionThread`, et `RevisionClient`)
 pour masquer un bouton que l'action refuserait de toute façon.
 
 ### Circuit d'évaluation (conforme au livret, p. 3 et 5)
