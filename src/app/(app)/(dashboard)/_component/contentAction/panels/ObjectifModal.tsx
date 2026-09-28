@@ -104,9 +104,6 @@ export default function ObjectifModal({
 
       if (result.success) {
         onOpenChange();
-
-        router.refresh();
-
         setContenu("");
         setSelectedFile(null);
       } else {

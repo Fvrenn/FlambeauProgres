@@ -48,6 +48,25 @@ describe("buildWpLogoutUrl", () => {
     );
   });
 
+  it("joint le jeton de déconnexion fourni par WordPress", () => {
+    vi.stubEnv("WORDPRESS_URL", "https://plateforme.flambeaux.org");
+    vi.stubEnv("APP_URL", "https://progres.flambeaux.org/");
+
+    const url = new URL(buildWpLogoutUrl("302984e1dd"));
+
+    expect(url.searchParams.get("_wpnonce")).toBe("302984e1dd");
+    expect(url.searchParams.get("action")).toBe("logout");
+  });
+
+  it("n'ajoute pas de jeton vide", () => {
+    vi.stubEnv("WORDPRESS_URL", "https://plateforme.flambeaux.org");
+    vi.stubEnv("APP_URL", "https://progres.flambeaux.org/");
+
+    expect(new URL(buildWpLogoutUrl(null)).searchParams.has("_wpnonce")).toBe(
+      false,
+    );
+  });
+
   it("échoue sans WORDPRESS_URL", () => {
     vi.stubEnv("WORDPRESS_URL", "");
     expect(() => buildWpLogoutUrl()).toThrow("WORDPRESS_URL is not set");

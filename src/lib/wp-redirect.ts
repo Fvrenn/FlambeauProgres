@@ -20,10 +20,15 @@ export function buildWpLoginUrl(returnTo?: string): string {
   return url.toString();
 }
 
-export function buildWpLogoutUrl(): string {
+export function buildWpLogoutUrl(nonce?: string | null): string {
   const url = new URL("/wp-login.php", wordpressUrl());
 
   url.searchParams.set("action", "logout");
+
+  if (nonce) {
+    url.searchParams.set("_wpnonce", nonce);
+  }
+
   url.searchParams.set("redirect_to", `${origineApplication()}/`);
 
   return url.toString();

@@ -39,7 +39,8 @@ export async function validateEtape(chefId: string, etapeId: string) {
       return result;
     }
 
-    revalidatePath(`/referent/dashboard?etapeId=${parsed.data.etapeId}`);
+    revalidatePath("/referent/dashboard");
+    revalidatePath("/referent/revision");
   } catch (error) {
     console.error("Erreur lors de la validation finale de l'étape:", error);
 

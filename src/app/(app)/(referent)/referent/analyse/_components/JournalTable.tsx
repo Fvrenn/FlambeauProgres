@@ -16,6 +16,7 @@ import {
   cn,
 } from "@heroui/react";
 
+import { versCsv } from "@/lib/analytics";
 import { Icon } from "@/lib/icons";
 import { Badge, Button, Input } from "@/components/ui";
 
@@ -43,35 +44,6 @@ const formatteurDate = new Intl.DateTimeFormat("fr-FR", {
   hour: "2-digit",
   minute: "2-digit",
 });
-
-function versCsv(evenements: ValidationEvent[]): string {
-  const entetes = [
-    "Date",
-    "Type",
-    "Valide par",
-    "Role",
-    "Chef",
-    "Etape",
-    "Objet",
-  ];
-  const echapper = (valeur: string) => `"${valeur.replace(/"/g, '""')}"`;
-
-  const lignes = evenements.map((evenement) =>
-    [
-      evenement.date.toISOString(),
-      evenement.type,
-      evenement.referentName,
-      evenement.referentRole,
-      evenement.chefName,
-      evenement.etapeName,
-      evenement.objet,
-    ]
-      .map(echapper)
-      .join(";"),
-  );
-
-  return [entetes.map(echapper).join(";"), ...lignes].join("\r\n");
-}
 
 export function JournalTable({
   evenements,

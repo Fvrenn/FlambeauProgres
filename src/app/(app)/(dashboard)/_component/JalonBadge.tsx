@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
   Modal,
@@ -65,7 +64,6 @@ export default function JalonBadge({
   jalon: EtapeAvecObjectifs;
   compact?: boolean;
 }) {
-  const router = useRouter();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [isPending, startTransition] = useTransition();
   const [pdfOpened, setPdfOpened] = useState(false);
@@ -91,7 +89,6 @@ export default function JalonBadge({
       }
 
       onClose();
-      router.refresh();
     });
   };
 

@@ -3,14 +3,29 @@ import { type Objectif, type TypeNotification } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { estNiveauEtape3 } from "@/lib/roles";
 import { EmailService } from "@/services/email.service";
-import { referentRevisionUrl, referentThreadUrl } from "@/lib/links";
-import { LIBELLE_TYPE_OBJECTIF } from "@/lib/justification";
+import {
+  chefThreadUrl,
+  referentRevisionUrl,
+  referentThreadUrl,
+} from "@/lib/links";
+import { LIBELLE_TYPE_OBJECTIF, TITRE_VALIDATION } from "@/lib/justification";
 
 export type DestinataireEtape = {
   id: string;
   name: string;
   email: string;
 };
+
+export type JustificationANotifier = {
+  id: string;
+  chefId: string;
+  etapeId: string;
+  objectif: Pick<Objectif, "code" | "description" | "type">;
+  etape: { name: string; niveau: number };
+  chef: { name: string; email: string };
+};
+
+type NouveauMessage = { auteur: string; texte: string | null };
 
 export class NotificationService {
   static async createNotification(data: {
@@ -208,4 +223,99 @@ export class NotificationService {
       );
     }
   }
+
+  static async notifierMessageDuChef(
+    justification: JustificationANotifier,
+    message: NouveauMessage,
+  ) {
+    const { evaluateurs } = await this.getEvaluateursEtape(
+      justification.etapeId,
+    );
+
+    if (evaluateurs.length === 0) {
+      return;
+    }
+
+    await prisma.notification.createMany({
+      data: evaluateurs.map((evaluateur) => ({
+        destinataireId: evaluateur.id,
+        justificationId: justification.id,
+        type: "NOUVEAU_COMMENTAIRE" as const,
+        titre: "Nouveau message du chef",
+        message: `${message.auteur} a répondu pour "${justification.objectif.code}".`,
+        lue: false,
+      })),
+    });
+
+    const replyUrl = referentThreadUrl(justification.etapeId, justification.id);
+
+    await Promise.all(
+      evaluateurs.map((evaluateur) =>
+        EmailService.sendNewMessage({
+          to: evaluateur.email,
+          authorName: message.auteur,
+          etapeName: justification.etape.name,
+          objectifCode: justification.objectif.code,
+          messageText: message.texte,
+          replyUrl,
+          justificationId: justification.id,
+        }),
+      ),
+    );
+  }
+
+  static async notifierMessageAuChef(
+    justification: JustificationANotifier,
+    message: NouveauMessage,
+  ) {
+    await this.createNotification({
+      destinataireId: justification.chefId,
+      justificationId: justification.id,
+      type: "DEMANDE_PRECISION",
+      titre: "Demande de précisions",
+      message: `Nouveau message de ${evaluateurDe(justification.etape.niveau)} au sujet de "${justification.objectif.code}".`,
+    });
+
+    await EmailService.sendNewMessage({
+      to: justification.chef.email,
+      authorName: message.auteur,
+      etapeName: justification.etape.name,
+      objectifCode: justification.objectif.code,
+      messageText: message.texte,
+      replyUrl: chefThreadUrl(justification.id),
+      justificationId: justification.id,
+    });
+  }
+
+  static async notifierValidation(
+    justification: JustificationANotifier,
+    referentName: string,
+  ) {
+    const { type, code, description } = justification.objectif;
+    const libelle = LIBELLE_TYPE_OBJECTIF[type];
+
+    await this.createNotification({
+      destinataireId: justification.chefId,
+      justificationId: justification.id,
+      type: "JUSTIFICATION_VALIDEE",
+      titre: `${TITRE_VALIDATION[type]} !`,
+      message: `Votre ${libelle} "${code}" a été validée par ${evaluateurDe(justification.etape.niveau)}.`,
+    });
+
+    await EmailService.sendValidation({
+      to: justification.chef.email,
+      chefName: justification.chef.name,
+      referentName,
+      etapeName: justification.etape.name,
+      objectifCode: code,
+      objectifDescription: description,
+      libelle,
+      viewUrl: chefThreadUrl(justification.id),
+      justificationId: justification.id,
+    });
+  }
+}
+
+function evaluateurDe(niveau: number): string {
+  return estNiveauEtape3(niveau) ? "la commission Formation" : "votre référent";
 }

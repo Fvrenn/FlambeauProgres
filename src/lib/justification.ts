@@ -17,6 +17,11 @@ export const LIBELLE_TYPE_OBJECTIF: Record<TypeObjectif, string> = {
   REALISATION: "réalisation",
 };
 
+export const TITRE_VALIDATION: Record<TypeObjectif, string> = {
+  COMPETENCE: "Compétence validée",
+  REALISATION: "Réalisation validée",
+};
+
 export function statutValidant(
   type: TypeObjectif,
   niveau: number,
