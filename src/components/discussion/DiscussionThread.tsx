@@ -11,6 +11,7 @@ import ValidateRealisation from "./ValidateRealisation";
 import { useDiscussionThread } from "./useDiscussionThread";
 
 import { Icon } from "@/lib/icons";
+import { estReferent } from "@/lib/roles";
 
 export type DiscussionViewer = {
   id: string;
@@ -23,12 +24,14 @@ interface DiscussionThreadProps {
   justificationId: string;
   objectif: ThreadObjectif;
   viewer: DiscussionViewer;
+  peutValider?: boolean;
 }
 
 export default function DiscussionThread({
   justificationId,
   objectif,
   viewer,
+  peutValider,
 }: DiscussionThreadProps) {
   const viewerId = viewer?.id;
   const viewerRole = viewer?.role;
@@ -65,7 +68,7 @@ export default function DiscussionThread({
           </div>
         ) : (
           <>
-            {(viewerRole === "REFERENT" || viewerRole === "ADMIN") && (
+            {(peutValider ?? estReferent(viewerRole)) && (
               <ValidateRealisation disabled={!viewerId} onValidate={validate} />
             )}
             <MessageComposer

@@ -25,6 +25,7 @@ interface ReferentValidationModalProps {
   onOpenChange: () => void;
   justification: ReferentThreadJustification | null;
   viewer: DiscussionViewer;
+  peutEvaluer: boolean;
 }
 
 export default function ReferentValidationModal({
@@ -32,6 +33,7 @@ export default function ReferentValidationModal({
   onOpenChange,
   justification,
   viewer,
+  peutEvaluer,
 }: ReferentValidationModalProps) {
   useEffect(() => {
     if (isOpen && justification) {
@@ -77,6 +79,7 @@ export default function ReferentValidationModal({
               code: justification.objectif.code,
               description: justification.objectif.description,
             }}
+            peutValider={peutEvaluer}
             viewer={viewer}
           />
         </ModalBody>

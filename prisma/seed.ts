@@ -39,6 +39,22 @@ async function main() {
     },
   });
 
+  await prisma.user.create({
+    data: {
+      email: "commission@flambeau.dev",
+      name: "Commission Formation",
+      role: "COMMISSION_FORMATION",
+    },
+  });
+
+  await prisma.user.create({
+    data: {
+      email: "coordinateur@flambeau.dev",
+      name: "Coordinateur National",
+      role: "COORDINATEUR_NATIONAL",
+    },
+  });
+
   console.log("Users created.");
 
   const allumeFeu = await prisma.etape.create({
@@ -1043,6 +1059,21 @@ async function main() {
       `Created SOUMISE justification + message for objectif ${objectifRealisationG8.code}`,
     );
   }
+
+  const jalonServir = await prisma.etape.create({
+    data: {
+      number: "3",
+      name: "Servir",
+      description:
+        "Étape 3 du Parcours du Chef. Lis le livret « Servir » pour débloquer les profils Formateur et Leader.",
+      couleur: "#71b747",
+      ordre: 0,
+      niveau: 3,
+      type: "JALON",
+    },
+  });
+
+  console.log(`Created jalon: ${jalonServir.name}`);
 
   const etapeFormateur = await prisma.etape.create({
     data: {

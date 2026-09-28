@@ -4,7 +4,7 @@ import { cn } from "@heroui/react";
 
 import { Icon } from "@/lib/icons";
 import { prisma } from "@/lib/prisma";
-import { roleColorMap } from "@/lib/roles";
+import { NIVEAU_ETAPE_3, ROLES_ADMIN, roleColorMap } from "@/lib/roles";
 import { Badge, Card, CardBody } from "@/components/ui";
 
 const quickLinks = [
@@ -86,11 +86,13 @@ export default async function AdminDashboardPage() {
   ] = await Promise.all([
     prisma.user.count({ where: { role: "CHEF" } }),
     prisma.user.count({ where: { role: "REFERENT" } }),
-    prisma.user.count({ where: { role: "ADMIN" } }),
+    prisma.user.count({ where: { role: { in: ROLES_ADMIN } } }),
     prisma.etape.count(),
     prisma.objectif.count(),
     prisma.formationCard.count(),
-    prisma.etape.count({ where: { referents: { none: {} } } }),
+    prisma.etape.count({
+      where: { referents: { none: {} }, niveau: { lt: NIVEAU_ETAPE_3 } },
+    }),
     prisma.justification.count({ where: { statut: "SOUMISE" } }),
   ]);
 
@@ -101,7 +103,7 @@ export default async function AdminDashboardPage() {
       <div className="flex flex-col gap-1">
         <h1 className="text-2xl font-extrabold">Tableau de bord admin</h1>
         <p className="text-default-500">
-          Vue d&apos;ensemble de la plateforme Flambeau Progrès.
+          Vue d&apos;ensemble de la plateforme Flambeaux Progrès.
         </p>
       </div>
 

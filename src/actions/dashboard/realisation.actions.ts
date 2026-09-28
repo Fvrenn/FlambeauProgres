@@ -4,6 +4,7 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 
 import { getUser } from "@/lib/auth-server";
+import { REGLES_JUSTIFICATION } from "@/lib/fichiers";
 import { StorageService } from "@/services/storage.service";
 import { JustificationService } from "@/services/justification.service";
 
@@ -41,7 +42,11 @@ export async function submitRealisation(
 
     if (file) {
       try {
-        const result = await StorageService.uploadFile(file, "justifications");
+        const result = await StorageService.uploadFile(
+          file,
+          "justifications",
+          REGLES_JUSTIFICATION,
+        );
 
         fichierData = {
           nomOriginal: file.name,

@@ -15,6 +15,7 @@ import {
 import { EtapeAvecObjectifs } from "./DashboardClient";
 
 import { Icon } from "@/lib/icons";
+import { NIVEAU_PROFILS } from "@/lib/parcours";
 import { validerJalon } from "@/actions/etape/etape.actions";
 import { Button } from "@/components/ui";
 
@@ -29,6 +30,17 @@ const ALLUME_FEU = {
   ctaLabel: "J'ai lu le livret et je m'engage",
 };
 
+const SERVIR = {
+  src: "/livrets/servir/illustration.png",
+  width: 396,
+  height: 800,
+  subtitle: "Étape 3 du Parcours du Chef",
+  pdfUrl: "/livrets/servir/parcours-servir-v03-2021.pdf",
+  intro:
+    "Lis le livret « Servir » du Parcours du Chef avant de choisir ton profil. La validation se débloque une fois le livret ouvert.",
+  ctaLabel: "J'ai lu le livret et je choisis mon profil",
+};
+
 const DECOUVRIR = {
   src: "/livrets/decouvrir/illustration.png",
   width: 273,
@@ -40,14 +52,26 @@ const DECOUVRIR = {
   ctaLabel: "Je certifie que mon CG a validé mon Étape 1",
 };
 
-export default function JalonBadge({ jalon }: { jalon: EtapeAvecObjectifs }) {
+const CONFIGS: Record<number, typeof ALLUME_FEU> = {
+  0: ALLUME_FEU,
+  1: DECOUVRIR,
+  [NIVEAU_PROFILS]: SERVIR,
+};
+
+export default function JalonBadge({
+  jalon,
+  compact = false,
+}: {
+  jalon: EtapeAvecObjectifs;
+  compact?: boolean;
+}) {
   const router = useRouter();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [isPending, startTransition] = useTransition();
   const [pdfOpened, setPdfOpened] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const config = jalon.niveau === 0 ? ALLUME_FEU : DECOUVRIR;
+  const config = CONFIGS[jalon.niveau] ?? DECOUVRIR;
 
   const handleOpenPdf = () => {
     setPdfOpened(true);
@@ -75,7 +99,9 @@ export default function JalonBadge({ jalon }: { jalon: EtapeAvecObjectifs }) {
     <>
       <button
         aria-label={`Ouvrir ${jalon.name}`}
-        className="group flex cursor-pointer flex-col items-center gap-2 rounded-3xl p-3 transition-transform hover:-translate-y-1"
+        className={`group flex cursor-pointer flex-col items-center rounded-3xl transition-transform hover:-translate-y-1 ${
+          compact ? "gap-1 p-1" : "gap-2 p-3"
+        }`}
         type="button"
         onClick={onOpen}
       >
@@ -83,19 +109,36 @@ export default function JalonBadge({ jalon }: { jalon: EtapeAvecObjectifs }) {
           <Image
             priority
             alt={jalon.name}
-            className="h-32 w-auto drop-shadow-[0_6px_12px_rgba(0,0,0,0.2)] md:h-40"
+            className={`w-auto drop-shadow-[0_6px_12px_rgba(0,0,0,0.2)] ${
+              compact ? "h-[58px] md:h-[77px]" : "h-32 md:h-40"
+            }`}
             height={config.height}
             src={config.src}
             width={config.width}
           />
-          <span className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-warning text-white shadow">
-            <Icon icon="solar:arrow-right-up-linear" width={16} />
+          <span
+            className={`absolute -right-1 -top-1 flex items-center justify-center rounded-full bg-warning text-white shadow ${
+              compact ? "h-5 w-5" : "h-6 w-6"
+            }`}
+          >
+            <Icon
+              icon="solar:arrow-right-up-linear"
+              width={compact ? 14 : 16}
+            />
           </span>
         </div>
-        <span className="text-sm font-semibold text-foreground">
+        <span
+          className={`font-semibold text-foreground ${
+            compact ? "text-xs" : "text-sm"
+          }`}
+        >
           {jalon.name}
         </span>
-        <span className="text-xs text-default-500">Clique pour découvrir</span>
+        {!compact && (
+          <span className="text-xs text-default-500">
+            Clique pour découvrir
+          </span>
+        )}
       </button>
 
       <Modal

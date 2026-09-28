@@ -24,7 +24,8 @@ import { createEtape, updateEtape } from "../../_actions/admin.actions";
 
 import { Icon } from "@/lib/icons";
 import { FormModal } from "@/components/admin/FormModal";
-import { Input } from "@/components/ui";
+import { FileDropzone, Input } from "@/components/ui";
+import { REGLES_ICONE_ETAPE } from "@/lib/fichiers";
 
 const etapeSchema = z.object({
   number: z.string().min(1, "Le numéro est requis"),
@@ -58,6 +59,8 @@ export default function EtapeModal({
 }: EtapeModalProps) {
   const router = useRouter();
   const [isPending, setIsPending] = React.useState(false);
+  const [icone, setIcone] = React.useState<File | null>(null);
+  const [erreur, setErreur] = React.useState<string | null>(null);
 
   const {
     register,
@@ -85,6 +88,9 @@ export default function EtapeModal({
 
   React.useEffect(() => {
     if (isOpen) {
+      setIcone(null);
+      setErreur(null);
+
       if (etape) {
         setValue("number", etape.number);
         setValue("name", etape.name);
@@ -115,25 +121,32 @@ export default function EtapeModal({
 
   const onSubmit = async (data: EtapeFormData) => {
     setIsPending(true);
-    try {
-      if (etape) {
-        await updateEtape(etape.id, {
-          number: data.number,
-          name: data.name,
-          description: data.description,
-          ordre: data.ordre,
-          wpValue: data.wpValue,
-        });
-      } else {
-        await createEtape(data);
-      }
-      onClose();
-      router.refresh();
-    } catch (error) {
-      console.error("Failed to save etape", error);
-    } finally {
-      setIsPending(false);
+    setErreur(null);
+
+    const result = etape
+      ? await updateEtape(
+          etape.id,
+          {
+            number: data.number,
+            name: data.name,
+            description: data.description,
+            ordre: data.ordre,
+            wpValue: data.wpValue,
+          },
+          icone ?? undefined,
+        )
+      : await createEtape(data, icone ?? undefined);
+
+    setIsPending(false);
+
+    if (!result.success) {
+      setErreur(result.error ?? "Une erreur est survenue");
+
+      return;
     }
+
+    onClose();
+    router.refresh();
   };
 
   return (
@@ -193,6 +206,15 @@ export default function EtapeModal({
               {...register("description")}
               errorMessage={errors.description?.message}
               isInvalid={!!errors.description}
+            />
+
+            <FileDropzone
+              aide="PNG uniquement, 1 Mo maximum"
+              apercuActuel={etape?.image_src}
+              fichier={icone}
+              label="Icône de l'étape"
+              regles={REGLES_ICONE_ETAPE}
+              onChange={setIcone}
             />
           </div>
         </Tab>
@@ -306,6 +328,8 @@ export default function EtapeModal({
           </Tab>
         )}
       </Tabs>
+
+      {erreur && <p className="text-sm text-danger">{erreur}</p>}
     </FormModal>
   );
 }

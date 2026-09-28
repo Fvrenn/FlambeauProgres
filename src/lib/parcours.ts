@@ -2,6 +2,13 @@ export type JalonNiveau = { id: string; niveau: number };
 
 export type EtapeParcours = { id: string; niveau: number; type: string };
 
+export type ContexteParcours = {
+  niveauMax: number;
+  specialiteValidee: boolean;
+  jalonProfilsValide: boolean;
+  etapesValidees: Set<string>;
+};
+
 export const NIVEAU_SPECIALITES = 2;
 export const NIVEAU_PROFILS = 3;
 
@@ -57,12 +64,24 @@ export function auMoinsUneSpecialiteValidee(
   );
 }
 
-export function etapeEstAccessible(
-  etape: EtapeParcours,
-  niveauMax: number,
-  specialiteValidee: boolean,
+export function jalonProfilsEstValide(
+  etapes: EtapeParcours[],
   etapesValidees: Set<string>,
 ): boolean {
+  return etapes
+    .filter(
+      (etape) => etape.type === "JALON" && etape.niveau === NIVEAU_PROFILS,
+    )
+    .every((jalon) => etapesValidees.has(jalon.id));
+}
+
+export function etapeEstAccessible(
+  etape: EtapeParcours,
+  contexte: ContexteParcours,
+): boolean {
+  const { niveauMax, specialiteValidee, jalonProfilsValide, etapesValidees } =
+    contexte;
+
   if (etapesValidees.has(etape.id)) {
     return true;
   }
@@ -71,5 +90,13 @@ export function etapeEstAccessible(
     return false;
   }
 
-  return etape.niveau < NIVEAU_PROFILS || specialiteValidee;
+  if (etape.niveau < NIVEAU_PROFILS) {
+    return true;
+  }
+
+  if (etape.type === "JALON") {
+    return specialiteValidee;
+  }
+
+  return specialiteValidee && jalonProfilsValide;
 }

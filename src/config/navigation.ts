@@ -4,6 +4,10 @@ import type {
   SidebarNavItemClassNames,
 } from "@/components/application/sidebar/sidebar";
 
+import { estAdmin, estReferent } from "@/lib/roles";
+
+export const ROUTE_DECONNEXION = "/deconnexion";
+
 export const BUG_REPORT_EMAIL = "timothehege@gmail.com";
 
 export const BUG_REPORT_NAV_ITEM = {
@@ -89,8 +93,8 @@ export const adminSidebarItems: SidebarItem[] = [
 ];
 
 export function allSidebarItemsForUser(user: SessionUser): SidebarItem[] {
-  const isReferent = user.role === "REFERENT" || user.role === "ADMIN";
-  const isAdmin = user.role === "ADMIN";
+  const isReferent = estReferent(user.role);
+  const isAdmin = estAdmin(user.role);
 
   if (!isReferent && !isAdmin) {
     return chefSidebarItems;

@@ -60,8 +60,8 @@ export function ProgressionPlateforme({
           </h3>
           <p className="text-small text-default-500">
             {ecritureActive
-              ? "Cochez les étapes déjà obtenues avant votre arrivée sur Flambeau Progrès : elles seront enregistrées ici et sur votre profil de la plateforme."
-              : "Ces étapes sont celles cochées sur votre profil de la plateforme. Elles comptent comme validées ici, mais ne déclenchent pas de remise d'écusson. La modification depuis Flambeau Progrès arrivera prochainement."}
+              ? "Cochez les étapes déjà obtenues avant votre arrivée sur Flambeaux Progrès : elles seront enregistrées ici et sur votre profil de la plateforme."
+              : "Ces étapes sont celles cochées sur votre profil de la plateforme. Elles comptent comme validées ici, mais ne déclenchent pas de remise d'écusson. La modification depuis Flambeaux Progrès arrivera prochainement."}
           </p>
         </div>
 

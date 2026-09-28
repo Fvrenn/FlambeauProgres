@@ -68,8 +68,8 @@ function layout(opts: {
 
 <tr><td style="background:${COLORS.headerBg};padding:16px 28px;border-radius:16px 16px 0 0;">
 <table role="presentation" cellpadding="0" cellspacing="0"><tr>
-<td style="padding-right:9px;"><img alt="Flambeau Progrès" height="24" src="${origineApplication()}/logo/logo-flambeau-progres.svg" style="display:block;border:0;" width="18" /></td>
-<td style="font-size:16px;font-weight:bold;color:#FFFFFF;font-family:Arial,Helvetica,sans-serif;">Flambeau Progrès</td>
+<td style="padding-right:9px;"><img alt="Flambeaux Progrès" height="24" src="${origineApplication()}/logo/logo-flambeau-progres.svg" style="display:block;border:0;" width="18" /></td>
+<td style="font-size:16px;font-weight:bold;color:#FFFFFF;font-family:Arial,Helvetica,sans-serif;">Flambeaux Progrès</td>
 </tr></table>
 </td></tr>
 
@@ -91,7 +91,7 @@ ${
 </td></tr>
 
 <tr><td style="background:${COLORS.cardBg};padding:16px 28px;border-radius:0 0 16px 16px;text-align:center;">
-<p style="margin:0;font-size:12px;color:${COLORS.muted};font-family:Arial,Helvetica,sans-serif;">Flambeau Progrès </p>
+<p style="margin:0;font-size:12px;color:${COLORS.muted};font-family:Arial,Helvetica,sans-serif;">Flambeaux Progrès </p>
 </td></tr>
 
 </table>

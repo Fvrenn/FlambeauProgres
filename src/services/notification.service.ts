@@ -1,8 +1,15 @@
 import { type TypeNotification } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
+import { estNiveauEtape3 } from "@/lib/roles";
 import { EmailService } from "@/services/email.service";
 import { referentThreadUrl } from "@/lib/links";
+
+export type DestinataireEtape = {
+  id: string;
+  name: string;
+  email: string;
+};
 
 export class NotificationService {
   static async createNotification(data: {
@@ -68,6 +75,44 @@ export class NotificationService {
     });
   }
 
+  static async getEvaluateursEtape(etapeId: string): Promise<{
+    etape: { id: string; name: string; niveau: number } | null;
+    evaluateurs: DestinataireEtape[];
+  }> {
+    const etape = await prisma.etape.findUnique({
+      where: { id: etapeId },
+      select: { id: true, name: true, niveau: true },
+    });
+
+    if (!etape) {
+      return { etape: null, evaluateurs: [] };
+    }
+
+    const assignations = await prisma.etapeReferent.findMany({
+      where: { etapeId },
+      select: {
+        referent: { select: { id: true, name: true, email: true } },
+      },
+    });
+
+    const evaluateurs = assignations.map((assignation) => assignation.referent);
+
+    if (estNiveauEtape3(etape.niveau)) {
+      const commission = await prisma.user.findMany({
+        where: { role: "COMMISSION_FORMATION" },
+        select: { id: true, name: true, email: true },
+      });
+
+      for (const membre of commission) {
+        if (!evaluateurs.some((evaluateur) => evaluateur.id === membre.id)) {
+          evaluateurs.push(membre);
+        }
+      }
+    }
+
+    return { etape, evaluateurs };
+  }
+
   static async notifyReferentsOfNewJustification(
     etapeId: string,
     justificationId: string,
@@ -76,34 +121,31 @@ export class NotificationService {
     objectifDescription: string,
   ) {
     try {
-      const etapeReferents = await prisma.etapeReferent.findMany({
-        where: { etapeId },
-        include: { referent: true, etape: true },
-      });
+      const { etape, evaluateurs } = await this.getEvaluateursEtape(etapeId);
 
-      if (etapeReferents.length === 0) {
+      if (!etape || evaluateurs.length === 0) {
         console.warn(`Aucun référent trouvé pour l'étape ${etapeId}`);
 
         return;
       }
 
-      const notifications = etapeReferents.map((er) => ({
-        destinataireId: er.referent.id,
+      const notifications = evaluateurs.map((evaluateur) => ({
+        destinataireId: evaluateur.id,
         justificationId,
         type: "NOUVELLE_JUSTIFICATION" as const,
         titre: "Nouvelle réalisation à valider",
-        message: `${chefName} a soumis une nouvelle réalisation pour l'étape "${er.etape.name}".`,
+        message: `${chefName} a soumis une nouvelle réalisation pour l'étape "${etape.name}".`,
         lue: false,
       }));
 
       await prisma.notification.createMany({ data: notifications });
 
       await Promise.all(
-        etapeReferents.map((er) =>
+        evaluateurs.map((evaluateur) =>
           EmailService.sendNewRealisation({
-            to: er.referent.email,
+            to: evaluateur.email,
             chefName,
-            etapeName: er.etape.name,
+            etapeName: etape.name,
             objectifCode,
             objectifDescription,
             reviewUrl: referentThreadUrl(etapeId, justificationId),

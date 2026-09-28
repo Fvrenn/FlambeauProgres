@@ -3,9 +3,12 @@
 import React, { useRef, useState, useTransition } from "react";
 import { Button, Chip, Textarea } from "@heroui/react";
 
-import { validateFileClient } from "./useDiscussionThread";
-
 import { Icon } from "@/lib/icons";
+import {
+  REGLES_JUSTIFICATION,
+  toAttributAccept,
+  validerFichier,
+} from "@/lib/fichiers";
 
 interface MessageComposerProps {
   disabled?: boolean;
@@ -34,7 +37,7 @@ export default function MessageComposer({
     const picked = event.target.files?.[0] ?? null;
 
     if (picked) {
-      const validationError = validateFileClient(picked);
+      const validationError = validerFichier(picked, REGLES_JUSTIFICATION);
 
       if (validationError) {
         setFileError(validationError);
@@ -93,7 +96,7 @@ export default function MessageComposer({
       <div className="flex items-end gap-2">
         <input
           ref={inputRef}
-          accept="image/*,application/pdf,.doc,.docx"
+          accept={toAttributAccept(REGLES_JUSTIFICATION)}
           className="hidden"
           type="file"
           onChange={handlePick}

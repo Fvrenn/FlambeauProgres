@@ -91,9 +91,11 @@ describe("EtapeService.getDashboardEtapesForChef - déverrouillage", () => {
 });
 
 describe("EtapeService.autoValiderJalon", () => {
-  const jalonsOnly = [
-    { id: "af", niveau: 0 },
-    { id: "e1", niveau: 1 },
+  const catalogue = [
+    { id: "af", niveau: 0, type: "JALON" },
+    { id: "e1", niveau: 1, type: "JALON" },
+    { id: "b1", niveau: 2, type: "BADGE" },
+    { id: "servir", niveau: 3, type: "JALON" },
   ];
 
   it("refuse une étape qui n'est pas un jalon", async () => {
@@ -102,7 +104,7 @@ describe("EtapeService.autoValiderJalon", () => {
       niveau: 2,
       type: "BADGE",
     } as never);
-    db.etape.findMany.mockResolvedValue(jalonsOnly as never);
+    db.etape.findMany.mockResolvedValue(catalogue as never);
     db.chefEtapeStatut.findMany.mockResolvedValue([] as never);
 
     const result = await EtapeService.autoValiderJalon("c1", "b1");
@@ -117,7 +119,7 @@ describe("EtapeService.autoValiderJalon", () => {
       niveau: 1,
       type: "JALON",
     } as never);
-    db.etape.findMany.mockResolvedValue(jalonsOnly as never);
+    db.etape.findMany.mockResolvedValue(catalogue as never);
     db.chefEtapeStatut.findMany.mockResolvedValue([] as never);
 
     const result = await EtapeService.autoValiderJalon("c1", "e1");
@@ -132,7 +134,7 @@ describe("EtapeService.autoValiderJalon", () => {
       niveau: 0,
       type: "JALON",
     } as never);
-    db.etape.findMany.mockResolvedValue(jalonsOnly as never);
+    db.etape.findMany.mockResolvedValue(catalogue as never);
     db.chefEtapeStatut.findMany.mockResolvedValue([] as never);
     db.chefEtapeStatut.upsert.mockResolvedValue({} as never);
 
@@ -147,5 +149,43 @@ describe("EtapeService.autoValiderJalon", () => {
         }),
       }),
     );
+  });
+
+  it("refuse le jalon Servir tant qu'aucune spécialité n'est validée", async () => {
+    db.etape.findUnique.mockResolvedValue({
+      id: "servir",
+      niveau: 3,
+      type: "JALON",
+    } as never);
+    db.etape.findMany.mockResolvedValue(catalogue as never);
+    db.chefEtapeStatut.findMany.mockResolvedValue([
+      { etapeId: "af" },
+      { etapeId: "e1" },
+    ] as never);
+
+    const result = await EtapeService.autoValiderJalon("c1", "servir");
+
+    expect(result.success).toBe(false);
+    expect(db.chefEtapeStatut.upsert).not.toHaveBeenCalled();
+  });
+
+  it("valide le jalon Servir dès qu'une spécialité est validée", async () => {
+    db.etape.findUnique.mockResolvedValue({
+      id: "servir",
+      niveau: 3,
+      type: "JALON",
+    } as never);
+    db.etape.findMany.mockResolvedValue(catalogue as never);
+    db.chefEtapeStatut.findMany.mockResolvedValue([
+      { etapeId: "af" },
+      { etapeId: "e1" },
+      { etapeId: "b1" },
+    ] as never);
+    db.chefEtapeStatut.upsert.mockResolvedValue({} as never);
+
+    const result = await EtapeService.autoValiderJalon("c1", "servir");
+
+    expect(result.success).toBe(true);
+    expect(db.chefEtapeStatut.upsert).toHaveBeenCalled();
   });
 });

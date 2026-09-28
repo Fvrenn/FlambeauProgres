@@ -3,6 +3,8 @@
 import { z } from "zod";
 
 import { getUser } from "@/lib/auth-server";
+import { estReferent } from "@/lib/roles";
+import { REGLES_JUSTIFICATION } from "@/lib/fichiers";
 import { StorageService } from "@/services/storage.service";
 import {
   DiscussionService,
@@ -61,7 +63,11 @@ export async function postMessage(
 
     if (file) {
       try {
-        const result = await StorageService.uploadFile(file, "justifications");
+        const result = await StorageService.uploadFile(
+          file,
+          "justifications",
+          REGLES_JUSTIFICATION,
+        );
 
         fichierData = {
           nomOriginal: file.name,
@@ -118,11 +124,7 @@ export async function validateRealisation(justificationId: string) {
   try {
     const user = await getUser();
 
-    if (
-      !user ||
-      !("role" in user) ||
-      (user.role !== "REFERENT" && user.role !== "ADMIN")
-    ) {
+    if (!user || !("role" in user) || !estReferent(user.role)) {
       return { success: false as const, error: "Non autorisé" };
     }
 
@@ -135,6 +137,7 @@ export async function validateRealisation(justificationId: string) {
     return await DiscussionService.validateRealisation({
       referentId: user.id,
       referentName: user.name,
+      referentRole: user.role,
       justificationId: parsed.data,
     });
   } catch (error) {

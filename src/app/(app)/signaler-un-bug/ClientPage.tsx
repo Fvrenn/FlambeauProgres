@@ -42,7 +42,7 @@ const CONTEXTE = [
 ];
 
 function buildMailtoHref(user: SessionUser) {
-  const subject = "[Bug Flambeau Progrès] ";
+  const subject = "[Bug Flambeaux Progrès] ";
   const body = [
     "Ce qui s'est passé :",
     "",

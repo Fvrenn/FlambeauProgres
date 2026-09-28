@@ -11,6 +11,7 @@ import {
   debutPeriode,
 } from "@/lib/analytics";
 import { prisma } from "@/lib/prisma";
+import { ROLES_REFERENT } from "@/lib/roles";
 
 export type AnalyticsFiltres = {
   periode: AnalyticsPeriode;
@@ -82,7 +83,7 @@ export class AnalyticsService {
           select: { id: true, name: true },
         }),
         prisma.user.findMany({
-          where: { role: { in: ["REFERENT", "ADMIN"] } },
+          where: { role: { in: ROLES_REFERENT } },
           orderBy: { name: "asc" },
           select: { id: true, name: true },
         }),

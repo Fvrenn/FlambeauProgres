@@ -2,6 +2,7 @@ import { UserRole } from "@prisma/client";
 
 import { getUser } from "@/lib/auth-server";
 import { prisma } from "@/lib/prisma";
+import { estReferent, suitEtapeSansAssignation } from "@/lib/roles";
 
 export async function authorizeRole(...roles: UserRole[]) {
   const user = await getUser();
@@ -20,7 +21,11 @@ export async function canAccessJustification(
 ): Promise<boolean> {
   const justification = await prisma.justification.findUnique({
     where: { id: justificationId },
-    select: { chefId: true, etapeId: true },
+    select: {
+      chefId: true,
+      etapeId: true,
+      etape: { select: { niveau: true } },
+    },
   });
 
   if (!justification) {
@@ -31,13 +36,17 @@ export async function canAccessJustification(
     return true;
   }
 
-  if (role === "REFERENT" || role === "ADMIN") {
-    const assignation = await prisma.etapeReferent.findFirst({
-      where: { referentId: userId, etapeId: justification.etapeId },
-    });
-
-    return Boolean(assignation);
+  if (!estReferent(role)) {
+    return false;
   }
 
-  return false;
+  if (suitEtapeSansAssignation(role, justification.etape.niveau)) {
+    return true;
+  }
+
+  const assignation = await prisma.etapeReferent.findFirst({
+    where: { referentId: userId, etapeId: justification.etapeId },
+  });
+
+  return Boolean(assignation);
 }

@@ -8,6 +8,7 @@ import { JournalTable } from "./_components/JournalTable";
 import { KpiBandeau } from "./_components/KpiBandeau";
 
 import { authorizeRole } from "@/lib/auth-guards";
+import { ROLES_REFERENT } from "@/lib/roles";
 import { parsePeriode } from "@/lib/analytics";
 import { AnalyticsService } from "@/services/analytics.service";
 
@@ -20,7 +21,7 @@ type AnalysePageProps = {
 };
 
 export default async function AnalysePage({ searchParams }: AnalysePageProps) {
-  const user = await authorizeRole("REFERENT", "ADMIN");
+  const user = await authorizeRole(...ROLES_REFERENT);
 
   if (!user) {
     redirect("/");

@@ -40,7 +40,7 @@ export const SidebarContent = ({
         className={`flex items-center gap-2 ${isCompact ? "justify-center" : "px-2"}`}
       >
         <Image
-          alt="Flambeau Progrès Logo"
+          alt="Flambeaux Progrès Logo"
           className={`rounded-full h-auto ${isCompact ? "w-10" : "w-[50px]"}`}
           height={68}
           src="/logo/logo-flambeau-progres.svg"

@@ -3,7 +3,9 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 vi.mock("@/lib/prisma", () => {
   const prisma = {
     justification: { findUnique: vi.fn(), update: vi.fn() },
+    etape: { findUnique: vi.fn() },
     etapeReferent: { findFirst: vi.fn(), findMany: vi.fn() },
+    user: { findMany: vi.fn() },
     notification: { create: vi.fn(), createMany: vi.fn() },
     message: { create: vi.fn() },
     $transaction: vi.fn(),
@@ -163,6 +165,7 @@ describe("DiscussionService.postMessage", () => {
       etapeId: "e1",
       statut: "VALIDEE",
       objectif: { code: "G8" },
+      etape: { name: "E", niveau: 2 },
       chef: { name: "Chef" },
     } as never);
 
@@ -188,6 +191,11 @@ describe("DiscussionService.postMessage", () => {
       objectif: { code: "G8" },
       etape: { name: "E" },
       chef: { name: "Chef" },
+    } as never);
+    db.etape.findUnique.mockResolvedValue({
+      id: "e1",
+      name: "E",
+      niveau: 2,
     } as never);
     db.etapeReferent.findMany.mockResolvedValue([
       { referent: { id: "ref1", email: "ref@x.fr", name: "Ref" } },
@@ -259,6 +267,11 @@ describe("DiscussionService.postMessage", () => {
       etape: { name: "E" },
       chef: { name: "Chef" },
     } as never);
+    db.etape.findUnique.mockResolvedValue({
+      id: "e1",
+      name: "E",
+      niveau: 2,
+    } as never);
     db.etapeReferent.findMany.mockResolvedValue([
       { referent: { id: "ref1", email: "ref@x.fr", name: "Ref" } },
     ] as never);
@@ -287,6 +300,7 @@ describe("DiscussionService.validateRealisation", () => {
     const result = await DiscussionService.validateRealisation({
       referentId: "ref1",
       referentName: "Ref",
+      referentRole: "REFERENT",
       justificationId: "j1",
     });
 
@@ -301,6 +315,7 @@ describe("DiscussionService.validateRealisation", () => {
       etapeId: "e1",
       statut: "SOUMISE",
       objectif: { code: "G8" },
+      etape: { name: "E", niveau: 2 },
       chef: { name: "Chef" },
     } as never);
     db.etapeReferent.findFirst.mockResolvedValue(null as never);
@@ -308,6 +323,7 @@ describe("DiscussionService.validateRealisation", () => {
     const result = await DiscussionService.validateRealisation({
       referentId: "ref1",
       referentName: "Ref",
+      referentRole: "REFERENT",
       justificationId: "j1",
     });
 
@@ -322,6 +338,7 @@ describe("DiscussionService.validateRealisation", () => {
       etapeId: "e1",
       statut: "VALIDEE",
       objectif: { code: "G8" },
+      etape: { name: "E", niveau: 2 },
       chef: { name: "Chef" },
     } as never);
     db.etapeReferent.findFirst.mockResolvedValue({ id: "a1" } as never);
@@ -329,6 +346,7 @@ describe("DiscussionService.validateRealisation", () => {
     const result = await DiscussionService.validateRealisation({
       referentId: "ref1",
       referentName: "Ref",
+      referentRole: "REFERENT",
       justificationId: "j1",
     });
 
@@ -343,7 +361,7 @@ describe("DiscussionService.validateRealisation", () => {
       etapeId: "e1",
       statut: "SOUMISE",
       objectif: { code: "G8", description: "Description G8" },
-      etape: { name: "E" },
+      etape: { name: "E", niveau: 2 },
       chef: { name: "Chef" },
     } as never);
     db.etapeReferent.findFirst.mockResolvedValue({ id: "a1" } as never);
@@ -351,6 +369,7 @@ describe("DiscussionService.validateRealisation", () => {
     const result = await DiscussionService.validateRealisation({
       referentId: "ref1",
       referentName: "Ref",
+      referentRole: "REFERENT",
       justificationId: "j1",
     });
 
@@ -376,5 +395,79 @@ describe("DiscussionService.validateRealisation", () => {
       db.justification.update.mock.calls[0][0].data.valideeAt,
     ).toBeInstanceOf(Date);
     expect(db.notification.create).toHaveBeenCalledTimes(1);
+  });
+
+  it("refuses a referent assigned to an etape 3 profil", async () => {
+    db.justification.findUnique.mockResolvedValue({
+      id: "j1",
+      chefId: "c1",
+      etapeId: "e3",
+      statut: "SOUMISE",
+      objectif: { code: "L9", description: "Description L9" },
+      etape: { name: "Leader", niveau: 3 },
+      chef: { name: "Chef" },
+    } as never);
+    db.etapeReferent.findFirst.mockResolvedValue({ id: "a1" } as never);
+
+    const result = await DiscussionService.validateRealisation({
+      referentId: "ref1",
+      referentName: "Ref",
+      referentRole: "REFERENT",
+      justificationId: "j1",
+    });
+
+    expect(result.success).toBe(false);
+    expect(db.$transaction).not.toHaveBeenCalled();
+  });
+
+  it("laisse la commission Formation évaluer l'étape 3 sans assignation", async () => {
+    db.justification.findUnique.mockResolvedValue({
+      id: "j1",
+      chefId: "c1",
+      etapeId: "e3",
+      statut: "SOUMISE",
+      objectif: { code: "L9", description: "Description L9" },
+      etape: { name: "Leader", niveau: 3 },
+      chef: { name: "Chef" },
+    } as never);
+    db.etapeReferent.findFirst.mockResolvedValue(null as never);
+
+    const result = await DiscussionService.validateRealisation({
+      referentId: "cf1",
+      referentName: "Commission",
+      referentRole: "COMMISSION_FORMATION",
+      justificationId: "j1",
+    });
+
+    expect(result.success).toBe(true);
+    expect(db.justification.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: "j1" },
+        data: expect.objectContaining({ statut: "VALIDEE" }),
+      }),
+    );
+  });
+
+  it("refuse au Coordinateur National d'évaluer une réalisation", async () => {
+    db.justification.findUnique.mockResolvedValue({
+      id: "j1",
+      chefId: "c1",
+      etapeId: "e3",
+      statut: "SOUMISE",
+      objectif: { code: "L9", description: "Description L9" },
+      etape: { name: "Leader", niveau: 3 },
+      chef: { name: "Chef" },
+    } as never);
+    db.etapeReferent.findFirst.mockResolvedValue(null as never);
+
+    const result = await DiscussionService.validateRealisation({
+      referentId: "cn1",
+      referentName: "Coordinateur",
+      referentRole: "COORDINATEUR_NATIONAL",
+      justificationId: "j1",
+    });
+
+    expect(result.success).toBe(false);
+    expect(db.$transaction).not.toHaveBeenCalled();
   });
 });

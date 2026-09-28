@@ -3,8 +3,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { buildWpLoginUrl } from "@/lib/wp-redirect";
 import { CURRENT_URL_HEADER } from "@/lib/current-url";
 import { urlPublique } from "@/lib/public-url";
+import { ROUTE_DECONNEXION } from "@/config/navigation";
 
 export async function middleware(request: NextRequest) {
+  if (request.nextUrl.pathname === ROUTE_DECONNEXION) {
+    return NextResponse.next();
+  }
+
   const isWpAuthenticated = request.cookies
     .getAll()
     .some((cookie) => cookie.name.startsWith("wordpress_logged_in"));

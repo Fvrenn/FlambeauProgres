@@ -44,12 +44,42 @@ verrouillage passe par la règle d'accès ci-dessous, pas par le type de l'objec
 
 ## Règle d'accès
 
-`etapeEstAccessible` (`src/lib/parcours.ts`) : une étape de niveau 3 n'est accessible que si le chef
-a **au moins une spécialité de niveau 2 validée**, en plus du déblocage par jalons déjà en place.
+`etapeEstAccessible` (`src/lib/parcours.ts`) prend un `ContexteParcours` et applique, dans l'ordre :
+le déblocage par jalons déjà en place, puis pour le niveau 3 **au moins une spécialité de niveau 2
+validée**, puis pour les profils **le jalon « Servir » validé**.
 
 Une étape **déjà validée reste toujours accessible**, même si le prérequis n'est pas rempli. Sans
 cette garantie, un chef qui coche « Leader » sur la plateforme sans avoir de spé verrait une étape
 validée en base mais invisible à l'écran.
+
+### Le jalon « Servir »
+
+Comme l'Allume-feu et l'Étape 1 « Découvrir », l'étape 3 s'ouvre en lisant son livret : l'étape `3`
+(`niveau 3`, `type JALON`) affiche le même `JalonBadge` — illustration, PDF, puis « J'ai lu le
+livret » qui appelle `validerJalon`.
+
+Le déblocage par niveau **ne peut pas** exprimer ce verrou : `niveauMaxDebloque` renverrait 3, et
+`etapeEstDebloquee(3, 3)` est vrai pour les profils comme pour le jalon, qui partagent le niveau. Il
+n'existe pas de palier entre les spécialités (2) et les profils (3). D'où `jalonProfilsEstValide`,
+une condition explicite qui s'ajoute à `specialiteValidee` — exactement comme cette dernière était
+déjà un cas particulier du niveau 3. Le jalon lui-même n'exige que la spécialité, sinon il
+s'auto-verrouillerait. `autoValiderJalon` rejoue cette garde côté serveur : sans spécialité validée,
+un POST direct sur le jalon `3` est refusé.
+
+Séquence obtenue : spécialités → le jalon `3` apparaît → livret lu → `3b`/`3c` apparaissent.
+
+Deux conséquences côté écran :
+
+- `currentJalon` (`DashboardClient`) ne retient que les jalons de niveau < 3. Sans ce filtre, le
+  jalon « Servir » remplacerait toute la bande d'écussons dès qu'une spécialité est validée, et le
+  chef perdrait l'accès à ses spés.
+- Le sélecteur `Étape 2 | Étape 3` apparaît dès que l'étape 3 est atteignable — profils déverrouillés
+  **ou** livret à lire. Sinon le livret serait inatteignable, puisque c'est lui qui déverrouille les
+  profils qui font apparaître le sélecteur. Sur l'onglet « Étape 3 », tant que le livret n'est pas
+  validé, c'est le `JalonBadge` (variante `compact`, à la taille des écussons) qui occupe la bande.
+
+L'illustration `public/livrets/servir/illustration.png` est extraite du PDF du livret
+(`pdfimages` puis application du masque alpha), pour suivre la convention des deux autres livrets.
 
 ## Affichage
 
@@ -74,11 +104,62 @@ cohérents avec ce qui est affiché.
       ré-export depuis Blender. Rien ne casse en attendant — la sélection compare les noms de nœuds
       et ne trouve simplement rien. `evaluerAvancementBarettes` (`src/lib/chemise-parts.ts`) devra
       alors gérer un `etape3Validee`.
-- [ ] **Référents.** L'étape 3 est validée par la commission Formation puis le Coordinateur
-      National, alors que l'app assigne des référents par étape (`EtapeReferent`). Sans assignation
-      sur `3b` et `3c`, aucun validateur ne verra ces étapes dans son tableau de bord.
+- [x] **Référents.** ✅ Fait — deux rôles (`COMMISSION_FORMATION`, `COORDINATEUR_NATIONAL`)
+      remplacent l'assignation `EtapeReferent` sur le niveau 3, voir « Rôles de l'étape 3 » ci-dessous.
+      Où : `prisma/schema.prisma` + migration `20260909120000_roles_commission_coordinateur`,
+      `src/lib/roles.ts`, `src/lib/auth-guards.ts`, `src/lib/auth-server.ts`,
+      `src/services/{etape,discussion,notification}.service.ts`,
+      `src/actions/{etape,discussion}/*.actions.ts`, pages `(referent)` et `admin`.
+      Comment : `peutEvaluerEtape` / `peutValiderEtape` centralisent la règle, les rôles ouvrent
+      l'accès sans ligne `EtapeReferent`.
+
+## Rôles de l'étape 3
+
+Le livret confie l'**évaluation à la commission Formation** puis la **validation au Coordinateur
+National** (« La commission formation transmet au Coordinateur National pour validation »). Deux
+rôles `UserRole` traduisent ce circuit :
+
+| Rôle                    | Droits Admin | En plus                                          |
+| ----------------------- | ------------ | ------------------------------------------------ |
+| `COMMISSION_FORMATION`  | oui          | évalue les réalisations des étapes de niveau ≥ 3 |
+| `COORDINATEUR_NATIONAL` | oui          | valide le badge des étapes de niveau ≥ 3         |
+
+Tout ce que fait `ADMIN`, ces deux rôles le font : `ROLES_ADMIN` et `ROLES_REFERENT`
+(`src/lib/roles.ts`) remplacent partout les comparaisons littérales `=== "ADMIN"`, y compris les
+`authorizeRole` de `admin.actions.ts`, les layouts `/admin` et `(referent)`, la sidebar et le
+`ContextSwitcher`.
+
+### Règle d'autorisation
+
+`peutEvaluerEtape(role, niveau, estAssigne)` et `peutValiderEtape(role, niveau, estAssigne)` sont
+les deux seules portes :
+
+- **niveau < 3** : inchangé — il faut une ligne `EtapeReferent`.
+- **niveau ≥ 3** : l'assignation ne joue plus, c'est le rôle qui décide. La commission évalue, le
+  Coordinateur valide, et l'un ne peut pas faire le travail de l'autre.
+
+Ces deux rôles voient donc les profils `3b`/`3c` **sans assignation** : `getSession`
+(`src/lib/auth-server.ts`) ajoute les étapes de niveau ≥ 3 à `etapesReferent`, ce qui alimente la
+sidebar et le sélecteur de contexte, et `canAccessJustification` les laisse ouvrir les fils.
+C'est pourquoi le compteur « étapes sans référent » du tableau de bord admin exclut le niveau 3.
+
+Les notifications suivent : `NotificationService.getEvaluateursEtape` ajoute les membres de la
+commission aux destinataires d'une étape de niveau ≥ 3, sans quoi une réalisation soumise sur `3b`
+n'aurait alerté personne.
+
+Côté écran, `peutEvaluer` / `peutValider` sont calculés sur le serveur et descendus en props
+(`ReferentDashboardClientV2` → `ReferentValidationModal` → `DiscussionThread`, et `RevisionClient`)
+pour masquer un bouton que l'action refuserait de toute façon.
 
 ## Note de migration
+
+`20260909150000_jalon_servir` insère l'étape jalon `3 Servir`. Comme pour les profils, la ligne est
+créée en SQL (`INSERT IGNORE`, la contrainte d'unicité sur `number` rend le rejeu inoffensif) et
+ajoutée en parallèle au seed.
+
+`20260909120000_roles_commission_coordinateur` ajoute `COMMISSION_FORMATION` et
+`COORDINATEUR_NATIONAL` à l'énumération `users.role`. Migration écrite à la main (un `ALTER TABLE …
+MODIFY` de l'ENUM) puis appliquée avec `migrate deploy`.
 
 `20260829160000_etape_3_profils` élargit `etapes.description` et `objectifs.description` de
 `VARCHAR(191)` à `TEXT`. Les textes du livret dépassaient la limite — c'est d'ailleurs pourquoi les

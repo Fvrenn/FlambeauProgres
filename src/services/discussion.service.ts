@@ -7,6 +7,11 @@ import {
 
 import { prisma } from "@/lib/prisma";
 import { canAccessJustification } from "@/lib/auth-guards";
+import {
+  estNiveauEtape3,
+  messageRefusEvaluation,
+  peutEvaluerEtape,
+} from "@/lib/roles";
 import { NotificationService } from "@/services/notification.service";
 import { EmailService } from "@/services/email.service";
 import { chefThreadUrl, referentThreadUrl } from "@/lib/links";
@@ -39,7 +44,7 @@ export type ThreadData = {
 type JustificationForNotify = Prisma.JustificationGetPayload<{
   include: {
     objectif: { select: { code: true; description: true } };
-    etape: { select: { name: true } };
+    etape: { select: { name: true; niveau: true } };
     chef: { select: { name: true; email: true } };
   };
 }>;
@@ -151,7 +156,7 @@ export class DiscussionService {
       where: { id: justificationId },
       include: {
         objectif: { select: { code: true, description: true } },
-        etape: { select: { name: true } },
+        etape: { select: { name: true, niveau: true } },
         chef: { select: { name: true, email: true } },
       },
     });
@@ -200,15 +205,16 @@ export class DiscussionService {
   static async validateRealisation(input: {
     referentId: string;
     referentName: string;
+    referentRole: UserRole | undefined;
     justificationId: string;
   }): Promise<ServiceResult<ThreadMessage>> {
-    const { referentId, referentName, justificationId } = input;
+    const { referentId, referentName, referentRole, justificationId } = input;
 
     const justification = await prisma.justification.findUnique({
       where: { id: justificationId },
       include: {
         objectif: { select: { code: true, description: true } },
-        etape: { select: { name: true } },
+        etape: { select: { name: true, niveau: true } },
         chef: { select: { name: true, email: true } },
       },
     });
@@ -221,10 +227,16 @@ export class DiscussionService {
       where: { referentId, etapeId: justification.etapeId },
     });
 
-    if (!assignation) {
+    if (
+      !peutEvaluerEtape(
+        referentRole,
+        justification.etape.niveau,
+        Boolean(assignation),
+      )
+    ) {
       return {
         success: false,
-        error: "Vous n'êtes pas référent de cette étape",
+        error: messageRefusEvaluation(justification.etape.niveau),
       };
     }
 
@@ -252,12 +264,16 @@ export class DiscussionService {
       return created;
     });
 
+    const evaluateur = estNiveauEtape3(justification.etape.niveau)
+      ? "la commission Formation"
+      : "votre référent";
+
     await NotificationService.createNotification({
       destinataireId: justification.chefId,
       justificationId,
       type: "JUSTIFICATION_VALIDEE",
       titre: "Réalisation validée !",
-      message: `Votre réalisation "${justification.objectif.code}" a été validée par votre référent.`,
+      message: `Votre réalisation "${justification.objectif.code}" a été validée par ${evaluateur}.`,
     });
 
     await EmailService.sendValidation({
@@ -280,20 +296,17 @@ export class DiscussionService {
     ctx: { authorName: string; messageText: string | null },
   ) {
     if (fromChef) {
-      const referents = await prisma.etapeReferent.findMany({
-        where: { etapeId: justification.etapeId },
-        select: {
-          referent: { select: { id: true, name: true, email: true } },
-        },
-      });
+      const { evaluateurs } = await NotificationService.getEvaluateursEtape(
+        justification.etapeId,
+      );
 
-      if (referents.length === 0) {
+      if (evaluateurs.length === 0) {
         return;
       }
 
       await prisma.notification.createMany({
-        data: referents.map((er) => ({
-          destinataireId: er.referent.id,
+        data: evaluateurs.map((evaluateur) => ({
+          destinataireId: evaluateur.id,
           justificationId: justification.id,
           type: "NOUVEAU_COMMENTAIRE" as const,
           titre: "Nouveau message du chef",
@@ -308,9 +321,9 @@ export class DiscussionService {
       );
 
       await Promise.all(
-        referents.map((er) =>
+        evaluateurs.map((evaluateur) =>
           EmailService.sendNewMessage({
-            to: er.referent.email,
+            to: evaluateur.email,
             authorName: ctx.authorName,
             etapeName: justification.etape.name,
             objectifCode: justification.objectif.code,

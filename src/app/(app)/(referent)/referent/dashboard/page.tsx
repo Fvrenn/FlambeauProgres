@@ -6,6 +6,7 @@ import ReferentDashboardClientV2 from "./ReferentDashboardClientV2";
 import { getUser } from "@/lib/auth-server";
 import { STATUTS_VALIDES } from "@/lib/justification";
 import { prisma } from "@/lib/prisma";
+import { estReferent, peutEvaluerEtape } from "@/lib/roles";
 
 type ReferentDashboardPageProps = {
   searchParams: Promise<{
@@ -113,13 +114,25 @@ export default async function ReferentDashboardPage({
 
   const user = await getUser();
 
-  if (
-    !user ||
-    !("role" in user) ||
-    (user.role !== "REFERENT" && user.role !== "ADMIN")
-  ) {
+  if (!user || !("role" in user) || !estReferent(user.role)) {
     return <div>Accès refusé</div>;
   }
+
+  const [etape, assignation] = await Promise.all([
+    prisma.etape.findUnique({
+      where: { id: etapeId },
+      select: { niveau: true },
+    }),
+    prisma.etapeReferent.findFirst({
+      where: { referentId: user.id, etapeId },
+    }),
+  ]);
+
+  const peutEvaluer = peutEvaluerEtape(
+    user.role,
+    etape?.niveau ?? 0,
+    Boolean(assignation),
+  );
 
   const justificationsAValider = await prisma.justification.findMany({
     where: {
@@ -155,6 +168,7 @@ export default async function ReferentDashboardPage({
       chefsAReviser={chefsAReviser}
       justificationsAValider={justificationsAValider}
       justificationsEnDiscussion={justificationsEnDiscussion}
+      peutEvaluer={peutEvaluer}
       targetJustificationId={targetJustificationId}
       viewer={{
         id: user.id,

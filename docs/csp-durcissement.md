@@ -113,6 +113,34 @@ ressources qu'on est justement en train de rapatrier.
       statiques. Ce n'est pas un problème — le CSP ne s'applique qu'au document HTML, pas à chaque
       ressource.
 
+      **Valeurs imposées par l'admin, à conserver telles quelles :**
+
+      ```
+      report-uri https://glitchtip.logut.fr/api/2/security/?glitchtip_key=c934028aa3d54479ac024dc3312c2f92
+      connect-src 'self' blob: https://glitchtip.logut.fr
+      ```
+
+      - La clé `glitchtip_key` n'est pas un secret : elle part dans l'en-tête de chaque réponse.
+      - `https://glitchtip.logut.fr` dans `connect-src` ne sert pas aux rapports CSP : le navigateur
+        les envoie hors `connect-src`. Il n'est utile que si l'app appelle GlitchTip en `fetch`
+        (SDK Sentry/GlitchTip côté client), ce qui n'est pas le cas aujourd'hui. Inoffensif, gardé
+        à la demande de l'admin.
+      - `blob:` dans `connect-src` est nécessaire : `GLTFLoader` relit en `fetch` les `blob:` des
+        textures embarquées dans le GLB.
+
+      **`report-uri` seul, pas de `report-to` pour l'instant.** `report-uri` est déprécié mais reste
+      le seul mécanisme de Firefox. Surtout, quand les deux sont présents, Chrome **ignore**
+      `report-uri` et n'utilise que `report-to` (en-tête `Reporting-Endpoints`, POST en
+      `application/reports+json`, format différent de `application/csp-report`). La doc GlitchTip
+      ne documente que `report-uri` : ajouter `report-to` sans avoir vérifié que l'endpoint accepte
+      le format Reporting API ferait perdre silencieusement tous les rapports Chrome. À ajouter
+      seulement après un test réel côté GlitchTip.
+
+      **Prérequis :** `bebfa4c` (`public-url.ts`, `middleware.ts` qui construit l'URL publique
+      depuis `APP_URL`) est sur `main` mais pas sur `feat/etape-3`. Partir de `main` à jour.
+      Next 16 déprécie `middleware.ts` au profit de `proxy.ts` : le renommage peut se faire dans la
+      même phase, le fichier étant de toute façon réécrit.
+
 - [ ] **Phase 4 — CSP appliqué**
 
       Bascule de `Report-Only` vers `Content-Security-Policy` après observation.

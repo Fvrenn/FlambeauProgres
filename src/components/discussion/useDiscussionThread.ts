@@ -11,32 +11,9 @@ import {
   postMessage,
   validateRealisation,
 } from "@/actions/discussion/discussion.actions";
-
-const ALLOWED_MIME_TYPES = new Set<string>([
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/gif",
-  "application/pdf",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-]);
-
-const MAX_FILE_SIZE = 8 * 1024 * 1024;
+import { REGLES_JUSTIFICATION, validerFichier } from "@/lib/fichiers";
 
 const POLL_INTERVAL_MS = 7000;
-
-export function validateFileClient(file: File): string | null {
-  if (!ALLOWED_MIME_TYPES.has(file.type)) {
-    return "Type de fichier non autorisé (images, PDF ou Word uniquement)";
-  }
-
-  if (file.size > MAX_FILE_SIZE) {
-    return "Fichier trop volumineux (8 Mo maximum)";
-  }
-
-  return null;
-}
 
 function toUiMessage(message: ThreadMessage): UiMessage {
   return {
@@ -128,7 +105,7 @@ export function useDiscussionThread(justificationId: string, viewer: Viewer) {
       }
 
       if (file) {
-        const fileError = validateFileClient(file);
+        const fileError = validerFichier(file, REGLES_JUSTIFICATION);
 
         if (fileError) {
           setError(fileError);

@@ -3,7 +3,9 @@ import { redirect } from "next/navigation";
 
 import RevisionClient from "./RevisionClient";
 
+import { getUser } from "@/lib/auth-server";
 import { prisma } from "@/lib/prisma";
+import { messageRefusValidation, peutValiderEtape } from "@/lib/roles";
 
 type RevisionPageProps = {
   searchParams: Promise<{
@@ -49,7 +51,27 @@ export default async function RevisionPage({
     redirect("/referent/dashboard");
   }
 
+  const user = await getUser();
+  const assignation = user
+    ? await prisma.etapeReferent.findFirst({
+        where: { referentId: user.id, etapeId },
+      })
+    : null;
+
+  const role = user && "role" in user ? user.role : undefined;
+  const peutValider = peutValiderEtape(
+    role,
+    etape.niveau,
+    Boolean(assignation),
+  );
+
   return (
-    <RevisionClient chef={chef} etape={etape} justifications={justifications} />
+    <RevisionClient
+      chef={chef}
+      etape={etape}
+      justifications={justifications}
+      peutValider={peutValider}
+      refusValidation={messageRefusValidation(etape.niveau)}
+    />
   );
 }

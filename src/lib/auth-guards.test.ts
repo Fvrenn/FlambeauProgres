@@ -73,6 +73,7 @@ describe("canAccessJustification", () => {
     db.justification.findUnique.mockResolvedValue({
       chefId: "u1",
       etapeId: "e1",
+      etape: { niveau: 2 },
     } as never);
 
     expect(await canAccessJustification("u1", "CHEF", "j1")).toBe(true);
@@ -82,6 +83,7 @@ describe("canAccessJustification", () => {
     db.justification.findUnique.mockResolvedValue({
       chefId: "other",
       etapeId: "e1",
+      etape: { niveau: 2 },
     } as never);
     db.etapeReferent.findFirst.mockResolvedValue({ id: "a1" } as never);
 
@@ -92,6 +94,7 @@ describe("canAccessJustification", () => {
     db.justification.findUnique.mockResolvedValue({
       chefId: "other",
       etapeId: "e1",
+      etape: { niveau: 2 },
     } as never);
     db.etapeReferent.findFirst.mockResolvedValue(null as never);
 
@@ -102,6 +105,7 @@ describe("canAccessJustification", () => {
     db.justification.findUnique.mockResolvedValue({
       chefId: "other",
       etapeId: "e1",
+      etape: { niveau: 2 },
     } as never);
     db.etapeReferent.findFirst.mockResolvedValue({ id: "a1" } as never);
 
@@ -112,6 +116,7 @@ describe("canAccessJustification", () => {
     db.justification.findUnique.mockResolvedValue({
       chefId: "other",
       etapeId: "e1",
+      etape: { niveau: 2 },
     } as never);
     db.etapeReferent.findFirst.mockResolvedValue(null as never);
 
@@ -122,8 +127,47 @@ describe("canAccessJustification", () => {
     db.justification.findUnique.mockResolvedValue({
       chefId: "other",
       etapeId: "e1",
+      etape: { niveau: 2 },
     } as never);
 
     expect(await canAccessJustification("u1", "CHEF", "j1")).toBe(false);
+  });
+
+  it("returns true for the commission Formation on an etape 3 without assignation", async () => {
+    db.justification.findUnique.mockResolvedValue({
+      chefId: "other",
+      etapeId: "e3",
+      etape: { niveau: 3 },
+    } as never);
+
+    expect(
+      await canAccessJustification("cf1", "COMMISSION_FORMATION", "j1"),
+    ).toBe(true);
+    expect(db.etapeReferent.findFirst).not.toHaveBeenCalled();
+  });
+
+  it("returns true for the Coordinateur National on an etape 3 without assignation", async () => {
+    db.justification.findUnique.mockResolvedValue({
+      chefId: "other",
+      etapeId: "e3",
+      etape: { niveau: 3 },
+    } as never);
+
+    expect(
+      await canAccessJustification("cn1", "COORDINATEUR_NATIONAL", "j1"),
+    ).toBe(true);
+  });
+
+  it("still requires an assignation for the commission on an etape 2", async () => {
+    db.justification.findUnique.mockResolvedValue({
+      chefId: "other",
+      etapeId: "e1",
+      etape: { niveau: 2 },
+    } as never);
+    db.etapeReferent.findFirst.mockResolvedValue(null as never);
+
+    expect(
+      await canAccessJustification("cf1", "COMMISSION_FORMATION", "j1"),
+    ).toBe(false);
   });
 });

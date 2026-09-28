@@ -85,6 +85,7 @@ interface ReferentDashboardClientV2Props {
   chefsAReviser: User[];
   targetJustificationId?: string;
   viewer: DiscussionViewer;
+  peutEvaluer: boolean;
 }
 
 export default function ReferentDashboardClientV2({
@@ -93,6 +94,7 @@ export default function ReferentDashboardClientV2({
   chefsAReviser,
   targetJustificationId,
   viewer,
+  peutEvaluer,
 }: ReferentDashboardClientV2Props) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<React.Key>("a-valider");
@@ -194,6 +196,7 @@ export default function ReferentDashboardClientV2({
       <ReferentValidationModal
         isOpen={isModalOpen}
         justification={selectedJustification}
+        peutEvaluer={peutEvaluer}
         viewer={viewer}
         onOpenChange={handleCloseModal}
       />

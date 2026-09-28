@@ -1,4 +1,4 @@
-# Flambeau Progrès
+# Flambeaux Progrès
 
 Application web de suivi pédagogique pour les Chefs Flambeaux. Permet aux animateurs de valider leurs compétences et réalisations pour obtenir leurs badges, avec un système de validation par référents.
 

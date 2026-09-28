@@ -20,7 +20,7 @@ export default async function Home() {
   ]);
 
   return (
-    <div className="h-full max-h-screen flex flex-col overflow-hidden">
+    <div className="h-full flex flex-col overflow-hidden">
       <h4 className="hidden md:block text-3xl font-extrabold flex-shrink-0">
         Tableau de bord
       </h4>

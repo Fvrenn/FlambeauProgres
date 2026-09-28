@@ -4,13 +4,7 @@ import type { Objectif } from "@prisma/client";
 import type { AdminEtapeWithObjectifs } from "@/types";
 
 import React from "react";
-import {
-  Chip,
-  Tooltip,
-  Breadcrumbs,
-  BreadcrumbItem,
-  Image,
-} from "@heroui/react";
+import { Chip, Tooltip, Breadcrumbs, BreadcrumbItem } from "@heroui/react";
 import { useRouter } from "next/navigation";
 
 import ObjectifModal from "../_components/ObjectifModal";
@@ -18,7 +12,8 @@ import { updateEtapeBadge, deleteObjectif } from "../../_actions/admin.actions";
 
 import { Icon } from "@/lib/icons";
 import AdminDataTable, { Column } from "@/components/admin/AdminDataTable";
-import { Input } from "@/components/ui";
+import { FileDropzone, Input } from "@/components/ui";
+import { REGLES_ICONE_ETAPE } from "@/lib/fichiers";
 import { DEFAULT_ETAPE_COLOR } from "@/lib/color";
 
 type EtapeDetailClientPageProps = {
@@ -41,11 +36,12 @@ export default function EtapeDetailClientPage({
   const [selectedObjectif, setSelectedObjectif] =
     React.useState<Objectif | null>(null);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const [badgeUrl, setBadgeUrl] = React.useState(etape.image_src || "");
+  const [icone, setIcone] = React.useState<File | null>(null);
   const [couleur, setCouleur] = React.useState(
     etape.couleur || DEFAULT_ETAPE_COLOR,
   );
   const [isSavingBadge, setIsSavingBadge] = React.useState(false);
+  const [erreurBadge, setErreurBadge] = React.useState<string | null>(null);
 
   const handleEdit = (objectif: Objectif) => {
     setSelectedObjectif(objectif);
@@ -66,14 +62,24 @@ export default function EtapeDetailClientPage({
 
   const handleSaveBadge = async () => {
     setIsSavingBadge(true);
-    try {
-      await updateEtapeBadge(etape.id, badgeUrl, couleur);
-      router.refresh();
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setIsSavingBadge(false);
+    setErreurBadge(null);
+
+    const result = await updateEtapeBadge(
+      etape.id,
+      couleur,
+      icone ?? undefined,
+    );
+
+    setIsSavingBadge(false);
+
+    if (!result.success) {
+      setErreurBadge(result.error ?? "Une erreur est survenue");
+
+      return;
     }
+
+    setIcone(null);
+    router.refresh();
   };
 
   const renderCell = React.useCallback(
@@ -151,30 +157,13 @@ export default function EtapeDetailClientPage({
       <div className="flex flex-col md:flex-row gap-6 items-start">
         <div className="w-full md:w-1/3 flex flex-col gap-4 p-6 rounded-[22px] bg-[#FAF6EB]">
           <h2 className="text-[15px] font-bold">Badge de l'étape</h2>
-          <div className="flex justify-center py-4">
-            <div className="w-32 h-32 rounded-xl bg-dashboard-border/50 flex items-center justify-center overflow-hidden border-2 border-dashed border-dashboard-border">
-              {badgeUrl ? (
-                <Image
-                  alt="Badge"
-                  className="object-cover"
-                  height={128}
-                  src={badgeUrl}
-                  width={128}
-                />
-              ) : (
-                <Icon
-                  className="text-4xl text-foreground/30"
-                  icon="solar:gallery-add-linear"
-                />
-              )}
-            </div>
-          </div>
-          <Input
-            label="URL de l'image"
-            placeholder="https://..."
-            size="sm"
-            value={badgeUrl}
-            onValueChange={setBadgeUrl}
+          <FileDropzone
+            aide="PNG uniquement, 1 Mo maximum"
+            apercuActuel={etape.image_src}
+            fichier={icone}
+            label="Icône"
+            regles={REGLES_ICONE_ETAPE}
+            onChange={setIcone}
           />
           <div className="flex items-end gap-2">
             <input
@@ -207,6 +196,7 @@ export default function EtapeDetailClientPage({
           >
             {isSavingBadge ? "Enregistrement..." : "Enregistrer le badge"}
           </button>
+          {erreurBadge && <p className="text-sm text-danger">{erreurBadge}</p>}
         </div>
 
         <div className="w-full md:w-2/3 flex flex-col gap-4">

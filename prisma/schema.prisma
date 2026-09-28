@@ -11,6 +11,8 @@ enum UserRole {
   CHEF
   REFERENT
   ADMIN
+  COMMISSION_FORMATION
+  COORDINATEUR_NATIONAL
 }
 
 enum TypeObjectif {

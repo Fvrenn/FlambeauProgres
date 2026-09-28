@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { updateUserRole } from "../../_actions/admin.actions";
 
 import { FormModal } from "@/components/admin/FormModal";
+import { roleLabelMap } from "@/lib/roles";
 import { Avatar } from "@/components/ui";
 
 const userSchema = z.object({
@@ -86,7 +87,7 @@ export default function UserModal({ isOpen, onClose, user }: UserModalProps) {
         onChange={(e) => setValue("role", e.target.value as UserRole)}
       >
         {Object.values(UserRole).map((role) => (
-          <SelectItem key={role}>{role}</SelectItem>
+          <SelectItem key={role}>{roleLabelMap[role]}</SelectItem>
         ))}
       </Select>
     </FormModal>

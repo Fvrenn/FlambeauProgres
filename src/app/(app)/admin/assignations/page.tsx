@@ -3,6 +3,7 @@ import React from "react";
 import AssignationsClientPage from "./ClientPage";
 
 import { prisma } from "@/lib/prisma";
+import { ROLES_REFERENT } from "@/lib/roles";
 
 export default async function AdminAssignationsPage() {
   const etapes = await prisma.etape.findMany({
@@ -20,7 +21,7 @@ export default async function AdminAssignationsPage() {
 
   const allReferents = await prisma.user.findMany({
     where: {
-      role: { in: ["REFERENT", "ADMIN"] },
+      role: { in: ROLES_REFERENT },
     },
     orderBy: {
       name: "asc",

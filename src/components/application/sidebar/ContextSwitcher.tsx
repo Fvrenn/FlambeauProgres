@@ -18,7 +18,9 @@ import Image from "next/image";
 import { cn } from "@heroui/react";
 
 import { Icon } from "@/lib/icons";
+import { estAdmin, estReferent } from "@/lib/roles";
 import { Avatar } from "@/components/ui";
+import { ROUTE_DECONNEXION } from "@/config/navigation";
 
 function DropdownIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -128,8 +130,7 @@ export default function ContextSwitcher({
             Mon Progrès (Chef)
           </DropdownItem>,
         ]),
-    ...((user.role === "REFERENT" || user.role === "ADMIN") &&
-    user.etapesReferent
+    ...(estReferent(user.role) && user.etapesReferent
       ? user.etapesReferent
           .filter((etape) => etape.id !== currentEtapeId)
           .map((etape) => (
@@ -155,7 +156,7 @@ export default function ContextSwitcher({
             </DropdownItem>
           ))
       : []),
-    ...(user.role === "ADMIN" && !pathname.startsWith("/admin")
+    ...(estAdmin(user.role) && !pathname.startsWith("/admin")
       ? [
           <DropdownItem
             key="admin"
@@ -269,10 +270,7 @@ export default function ContextSwitcher({
                   />
                 }
                 onPress={() => {
-                  // TODO: fetch the WordPress 'log-out' nonce (from
-                  // wp_logout_url() on the WP side) to skip the
-                  // wp-login.php?action=logout confirmation screen
-                  window.location.href = `${process.env.NEXT_PUBLIC_WORDPRESS_URL}/wp-login.php?action=logout`;
+                  window.location.href = ROUTE_DECONNEXION;
                 }}
               >
                 Déconnexion

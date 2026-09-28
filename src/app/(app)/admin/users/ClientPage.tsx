@@ -9,7 +9,7 @@ import UserModal from "./_components/UserModal";
 import { Icon } from "@/lib/icons";
 import AdminDataTable, { Column } from "@/components/admin/AdminDataTable";
 import { Badge, Avatar, Card, CardBody, Button } from "@/components/ui";
-import { roleColorMap } from "@/lib/roles";
+import { roleColorMap, roleLabelMap } from "@/lib/roles";
 
 type UsersClientPageProps = {
   users: User[];
@@ -49,12 +49,11 @@ export default function UsersClientPage({ users }: UsersClientPageProps) {
       case "role":
         return (
           <Badge
-            className="capitalize"
             color={roleColorMap[user.role as UserRole]}
             size="sm"
             variant="flat"
           >
-            {user.role}
+            {roleLabelMap[user.role as UserRole]}
           </Badge>
         );
       case "actions":
@@ -119,7 +118,7 @@ export default function UsersClientPage({ users }: UsersClientPageProps) {
                       color={roleColorMap[user.role as UserRole]}
                       size="sm"
                     >
-                      {user.role}
+                      {roleLabelMap[user.role as UserRole]}
                     </Badge>
                   </div>
                 </div>

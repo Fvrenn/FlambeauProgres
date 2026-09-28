@@ -31,14 +31,14 @@ export const MobileNavbar = ({
         />
         <NavbarBrand className="gap-2">
           <Image
-            alt="Flambeau Progrès Logo"
+            alt="Flambeaux Progrès Logo"
             className="rounded-full h-auto w-8"
             height={68}
             src="/logo/logo-flambeau-progres.svg"
             width={50}
           />
           <span className="text-lg font-extrabold text-[#E06511] leading-7">
-            Flambeau <span className="text-[#542C11]">Progrès</span>
+            Flambeaux <span className="text-[#542C11]">Progrès</span>
           </span>
         </NavbarBrand>
       </NavbarContent>

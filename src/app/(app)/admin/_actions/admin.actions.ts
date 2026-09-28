@@ -6,7 +6,10 @@ import { UserRole } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
 import { authorizeRole } from "@/lib/auth-guards";
+import { ROLES_ADMIN } from "@/lib/roles";
+import { REGLES_ICONE_ETAPE, validerFichier } from "@/lib/fichiers";
 import { FormationService } from "@/services/formation.service";
+import { EtapeIconeService } from "@/services/etape-icone.service";
 
 const idSchema = z.string().min(1);
 
@@ -31,12 +34,17 @@ const etapeInfoSchema = z.object({
     .optional(),
 });
 
+const iconeEtapeSchema = z
+  .instanceof(File)
+  .refine((icone) => validerFichier(icone, REGLES_ICONE_ETAPE) === null)
+  .optional();
+
 const createEtapeSchema = etapeInfoSchema.extend({
   objectifs: z.array(objectifInputSchema).max(100),
 });
 
 export async function updateUserRole(userId: string, role: UserRole) {
-  if (!(await authorizeRole("ADMIN"))) {
+  if (!(await authorizeRole(...ROLES_ADMIN))) {
     return { success: false, error: "Non autorisé" };
   }
 
@@ -68,7 +76,7 @@ export async function assignReferentToEtape(
   referentId: string,
   etapeId: string,
 ) {
-  if (!(await authorizeRole("ADMIN"))) {
+  if (!(await authorizeRole(...ROLES_ADMIN))) {
     return { success: false, error: "Non autorisé" };
   }
 
@@ -102,7 +110,7 @@ export async function removeReferentFromEtape(
   referentId: string,
   etapeId: string,
 ) {
-  if (!(await authorizeRole("ADMIN"))) {
+  if (!(await authorizeRole(...ROLES_ADMIN))) {
     return { success: false, error: "Non autorisé" };
   }
 
@@ -134,32 +142,36 @@ export async function removeReferentFromEtape(
   }
 }
 
-export async function createEtape(data: {
-  number: string;
-  name: string;
-  description: string;
-  ordre: number;
-  wpValue?: string | null;
-  objectifs: {
-    code: string;
+export async function createEtape(
+  data: {
+    number: string;
+    name: string;
     description: string;
-    type: "COMPETENCE" | "REALISATION";
-    fichiersRequis: boolean;
-    texteRequis: boolean;
-  }[];
-}) {
-  if (!(await authorizeRole("ADMIN"))) {
+    ordre: number;
+    wpValue?: string | null;
+    objectifs: {
+      code: string;
+      description: string;
+      type: "COMPETENCE" | "REALISATION";
+      fichiersRequis: boolean;
+      texteRequis: boolean;
+    }[];
+  },
+  icone?: File,
+) {
+  if (!(await authorizeRole(...ROLES_ADMIN))) {
     return { success: false, error: "Non autorisé" };
   }
 
   const parsed = createEtapeSchema.safeParse(data);
+  const parsedIcone = iconeEtapeSchema.safeParse(icone);
 
-  if (!parsed.success) {
+  if (!parsed.success || !parsedIcone.success) {
     return { success: false, error: "Données invalides" };
   }
 
   try {
-    await prisma.etape.create({
+    const etape = await prisma.etape.create({
       data: {
         number: parsed.data.number,
         name: parsed.data.name,
@@ -171,6 +183,10 @@ export async function createEtape(data: {
         },
       },
     });
+
+    if (parsedIcone.data) {
+      await EtapeIconeService.replace(etape.id, parsedIcone.data);
+    }
 
     revalidatePath("/admin/etapes");
 
@@ -191,15 +207,17 @@ export async function updateEtape(
     ordre: number;
     wpValue?: string | null;
   },
+  icone?: File,
 ) {
-  if (!(await authorizeRole("ADMIN"))) {
+  if (!(await authorizeRole(...ROLES_ADMIN))) {
     return { success: false, error: "Non autorisé" };
   }
 
   const parsedId = idSchema.safeParse(id);
   const parsed = etapeInfoSchema.safeParse(data);
+  const parsedIcone = iconeEtapeSchema.safeParse(icone);
 
-  if (!parsedId.success || !parsed.success) {
+  if (!parsedId.success || !parsed.success || !parsedIcone.success) {
     return { success: false, error: "Données invalides" };
   }
 
@@ -215,6 +233,10 @@ export async function updateEtape(
       },
     });
 
+    if (parsedIcone.data) {
+      await EtapeIconeService.replace(parsedId.data, parsedIcone.data);
+    }
+
     revalidatePath("/admin/etapes");
     revalidatePath(`/admin/etapes/${parsedId.data}`);
 
@@ -228,24 +250,24 @@ export async function updateEtape(
 
 export async function updateEtapeBadge(
   etapeId: string,
-  imageSrc: string,
-  couleur?: string | null,
+  couleur: string | null,
+  icone?: File,
 ) {
-  if (!(await authorizeRole("ADMIN"))) {
+  if (!(await authorizeRole(...ROLES_ADMIN))) {
     return { success: false, error: "Non autorisé" };
   }
 
   const parsed = z
     .object({
       etapeId: idSchema,
-      imageSrc: z.string().min(1).max(2048),
+      icone: iconeEtapeSchema,
       couleur: z
         .string()
         .regex(/^#[0-9a-fA-F]{6}$/, "Couleur hexadécimale invalide")
         .nullable()
         .optional(),
     })
-    .safeParse({ etapeId, imageSrc, couleur });
+    .safeParse({ etapeId, icone, couleur });
 
   if (!parsed.success) {
     return { success: false, error: "Données invalides" };
@@ -254,11 +276,12 @@ export async function updateEtapeBadge(
   try {
     await prisma.etape.update({
       where: { id: parsed.data.etapeId },
-      data: {
-        image_src: parsed.data.imageSrc,
-        couleur: parsed.data.couleur ?? null,
-      },
+      data: { couleur: parsed.data.couleur ?? null },
     });
+
+    if (parsed.data.icone) {
+      await EtapeIconeService.replace(parsed.data.etapeId, parsed.data.icone);
+    }
 
     revalidatePath("/admin/etapes");
     revalidatePath(`/admin/etapes/${parsed.data.etapeId}`);
@@ -281,7 +304,7 @@ export async function createObjectif(
     texteRequis: boolean;
   },
 ) {
-  if (!(await authorizeRole("ADMIN"))) {
+  if (!(await authorizeRole(...ROLES_ADMIN))) {
     return { success: false, error: "Non autorisé" };
   }
 
@@ -321,7 +344,7 @@ export async function updateObjectif(
     texteRequis: boolean;
   },
 ) {
-  if (!(await authorizeRole("ADMIN"))) {
+  if (!(await authorizeRole(...ROLES_ADMIN))) {
     return { success: false, error: "Non autorisé" };
   }
 
@@ -353,7 +376,7 @@ export async function updateObjectif(
 }
 
 export async function deleteObjectif(objectifId: string, etapeId: string) {
-  if (!(await authorizeRole("ADMIN"))) {
+  if (!(await authorizeRole(...ROLES_ADMIN))) {
     return { success: false, error: "Non autorisé" };
   }
 
@@ -391,7 +414,7 @@ export async function createFormation(data: {
   imageUrl: string;
   lien: string;
 }) {
-  if (!(await authorizeRole("ADMIN"))) {
+  if (!(await authorizeRole(...ROLES_ADMIN))) {
     return { success: false, error: "Non autorisé" };
   }
 
@@ -419,7 +442,7 @@ export async function updateFormation(
   formationId: string,
   data: { titre: string; imageUrl: string; lien: string },
 ) {
-  if (!(await authorizeRole("ADMIN"))) {
+  if (!(await authorizeRole(...ROLES_ADMIN))) {
     return { success: false, error: "Non autorisé" };
   }
 
@@ -445,7 +468,7 @@ export async function updateFormation(
 }
 
 export async function deleteFormation(formationId: string) {
-  if (!(await authorizeRole("ADMIN"))) {
+  if (!(await authorizeRole(...ROLES_ADMIN))) {
     return { success: false, error: "Non autorisé" };
   }
 

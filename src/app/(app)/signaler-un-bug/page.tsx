@@ -4,7 +4,7 @@ import { getUser } from "@/lib/auth-server";
 import { redirectToLogin } from "@/lib/auth-redirect";
 
 export const metadata = {
-  title: "Remonter un bug | Flambeau Progres",
+  title: "Remonter un bug",
 };
 
 export default async function SignalerBugPage() {

@@ -18,6 +18,8 @@ import { Justification } from "@prisma/client";
 import { ObjectifAvecJustification } from "../../DashboardClient";
 
 import { Icon } from "@/lib/icons";
+import { REGLES_JUSTIFICATION } from "@/lib/fichiers";
+import { FileDropzone } from "@/components/ui";
 import DiscussionThread, {
   type DiscussionViewer,
 } from "@/components/discussion/DiscussionThread";
@@ -45,7 +47,6 @@ export default function ObjectifModal({
   const router = useRouter();
   const [contenu, setContenu] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [filePreview, setFilePreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   React.useEffect(() => {
@@ -55,33 +56,8 @@ export default function ObjectifModal({
       setContenu(existingJustification?.contenu || "");
 
       setSelectedFile(null);
-      setFilePreview(null);
     }
   }, [isOpen, objectif]);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-
-    if (file) {
-      setSelectedFile(file);
-
-      if (file.type.startsWith("image/")) {
-        const reader = new FileReader();
-
-        reader.onloadend = () => {
-          setFilePreview(reader.result as string);
-        };
-        reader.readAsDataURL(file);
-      } else {
-        setFilePreview(null);
-      }
-    }
-  };
-
-  const handleRemoveFile = () => {
-    setSelectedFile(null);
-    setFilePreview(null);
-  };
 
   const handleSubmit = async () => {
     if (!objectif) return;
@@ -125,7 +101,6 @@ export default function ObjectifModal({
 
         setContenu("");
         setSelectedFile(null);
-        setFilePreview(null);
       } else {
         const previousJustification = objectif.justifications[0];
 
@@ -247,110 +222,13 @@ export default function ObjectifModal({
                       onValueChange={setContenu}
                     />
 
-                    <div className="space-y-4">
-                      <div>
-                        <p className="block text-sm font-medium mb-2">
-                          Fichier de preuve *
-                        </p>
-
-                        {!selectedFile ? (
-                          <div className="border-2 border-dashed border-dashboard-border rounded-lg p-6 text-center hover:border-primary transition-colors">
-                            <input
-                              accept="image/*,.pdf,.doc,.docx"
-                              className="hidden"
-                              id="file-upload"
-                              type="file"
-                              onChange={handleFileChange}
-                            />
-                            <label
-                              className="cursor-pointer flex flex-col items-center gap-2"
-                              htmlFor="file-upload"
-                            >
-                              <Icon
-                                className="text-default-400"
-                                icon="solar:cloud-upload-linear"
-                                width={48}
-                              />
-                              <p className="text-sm text-default-600">
-                                Clique pour sélectionner un fichier
-                              </p>
-                              <p className="text-xs text-default-400">
-                                Images, PDF, ou documents Word acceptés
-                              </p>
-                            </label>
-                          </div>
-                        ) : (
-                          <div className="border border-dashboard-border rounded-lg p-4">
-                            {filePreview ? (
-                              <div className="space-y-3">
-                                {/* eslint-disable-next-line @next/next/no-img-element -- local preview (data/blob URL), next/image cannot optimize it */}
-                                <img
-                                  alt="Preview"
-                                  className="w-full h-48 object-cover rounded-lg"
-                                  src={filePreview}
-                                />
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-2">
-                                    <Icon
-                                      icon="solar:gallery-linear"
-                                      width={20}
-                                    />
-                                    <span className="text-sm font-medium truncate max-w-[200px]">
-                                      {selectedFile.name}
-                                    </span>
-                                    <span className="text-xs text-default-400">
-                                      ({(selectedFile.size / 1024).toFixed(1)}{" "}
-                                      Ko)
-                                    </span>
-                                  </div>
-                                  <Button
-                                    isIconOnly
-                                    color="danger"
-                                    size="sm"
-                                    variant="flat"
-                                    onPress={handleRemoveFile}
-                                  >
-                                    <Icon
-                                      icon="solar:trash-bin-minimalistic-linear"
-                                      width={18}
-                                    />
-                                  </Button>
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                  <Icon
-                                    icon="solar:document-linear"
-                                    width={24}
-                                  />
-                                  <div>
-                                    <p className="text-sm font-medium truncate max-w-[250px]">
-                                      {selectedFile.name}
-                                    </p>
-                                    <p className="text-xs text-default-400">
-                                      {(selectedFile.size / 1024).toFixed(1)} Ko
-                                    </p>
-                                  </div>
-                                </div>
-                                <Button
-                                  isIconOnly
-                                  color="danger"
-                                  size="sm"
-                                  variant="flat"
-                                  onPress={handleRemoveFile}
-                                >
-                                  <Icon
-                                    icon="solar:trash-bin-minimalistic-linear"
-                                    width={18}
-                                  />
-                                </Button>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                    <FileDropzone
+                      aide="Images, PDF, ou documents Word acceptés"
+                      fichier={selectedFile}
+                      label="Fichier de preuve *"
+                      regles={REGLES_JUSTIFICATION}
+                      onChange={setSelectedFile}
+                    />
                   </>
                 )}
               </ModalBody>

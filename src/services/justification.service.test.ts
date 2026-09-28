@@ -8,7 +8,9 @@ vi.mock("@/lib/prisma", () => {
       findFirst: vi.fn(),
       create: vi.fn(),
     },
+    etape: { findUnique: vi.fn() },
     etapeReferent: { findFirst: vi.fn(), findMany: vi.fn() },
+    user: { findMany: vi.fn() },
     message: { create: vi.fn() },
     notification: { create: vi.fn(), createMany: vi.fn() },
     objectif: { findUnique: vi.fn() },
@@ -162,8 +164,13 @@ describe("JustificationService.submitRealisation", () => {
     } as never);
     db.justification.findFirst.mockResolvedValue(null as never);
     db.justification.create.mockResolvedValue({ id: "j-new" } as never);
+    db.etape.findUnique.mockResolvedValue({
+      id: "e1",
+      name: "E",
+      niveau: 2,
+    } as never);
     db.etapeReferent.findMany.mockResolvedValue([
-      { referent: { id: "ref1" }, etape: { name: "E" } },
+      { referent: { id: "ref1" } },
     ] as never);
 
     const result = await JustificationService.submitRealisation({
@@ -193,8 +200,13 @@ describe("JustificationService.submitRealisation", () => {
     } as never);
     db.justification.findFirst.mockResolvedValue({ id: "j-existing" } as never);
     db.justification.update.mockResolvedValue({ id: "j-existing" } as never);
+    db.etape.findUnique.mockResolvedValue({
+      id: "e1",
+      name: "E",
+      niveau: 2,
+    } as never);
     db.etapeReferent.findMany.mockResolvedValue([
-      { referent: { id: "ref1" }, etape: { name: "E" } },
+      { referent: { id: "ref1" } },
     ] as never);
 
     const result = await JustificationService.submitRealisation({

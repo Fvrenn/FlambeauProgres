@@ -2,17 +2,7 @@ import path from "path";
 import { writeFile, mkdir, unlink } from "fs/promises";
 import { mkdirSync } from "fs";
 
-const ALLOWED_MIME_TYPES = new Set<string>([
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/gif",
-  "application/pdf",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-]);
-
-const MAX_FILE_SIZE = 8 * 1024 * 1024;
+import { type ReglesFichier, validerFichier } from "@/lib/fichiers";
 
 const UPLOAD_DIR =
   process.env.UPLOAD_DIR ||
@@ -26,24 +16,24 @@ export interface StoredFile {
 }
 
 export class StorageService {
-  static validate(file: File): void {
+  static validate(file: File, regles: ReglesFichier): void {
     if (!file) {
       throw new Error("Aucun fichier fourni");
     }
 
-    if (!ALLOWED_MIME_TYPES.has(file.type)) {
-      throw new Error(
-        "Type de fichier non autorisé (images, PDF ou Word uniquement)",
-      );
-    }
+    const erreur = validerFichier(file, regles);
 
-    if (file.size > MAX_FILE_SIZE) {
-      throw new Error("Fichier trop volumineux (8 Mo maximum)");
+    if (erreur) {
+      throw new Error(erreur);
     }
   }
 
-  static async uploadFile(file: File, folder = "uploads"): Promise<StoredFile> {
-    this.validate(file);
+  static async uploadFile(
+    file: File,
+    folder: string,
+    regles: ReglesFichier,
+  ): Promise<StoredFile> {
+    this.validate(file, regles);
 
     const buffer = Buffer.from(await file.arrayBuffer());
 

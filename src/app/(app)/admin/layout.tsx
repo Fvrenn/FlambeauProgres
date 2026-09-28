@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import AppClientLayout from "../AppClientLayout";
 
 import { getUser } from "@/lib/auth-server";
+import { estAdmin } from "@/lib/roles";
 import { adminSidebarItems, appShellClassNames } from "@/config/navigation";
 
 export default async function AdminLayout({
@@ -13,7 +14,7 @@ export default async function AdminLayout({
 }) {
   const user = await getUser();
 
-  if (!user || !("role" in user) || user.role !== "ADMIN") {
+  if (!user || !("role" in user) || !estAdmin(user.role)) {
     redirect("/");
   }
 
