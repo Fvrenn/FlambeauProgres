@@ -3,10 +3,10 @@ import { type User } from "@prisma/client";
 
 import ReferentDashboardClientV2 from "./ReferentDashboardClientV2";
 
-import { getUser } from "@/lib/auth-server";
+import { exigerRole, suitEtape } from "@/lib/auth-guards";
 import { STATUTS_VALIDES } from "@/lib/justification";
 import { prisma } from "@/lib/prisma";
-import { estReferent, peutEvaluerEtape } from "@/lib/roles";
+import { peutEvaluerEtape, ROLES_REFERENT } from "@/lib/roles";
 
 type ReferentDashboardPageProps = {
   searchParams: Promise<{
@@ -18,6 +18,7 @@ type ReferentDashboardPageProps = {
 export default async function ReferentDashboardPage({
   searchParams,
 }: ReferentDashboardPageProps) {
+  const user = await exigerRole(...ROLES_REFERENT);
   const params = await searchParams;
   const etapeId = params.etapeId;
   const targetJustificationId = params.justification;
@@ -27,6 +28,16 @@ export default async function ReferentDashboardPage({
       <div className="flex h-full items-center justify-center">
         <p className="text-lg text-default-500">
           Veuillez sélectionner une étape dans le menu de gauche pour commencer.
+        </p>
+      </div>
+    );
+  }
+
+  if (!(await suitEtape(user.id, user.role, etapeId))) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <p className="text-lg text-default-500">
+          Vous ne suivez pas cette étape.
         </p>
       </div>
     );
@@ -110,12 +121,6 @@ export default async function ReferentDashboardPage({
         id: { in: chefsEnAttenteDeRevisionIds },
       },
     });
-  }
-
-  const user = await getUser();
-
-  if (!user || !("role" in user) || !estReferent(user.role)) {
-    return <div>Accès refusé</div>;
   }
 
   const [etape, assignation] = await Promise.all([

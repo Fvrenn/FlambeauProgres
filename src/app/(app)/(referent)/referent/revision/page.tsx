@@ -3,9 +3,13 @@ import { redirect } from "next/navigation";
 
 import RevisionClient from "./RevisionClient";
 
-import { getUser } from "@/lib/auth-server";
+import { exigerRole, suitEtape } from "@/lib/auth-guards";
 import { prisma } from "@/lib/prisma";
-import { messageRefusValidation, peutValiderEtape } from "@/lib/roles";
+import {
+  messageRefusValidation,
+  peutValiderEtape,
+  ROLES_REFERENT,
+} from "@/lib/roles";
 
 type RevisionPageProps = {
   searchParams: Promise<{
@@ -17,10 +21,15 @@ type RevisionPageProps = {
 export default async function RevisionPage({
   searchParams,
 }: RevisionPageProps) {
+  const user = await exigerRole(...ROLES_REFERENT);
   const params = await searchParams;
   const { chefId, etapeId } = params;
 
   if (!chefId || !etapeId) {
+    redirect("/referent/dashboard");
+  }
+
+  if (!(await suitEtape(user.id, user.role, etapeId))) {
     redirect("/referent/dashboard");
   }
 
@@ -51,16 +60,12 @@ export default async function RevisionPage({
     redirect("/referent/dashboard");
   }
 
-  const user = await getUser();
-  const assignation = user
-    ? await prisma.etapeReferent.findFirst({
-        where: { referentId: user.id, etapeId },
-      })
-    : null;
+  const assignation = await prisma.etapeReferent.findFirst({
+    where: { referentId: user.id, etapeId },
+  });
 
-  const role = user && "role" in user ? user.role : undefined;
   const peutValider = peutValiderEtape(
-    role,
+    user.role,
     etape.niveau,
     Boolean(assignation),
   );

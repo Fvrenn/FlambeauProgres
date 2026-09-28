@@ -4,6 +4,7 @@ import React, { useRef, useState, useTransition } from "react";
 import { Button, Chip, Textarea } from "@heroui/react";
 
 import { Icon } from "@/lib/icons";
+import { LONGUEUR_MAX_CONTENU } from "@/lib/justification";
 import {
   REGLES_JUSTIFICATION,
   toAttributAccept,
@@ -118,6 +119,7 @@ export default function MessageComposer({
               "bg-dashboard-panel data-[hover=true]:bg-dashboard-panel-hover",
           }}
           isDisabled={busy}
+          maxLength={LONGUEUR_MAX_CONTENU}
           maxRows={4}
           minRows={1}
           placeholder="Écris ton message..."

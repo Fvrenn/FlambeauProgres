@@ -19,6 +19,7 @@ import { ObjectifAvecJustification } from "../../DashboardClient";
 
 import { Icon } from "@/lib/icons";
 import { REGLES_JUSTIFICATION } from "@/lib/fichiers";
+import { LONGUEUR_MAX_CONTENU } from "@/lib/justification";
 import { FileDropzone } from "@/components/ui";
 import DiscussionThread, {
   type DiscussionViewer,
@@ -187,6 +188,7 @@ export default function ObjectifModal({
                           ? "Ta justification"
                           : "Ta justification (optionnel)"
                       }
+                      maxLength={LONGUEUR_MAX_CONTENU}
                       maxRows={12}
                       minRows={6}
                       placeholder="Explique comment tu as travaillé cette compétence..."
@@ -215,6 +217,7 @@ export default function ObjectifModal({
                           ? "Description de ta réalisation"
                           : "Description de ta réalisation (optionnel)"
                       }
+                      maxLength={LONGUEUR_MAX_CONTENU}
                       maxRows={8}
                       minRows={4}
                       placeholder="Explique ce que tu as réalisé, comment et avec qui..."

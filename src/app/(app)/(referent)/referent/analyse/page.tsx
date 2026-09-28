@@ -1,5 +1,4 @@
 import React from "react";
-import { redirect } from "next/navigation";
 
 import { ChartCard } from "./_components/ChartCard";
 import { ClassementChart } from "./_components/ClassementChart";
@@ -7,7 +6,7 @@ import { FiltresBar } from "./_components/FiltresBar";
 import { JournalTable } from "./_components/JournalTable";
 import { KpiBandeau } from "./_components/KpiBandeau";
 
-import { authorizeRole } from "@/lib/auth-guards";
+import { exigerRole } from "@/lib/auth-guards";
 import { ROLES_REFERENT } from "@/lib/roles";
 import { parsePeriode } from "@/lib/analytics";
 import { AnalyticsService } from "@/services/analytics.service";
@@ -21,11 +20,7 @@ type AnalysePageProps = {
 };
 
 export default async function AnalysePage({ searchParams }: AnalysePageProps) {
-  const user = await authorizeRole(...ROLES_REFERENT);
-
-  if (!user) {
-    redirect("/");
-  }
+  await exigerRole(...ROLES_REFERENT);
 
   const params = await searchParams;
   const periode = parsePeriode(params.periode);

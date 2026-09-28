@@ -2,10 +2,13 @@ import React from "react";
 
 import AssignationsClientPage from "./ClientPage";
 
+import { exigerRole } from "@/lib/auth-guards";
 import { prisma } from "@/lib/prisma";
-import { ROLES_REFERENT } from "@/lib/roles";
+import { ROLES_REFERENT, ROLES_ADMIN } from "@/lib/roles";
 
 export default async function AdminAssignationsPage() {
+  await exigerRole(...ROLES_ADMIN);
+
   const etapes = await prisma.etape.findMany({
     include: {
       referents: {

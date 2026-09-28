@@ -7,6 +7,7 @@ import {
   etapeEstDebloquee,
   jalonsImplicites,
   auMoinsUneSpecialiteValidee,
+  construireContexteParcours,
   etapeEstAccessible,
   jalonProfilsEstValide,
 } from "@/lib/parcours";
@@ -202,5 +203,33 @@ describe("etapeEstAccessible", () => {
         contexte({ specialiteValidee: false, jalonProfilsValide: false }),
       ),
     ).toBe(false);
+  });
+});
+
+describe("construireContexteParcours", () => {
+  const parcours = [
+    { id: "af", niveau: 0, type: "JALON" },
+    { id: "e1", niveau: 1, type: "JALON" },
+    { id: "b2", niveau: 2, type: "BADGE" },
+    { id: "servir", niveau: 3, type: "JALON" },
+  ];
+
+  it("s'arrête au premier jalon non validé", () => {
+    const contexte = construireContexteParcours(parcours, new Set(["af"]));
+
+    expect(contexte.niveauMax).toBe(1);
+    expect(contexte.specialiteValidee).toBe(false);
+    expect(contexte.jalonProfilsValide).toBe(false);
+  });
+
+  it("repère la spécialité et le jalon Servir validés", () => {
+    const contexte = construireContexteParcours(
+      parcours,
+      new Set(["af", "e1", "b2", "servir"]),
+    );
+
+    expect(contexte.niveauMax).toBe(Number.POSITIVE_INFINITY);
+    expect(contexte.specialiteValidee).toBe(true);
+    expect(contexte.jalonProfilsValide).toBe(true);
   });
 });

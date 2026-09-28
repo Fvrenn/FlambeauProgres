@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { cn } from "@heroui/react";
 
+import { exigerRole } from "@/lib/auth-guards";
 import { Icon } from "@/lib/icons";
 import { prisma } from "@/lib/prisma";
 import { NIVEAU_ETAPE_3, ROLES_ADMIN, roleColorMap } from "@/lib/roles";
@@ -74,6 +75,8 @@ function StatCard({
 }
 
 export default async function AdminDashboardPage() {
+  await exigerRole(...ROLES_ADMIN);
+
   const [
     chefCount,
     referentCount,

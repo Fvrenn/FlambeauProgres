@@ -90,6 +90,31 @@ describe("EtapeService.getDashboardEtapesForChef - déverrouillage", () => {
   });
 });
 
+describe("EtapeService.estAccessiblePourChef", () => {
+  it("refuse une étape verrouillée", async () => {
+    db.chefEtapeStatut.findMany.mockResolvedValue([] as never);
+
+    expect(await EtapeService.estAccessiblePourChef("c1", "b1")).toBe(false);
+  });
+
+  it("accepte une étape débloquée", async () => {
+    db.chefEtapeStatut.findMany.mockResolvedValue([
+      { etapeId: "af" },
+      { etapeId: "e1" },
+    ] as never);
+
+    expect(await EtapeService.estAccessiblePourChef("c1", "b1")).toBe(true);
+  });
+
+  it("refuse une étape inexistante", async () => {
+    db.chefEtapeStatut.findMany.mockResolvedValue([] as never);
+
+    expect(await EtapeService.estAccessiblePourChef("c1", "inconnue")).toBe(
+      false,
+    );
+  });
+});
+
 describe("EtapeService.autoValiderJalon", () => {
   const catalogue = [
     { id: "af", niveau: 0, type: "JALON" },

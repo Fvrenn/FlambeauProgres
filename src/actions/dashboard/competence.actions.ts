@@ -4,11 +4,12 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 
 import { getUser } from "@/lib/auth-server";
+import { LONGUEUR_MAX_CONTENU } from "@/lib/justification";
 import { JustificationService } from "@/services/justification.service";
 
 const submitCompetenceSchema = z.object({
   objectifId: z.string().min(1),
-  contenu: z.string(),
+  contenu: z.string().max(LONGUEUR_MAX_CONTENU),
 });
 
 export async function submitCompetence(objectifId: string, contenu: string) {

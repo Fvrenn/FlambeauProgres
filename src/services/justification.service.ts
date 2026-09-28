@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { EtapeService } from "@/services/etape.service";
 import { NotificationService } from "@/services/notification.service";
 import {
   DiscussionService,
@@ -10,6 +11,8 @@ export type ServiceResult<T = void> = {
   data?: T;
   error?: string;
 };
+
+const ETAPE_VERROUILLEE = "Cette étape n'est pas encore débloquée";
 
 export class JustificationService {
   static async submitCompetence(
@@ -27,6 +30,10 @@ export class JustificationService {
 
     if (objectif.type !== "COMPETENCE") {
       return { success: false, error: "Cet objectif n'est pas une compétence" };
+    }
+
+    if (!(await EtapeService.estAccessiblePourChef(chefId, objectif.etapeId))) {
+      return { success: false, error: ETAPE_VERROUILLEE };
     }
 
     const trimmed = contenu.trim();
@@ -89,6 +96,10 @@ export class JustificationService {
         success: false,
         error: "Cet objectif n'est pas une réalisation",
       };
+    }
+
+    if (!(await EtapeService.estAccessiblePourChef(chefId, objectif.etapeId))) {
+      return { success: false, error: ETAPE_VERROUILLEE };
     }
 
     const trimmed = contenu.trim();

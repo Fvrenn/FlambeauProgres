@@ -198,12 +198,12 @@ export default function ContextSwitcher({
             <Button
               fullWidth
               className={cn(
-                "h-auto justify-between gap-3 rounded-xl border-1 border-divider p-2",
+                "h-auto justify-between gap-3 whitespace-normal rounded-xl border-1 border-divider p-2",
                 triggerClassName ?? "bg-dashboard-card",
               )}
               endContent={<DropdownIcon />}
             >
-              <div className="flex w-full items-center gap-2">
+              <div className="flex min-w-0 w-full items-center gap-2">
                 {currentEtape?.image_src ? (
                   <Image
                     alt={`Badge ${currentEtape.name}`}
@@ -215,7 +215,7 @@ export default function ContextSwitcher({
                 ) : (
                   <Avatar name={user.name} size="sm" src={user.image} />
                 )}
-                <div className="flex flex-col text-left">
+                <div className="flex min-w-0 flex-col text-left">
                   <p className="text-small font-medium text-foreground">
                     {user.name}
                   </p>
@@ -234,6 +234,7 @@ export default function ContextSwitcher({
               "data-[hover=true]:border-divider",
               "data-[hover=true]:bg-dashboard-tab",
             ],
+            title: "whitespace-normal break-words",
           }}
           variant="faded"
         >

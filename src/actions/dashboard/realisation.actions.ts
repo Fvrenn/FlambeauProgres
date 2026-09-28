@@ -4,13 +4,14 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 
 import { getUser } from "@/lib/auth-server";
+import { LONGUEUR_MAX_CONTENU } from "@/lib/justification";
 import { REGLES_JUSTIFICATION } from "@/lib/fichiers";
 import { StorageService } from "@/services/storage.service";
 import { JustificationService } from "@/services/justification.service";
 
 const submitRealisationSchema = z.object({
   objectifId: z.string().min(1),
-  contenu: z.string(),
+  contenu: z.string().max(LONGUEUR_MAX_CONTENU),
 });
 
 export async function submitRealisation(
@@ -77,6 +78,10 @@ export async function submitRealisation(
     });
 
     if (!result.success) {
+      if (fichierData) {
+        await StorageService.deleteFile(fichierData.cheminFichier);
+      }
+
       return result;
     }
 

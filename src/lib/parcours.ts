@@ -75,6 +75,22 @@ export function jalonProfilsEstValide(
     .every((jalon) => etapesValidees.has(jalon.id));
 }
 
+export function construireContexteParcours(
+  etapes: EtapeParcours[],
+  etapesValidees: Set<string>,
+): ContexteParcours {
+  const jalons = etapes
+    .filter((etape) => etape.type === "JALON")
+    .map(({ id, niveau }) => ({ id, niveau }));
+
+  return {
+    niveauMax: niveauMaxDebloque(jalons, etapesValidees),
+    specialiteValidee: auMoinsUneSpecialiteValidee(etapes, etapesValidees),
+    jalonProfilsValide: jalonProfilsEstValide(etapes, etapesValidees),
+    etapesValidees,
+  };
+}
+
 export function etapeEstAccessible(
   etape: EtapeParcours,
   contexte: ContexteParcours,

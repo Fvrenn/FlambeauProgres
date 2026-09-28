@@ -21,3 +21,4 @@ Les gros refactors sont planifiés dans `/docs/*.md` avec une checklist de phase
 - Tests : `npm test` (vitest)
 - DB (Prisma Migrate) : `npx prisma migrate dev --name <nom>` applique le schéma et relance le seed.
   ⚠️ **Stopper `npm run dev` avant**, sinon le client Prisma est verrouillé (EPERM sur le query engine `.dll`).
+Ne jamais ajouter de trailer Co-Authored-By dans les messages de commit.

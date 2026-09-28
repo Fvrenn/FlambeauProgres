@@ -3,9 +3,9 @@ import type { OrigineValidation, TypeEtape, UserRole } from "@prisma/client";
 import { STATUTS_VALIDES } from "@/lib/justification";
 import {
   auMoinsUneSpecialiteValidee,
+  construireContexteParcours,
   etapeEstAccessible,
   etapeEstDebloquee,
-  jalonProfilsEstValide,
   NIVEAU_PROFILS,
   niveauMaxDebloque,
 } from "@/lib/parcours";
@@ -72,16 +72,7 @@ export class EtapeService {
       statutsValides.map((s) => [s.etapeId, s.origine]),
     );
     const etapesValidees = new Set(statutsValides.map((s) => s.etapeId));
-    const jalons = etapes
-      .filter((etape) => etape.type === "JALON")
-      .map((etape) => ({ id: etape.id, niveau: etape.niveau }));
-    const niveauMax = niveauMaxDebloque(jalons, etapesValidees);
-    const contexte = {
-      niveauMax,
-      specialiteValidee: auMoinsUneSpecialiteValidee(etapes, etapesValidees),
-      jalonProfilsValide: jalonProfilsEstValide(etapes, etapesValidees),
-      etapesValidees,
-    };
+    const contexte = construireContexteParcours(etapes, etapesValidees);
 
     return etapes.map((etape) => ({
       id: etape.id,
@@ -97,6 +88,34 @@ export class EtapeService {
       isValidated: etapesValidees.has(etape.id),
       origineValidation: originesParEtape.get(etape.id) ?? null,
     }));
+  }
+
+  static async estAccessiblePourChef(
+    chefId: string,
+    etapeId: string,
+  ): Promise<boolean> {
+    const [etapes, statutsValides] = await Promise.all([
+      prisma.etape.findMany({
+        select: { id: true, niveau: true, type: true },
+      }),
+      prisma.chefEtapeStatut.findMany({
+        where: { chefId, statut: "VALIDE" },
+        select: { etapeId: true },
+      }),
+    ]);
+
+    const etape = etapes.find((candidate) => candidate.id === etapeId);
+
+    if (!etape) {
+      return false;
+    }
+
+    const etapesValidees = new Set(statutsValides.map((s) => s.etapeId));
+
+    return etapeEstAccessible(
+      etape,
+      construireContexteParcours(etapes, etapesValidees),
+    );
   }
 
   static async getDashboardEtapesForChef(chefId: string) {
@@ -119,16 +138,7 @@ export class EtapeService {
       statutsValides.map((s) => [s.etapeId, s.origine]),
     );
     const etapesIdsValidees = new Set(statutsValides.map((s) => s.etapeId));
-    const jalons = etapes
-      .filter((etape) => etape.type === "JALON")
-      .map((etape) => ({ id: etape.id, niveau: etape.niveau }));
-    const niveauMax = niveauMaxDebloque(jalons, etapesIdsValidees);
-    const contexte = {
-      niveauMax,
-      specialiteValidee: auMoinsUneSpecialiteValidee(etapes, etapesIdsValidees),
-      jalonProfilsValide: jalonProfilsEstValide(etapes, etapesIdsValidees),
-      etapesValidees: etapesIdsValidees,
-    };
+    const contexte = construireContexteParcours(etapes, etapesIdsValidees);
 
     return etapes.map((etape) => ({
       ...etape,

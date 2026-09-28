@@ -1,4 +1,5 @@
 import { UserRole } from "@prisma/client";
+import { redirect } from "next/navigation";
 
 import { getUser } from "@/lib/auth-server";
 import { prisma } from "@/lib/prisma";
@@ -12,6 +13,29 @@ export async function authorizeRole(...roles: UserRole[]) {
   }
 
   return user;
+}
+
+export async function exigerRole(...roles: UserRole[]) {
+  const user = await authorizeRole(...roles);
+
+  if (!user) {
+    redirect("/");
+  }
+
+  return user;
+}
+
+export async function suitEtape(
+  userId: string,
+  role: UserRole | undefined,
+  etapeId: string,
+): Promise<boolean> {
+  const etape = await prisma.etape.findUnique({
+    where: { id: etapeId },
+    select: { niveau: true },
+  });
+
+  return etape ? referentSuitEtape(userId, role, etapeId, etape.niveau) : false;
 }
 
 export async function canAccessJustification(
@@ -36,16 +60,30 @@ export async function canAccessJustification(
     return true;
   }
 
+  return referentSuitEtape(
+    userId,
+    role,
+    justification.etapeId,
+    justification.etape.niveau,
+  );
+}
+
+async function referentSuitEtape(
+  userId: string,
+  role: UserRole | undefined,
+  etapeId: string,
+  niveau: number,
+): Promise<boolean> {
   if (!estReferent(role)) {
     return false;
   }
 
-  if (suitEtapeSansAssignation(role, justification.etape.niveau)) {
+  if (suitEtapeSansAssignation(role, niveau)) {
     return true;
   }
 
   const assignation = await prisma.etapeReferent.findFirst({
-    where: { referentId: userId, etapeId: justification.etapeId },
+    where: { referentId: userId, etapeId },
   });
 
   return Boolean(assignation);

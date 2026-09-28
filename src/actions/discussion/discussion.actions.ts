@@ -5,6 +5,7 @@ import { z } from "zod";
 import { getUser } from "@/lib/auth-server";
 import { estReferent } from "@/lib/roles";
 import { REGLES_JUSTIFICATION } from "@/lib/fichiers";
+import { LONGUEUR_MAX_CONTENU } from "@/lib/justification";
 import { StorageService } from "@/services/storage.service";
 import {
   DiscussionService,
@@ -12,7 +13,7 @@ import {
 } from "@/services/discussion.service";
 
 const justificationIdSchema = z.string().min(1);
-const contenuSchema = z.string().max(5000).optional();
+const contenuSchema = z.string().max(LONGUEUR_MAX_CONTENU).optional();
 
 export async function getThread(justificationId: string) {
   try {
