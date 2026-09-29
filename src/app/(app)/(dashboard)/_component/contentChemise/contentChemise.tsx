@@ -12,6 +12,7 @@ import ObjectifPanel from "../contentAction/panels/ObjectifPanel";
 import NotificationDrawer from "../contentAction/NotificationDrawer";
 import JalonBadge from "../JalonBadge";
 
+import ChemiseSquelette from "./ChemiseSquelette";
 import GrilleBadges from "./GrilleBadges";
 
 import { NIVEAU_PROFILS, NIVEAU_SPECIALITES } from "@/lib/parcours";
@@ -29,9 +30,7 @@ const ChemiseModel = dynamic(
   () => import("./chemiseModel").then((mod) => mod.ChemiseModel),
   {
     ssr: false,
-    loading: () => (
-      <div className="w-full h-full animate-pulse rounded-3xl bg-dashboard" />
-    ),
+    loading: () => <ChemiseSquelette />,
   },
 );
 

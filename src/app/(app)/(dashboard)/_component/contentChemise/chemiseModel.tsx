@@ -16,6 +16,8 @@ import {
 } from "react";
 import { MathUtils, Group, Mesh, MeshStandardMaterial } from "three";
 
+import ChemiseSquelette from "./ChemiseSquelette";
+
 const DRACO_DECODER_PATH = "/draco/";
 
 useGLTF.setDecoderPath(DRACO_DECODER_PATH);
@@ -246,6 +248,16 @@ function CameraRig({ distance }: { distance: number }) {
   return null;
 }
 
+function SignalerChargement({
+  onCharge,
+}: {
+  onCharge: (estCharge: boolean) => void;
+}) {
+  useEffect(() => onCharge(true), [onCharge]);
+
+  return null;
+}
+
 function detectLowEndDevice() {
   if (typeof navigator === "undefined") return false;
   const isMobile = /Mobi|Android/i.test(navigator.userAgent);
@@ -262,12 +274,18 @@ export const ChemiseModel = ({
   const { ambient, directional, spot, point } = LIGHTING_CONFIG;
   const isLowEnd = useMemo(detectLowEndDevice, []);
   const isMobile = useIsMobile();
+  const [estCharge, setEstCharge] = useState(false);
   const distance = isMobile
     ? CAMERA_CONFIG.distance.mobile
     : CAMERA_CONFIG.distance.desktop;
 
   return (
-    <div className="w-full h-full">
+    <div className="relative w-full h-full">
+      <ChemiseSquelette
+        className={`absolute inset-0 transition-opacity duration-500 ${
+          estCharge ? "opacity-0" : "opacity-100"
+        }`}
+      />
       <Canvas
         camera={{ position: [0, 0, distance], fov: CAMERA_CONFIG.fov }}
         dpr={isLowEnd ? [1, 1.5] : [1, 2]}
@@ -297,6 +315,7 @@ export const ChemiseModel = ({
         />
 
         <Suspense fallback={null}>
+          <SignalerChargement onCharge={setEstCharge} />
           <Center>
             <ChemiseGLB
               branche={branche}

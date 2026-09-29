@@ -3,8 +3,10 @@ import React from "react";
 import ReferentDashboardClient from "./ReferentDashboardClient";
 
 import { RafraichissementArrierePlan } from "@/components/application/rafraichissement/RafraichissementArrierePlan";
+import { RafraichissementSurNotification } from "@/components/application/rafraichissement/RafraichissementSurNotification";
 import { exigerRole, suitEtape } from "@/lib/auth-guards";
 import { ROLES_REFERENT } from "@/lib/roles";
+import { NotificationService } from "@/services/notification.service";
 import { ReferentService } from "@/services/referent.service";
 
 type ReferentDashboardPageProps = {
@@ -42,16 +44,23 @@ export default async function ReferentDashboardPage({
     );
   }
 
-  const {
-    chefsAReviser,
-    justificationsAValider,
-    justificationsEnDiscussion,
-    peutEvaluer,
-  } = await ReferentService.getDashboard(etapeId, user);
+  const [
+    {
+      chefsAReviser,
+      justificationsAValider,
+      justificationsEnDiscussion,
+      peutEvaluer,
+    },
+    signature,
+  ] = await Promise.all([
+    ReferentService.getDashboard(etapeId, user),
+    NotificationService.getSignature(user.id),
+  ]);
 
   return (
     <>
       <RafraichissementArrierePlan />
+      <RafraichissementSurNotification signature={signature} />
       <ReferentDashboardClient
         chefsAReviser={chefsAReviser}
         justificationsAValider={justificationsAValider}

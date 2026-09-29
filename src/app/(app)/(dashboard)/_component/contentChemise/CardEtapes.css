@@ -59,3 +59,15 @@
 .holographic-card.active:hover {
   transform: scale(1.05) !important;
 }
+
+@media (height < 900px) {
+  .page-badges > :nth-child(n + 10) {
+    display: none;
+  }
+}
+
+@media (height < 780px) {
+  .page-badges > :nth-child(n + 7) {
+    display: none;
+  }
+}

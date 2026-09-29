@@ -62,6 +62,21 @@ export class NotificationService {
     });
   }
 
+  static async getSignature(userId: string): Promise<string> {
+    const [derniere, nonLues] = await Promise.all([
+      prisma.notification.findFirst({
+        where: { destinataireId: userId },
+        orderBy: { createdAt: "desc" },
+        select: { id: true },
+      }),
+      prisma.notification.count({
+        where: { destinataireId: userId, lue: false },
+      }),
+    ]);
+
+    return `${derniere?.id ?? ""}:${nonLues}`;
+  }
+
   static async markAsRead(notificationId: string, userId: string) {
     await prisma.notification.updateMany({
       where: { id: notificationId, destinataireId: userId },

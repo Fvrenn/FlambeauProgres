@@ -14,6 +14,8 @@ import {
 import { REGLES_JUSTIFICATION, validerFichier } from "@/lib/fichiers";
 
 const POLL_INTERVAL_MS = 7000;
+const MESSAGE_NON_ENVOYE =
+  "Message non envoyé : vérifie ta connexion puis réessaie";
 
 function toUiMessage(message: ThreadMessage): UiMessage {
   return {
@@ -96,12 +98,18 @@ export function useDiscussionThread(justificationId: string, viewer: Viewer) {
   }, [refresh]);
 
   const sendMessage = useCallback(
-    async ({ text, file }: { text: string; file: File | null }) => {
+    async ({
+      text,
+      file,
+    }: {
+      text: string;
+      file: File | null;
+    }): Promise<boolean> => {
       const trimmed = text.trim();
       const { id: viewerId, author } = viewerRef.current;
 
       if ((!trimmed && !file) || !viewerId || !author) {
-        return;
+        return false;
       }
 
       if (file) {
@@ -110,7 +118,7 @@ export function useDiscussionThread(justificationId: string, viewer: Viewer) {
         if (fileError) {
           setError(fileError);
 
-          return;
+          return false;
         }
       }
 
@@ -135,17 +143,21 @@ export function useDiscussionThread(justificationId: string, viewer: Viewer) {
         justificationId,
         trimmed,
         file ?? undefined,
-      );
+      ).catch(() => ({ success: false as const, error: MESSAGE_NON_ENVOYE }));
 
-      if (result.success) {
-        const real = toUiMessage(result.data);
-
-        setMessages((prev) => prev.map((m) => (m.id === tempId ? real : m)));
-        await refresh({ silent: true });
-      } else {
+      if (!result.success) {
         setMessages((prev) => prev.filter((m) => m.id !== tempId));
         setError(result.error);
+
+        return false;
       }
+
+      const real = toUiMessage(result.data);
+
+      setMessages((prev) => prev.map((m) => (m.id === tempId ? real : m)));
+      await refresh({ silent: true });
+
+      return true;
     },
     [justificationId, refresh],
   );
@@ -155,7 +167,10 @@ export function useDiscussionThread(justificationId: string, viewer: Viewer) {
       return;
     }
 
-    const result = await validateRealisation(justificationId);
+    const result = await validateRealisation(justificationId).catch(() => ({
+      success: false as const,
+      error: "Validation non enregistrée : vérifie ta connexion puis réessaie",
+    }));
 
     if (result.success) {
       await refresh({ silent: true });

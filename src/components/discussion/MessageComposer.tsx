@@ -13,7 +13,7 @@ import {
 
 interface MessageComposerProps {
   disabled?: boolean;
-  onSend: (text: string, file: File | null) => Promise<void>;
+  onSend: (text: string, file: File | null) => Promise<boolean>;
 }
 
 export default function MessageComposer({
@@ -68,8 +68,9 @@ export default function MessageComposer({
     }
 
     startTransition(async () => {
-      await onSend(text, file);
-      clearAll();
+      if (await onSend(text, file)) {
+        clearAll();
+      }
     });
   };
 

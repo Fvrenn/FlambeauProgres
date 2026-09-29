@@ -10,8 +10,9 @@ import { decouperEnPages } from "@/lib/pagination";
 
 const COLONNES = 3;
 const LIGNES_MIN = 2;
+const LIGNES_MAX = 4;
 const LIGNES_SELON_HAUTEUR = [
-  { requete: "(min-height: 900px)", lignes: 4 },
+  { requete: "(min-height: 900px)", lignes: LIGNES_MAX },
   { requete: "(min-height: 780px)", lignes: 3 },
 ];
 
@@ -93,7 +94,7 @@ function CarrouselBadges({ badges, renderBadge }: CarrouselBadgesProps) {
           {pages.map((page, index) => (
             <div
               key={index}
-              className="grid w-full shrink-0 snap-start grid-cols-3 place-items-center gap-2 py-2"
+              className="page-badges grid w-full shrink-0 snap-start grid-cols-3 place-items-center gap-2 py-2"
             >
               {page.map(renderBadge)}
             </div>
@@ -130,7 +131,7 @@ function CarrouselBadges({ badges, renderBadge }: CarrouselBadgesProps) {
 }
 
 function useLignesSelonHauteur(): number {
-  const [lignes, setLignes] = React.useState(LIGNES_MIN);
+  const [lignes, setLignes] = React.useState(LIGNES_MAX);
 
   React.useEffect(() => {
     const requetes = LIGNES_SELON_HAUTEUR.map(({ requete, lignes }) => ({

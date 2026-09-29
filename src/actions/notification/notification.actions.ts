@@ -18,6 +18,16 @@ export async function getMyNotifications() {
   return NotificationService.getForUser(user.id);
 }
 
+export async function getSignatureNotifications(): Promise<string | null> {
+  const user = await getUser();
+
+  if (!user) {
+    return null;
+  }
+
+  return NotificationService.getSignature(user.id);
+}
+
 export async function markNotificationAsRead(notificationId: string) {
   const user = await getUser();
 
