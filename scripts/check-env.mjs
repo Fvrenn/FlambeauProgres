@@ -27,6 +27,16 @@ urlAbsolue(
   "https://plateforme.flambeaux.org",
 );
 
+const urlRapportsCsp = process.env.CSP_REPORT_URI?.trim();
+
+if (urlRapportsCsp) {
+  urlAbsolue(
+    "CSP_REPORT_URI",
+    urlRapportsCsp,
+    "https://glitchtip.exemple.org/api/1/security/?glitchtip_key=…",
+  );
+}
+
 if (erreurs.length > 0) {
   console.error("\nDémarrage interrompu, configuration incomplète :\n");
 

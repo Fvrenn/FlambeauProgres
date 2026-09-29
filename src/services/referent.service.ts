@@ -4,6 +4,7 @@ import {
   chefsAyantToutValide,
   compterParType,
   filtreJustificationsValidantes,
+  MESSAGE_AUTO_VALIDATION,
   MESSAGE_DOSSIER_INCOMPLET,
   statutValidant,
 } from "@/lib/justification";
@@ -139,15 +140,18 @@ export class ReferentService {
       etape.niveau,
       Boolean(assignation),
     );
+    const estSonPropreDossier = referent.id === chefId;
 
     return {
       chef,
       etape,
       justifications,
-      peutValider: aLeDroit && estComplet,
-      refusValidation: aLeDroit
-        ? MESSAGE_DOSSIER_INCOMPLET
-        : messageRefusValidation(etape.niveau),
+      peutValider: aLeDroit && !estSonPropreDossier && estComplet,
+      refusValidation: !aLeDroit
+        ? messageRefusValidation(etape.niveau)
+        : estSonPropreDossier
+          ? MESSAGE_AUTO_VALIDATION
+          : MESSAGE_DOSSIER_INCOMPLET,
     };
   }
 }

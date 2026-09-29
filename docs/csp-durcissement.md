@@ -114,12 +114,12 @@ ressources qu'on est justement en train de rapatrier.
       statiques. Ce n'est pas un problème — le CSP ne s'applique qu'au document HTML, pas à chaque
       ressource.
 
-      **Valeurs imposées par l'admin, à conserver telles quelles :**
-
-      ```
-      report-uri https://glitchtip.logut.fr/api/2/security/?glitchtip_key=c934028aa3d54479ac024dc3312c2f92
-      connect-src 'self' blob: https://glitchtip.logut.fr
-      ```
+      **Adresse des rapports : variable d'environnement `CSP_REPORT_URI`** (à la demande de l'admin,
+      qui la règle côté serveur). Vide, la CSP s'applique sans rapports ; renseignée, elle ajoute
+      `report-uri <adresse>` et autorise son origine dans `connect-src` (celle en service en
+      septembre 2026 : `https://glitchtip.logut.fr/api/3/security/?glitchtip_key=…`). Une adresse
+      invalide empêche le conteneur de démarrer (`scripts/check-env.mjs`), plutôt que de casser
+      chaque page.
 
       - La clé `glitchtip_key` n'est pas un secret : elle part dans l'en-tête de chaque réponse.
       - `https://glitchtip.logut.fr` dans `connect-src` ne sert pas aux rapports CSP : le navigateur

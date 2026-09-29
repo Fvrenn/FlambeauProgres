@@ -7,6 +7,9 @@ export const LONGUEUR_MAX_CONTENU = 5000;
 export const MESSAGE_DOSSIER_INCOMPLET =
   "Toutes les compétences et réalisations doivent être validées avant de valider l'étape";
 
+export const MESSAGE_AUTO_VALIDATION =
+  "Vous ne pouvez pas valider votre propre étape";
+
 export const STATUTS_VALIDES: StatutJustification[] = [
   "AUTO_VALIDEE",
   "VALIDEE",

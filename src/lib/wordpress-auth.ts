@@ -4,14 +4,17 @@ import { createHash } from "crypto";
 
 import { cache } from "react";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 import { creerCacheMemoire } from "@/lib/cache-memoire";
 import { prisma } from "@/lib/prisma";
 import { parseWpProfile } from "@/lib/wordpress-profile";
 import { WpProgressionService } from "@/services/wp-progression.service";
+import { ROUTE_NON_MEMBRE } from "@/config/navigation";
 
 const WP_URL = process.env.WORDPRESS_URL!;
 const DUREE_CACHE_SESSION_MS = 60_000;
+const CODE_NON_MEMBRE = "flbx_not_member";
 const NOMBRE_MAX_SESSIONS_EN_CACHE = 1000;
 
 const sessionsWp = creerCacheMemoire<WpUser>({
@@ -44,21 +47,26 @@ export async function getWordpressCookieHeader(): Promise<string | null> {
     .join("; ");
 }
 
-export async function getSessionWp(): Promise<WpUser | null> {
+export type SessionWp =
+  | { statut: "connecte"; wp: WpUser }
+  | { statut: "non-membre" }
+  | { statut: "anonyme" };
+
+export async function getSessionWp(): Promise<SessionWp> {
   const cookieHeader = await getWordpressCookieHeader();
 
-  if (!cookieHeader) return null;
+  if (!cookieHeader) return { statut: "anonyme" };
 
   const cle = cleDeSession(cookieHeader);
   const enCache = sessionsWp.get(cle);
 
-  if (enCache) return enCache;
+  if (enCache) return { statut: "connecte", wp: enCache };
 
-  const wp = await lireUtilisateurWp(cookieHeader);
+  const session = await lireSessionWp(cookieHeader);
 
-  if (wp) sessionsWp.set(cle, wp);
+  if (session.statut === "connecte") sessionsWp.set(cle, session.wp);
 
-  return wp;
+  return session;
 }
 
 export async function fetchWpProgression(): Promise<WpTaxonomyEntry[] | null> {
@@ -66,9 +74,11 @@ export async function fetchWpProgression(): Promise<WpTaxonomyEntry[] | null> {
 
   if (!cookieHeader) return null;
 
-  const wp = await lireUtilisateurWp(cookieHeader);
+  const session = await lireSessionWp(cookieHeader);
 
-  return Array.isArray(wp?.progression) ? wp.progression : null;
+  return session.statut === "connecte" && Array.isArray(session.wp.progression)
+    ? session.wp.progression
+    : null;
 }
 
 export async function oublierSessionWp(): Promise<void> {
@@ -77,16 +87,42 @@ export async function oublierSessionWp(): Promise<void> {
   if (cookieHeader) sessionsWp.delete(cleDeSession(cookieHeader));
 }
 
-async function lireUtilisateurWp(cookieHeader: string): Promise<WpUser | null> {
-  try {
-    const res = await fetch(`${WP_URL}/wp-json/flbx/v1/user-info?_wpnonce=1`, {
-      headers: { cookie: cookieHeader },
-      cache: "no-store",
-    });
+export function appelerProfilWp(
+  cookieHeader: string,
+  ecriture?: { corps: unknown },
+): Promise<Response> {
+  return fetch(`${WP_URL}/wp-json/flbx/v1/user-info`, {
+    method: ecriture ? "POST" : "GET",
+    headers: {
+      cookie: cookieHeader,
+      "X-WP-Nonce": "x",
+      ...(ecriture ? { "content-type": "application/json" } : {}),
+    },
+    body: ecriture ? JSON.stringify(ecriture.corps) : undefined,
+    redirect: "manual",
+    cache: "no-store",
+  });
+}
 
-    return res.ok ? await res.json() : null;
+async function lireSessionWp(cookieHeader: string): Promise<SessionWp> {
+  try {
+    const res = await appelerProfilWp(cookieHeader);
+
+    if (res.ok) {
+      return { statut: "connecte", wp: await res.json() };
+    }
+
+    if (res.status === 401) {
+      const erreur = await res.json().catch(() => null);
+
+      if (erreur?.code === CODE_NON_MEMBRE) {
+        return { statut: "non-membre" };
+      }
+    }
+
+    return { statut: "anonyme" };
   } catch {
-    return null;
+    return { statut: "anonyme" };
   }
 }
 
@@ -95,9 +131,15 @@ function cleDeSession(cookieHeader: string): string {
 }
 
 export const getCurrentUser = cache(async () => {
-  const wp = await getSessionWp();
+  const session = await getSessionWp();
 
-  if (!wp) return null;
+  if (session.statut === "non-membre") {
+    redirect(ROUTE_NON_MEMBRE);
+  }
+
+  if (session.statut !== "connecte") return null;
+
+  const { wp } = session;
 
   const displayName =
     [wp.first_name, wp.last_name].filter(Boolean).join(" ").trim() ||

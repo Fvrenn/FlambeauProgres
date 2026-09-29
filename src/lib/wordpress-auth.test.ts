@@ -44,7 +44,10 @@ describe("getSessionWp", () => {
     await getSessionWp();
     const seconde = await getSessionWp();
 
-    expect(seconde?.id).toBe(1);
+    expect(seconde).toEqual({
+      statut: "connecte",
+      wp: expect.objectContaining({ id: 1 }),
+    });
     expect(fetchSimule).toHaveBeenCalledTimes(1);
   });
 
@@ -56,7 +59,10 @@ describe("getSessionWp", () => {
     connecter("session-3");
     fetchSimule.mockResolvedValue(reponseWp(3));
 
-    expect((await getSessionWp())?.id).toBe(3);
+    expect(await getSessionWp()).toEqual({
+      statut: "connecte",
+      wp: expect.objectContaining({ id: 3 }),
+    });
     expect(fetchSimule).toHaveBeenCalledTimes(2);
   });
 
@@ -65,8 +71,11 @@ describe("getSessionWp", () => {
     fetchSimule.mockResolvedValueOnce({ ok: false } as Response);
     fetchSimule.mockResolvedValueOnce(reponseWp(4));
 
-    expect(await getSessionWp()).toBeNull();
-    expect((await getSessionWp())?.id).toBe(4);
+    expect(await getSessionWp()).toEqual({ statut: "anonyme" });
+    expect(await getSessionWp()).toEqual({
+      statut: "connecte",
+      wp: expect.objectContaining({ id: 4 }),
+    });
   });
 
   it("relit WordPress après avoir oublié la session", async () => {
@@ -83,8 +92,41 @@ describe("getSessionWp", () => {
   it("ne fait aucun appel sans cookie de session WordPress", async () => {
     cookiesCourants.valeur = [];
 
-    expect(await getSessionWp()).toBeNull();
+    expect(await getSessionWp()).toEqual({ statut: "anonyme" });
     expect(fetchSimule).not.toHaveBeenCalled();
+  });
+});
+
+describe("getSessionWp - réponses de la plateforme", () => {
+  it("envoie l'en-tête X-WP-Nonce et ne suit pas les redirections", async () => {
+    connecter("session-7");
+    fetchSimule.mockResolvedValue(reponseWp(7));
+
+    await getSessionWp();
+
+    const [url, options] = fetchSimule.mock.calls[0];
+
+    expect(url).not.toContain("_wpnonce");
+    expect(options.headers["X-WP-Nonce"]).toBe("x");
+    expect(options.redirect).toBe("manual");
+  });
+
+  it("reconnaît un compte connecté mais non membre de la plateforme", async () => {
+    connecter("session-8");
+    fetchSimule.mockResolvedValue({
+      ok: false,
+      status: 401,
+      json: async () => ({ code: "flbx_not_member" }),
+    } as Response);
+
+    expect(await getSessionWp()).toEqual({ statut: "non-membre" });
+  });
+
+  it("traite la redirection vers la connexion comme une absence de session", async () => {
+    connecter("session-9");
+    fetchSimule.mockResolvedValue({ ok: false, status: 302 } as Response);
+
+    expect(await getSessionWp()).toEqual({ statut: "anonyme" });
   });
 });
 

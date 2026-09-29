@@ -21,10 +21,11 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(buildWpLoginUrl(urlCourante));
   }
 
-  const csp = construireCsp(
-    genererNonce(),
-    process.env.NODE_ENV === "development",
-  );
+  const csp = construireCsp({
+    nonce: genererNonce(),
+    estDeveloppement: process.env.NODE_ENV === "development",
+    urlRapports: process.env.CSP_REPORT_URI?.trim() || undefined,
+  });
   const requestHeaders = new Headers(request.headers);
 
   requestHeaders.set(CURRENT_URL_HEADER, urlCourante);

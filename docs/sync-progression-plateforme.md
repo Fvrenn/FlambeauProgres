@@ -20,6 +20,24 @@ Ces étapes doivent apparaître comme **validées** dans l'app, sans jamais êtr
 validations effectuées _via_ Flambeaux Progrès : l'onglet Analyse sert à savoir à qui remettre un
 écusson, et un Chef qui a obtenu son badge avant le déploiement de l'app ne doit pas y figurer.
 
+## API de la plateforme (documentation de l'admin, 28/09/2026)
+
+Base : `https://plateforme.flambeaux.org/wp-json/flbx/v1`, appelée **côté serveur** en relayant le
+cookie `wordpress_logged_in_*` de l'utilisateur.
+
+- Toute requête envoie `X-WP-Nonce` avec n'importe quelle valeur, sans quoi WordPress ignore le
+  cookie. Les écritures ne doivent **pas** envoyer d'en-tête `Origin` (le `fetch` de Node n'en met
+  pas). Un seul point d'appel dans l'app : `appelerProfilWp` (`src/lib/wordpress-auth.ts`), qui ne
+  suit pas les redirections.
+- Réponses : cookie absent ou invalide → `302` vers la connexion (traité comme « pas de session ») ;
+  connecté mais non membre du site → `401 flbx_not_member` (l'app renvoie vers `/non-membre` au
+  lieu de boucler avec la page de connexion).
+- `GET /user-info` : profil, dont `group` / `group_value` et `progression`.
+- `GET /user-info/choices` : valeurs possibles de `groupe` et `progression`, dans l'ordre de l'admin.
+- `POST /user-info` : `{ "groupe": 29, "progression": [1, 101, 2, 203] }`, au moins un des deux ;
+  `progression` **remplace** la liste. Valeur inconnue → `400 rest_invalid_param`, rien n'est
+  modifié.
+
 ## Modèle
 
 - `ChefEtapeStatut.origine` (`OrigineValidation` : `APP` | `PLATEFORME`).

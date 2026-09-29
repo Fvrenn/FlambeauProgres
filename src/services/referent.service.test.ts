@@ -110,6 +110,16 @@ describe("ReferentService.getRevision", () => {
     expect(revision?.refusValidation).toContain("doivent être validées");
   });
 
+  it("bloque la validation de son propre dossier", async () => {
+    db.user.findUnique.mockResolvedValue({ id: "ref1" } as never);
+    etapeService.estDossierComplet.mockResolvedValue(true);
+
+    const revision = await ReferentService.getRevision("ref1", "e1", referent);
+
+    expect(revision?.peutValider).toBe(false);
+    expect(revision?.refusValidation).toContain("propre étape");
+  });
+
   it("ne liste pour l'étape 3 que les compétences évaluées par la commission", async () => {
     db.etape.findUnique.mockResolvedValue({ id: "e3", niveau: 3 } as never);
     db.user.findUnique.mockResolvedValue({ id: "c1" } as never);

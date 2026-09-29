@@ -24,12 +24,17 @@ export default function ValidationFinaleButton({
   etapeId,
 }: ValidationFinaleButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [erreur, setErreur] = useState<string | null>(null);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const handleConfirmValidate = async () => {
     setIsLoading(true);
-    await validateEtape(chefId, etapeId);
+    setErreur(null);
+    const result = await validateEtape(chefId, etapeId);
 
+    if (result && !result.success) {
+      setErreur(result.error ?? "Erreur lors de la validation");
+    }
     setIsLoading(false);
   };
 
@@ -43,6 +48,11 @@ export default function ValidationFinaleButton({
       >
         Valider le badge complet
       </Button>
+      {erreur && (
+        <p className="mt-2 text-xs text-danger" role="alert">
+          {erreur}
+        </p>
+      )}
 
       <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
         <ModalContent className="bg-dashboard">

@@ -8,5 +8,8 @@ export async function GET() {
 
   await oublierSessionWp();
 
-  return NextResponse.redirect(buildWpLogoutUrl(session?.logout_nonce));
+  const nonce =
+    session.statut === "connecte" ? session.wp.logout_nonce : undefined;
+
+  return NextResponse.redirect(buildWpLogoutUrl(nonce));
 }

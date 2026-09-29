@@ -65,6 +65,11 @@ export default function DiscussionThread({
       </div>
 
       <footer className="flex flex-col gap-3 border-t border-dashboard-border p-3">
+        {error && messages.length > 0 && (
+          <p className="text-center text-sm text-danger" role="alert">
+            {error}
+          </p>
+        )}
         {readOnly ? (
           <div className="flex items-center justify-center gap-2 text-sm text-success-600">
             <Icon icon="solar:check-circle-bold" width={18} />

@@ -5,6 +5,7 @@ import {
   chefsAyantToutValide,
   compterParType,
   filtreJustificationsValidantes,
+  MESSAGE_AUTO_VALIDATION,
   MESSAGE_DOSSIER_INCOMPLET,
   STATUTS_VALIDES,
 } from "@/lib/justification";
@@ -174,10 +175,7 @@ export class EtapeService {
     }
 
     if (referentId === chefId) {
-      return {
-        success: false,
-        error: "Vous ne pouvez pas valider votre propre étape",
-      };
+      return { success: false, error: MESSAGE_AUTO_VALIDATION };
     }
 
     if (!(await this.estDossierComplet(chefId, etapeId))) {

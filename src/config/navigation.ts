@@ -6,6 +6,8 @@ import type {
 
 export const ROUTE_DECONNEXION = "/deconnexion";
 
+export const ROUTE_NON_MEMBRE = "/non-membre";
+
 export const BUG_REPORT_EMAIL = "timothehege@gmail.com";
 
 export const BUG_REPORT_NAV_ITEM = {

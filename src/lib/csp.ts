@@ -4,17 +4,18 @@ export const ENTETE_CSP = CSP_BLOQUANTE
   ? "Content-Security-Policy"
   : "Content-Security-Policy-Report-Only";
 
-const URL_RAPPORTS_CSP =
-  "https://glitchtip.logut.fr/api/2/security/?glitchtip_key=c934028aa3d54479ac024dc3312c2f92";
-
 export function genererNonce(): string {
   return Buffer.from(crypto.randomUUID()).toString("base64");
 }
 
-export function construireCsp(
-  nonce: string,
-  estDeveloppement: boolean,
-): string {
+export function construireCsp(options: {
+  nonce: string;
+  estDeveloppement: boolean;
+  urlRapports?: string;
+}): string {
+  const { nonce, estDeveloppement } = options;
+  const urlRapports = estDeveloppement ? undefined : options.urlRapports;
+
   const directives: [string, string[]][] = [
     ["default-src", ["'self'"]],
     [
@@ -30,15 +31,22 @@ export function construireCsp(
     ["style-src", ["'self'", "'unsafe-inline'"]],
     ["img-src", ["'self'", "blob:", "data:", "https:"]],
     ["font-src", ["'self'"]],
-    ["connect-src", ["'self'", "blob:", "https://glitchtip.logut.fr"]],
+    [
+      "connect-src",
+      [
+        "'self'",
+        "blob:",
+        ...(urlRapports ? [new URL(urlRapports).origin] : []),
+      ],
+    ],
     ["worker-src", ["'self'", "blob:"]],
     ["object-src", ["'none'"]],
     ["base-uri", ["'self'"]],
     ["form-action", ["'self'"]],
     ["frame-ancestors", ["'self'"]],
-    ...(estDeveloppement
-      ? []
-      : ([["report-uri", [URL_RAPPORTS_CSP]]] as [string, string[]][])),
+    ...(urlRapports
+      ? ([["report-uri", [urlRapports]]] as [string, string[]][])
+      : []),
   ];
 
   return directives

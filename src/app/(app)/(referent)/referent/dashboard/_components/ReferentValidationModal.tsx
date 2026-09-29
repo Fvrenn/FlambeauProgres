@@ -18,6 +18,7 @@ import { markNotificationsAsReadForJustification } from "@/actions/notification/
 
 export type ReferentThreadJustification = {
   id: string;
+  chefId: string;
   chef: { name: string; email: string; image: string | null };
   objectif: { code: string; description: string; type: TypeObjectif };
 };
@@ -44,6 +45,8 @@ export default function ReferentValidationModal({
   }, [isOpen, justification]);
 
   if (!justification) return null;
+
+  const estSonPropreTravail = justification.chefId === viewer?.id;
 
   return (
     <Modal
@@ -83,7 +86,7 @@ export default function ReferentValidationModal({
               type: justification.objectif.type,
             }}
             peutEcrire={peutEvaluer}
-            peutValider={peutEvaluer}
+            peutValider={peutEvaluer && !estSonPropreTravail}
             viewer={viewer}
           />
         </ModalBody>

@@ -1,9 +1,8 @@
 import {
+  appelerProfilWp,
   getWordpressCookieHeader,
   oublierSessionWp,
 } from "@/lib/wordpress-auth";
-
-const WP_URL = process.env.WORDPRESS_URL!;
 
 export type ResultatEcritureWp = { success: boolean; error?: string };
 
@@ -29,14 +28,8 @@ export async function pousserProgressionVersWp(
   }
 
   try {
-    const res = await fetch(`${WP_URL}/wp-json/flbx/v1/user-info?_wpnonce=1`, {
-      method: "POST",
-      headers: {
-        cookie: cookieHeader,
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({ progression: valeurs }),
-      cache: "no-store",
+    const res = await appelerProfilWp(cookieHeader, {
+      corps: { progression: valeurs },
     });
 
     if (!res.ok) {
