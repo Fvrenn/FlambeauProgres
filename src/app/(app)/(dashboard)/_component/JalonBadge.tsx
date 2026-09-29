@@ -57,13 +57,7 @@ const CONFIGS: Record<number, typeof ALLUME_FEU> = {
   [NIVEAU_PROFILS]: SERVIR,
 };
 
-export default function JalonBadge({
-  jalon,
-  compact = false,
-}: {
-  jalon: EtapeAvecObjectifs;
-  compact?: boolean;
-}) {
+export default function JalonBadge({ jalon }: { jalon: EtapeAvecObjectifs }) {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [isPending, startTransition] = useTransition();
   const [pdfOpened, setPdfOpened] = useState(false);
@@ -96,9 +90,7 @@ export default function JalonBadge({
     <>
       <button
         aria-label={`Ouvrir ${jalon.name}`}
-        className={`group flex cursor-pointer flex-col items-center rounded-3xl transition-transform hover:-translate-y-1 ${
-          compact ? "gap-1 p-1" : "gap-2 p-3"
-        }`}
+        className="group flex cursor-pointer flex-col items-center gap-2 rounded-3xl p-3 transition-transform hover:-translate-y-1"
         type="button"
         onClick={onOpen}
       >
@@ -106,36 +98,19 @@ export default function JalonBadge({
           <Image
             priority
             alt={jalon.name}
-            className={`w-auto drop-shadow-[0_6px_12px_rgba(0,0,0,0.2)] ${
-              compact ? "h-[58px] md:h-[77px]" : "h-32 md:h-40"
-            }`}
+            className="h-32 w-auto drop-shadow-[0_6px_12px_rgba(0,0,0,0.2)] md:h-40"
             height={config.height}
             src={config.src}
             width={config.width}
           />
-          <span
-            className={`absolute -right-1 -top-1 flex items-center justify-center rounded-full bg-warning text-white shadow ${
-              compact ? "h-5 w-5" : "h-6 w-6"
-            }`}
-          >
-            <Icon
-              icon="solar:arrow-right-up-linear"
-              width={compact ? 14 : 16}
-            />
+          <span className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-warning text-white shadow">
+            <Icon icon="solar:arrow-right-up-linear" width={16} />
           </span>
         </div>
-        <span
-          className={`font-semibold text-foreground ${
-            compact ? "text-xs" : "text-sm"
-          }`}
-        >
+        <span className="text-sm font-semibold text-foreground">
           {jalon.name}
         </span>
-        {!compact && (
-          <span className="text-xs text-default-500">
-            Clique pour découvrir
-          </span>
-        )}
+        <span className="text-xs text-default-500">Clique pour découvrir</span>
       </button>
 
       <Modal

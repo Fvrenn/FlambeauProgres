@@ -4,6 +4,7 @@ import {
   chefsAyantToutValide,
   filtreJustificationsValidantes,
   statutValidant,
+  suiviReferent,
 } from "@/lib/justification";
 
 const total = { competences: 2, realisations: 1 };
@@ -68,5 +69,43 @@ describe("filtreJustificationsValidantes", () => {
       statut: "VALIDEE",
       objectif: { type: "COMPETENCE" },
     });
+  });
+});
+
+describe("suiviReferent", () => {
+  const chefId = "c1";
+
+  it("signale une réalisation jamais commentée par un référent", () => {
+    expect(
+      suiviReferent({
+        statut: "SOUMISE",
+        chefId,
+        messages: [{ auteurId: chefId }],
+      }),
+    ).toBe("nouveau");
+  });
+
+  it("signale la réponse du chef après une question d'un référent", () => {
+    expect(
+      suiviReferent({
+        statut: "SOUMISE",
+        chefId,
+        messages: [
+          { auteurId: chefId },
+          { auteurId: "r1" },
+          { auteurId: chefId },
+        ],
+      }),
+    ).toBe("reponse-du-chef");
+  });
+
+  it("met en attente du chef une précision demandée", () => {
+    expect(
+      suiviReferent({
+        statut: "DEMANDE_PRECISION",
+        chefId,
+        messages: [{ auteurId: chefId }, { auteurId: "r1" }],
+      }),
+    ).toBe("attente-du-chef");
   });
 });
