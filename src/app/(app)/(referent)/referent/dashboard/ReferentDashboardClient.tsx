@@ -1,19 +1,19 @@
 "use client";
 
-import type { UserResume } from "@/types";
+import type { JustificationSuivie, UserResume } from "@/types";
 
 import React, { useEffect, useRef, useState } from "react";
-import { type Justification, type TypeObjectif } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { cn } from "@heroui/react";
 
 import ReferentValidationModal, {
   type ReferentThreadJustification,
 } from "./_components/ReferentValidationModal";
-import ReferentTabs from "./_components/ReferentTabs";
-import ValidationPanel from "./_components/panels/ValidationPanel";
+import ReferentTabs, { type OngletReferent } from "./_components/ReferentTabs";
+import JustificationsPanel from "./_components/panels/JustificationsPanel";
 import RevisionPanel from "./_components/panels/RevisionPanel";
 
+import { clickable } from "@/lib/a11y";
 import { Icon } from "@/lib/icons";
 import { Card, CardBody } from "@/components/ui";
 import { type DiscussionViewer } from "@/components/discussion/DiscussionThread";
@@ -31,14 +31,16 @@ function StatCard({
   label,
   value,
   tone = "default",
+  onSelect,
 }: {
   icon: string;
   label: string;
   value: number;
   tone?: StatTone;
+  onSelect: () => void;
 }) {
   return (
-    <Card className="bg-dashboard-panel">
+    <Card isPressable className="bg-dashboard-panel" {...clickable(onSelect)}>
       <CardBody className="gap-3">
         <div
           className={cn(
@@ -57,34 +59,9 @@ function StatCard({
   );
 }
 
-type ChefInfo = {
-  id: string;
-  name: string;
-  email: string;
-  image: string | null;
-};
-
-type ObjectifInfo = {
-  id: string;
-  code: string;
-  description: string;
-  type: TypeObjectif;
-};
-
-type JustificationAValider = Justification & {
-  chef: ChefInfo;
-  objectif: ObjectifInfo;
-  messages: { auteurId: string }[];
-};
-
-type JustificationEnDiscussion = Justification & {
-  chef: ChefInfo;
-  objectif: ObjectifInfo;
-};
-
 interface ReferentDashboardClientProps {
-  justificationsAValider: JustificationAValider[];
-  justificationsEnDiscussion: JustificationEnDiscussion[];
+  justificationsAValider: JustificationSuivie[];
+  justificationsEnAttente: JustificationSuivie[];
   chefsAReviser: UserResume[];
   targetJustificationId?: string;
   viewer: DiscussionViewer;
@@ -93,14 +70,14 @@ interface ReferentDashboardClientProps {
 
 export default function ReferentDashboardClient({
   justificationsAValider,
-  justificationsEnDiscussion,
+  justificationsEnAttente,
   chefsAReviser,
   targetJustificationId,
   viewer,
   peutEvaluer,
 }: ReferentDashboardClientProps) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<React.Key>("a-valider");
+  const [activeTab, setActiveTab] = useState<OngletReferent>("a-valider");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedJustification, setSelectedJustification] =
     useState<ReferentThreadJustification | null>(null);
@@ -111,29 +88,23 @@ export default function ReferentDashboardClient({
       return;
     }
 
-    const inValider = justificationsAValider.find(
+    const aValider = justificationsAValider.find(
       (j) => j.id === targetJustificationId,
     );
-    const inDiscussion = justificationsEnDiscussion.find(
+    const enAttente = justificationsEnAttente.find(
       (j) => j.id === targetJustificationId,
     );
-    const found = inValider ?? inDiscussion;
+    const found = aValider ?? enAttente;
 
     if (found) {
       deepLinkConsumed.current = true;
-      setActiveTab("a-valider");
+      setActiveTab(aValider ? "a-valider" : "attente-du-chef");
       setSelectedJustification(found);
       setIsModalOpen(true);
     }
-  }, [
-    targetJustificationId,
-    justificationsAValider,
-    justificationsEnDiscussion,
-  ]);
+  }, [targetJustificationId, justificationsAValider, justificationsEnAttente]);
 
-  const handleJustificationClick = (
-    justification: JustificationAValider | JustificationEnDiscussion,
-  ) => {
+  const handleJustificationClick = (justification: JustificationSuivie) => {
     setSelectedJustification(justification);
     setIsModalOpen(true);
   };
@@ -144,10 +115,18 @@ export default function ReferentDashboardClient({
     router.refresh();
   };
 
-  const contentMap: Record<string, React.ReactNode> = {
+  const contentMap: Record<OngletReferent, React.ReactNode> = {
     "a-valider": (
-      <ValidationPanel
+      <JustificationsPanel
         justifications={justificationsAValider}
+        liste="a-valider"
+        onJustificationClick={handleJustificationClick}
+      />
+    ),
+    "attente-du-chef": (
+      <JustificationsPanel
+        justifications={justificationsEnAttente}
+        liste="attente-du-chef"
         onJustificationClick={handleJustificationClick}
       />
     ),
@@ -169,31 +148,37 @@ export default function ReferentDashboardClient({
           label="Réalisations à valider"
           tone={justificationsAValider.length > 0 ? "warning" : "success"}
           value={justificationsAValider.length}
+          onSelect={() => setActiveTab("a-valider")}
         />
         <StatCard
-          icon="solar:question-circle-linear"
-          label="Demandes de précision en cours"
-          value={justificationsEnDiscussion.length}
+          icon="solar:clock-circle-linear"
+          label="En attente du chef"
+          value={justificationsEnAttente.length}
+          onSelect={() => setActiveTab("attente-du-chef")}
         />
         <StatCard
           icon="solar:verified-check-linear"
           label="Badges complets à réviser"
           tone={chefsAReviser.length > 0 ? "warning" : "success"}
           value={chefsAReviser.length}
+          onSelect={() => setActiveTab("a-reviser")}
         />
       </div>
 
       <div className="flex-shrink-0 mb-4">
         <ReferentTabs
-          revisionCount={chefsAReviser.length}
+          compteurs={{
+            "a-valider": justificationsAValider.length,
+            "attente-du-chef": justificationsEnAttente.length,
+            "a-reviser": chefsAReviser.length,
+          }}
           selectedKey={activeTab}
-          validationCount={justificationsAValider.length}
           onSelectionChange={setActiveTab}
         />
       </div>
 
       <div className="flex-1 h-full min-h-0 overflow-hidden flex flex-col">
-        {contentMap[activeTab as string]}
+        {contentMap[activeTab]}
       </div>
 
       <ReferentValidationModal

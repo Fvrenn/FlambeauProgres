@@ -86,3 +86,25 @@ export function compterParType(
 ): number {
   return totaux.find((total) => total.type === type)?._count.id ?? 0;
 }
+
+export type SuiviReferent = "nouveau" | "reponse-du-chef" | "attente-du-chef";
+
+export type JustificationASuivre = {
+  statut: StatutJustification;
+  chefId: string;
+  messages: { auteurId: string }[];
+};
+
+export function suiviReferent(
+  justification: JustificationASuivre,
+): SuiviReferent {
+  if (justification.statut === "DEMANDE_PRECISION") {
+    return "attente-du-chef";
+  }
+
+  const aDejaEchangeAvecUnReferent = justification.messages.some(
+    (message) => message.auteurId !== justification.chefId,
+  );
+
+  return aDejaEchangeAvecUnReferent ? "reponse-du-chef" : "nouveau";
+}

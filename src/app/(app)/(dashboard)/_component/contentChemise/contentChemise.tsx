@@ -2,7 +2,7 @@
 
 import type { Branche } from "@/lib/wordpress-profile";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { Justification, Notification } from "@prisma/client";
 
@@ -12,12 +12,13 @@ import ObjectifPanel from "../contentAction/panels/ObjectifPanel";
 import NotificationDrawer from "../contentAction/NotificationDrawer";
 import JalonBadge from "../JalonBadge";
 
-import ChemiseSquelette from "./ChemiseSquelette";
+import ApercuChemise from "./ApercuChemise";
 import GrilleBadges from "./GrilleBadges";
 
 import { NIVEAU_PROFILS, NIVEAU_SPECIALITES } from "@/lib/parcours";
 import { type DiscussionViewer } from "@/components/discussion/DiscussionThread";
 
+const OBJECTIFS_OFFSET_REPOS = -24;
 const OBJECTIFS_OFFSET_SELECTED = -100;
 const OBJECTIFS_OFFSET_EXPANDED = -200;
 const OBJECTIFS_EXPAND_GAIN =
@@ -30,7 +31,6 @@ const ChemiseModel = dynamic(
   () => import("./chemiseModel").then((mod) => mod.ChemiseModel),
   {
     ssr: false,
-    loading: () => <ChemiseSquelette />,
   },
 );
 
@@ -45,15 +45,7 @@ class ChemiseBoundary extends React.Component<
   }
 
   render() {
-    if (this.state.hasError) {
-      return (
-        <div className="flex h-full w-full items-center justify-center p-4 text-center text-sm text-default-500">
-          Aperçu 3D indisponible
-        </div>
-      );
-    }
-
-    return this.props.children;
+    return this.state.hasError ? null : this.props.children;
   }
 }
 
@@ -91,6 +83,11 @@ export default function ContentChemise({
   const [isObjectifsExpanded, setIsObjectifsExpanded] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const [niveauChoisi, setNiveauChoisi] = useState<number>(NIVEAU_SPECIALITES);
+  const [estChemiseChargee, setEstChemiseChargee] = useState(false);
+  const handleChemiseChargee = useCallback(
+    () => setEstChemiseChargee(true),
+    [],
+  );
 
   const specialites = etapes.filter(
     (etape) => etape.type === "BADGE" && etape.niveau === NIVEAU_SPECIALITES,
@@ -111,6 +108,7 @@ export default function ContentChemise({
     ) ?? null;
   const etape3Disponible = profils.length > 0 || livretProfils !== null;
   const niveauActif = etape3Disponible ? niveauChoisi : NIVEAU_SPECIALITES;
+  const livretAffiche = niveauActif === NIVEAU_PROFILS ? livretProfils : null;
 
   useEffect(() => {
     const query = window.matchMedia(DESKTOP_QUERY);
@@ -144,7 +142,7 @@ export default function ContentChemise({
   };
 
   const objectifsOffset = !selectedEtape
-    ? 0
+    ? OBJECTIFS_OFFSET_REPOS
     : isObjectifsExpanded
       ? OBJECTIFS_OFFSET_EXPANDED
       : OBJECTIFS_OFFSET_SELECTED;
@@ -179,8 +177,8 @@ export default function ContentChemise({
           {
             niveau: NIVEAU_PROFILS,
             contenu: livretProfils ? (
-              <div className="flex items-center justify-center py-2">
-                <JalonBadge compact={!isDesktop} jalon={livretProfils} />
+              <div className="hidden items-center justify-center py-2 md:flex">
+                <JalonBadge jalon={livretProfils} />
               </div>
             ) : (
               renderGrille(profils)
@@ -192,11 +190,18 @@ export default function ContentChemise({
 
   return (
     <div className="md:bg-dashboard-card h-full min-h-0 w-full md:w-[345px] flex flex-col justify-between p-0.5 rounded-3xl">
-      <div className="flex h-2/4 shrink-0 overflow-hidden justify-center md:h-auto md:min-h-0 md:flex-1 md:shrink">
+      <div className="relative flex h-2/4 shrink-0 overflow-hidden justify-center md:h-auto md:min-h-0 md:flex-1 md:shrink">
+        <ApercuChemise
+          branche={branche}
+          className={`transition-opacity duration-500 ${
+            estChemiseChargee ? "opacity-0" : "opacity-100"
+          }`}
+        />
         <ChemiseBoundary>
           <ChemiseModel
             branche={branche}
             selectedBadge={selectedEtape?.number}
+            onCharge={handleChemiseChargee}
           />
         </ChemiseBoundary>
       </div>
@@ -213,7 +218,7 @@ export default function ContentChemise({
             <JalonBadge key={currentJalon.id} jalon={currentJalon} />
           </div>
         ) : (
-          <div className="relative flex flex-col mt-[-80px] md:mt-0 flex-none">
+          <div className="relative flex flex-col mt-[-83px] md:mt-0 flex-none">
             {etape3Disponible && (
               <div
                 aria-label="Choisir l’étape à afficher"
@@ -244,7 +249,7 @@ export default function ContentChemise({
                 <div
                   key={niveau}
                   aria-hidden={niveau !== niveauActif}
-                  className={`[grid-area:1/1] flex flex-col justify-center ${
+                  className={`[grid-area:1/1] flex min-w-0 flex-col justify-center ${
                     niveau === niveauActif ? "" : "invisible"
                   }`}
                 >
@@ -254,7 +259,12 @@ export default function ContentChemise({
             </div>
           </div>
         )}
-        {!currentJalon && (
+        {!currentJalon && livretAffiche && (
+          <div className="flex flex-1 items-center justify-center py-2 md:hidden">
+            <JalonBadge key={livretAffiche.id} jalon={livretAffiche} />
+          </div>
+        )}
+        {!currentJalon && !livretAffiche && (
           <div
             ref={objectifsRef}
             className="md:hidden flex-1 min-h-0 w-full rounded-t-3xl px-3 pt-4 md:p-4 overflow-y-auto pb-24"

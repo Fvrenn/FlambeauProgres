@@ -48,7 +48,7 @@ export default async function ReferentDashboardPage({
     {
       chefsAReviser,
       justificationsAValider,
-      justificationsEnDiscussion,
+      justificationsEnAttente,
       peutEvaluer,
     },
     signature,
@@ -64,7 +64,7 @@ export default async function ReferentDashboardPage({
       <ReferentDashboardClient
         chefsAReviser={chefsAReviser}
         justificationsAValider={justificationsAValider}
-        justificationsEnDiscussion={justificationsEnDiscussion}
+        justificationsEnAttente={justificationsEnAttente}
         peutEvaluer={peutEvaluer}
         targetJustificationId={targetJustificationId}
         viewer={{

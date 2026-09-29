@@ -18,7 +18,10 @@ vi.mock("@/services/etape.service", () => ({
 import { prisma } from "@/lib/prisma";
 import { EtapeService } from "@/services/etape.service";
 import { USER_RESUME_SELECT } from "@/services/user.service";
-import { ReferentService } from "@/services/referent.service";
+import {
+  JUSTIFICATION_SUIVIE_INCLUDE,
+  ReferentService,
+} from "@/services/referent.service";
 
 const db = vi.mocked(prisma, true);
 const etapeService = vi.mocked(EtapeService, true);
@@ -71,6 +74,16 @@ describe("ReferentService.getDashboard", () => {
 
     expect(dashboard.chefsAReviser).toEqual([]);
     expect(db.user.findMany).not.toHaveBeenCalled();
+  });
+
+  it("liste les réalisations en attente du chef, les plus anciennes d'abord", async () => {
+    await ReferentService.getDashboard("e1", referent);
+
+    expect(db.justification.findMany).toHaveBeenCalledWith({
+      where: { etapeId: "e1", statut: "DEMANDE_PRECISION" },
+      include: JUSTIFICATION_SUIVIE_INCLUDE,
+      orderBy: { updatedAt: "asc" },
+    });
   });
 
   it("autorise l'évaluation au référent assigné", async () => {

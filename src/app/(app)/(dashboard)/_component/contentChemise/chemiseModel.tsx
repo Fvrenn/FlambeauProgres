@@ -5,7 +5,7 @@
 import type { Branche } from "@/lib/wordpress-profile";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { useGLTF, Center } from "@react-three/drei";
+import { useGLTF } from "@react-three/drei";
 import {
   Suspense,
   useRef,
@@ -14,14 +14,22 @@ import {
   useEffect,
   useState,
 } from "react";
-import { MathUtils, Group, Mesh, MeshStandardMaterial } from "three";
-
-import ChemiseSquelette from "./ChemiseSquelette";
+import {
+  Box3,
+  Group,
+  MathUtils,
+  Mesh,
+  MeshStandardMaterial,
+  Object3D,
+  Vector3,
+} from "three";
 
 const DRACO_DECODER_PATH = "/draco/";
+const ECHELLE_MODELE = 2;
 
 useGLTF.setDecoderPath(DRACO_DECODER_PATH);
 
+import { REQUETE_TELEPHONE } from "@/lib/apercu-chemise";
 import {
   evaluerAvancementBarettes,
   getChemiseVisibility,
@@ -32,8 +40,6 @@ const CAMERA_CONFIG = {
   fov: 20,
   distance: { mobile: 3.5, desktop: 5 },
 };
-
-const MOBILE_QUERY = "(max-width: 767px)";
 
 const LIGHTING_CONFIG = {
   ambient: { intensity: 0.8, color: "#ffffff" },
@@ -105,6 +111,8 @@ function ChemiseGLB({
 }) {
   const { scene } = useGLTF("/chemise/chemise.glb", DRACO_DECODER_PATH);
   const meshRef = useRef<Group>(null);
+  const estEnPlace = useRef(false);
+  const centrage = useMemo(() => decalageDeCentrage(scene), [scene]);
 
   useFrame((_, delta) => {
     const group = meshRef.current;
@@ -115,7 +123,11 @@ function ChemiseGLB({
       ? ANIMATION_CONFIG.mobile
       : ANIMATION_CONFIG.desktop;
     const target = selectedBadge ? config.selected : config.default;
-    const lerpFactor = delta * ANIMATION_CONFIG.lerpSpeed;
+    const lerpFactor = estEnPlace.current
+      ? delta * ANIMATION_CONFIG.lerpSpeed
+      : 1;
+
+    estEnPlace.current = true;
 
     group.rotation.x = MathUtils.lerp(
       group.rotation.x,
@@ -209,23 +221,41 @@ function ChemiseGLB({
   }, [scene, selectedBadge]);
 
   return (
-    <group ref={meshRef}>
-      <primitive object={scene} position={[0, 0, 0]} scale={2} />
+    <group position={centrage}>
+      <group ref={meshRef}>
+        <primitive object={scene} position={[0, 0, 0]} scale={ECHELLE_MODELE} />
+      </group>
     </group>
   );
+}
+
+function decalageDeCentrage(modele: Object3D): Vector3 {
+  const copie = modele.clone();
+
+  copie.position.set(0, 0, 0);
+  copie.scale.setScalar(ECHELLE_MODELE);
+  copie.updateMatrixWorld(true);
+
+  return new Box3()
+    .setFromObject(copie, true)
+    .getCenter(new Vector3())
+    .negate();
 }
 
 interface ChemiseModelProps {
   selectedBadge?: string | null;
   branche?: Branche | null;
   etapes?: EtapeAvancement[];
+  onCharge: () => void;
 }
 
 function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(
+    () => window.matchMedia(REQUETE_TELEPHONE).matches,
+  );
 
   useEffect(() => {
-    const query = window.matchMedia(MOBILE_QUERY);
+    const query = window.matchMedia(REQUETE_TELEPHONE);
     const sync = () => setIsMobile(query.matches);
 
     sync();
@@ -248,12 +278,8 @@ function CameraRig({ distance }: { distance: number }) {
   return null;
 }
 
-function SignalerChargement({
-  onCharge,
-}: {
-  onCharge: (estCharge: boolean) => void;
-}) {
-  useEffect(() => onCharge(true), [onCharge]);
+function SignalerChargement({ onCharge }: { onCharge: () => void }) {
+  useEffect(onCharge, [onCharge]);
 
   return null;
 }
@@ -270,22 +296,17 @@ export const ChemiseModel = ({
   selectedBadge,
   branche,
   etapes,
+  onCharge,
 }: ChemiseModelProps) => {
   const { ambient, directional, spot, point } = LIGHTING_CONFIG;
   const isLowEnd = useMemo(detectLowEndDevice, []);
   const isMobile = useIsMobile();
-  const [estCharge, setEstCharge] = useState(false);
   const distance = isMobile
     ? CAMERA_CONFIG.distance.mobile
     : CAMERA_CONFIG.distance.desktop;
 
   return (
-    <div className="relative w-full h-full">
-      <ChemiseSquelette
-        className={`absolute inset-0 transition-opacity duration-500 ${
-          estCharge ? "opacity-0" : "opacity-100"
-        }`}
-      />
+    <div className="w-full h-full">
       <Canvas
         camera={{ position: [0, 0, distance], fov: CAMERA_CONFIG.fov }}
         dpr={isLowEnd ? [1, 1.5] : [1, 2]}
@@ -315,15 +336,13 @@ export const ChemiseModel = ({
         />
 
         <Suspense fallback={null}>
-          <SignalerChargement onCharge={setEstCharge} />
-          <Center>
-            <ChemiseGLB
-              branche={branche}
-              etapes={etapes}
-              isMobile={isMobile}
-              selectedBadge={selectedBadge}
-            />
-          </Center>
+          <SignalerChargement onCharge={onCharge} />
+          <ChemiseGLB
+            branche={branche}
+            etapes={etapes}
+            isMobile={isMobile}
+            selectedBadge={selectedBadge}
+          />
         </Suspense>
       </Canvas>
     </div>

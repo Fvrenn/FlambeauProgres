@@ -2,18 +2,44 @@
 import React from "react";
 import { Tabs, Tab, Chip } from "@heroui/react";
 
+export type OngletReferent = "a-valider" | "attente-du-chef" | "a-reviser";
+
+const ONGLETS: {
+  cle: OngletReferent;
+  libelle: string;
+  libelleCourt: string;
+  couleurCompteur: "danger" | "default" | "success";
+}[] = [
+  {
+    cle: "a-valider",
+    libelle: "Réalisations à valider",
+    libelleCourt: "Validations",
+    couleurCompteur: "danger",
+  },
+  {
+    cle: "attente-du-chef",
+    libelle: "En attente du chef",
+    libelleCourt: "En attente",
+    couleurCompteur: "default",
+  },
+  {
+    cle: "a-reviser",
+    libelle: "Badges complets à réviser",
+    libelleCourt: "Révisions",
+    couleurCompteur: "success",
+  },
+];
+
 interface ReferentTabsProps {
-  selectedKey: React.Key;
-  onSelectionChange: (key: React.Key) => void;
-  validationCount: number;
-  revisionCount: number;
+  selectedKey: OngletReferent;
+  onSelectionChange: (onglet: OngletReferent) => void;
+  compteurs: Record<OngletReferent, number>;
 }
 
 export default function ReferentTabs({
   selectedKey,
   onSelectionChange,
-  validationCount,
-  revisionCount,
+  compteurs,
 }: ReferentTabsProps) {
   return (
     <div className="w-full flex justify-center md:justify-start">
@@ -28,49 +54,30 @@ export default function ReferentTabs({
           tabContent:
             "text-black group-data-[selected=true]:text-white font-medium transition-colors duration-300 ease-in-out",
         }}
-        selectedKey={selectedKey as string}
-        onSelectionChange={onSelectionChange}
+        selectedKey={selectedKey}
+        onSelectionChange={(cle) => onSelectionChange(cle as OngletReferent)}
       >
-        <Tab
-          key="a-valider"
-          title={
-            <div className="flex items-center gap-2">
-              <span className="md:inline hidden">Réalisations à valider</span>
-              <span className="md:hidden inline">Validations</span>
-              {validationCount > 0 && (
-                <Chip
-                  className="h-5 min-w-5 px-1 text-[10px]"
-                  color="danger"
-                  size="sm"
-                  variant="solid"
-                >
-                  {validationCount}
-                </Chip>
-              )}
-            </div>
-          }
-        />
-        <Tab
-          key="a-reviser"
-          title={
-            <div className="flex items-center gap-2">
-              <span className="md:inline hidden">
-                Badges complets à réviser
-              </span>
-              <span className="md:hidden inline">Révisions</span>
-              {revisionCount > 0 && (
-                <Chip
-                  className="h-5 min-w-5 px-1 text-[10px]"
-                  color="success"
-                  size="sm"
-                  variant="solid"
-                >
-                  {revisionCount}
-                </Chip>
-              )}
-            </div>
-          }
-        />
+        {ONGLETS.map(({ cle, libelle, libelleCourt, couleurCompteur }) => (
+          <Tab
+            key={cle}
+            title={
+              <div className="flex items-center gap-2">
+                <span className="md:inline hidden">{libelle}</span>
+                <span className="md:hidden inline">{libelleCourt}</span>
+                {compteurs[cle] > 0 && (
+                  <Chip
+                    className="h-5 min-w-5 px-1 text-[10px]"
+                    color={couleurCompteur}
+                    size="sm"
+                    variant="solid"
+                  >
+                    {compteurs[cle]}
+                  </Chip>
+                )}
+              </div>
+            }
+          />
+        ))}
       </Tabs>
     </div>
   );

@@ -1,4 +1,4 @@
-import type { UserRole } from "@prisma/client";
+import type { Prisma, UserRole } from "@prisma/client";
 
 import {
   chefsAyantToutValide,
@@ -19,6 +19,12 @@ import { USER_RESUME_SELECT } from "@/services/user.service";
 
 export type ReferentConnecte = { id: string; role: UserRole };
 
+export const JUSTIFICATION_SUIVIE_INCLUDE = {
+  chef: { select: USER_RESUME_SELECT },
+  objectif: true,
+  messages: { select: { auteurId: true } },
+} satisfies Prisma.JustificationInclude;
+
 export class ReferentService {
   static async getDashboard(etapeId: string, referent: ReferentConnecte) {
     const etape = await prisma.etape.findUnique({
@@ -32,7 +38,7 @@ export class ReferentService {
       validations,
       badgesValides,
       justificationsAValider,
-      justificationsEnDiscussion,
+      justificationsEnAttente,
       assignation,
     ] = await Promise.all([
       prisma.objectif.groupBy({
@@ -50,17 +56,13 @@ export class ReferentService {
       }),
       prisma.justification.findMany({
         where: { etapeId, statut: "SOUMISE" },
-        include: {
-          chef: { select: USER_RESUME_SELECT },
-          objectif: true,
-          messages: { select: { auteurId: true } },
-        },
+        include: JUSTIFICATION_SUIVIE_INCLUDE,
         orderBy: { soumiseAt: "asc" },
       }),
       prisma.justification.findMany({
         where: { etapeId, statut: "DEMANDE_PRECISION" },
-        include: { chef: { select: USER_RESUME_SELECT }, objectif: true },
-        orderBy: { updatedAt: "desc" },
+        include: JUSTIFICATION_SUIVIE_INCLUDE,
+        orderBy: { updatedAt: "asc" },
       }),
       prisma.etapeReferent.findFirst({
         where: { referentId: referent.id, etapeId },
@@ -90,7 +92,7 @@ export class ReferentService {
     return {
       chefsAReviser,
       justificationsAValider,
-      justificationsEnDiscussion,
+      justificationsEnAttente,
       peutEvaluer: peutEvaluerEtape(
         referent.role,
         etape?.niveau ?? 0,

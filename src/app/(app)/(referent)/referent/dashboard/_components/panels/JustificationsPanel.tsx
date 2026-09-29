@@ -1,76 +1,92 @@
 "use client";
 
-import type { TypeObjectif } from "@prisma/client";
+import type { JustificationSuivie } from "@/types";
 
 import React from "react";
 import { Chip } from "@heroui/react";
-import { Justification } from "@prisma/client";
 
 import { Icon } from "@/lib/icons";
+import { formaterAnciennete } from "@/lib/dates";
+import { suiviReferent, type SuiviReferent } from "@/lib/justification";
 import AdminDataTable, { Column } from "@/components/admin/AdminDataTable";
 import { Avatar, Card, CardBody, Button } from "@/components/ui";
 
-type ChefInfo = {
-  id: string;
-  name: string;
-  email: string;
-  image: string | null;
+export type ListeJustifications = "a-valider" | "attente-du-chef";
+
+const LISTES: Record<
+  ListeJustifications,
+  {
+    libelleDate: string;
+    messageVide: string;
+    formaterDate: (justification: JustificationSuivie) => string;
+  }
+> = {
+  "a-valider": {
+    libelleDate: "SOUMIS",
+    messageVide: "Rien à valider",
+    formaterDate: (justification) => formaterSoumiseAt(justification.soumiseAt),
+  },
+  "attente-du-chef": {
+    libelleDate: "QUESTION POSÉE",
+    messageVide: "Aucune réponse attendue d'un chef",
+    formaterDate: (justification) =>
+      formaterAnciennete(new Date(justification.updatedAt)),
+  },
 };
 
-type ObjectifInfo = {
-  id: string;
-  code: string;
-  description: string;
-  type: TypeObjectif;
+const CHIPS_SUIVI: Record<
+  SuiviReferent,
+  {
+    libelle: string;
+    icone: string;
+    couleur: "danger" | "secondary" | "default";
+  }
+> = {
+  nouveau: {
+    libelle: "Nouveau",
+    icone: "solar:bell-linear",
+    couleur: "danger",
+  },
+  "reponse-du-chef": {
+    libelle: "Réponse du chef",
+    icone: "solar:chat-round-dots-linear",
+    couleur: "secondary",
+  },
+  "attente-du-chef": {
+    libelle: "En attente du chef",
+    icone: "solar:clock-circle-linear",
+    couleur: "default",
+  },
 };
 
-type JustificationAValider = Justification & {
-  chef: ChefInfo;
-  objectif: ObjectifInfo;
-  messages: { auteurId: string }[];
-};
-
-interface ValidationPanelProps {
-  justifications: JustificationAValider[];
-  onJustificationClick: (justification: JustificationAValider) => void;
+interface JustificationsPanelProps {
+  liste: ListeJustifications;
+  justifications: JustificationSuivie[];
+  onJustificationClick: (justification: JustificationSuivie) => void;
 }
 
-const columns: Column[] = [
-  { key: "chefName", label: "CHEF", sortable: true },
-  { key: "objectif", label: "RÉALISATION" },
-  { key: "soumiseAt", label: "SOUMIS", sortable: true },
-  { key: "statut", label: "STATUT" },
-  { key: "actions", label: "ACTIONS" },
-];
-
-function hasDiscussion(justification: JustificationAValider): boolean {
-  return justification.messages.some(
-    (message) => message.auteurId !== justification.chefId,
-  );
-}
-
-function formatSoumiseAt(date: Date | null): string {
-  if (!date) return "-";
-
-  return new Date(date).toLocaleDateString("fr-FR", {
-    day: "2-digit",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-export default function ValidationPanel({
+export default function JustificationsPanel({
+  liste,
   justifications,
   onJustificationClick,
-}: ValidationPanelProps) {
+}: JustificationsPanelProps) {
+  const { libelleDate, messageVide, formaterDate } = LISTES[liste];
+
   if (justifications.length === 0) {
     return (
       <div className="flex h-full items-center justify-center">
-        <p className="text-default-500 text-sm">Rien à valider</p>
+        <p className="text-default-500 text-sm">{messageVide}</p>
       </div>
     );
   }
+
+  const columns: Column[] = [
+    { key: "chefName", label: "CHEF", sortable: true },
+    { key: "objectif", label: "RÉALISATION" },
+    { key: "date", label: libelleDate },
+    { key: "statut", label: "STATUT" },
+    { key: "actions", label: "ACTIONS" },
+  ];
 
   const data = justifications.map((justification) => ({
     ...justification,
@@ -111,34 +127,14 @@ export default function ValidationPanel({
             </span>
           </div>
         );
-      case "soumiseAt":
+      case "date":
         return (
           <span className="text-sm text-default-500">
-            {formatSoumiseAt(justification.soumiseAt)}
+            {formaterDate(justification)}
           </span>
         );
       case "statut":
-        return hasDiscussion(justification) ? (
-          <Chip
-            color="secondary"
-            size="sm"
-            startContent={
-              <Icon icon="solar:question-circle-linear" width={14} />
-            }
-            variant="flat"
-          >
-            Précision demandée
-          </Chip>
-        ) : (
-          <Chip
-            color="danger"
-            size="sm"
-            startContent={<Icon icon="solar:bell-linear" width={14} />}
-            variant="flat"
-          >
-            Nouveau
-          </Chip>
-        );
+        return <ChipSuivi justification={justification} />;
       case "actions":
         return (
           <div className="flex items-center justify-end w-full pr-4">
@@ -200,22 +196,41 @@ export default function ValidationPanel({
                   {justification.objectif.description}
                 </span>
                 <span className="text-[11px] text-default-400 mt-0.5">
-                  {formatSoumiseAt(justification.soumiseAt)}
+                  {formaterDate(justification)}
                 </span>
               </div>
-              {hasDiscussion(justification) ? (
-                <Chip color="secondary" size="sm" variant="flat">
-                  Précision
-                </Chip>
-              ) : (
-                <Chip color="danger" size="sm" variant="flat">
-                  Nouveau
-                </Chip>
-              )}
+              <ChipSuivi justification={justification} />
             </CardBody>
           </Card>
         ))}
       </div>
     </div>
   );
+}
+
+function ChipSuivi({ justification }: { justification: JustificationSuivie }) {
+  const { libelle, icone, couleur } = CHIPS_SUIVI[suiviReferent(justification)];
+
+  return (
+    <Chip
+      className="shrink-0"
+      color={couleur}
+      size="sm"
+      startContent={<Icon icon={icone} width={14} />}
+      variant="flat"
+    >
+      {libelle}
+    </Chip>
+  );
+}
+
+function formaterSoumiseAt(date: Date | null): string {
+  if (!date) return "-";
+
+  return new Date(date).toLocaleDateString("fr-FR", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
