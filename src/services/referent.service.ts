@@ -17,7 +17,7 @@ import {
 import { EtapeService } from "@/services/etape.service";
 import { USER_RESUME_SELECT } from "@/services/user.service";
 
-export type ReferentConnecte = { id: string; role: UserRole };
+type ReferentConnecte = { id: string; role: UserRole };
 
 export const JUSTIFICATION_SUIVIE_INCLUDE = {
   chef: { select: USER_RESUME_SELECT },

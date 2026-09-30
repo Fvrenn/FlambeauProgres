@@ -1,5 +1,3 @@
-import React from "react";
-
 import EtapesClientPage from "./ClientPage";
 
 import { RafraichissementArrierePlan } from "@/components/application/rafraichissement/RafraichissementArrierePlan";

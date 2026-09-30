@@ -1,6 +1,5 @@
 import type { SessionUser } from "@/types";
 
-import React from "react";
 import { ScrollShadow, Spacer, cn } from "@heroui/react";
 import Image from "next/image";
 

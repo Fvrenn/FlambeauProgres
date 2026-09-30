@@ -3,8 +3,6 @@
 import type { UserRole } from "@prisma/client";
 import type { ThreadObjectif } from "./types";
 
-import React from "react";
-
 import MessageList from "./MessageList";
 import MessageComposer from "./MessageComposer";
 import ValidateRealisation from "./ValidateRealisation";

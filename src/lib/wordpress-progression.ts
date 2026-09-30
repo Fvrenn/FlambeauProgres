@@ -2,13 +2,13 @@ import type { WpTaxonomyEntry } from "./wordpress-profile";
 
 import { normalizeWpLabel } from "./wordpress-profile";
 
-export type EtapeCorrespondance = {
+type EtapeCorrespondance = {
   id: string;
   name: string;
   wpValue: string | null;
 };
 
-export type ResolutionProgression = {
+type ResolutionProgression = {
   etapeIds: string[];
   nonReconnues: WpTaxonomyEntry[];
 };

@@ -1,7 +1,5 @@
 import type { Branche } from "@/lib/wordpress-profile";
 
-import React from "react";
-
 import { cheminApercuChemise, REQUETE_TELEPHONE } from "@/lib/apercu-chemise";
 
 type ApercuChemiseProps = {

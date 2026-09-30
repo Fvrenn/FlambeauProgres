@@ -13,7 +13,7 @@ import {
 import { prisma } from "@/lib/prisma";
 import { ROLES_REFERENT } from "@/lib/roles";
 
-export type AnalyticsFiltres = {
+type AnalyticsFiltres = {
   periode: AnalyticsPeriode;
   etapeId?: string;
   referentId?: string;
@@ -21,7 +21,7 @@ export type AnalyticsFiltres = {
 
 export type OptionFiltre = { id: string; name: string };
 
-export type AnalyticsData = {
+type AnalyticsData = {
   kpis: Kpis;
   parReferent: StatComptee[];
   parEtape: StatComptee[];

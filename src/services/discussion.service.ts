@@ -31,7 +31,7 @@ export type ThreadMessage = Prisma.MessageGetPayload<{
   include: { auteur: true; fichier: true };
 }>;
 
-export type ThreadData = {
+type ThreadData = {
   justificationId: string;
   statut: StatutJustification;
   objectif: { code: string; description: string };

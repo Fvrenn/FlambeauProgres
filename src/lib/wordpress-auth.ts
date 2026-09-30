@@ -47,7 +47,7 @@ export async function getWordpressCookieHeader(): Promise<string | null> {
     .join("; ");
 }
 
-export type SessionWp =
+type SessionWp =
   | { statut: "connecte"; wp: WpUser }
   | { statut: "non-membre" }
   | { statut: "anonyme" };

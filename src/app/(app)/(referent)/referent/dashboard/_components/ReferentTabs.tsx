@@ -1,5 +1,4 @@
 "use client";
-import React from "react";
 import { Tabs, Tab, Chip } from "@heroui/react";
 
 export type OngletReferent = "a-valider" | "attente-du-chef" | "a-reviser";

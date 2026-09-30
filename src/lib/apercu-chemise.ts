@@ -2,7 +2,7 @@ import type { Branche } from "@/lib/wordpress-profile";
 
 export const REQUETE_TELEPHONE = "(max-width: 767px)";
 
-export type FormatApercu = "ordinateur" | "telephone";
+type FormatApercu = "ordinateur" | "telephone";
 
 export function cheminApercuChemise(
   format: FormatApercu,

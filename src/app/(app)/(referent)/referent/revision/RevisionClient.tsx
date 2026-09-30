@@ -3,7 +3,6 @@
 import type { Etape, Justification, Objectif } from "@prisma/client";
 import type { UserResume } from "@/types";
 
-import React from "react";
 import { Divider, Button, Chip } from "@heroui/react";
 import Link from "next/link";
 

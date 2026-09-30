@@ -1,6 +1,6 @@
-export type JalonNiveau = { id: string; niveau: number };
+type JalonNiveau = { id: string; niveau: number };
 
-export type EtapeParcours = { id: string; niveau: number; type: string };
+type EtapeParcours = { id: string; niveau: number; type: string };
 
 export type ContexteParcours = {
   niveauMax: number;

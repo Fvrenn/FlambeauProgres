@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { Input as HeroInput, type InputProps } from "@heroui/react";
 import { mergeClasses } from "@heroui/theme";
 

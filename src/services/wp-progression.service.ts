@@ -16,7 +16,7 @@ import {
 
 const INTERVALLE_SYNC_MS = 5 * 60 * 1000;
 
-export type ResultatSyncProgression = {
+type ResultatSyncProgression = {
   importees: number;
   retirees: number;
   nonReconnues: WpTaxonomyEntry[];

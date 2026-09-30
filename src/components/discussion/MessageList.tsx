@@ -2,7 +2,7 @@
 
 import type { UiMessage } from "./types";
 
-import React, { Fragment, useEffect, useRef } from "react";
+import { Fragment, useEffect, useRef } from "react";
 import { Spinner } from "@heroui/react";
 
 import MessageBubble from "./MessageBubble";

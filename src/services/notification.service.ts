@@ -10,13 +10,13 @@ import {
 } from "@/lib/links";
 import { LIBELLE_TYPE_OBJECTIF, TITRE_VALIDATION } from "@/lib/justification";
 
-export type DestinataireEtape = {
+type DestinataireEtape = {
   id: string;
   name: string;
   email: string;
 };
 
-export type JustificationANotifier = {
+type JustificationANotifier = {
   id: string;
   chefId: string;
   etapeId: string;

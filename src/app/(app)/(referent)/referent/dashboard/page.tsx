@@ -1,5 +1,3 @@
-import React from "react";
-
 import ReferentDashboardClient from "./ReferentDashboardClient";
 
 import { RafraichissementArrierePlan } from "@/components/application/rafraichissement/RafraichissementArrierePlan";

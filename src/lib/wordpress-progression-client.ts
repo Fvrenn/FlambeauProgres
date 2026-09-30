@@ -4,7 +4,7 @@ import {
   oublierSessionWp,
 } from "@/lib/wordpress-auth";
 
-export type ResultatEcritureWp = { success: boolean; error?: string };
+type ResultatEcritureWp = { success: boolean; error?: string };
 
 export function ecritureProgressionActive(): boolean {
   return process.env.WORDPRESS_PROGRESSION_WRITE === "true";

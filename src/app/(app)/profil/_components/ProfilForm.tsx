@@ -3,7 +3,6 @@
 import type { getUser } from "@/lib/auth-server";
 import type { UserRole } from "@prisma/client";
 
-import React from "react";
 import { Card, CardBody, Avatar } from "@heroui/react";
 
 import { roleLabelMap } from "@/lib/roles";

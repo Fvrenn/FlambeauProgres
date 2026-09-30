@@ -1,4 +1,3 @@
-import React from "react";
 import { Divider } from "@heroui/divider";
 
 import { ObjectifAvecJustification } from "../../DashboardClient";

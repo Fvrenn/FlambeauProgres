@@ -90,3 +90,4 @@ obligatoires (vérifiées au démarrage par `scripts/check-env.mjs`) ; sans `SMT
 | `docs/sync-progression-plateforme.md` | Synchronisation de la progression avec la plateforme WordPress |
 | `docs/csp-durcissement.md` | Content-Security-Policy et suppression des CDN tiers |
 | `docs/refacto-code-propre.md` | Refacto et audit de sécurité de septembre 2026 (historique) |
+| `docs/nettoyage-code.md` | Nettoyage : code inutile, redondances et composants réutilisables |

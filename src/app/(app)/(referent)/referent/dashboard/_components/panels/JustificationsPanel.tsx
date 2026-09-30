@@ -11,7 +11,7 @@ import { suiviReferent, type SuiviReferent } from "@/lib/justification";
 import AdminDataTable, { Column } from "@/components/admin/AdminDataTable";
 import { Avatar, Card, CardBody, Button } from "@/components/ui";
 
-export type ListeJustifications = "a-valider" | "attente-du-chef";
+type ListeJustifications = "a-valider" | "attente-du-chef";
 
 const LISTES: Record<
   ListeJustifications,

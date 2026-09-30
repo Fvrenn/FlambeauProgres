@@ -1,7 +1,5 @@
 import type { Kpis } from "@/lib/analytics";
 
-import React from "react";
-
 import { Icon } from "@/lib/icons";
 import { Card, CardBody } from "@/components/ui";
 

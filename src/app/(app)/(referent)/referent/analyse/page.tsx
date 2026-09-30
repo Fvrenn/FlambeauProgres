@@ -1,5 +1,3 @@
-import React from "react";
-
 import { ChartCard } from "./_components/ChartCard";
 import { ClassementChart } from "./_components/ClassementChart";
 import { FiltresBar } from "./_components/FiltresBar";

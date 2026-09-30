@@ -25,7 +25,7 @@ import {
 } from "@/lib/roles";
 import { NotificationService } from "@/services/notification.service";
 
-export type EtapeProgressForChef = {
+type EtapeProgressForChef = {
   id: string;
   number: string;
   name: string;

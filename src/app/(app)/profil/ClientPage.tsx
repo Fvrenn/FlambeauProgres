@@ -2,7 +2,6 @@
 
 import type { EtatProgressionPlateforme } from "@/services/wp-progression.service";
 
-import React from "react";
 import { Spacer } from "@heroui/react";
 
 import { ProfilForm, type ProfilUser } from "./_components/ProfilForm";

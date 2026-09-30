@@ -1,7 +1,5 @@
 import type { UserResume } from "@/types";
 
-import React from "react";
-
 import ChefsAReviserList from "@/components/application/referent/ChefsAReviserList";
 
 interface RevisionPanelProps {

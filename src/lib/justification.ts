@@ -49,9 +49,9 @@ export function filtreJustificationsValidantes(niveau: number) {
   };
 }
 
-export type ObjectifValide = { chefId: string; type: TypeObjectif };
+type ObjectifValide = { chefId: string; type: TypeObjectif };
 
-export type TotalObjectifs = { competences: number; realisations: number };
+type TotalObjectifs = { competences: number; realisations: number };
 
 export function chefsAyantToutValide(
   validations: ObjectifValide[],
@@ -89,7 +89,7 @@ export function compterParType(
 
 export type SuiviReferent = "nouveau" | "reponse-du-chef" | "attente-du-chef";
 
-export type JustificationASuivre = {
+type JustificationASuivre = {
   statut: StatutJustification;
   chefId: string;
   messages: { auteurId: string }[];
