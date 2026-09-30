@@ -60,5 +60,23 @@ Duplications retenues (même règle ou même mécanique, pas une ressemblance) :
       `lib/icons.generated.ts`). **Où** : 49 fichiers de `src/`, `package.json`. **Comment** :
       liste tirée de `tsc --noUnusedLocals` et de `knip`, qui ne signale plus que les faux positifs
       ci-dessus. Vérifié : `tsc`, `eslint`, 279 tests, `next build`.
-- [ ] **Phase 2 — Simplifier les redondances internes** : R1 à R5.
+- [x] **Phase 2 — Simplifier les redondances internes** : R1 à R5.
+      ✅ Fait —
+      **R1** `AppClientLayout.tsx` : les sidebars `lg` et `xl` ne différaient que par la largeur,
+      fusionnées (`w-60 xl:w-72`) ; les deux sidebars fixes restantes (compacte, complète) sont
+      décrites par `SIDEBARS_FIXES` et leurs props communes écrites une fois (`contenuSidebar`).
+      **R2** `sidebar.tsx` : `renderIcone` et `renderIconeCompacte` remplacent 4 copies de
+      l'icône et 2 du tooltip compact ; classe parasite `test` retirée.
+      **R3** `discussion.service.ts` : requête commune `getJustificationANotifier` ; le statut
+      « validée » passe par `estJustificationValidee` (`lib/justification.ts`, testée), aussi
+      utilisée par `useDiscussionThread.ts` qui recopiait la liste en dur.
+      **R4** `etape.service.ts` : `getValidationsDuChef` (étapes validées + origine) remplace 4
+      lectures de `chefEtapeStatut`, `enregistrerValidation` les 2 `upsert` « VALIDE / APP » ;
+      `autoValiderJalon` ne relit plus l'étape à part (elle est dans la liste chargée).
+      **R5** `justification.service.ts` : `preparerSoumission` porte les contrôles communs à
+      `submitCompetence` et `submitRealisation` (objectif, type, étape débloquée, texte requis).
+      **Comment** : comportement inchangé, tests existants conservés (mocks `etape.findUnique`
+      devenus inutiles retirés de `autoValiderJalon`), tests ajoutés pour
+      `estJustificationValidee` et le refus d'un objectif qui n'est pas une réalisation.
+      Vérifié : `tsc`, `eslint`, 282 tests, `next build` ; `jscpd` passe de 17 à 12 clones.
 - [ ] **Phase 3 — Extraire le réutilisable** : E1 à E5.

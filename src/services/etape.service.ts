@@ -44,7 +44,7 @@ export class EtapeService {
   static async getProgressForChef(
     chefId: string,
   ): Promise<EtapeProgressForChef[]> {
-    const [etapes, validees, statutsValides] = await Promise.all([
+    const [etapes, validees, validations] = await Promise.all([
       prisma.etape.findMany({
         orderBy: [{ niveau: "asc" }, { ordre: "asc" }],
         select: {
@@ -63,17 +63,11 @@ export class EtapeService {
         where: { chefId, statut: { in: STATUTS_VALIDES } },
         _count: { id: true },
       }),
-      prisma.chefEtapeStatut.findMany({
-        where: { chefId, statut: "VALIDE" },
-        select: { etapeId: true, origine: true },
-      }),
+      getValidationsDuChef(chefId),
     ]);
 
+    const { etapesValidees, originesParEtape } = validations;
     const doneByEtape = new Map(validees.map((v) => [v.etapeId, v._count.id]));
-    const originesParEtape = new Map(
-      statutsValides.map((s) => [s.etapeId, s.origine]),
-    );
-    const etapesValidees = new Set(statutsValides.map((s) => s.etapeId));
     const contexte = construireContexteParcours(etapes, etapesValidees);
 
     return etapes.map((etape) => ({
@@ -96,14 +90,11 @@ export class EtapeService {
     chefId: string,
     etapeId: string,
   ): Promise<boolean> {
-    const [etapes, statutsValides] = await Promise.all([
+    const [etapes, { etapesValidees }] = await Promise.all([
       prisma.etape.findMany({
         select: { id: true, niveau: true, type: true },
       }),
-      prisma.chefEtapeStatut.findMany({
-        where: { chefId, statut: "VALIDE" },
-        select: { etapeId: true },
-      }),
+      getValidationsDuChef(chefId),
     ]);
 
     const etape = etapes.find((candidate) => candidate.id === etapeId);
@@ -112,8 +103,6 @@ export class EtapeService {
       return false;
     }
 
-    const etapesValidees = new Set(statutsValides.map((s) => s.etapeId));
-
     return etapeEstAccessible(
       etape,
       construireContexteParcours(etapes, etapesValidees),
@@ -121,7 +110,7 @@ export class EtapeService {
   }
 
   static async getDashboardEtapesForChef(chefId: string) {
-    const [etapes, statutsValides] = await Promise.all([
+    const [etapes, { etapesValidees, originesParEtape }] = await Promise.all([
       prisma.etape.findMany({
         orderBy: [{ niveau: "asc" }, { ordre: "asc" }],
         include: {
@@ -130,21 +119,14 @@ export class EtapeService {
           },
         },
       }),
-      prisma.chefEtapeStatut.findMany({
-        where: { chefId, statut: "VALIDE" },
-        select: { etapeId: true, origine: true },
-      }),
+      getValidationsDuChef(chefId),
     ]);
 
-    const originesParEtape = new Map(
-      statutsValides.map((s) => [s.etapeId, s.origine]),
-    );
-    const etapesIdsValidees = new Set(statutsValides.map((s) => s.etapeId));
-    const contexte = construireContexteParcours(etapes, etapesIdsValidees);
+    const contexte = construireContexteParcours(etapes, etapesValidees);
 
     return etapes.map((etape) => ({
       ...etape,
-      isValidated: etapesIdsValidees.has(etape.id),
+      isValidated: etapesValidees.has(etape.id),
       origineValidation: originesParEtape.get(etape.id) ?? null,
       verrouille: !etapeEstAccessible(etape, contexte),
     }));
@@ -162,7 +144,7 @@ export class EtapeService {
       prisma.etape.findUnique({ where: { id: etapeId } }),
       prisma.user.findUnique({ where: { id: chefId } }),
       prisma.etapeReferent.findFirst({
-        where: { referentId: referentId, etapeId: etapeId },
+        where: { referentId, etapeId },
       }),
     ]);
 
@@ -182,28 +164,7 @@ export class EtapeService {
       return { success: false, error: MESSAGE_DOSSIER_INCOMPLET };
     }
 
-    await prisma.chefEtapeStatut.upsert({
-      where: {
-        chefId_etapeId: {
-          chefId: chefId,
-          etapeId: etapeId,
-        },
-      },
-      update: {
-        statut: "VALIDE",
-        origine: "APP",
-        valideeAt: new Date(),
-        valideeParId: referentId,
-      },
-      create: {
-        chefId: chefId,
-        etapeId: etapeId,
-        statut: "VALIDE",
-        origine: "APP",
-        valideeAt: new Date(),
-        valideeParId: referentId,
-      },
-    });
+    await enregistrerValidation(chefId, etapeId, referentId);
 
     const validateur = estNiveauEtape3(etape.niveau)
       ? "le Coordinateur National"
@@ -261,19 +222,14 @@ export class EtapeService {
     chefId: string,
     etapeId: string,
   ): Promise<ServiceResult> {
-    const [etape, etapes, statutsValides] = await Promise.all([
-      prisma.etape.findUnique({
-        where: { id: etapeId },
-        select: { id: true, niveau: true, type: true },
-      }),
+    const [etapes, { etapesValidees }] = await Promise.all([
       prisma.etape.findMany({
         select: { id: true, niveau: true, type: true },
       }),
-      prisma.chefEtapeStatut.findMany({
-        where: { chefId, statut: "VALIDE" },
-        select: { etapeId: true },
-      }),
+      getValidationsDuChef(chefId),
     ]);
+
+    const etape = etapes.find((candidate) => candidate.id === etapeId);
 
     if (!etape || etape.type !== "JALON") {
       return {
@@ -282,7 +238,6 @@ export class EtapeService {
       };
     }
 
-    const etapesValidees = new Set(statutsValides.map((s) => s.etapeId));
     const jalons = etapes.filter((candidate) => candidate.type === "JALON");
     const niveauMax = niveauMaxDebloque(jalons, etapesValidees);
 
@@ -303,24 +258,41 @@ export class EtapeService {
       };
     }
 
-    await prisma.chefEtapeStatut.upsert({
-      where: { chefId_etapeId: { chefId, etapeId } },
-      update: {
-        statut: "VALIDE",
-        origine: "APP",
-        valideeAt: new Date(),
-        valideeParId: null,
-      },
-      create: {
-        chefId,
-        etapeId,
-        statut: "VALIDE",
-        origine: "APP",
-        valideeAt: new Date(),
-        valideeParId: null,
-      },
-    });
+    await enregistrerValidation(chefId, etapeId, null);
 
     return { success: true };
   }
+}
+
+async function getValidationsDuChef(chefId: string) {
+  const statuts = await prisma.chefEtapeStatut.findMany({
+    where: { chefId, statut: "VALIDE" },
+    select: { etapeId: true, origine: true },
+  });
+
+  return {
+    etapesValidees: new Set(statuts.map((statut) => statut.etapeId)),
+    originesParEtape: new Map(
+      statuts.map((statut) => [statut.etapeId, statut.origine]),
+    ),
+  };
+}
+
+function enregistrerValidation(
+  chefId: string,
+  etapeId: string,
+  valideeParId: string | null,
+) {
+  const validation = {
+    statut: "VALIDE" as const,
+    origine: "APP" as const,
+    valideeAt: new Date(),
+    valideeParId,
+  };
+
+  return prisma.chefEtapeStatut.upsert({
+    where: { chefId_etapeId: { chefId, etapeId } },
+    update: validation,
+    create: { chefId, etapeId, ...validation },
+  });
 }

@@ -12,6 +12,7 @@ import {
   validateRealisation,
 } from "@/actions/discussion/discussion.actions";
 import { REGLES_JUSTIFICATION, validerFichier } from "@/lib/fichiers";
+import { estJustificationValidee } from "@/lib/justification";
 
 const POLL_INTERVAL_MS = 7000;
 const MESSAGE_NON_ENVOYE =
@@ -184,7 +185,7 @@ export function useDiscussionThread(justificationId: string, viewer: Viewer) {
     statut,
     isLoading,
     error,
-    readOnly: statut ? ["VALIDEE", "AUTO_VALIDEE"].includes(statut) : false,
+    readOnly: statut ? estJustificationValidee(statut) : false,
     sendMessage,
     validate,
   };

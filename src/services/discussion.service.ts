@@ -14,7 +14,11 @@ import {
   messageRefusEvaluation,
   peutEvaluerEtape,
 } from "@/lib/roles";
-import { LIBELLE_TYPE_OBJECTIF, TITRE_VALIDATION } from "@/lib/justification";
+import {
+  LIBELLE_TYPE_OBJECTIF,
+  TITRE_VALIDATION,
+  estJustificationValidee,
+} from "@/lib/justification";
 import { EtapeService } from "@/services/etape.service";
 import { NotificationService } from "@/services/notification.service";
 
@@ -142,20 +146,13 @@ export class DiscussionService {
       return { success: false, error: "Accès refusé" };
     }
 
-    const justification = await prisma.justification.findUnique({
-      where: { id: justificationId },
-      include: {
-        objectif: { select: { code: true, description: true, type: true } },
-        etape: { select: { name: true, niveau: true } },
-        chef: { select: { name: true, email: true } },
-      },
-    });
+    const justification = await getJustificationANotifier(justificationId);
 
     if (!justification) {
       return { success: false, error: "Justification introuvable" };
     }
 
-    if (["VALIDEE", "AUTO_VALIDEE"].includes(justification.statut)) {
+    if (estJustificationValidee(justification.statut)) {
       return {
         success: false,
         error: `Cette ${LIBELLE_TYPE_OBJECTIF[justification.objectif.type]} est validée, le fil est clôturé`,
@@ -219,14 +216,7 @@ export class DiscussionService {
   }): Promise<ServiceResult<ThreadMessage>> {
     const { referentId, referentName, referentRole, justificationId } = input;
 
-    const justification = await prisma.justification.findUnique({
-      where: { id: justificationId },
-      include: {
-        objectif: { select: { code: true, description: true, type: true } },
-        etape: { select: { name: true, niveau: true } },
-        chef: { select: { name: true, email: true } },
-      },
-    });
+    const justification = await getJustificationANotifier(justificationId);
 
     if (!justification) {
       return { success: false, error: "Justification introuvable" };
@@ -291,6 +281,17 @@ export class DiscussionService {
 
     return { success: true, data: message };
   }
+}
+
+function getJustificationANotifier(justificationId: string) {
+  return prisma.justification.findUnique({
+    where: { id: justificationId },
+    include: {
+      objectif: { select: { code: true, description: true, type: true } },
+      etape: { select: { name: true, niveau: true } },
+      chef: { select: { name: true, email: true } },
+    },
+  });
 }
 
 async function estEvaluateur(

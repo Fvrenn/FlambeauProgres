@@ -251,6 +251,29 @@ describe("JustificationService.submitRealisation", () => {
       id: "o1",
       type: "COMPETENCE",
       etapeId: "e1",
+      etape: { niveau: 2 },
+    } as never);
+
+    const result = await JustificationService.submitRealisation({
+      chefId: "c1",
+      chefName: "Chef",
+      objectifId: "o1",
+      contenu: "txt",
+      fichierData: null,
+    });
+
+    expect(result).toEqual({
+      success: false,
+      error: "Cet objectif n'est pas une réalisation",
+    });
+    expect(db.justification.create).not.toHaveBeenCalled();
+  });
+
+  it("rejects an objectif that is not a REALISATION", async () => {
+    db.objectif.findUnique.mockResolvedValue({
+      id: "o1",
+      type: "COMPETENCE",
+      etapeId: "e1",
       etape: { name: "E", niveau: 2 },
     } as never);
 

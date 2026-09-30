@@ -15,6 +15,10 @@ export const STATUTS_VALIDES: StatutJustification[] = [
   "VALIDEE",
 ];
 
+export function estJustificationValidee(statut: StatutJustification): boolean {
+  return STATUTS_VALIDES.includes(statut);
+}
+
 export const LIBELLE_TYPE_OBJECTIF: Record<TypeObjectif, string> = {
   COMPETENCE: "compétence",
   REALISATION: "réalisation",

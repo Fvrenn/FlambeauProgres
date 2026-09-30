@@ -131,11 +131,6 @@ describe("EtapeService.autoValiderJalon", () => {
   ];
 
   it("refuse une étape qui n'est pas un jalon", async () => {
-    db.etape.findUnique.mockResolvedValue({
-      id: "b1",
-      niveau: 2,
-      type: "BADGE",
-    } as never);
     db.etape.findMany.mockResolvedValue(catalogue as never);
     db.chefEtapeStatut.findMany.mockResolvedValue([] as never);
 
@@ -146,11 +141,6 @@ describe("EtapeService.autoValiderJalon", () => {
   });
 
   it("refuse l'Étape 1 tant que l'Allume-feu n'est pas validé", async () => {
-    db.etape.findUnique.mockResolvedValue({
-      id: "e1",
-      niveau: 1,
-      type: "JALON",
-    } as never);
     db.etape.findMany.mockResolvedValue(catalogue as never);
     db.chefEtapeStatut.findMany.mockResolvedValue([] as never);
 
@@ -161,11 +151,6 @@ describe("EtapeService.autoValiderJalon", () => {
   });
 
   it("valide l'Allume-feu en auto-déclaré (valideeParId null) pour un chef qui débute", async () => {
-    db.etape.findUnique.mockResolvedValue({
-      id: "af",
-      niveau: 0,
-      type: "JALON",
-    } as never);
     db.etape.findMany.mockResolvedValue(catalogue as never);
     db.chefEtapeStatut.findMany.mockResolvedValue([] as never);
     db.chefEtapeStatut.upsert.mockResolvedValue({} as never);
@@ -184,11 +169,6 @@ describe("EtapeService.autoValiderJalon", () => {
   });
 
   it("refuse le jalon Servir tant qu'aucune spécialité n'est validée", async () => {
-    db.etape.findUnique.mockResolvedValue({
-      id: "servir",
-      niveau: 3,
-      type: "JALON",
-    } as never);
     db.etape.findMany.mockResolvedValue(catalogue as never);
     db.chefEtapeStatut.findMany.mockResolvedValue([
       { etapeId: "af" },
@@ -202,11 +182,6 @@ describe("EtapeService.autoValiderJalon", () => {
   });
 
   it("valide le jalon Servir dès qu'une spécialité est validée", async () => {
-    db.etape.findUnique.mockResolvedValue({
-      id: "servir",
-      niveau: 3,
-      type: "JALON",
-    } as never);
     db.etape.findMany.mockResolvedValue(catalogue as never);
     db.chefEtapeStatut.findMany.mockResolvedValue([
       { etapeId: "af" },
