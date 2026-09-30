@@ -14,7 +14,7 @@ import {
   Card,
   CardBody,
 } from "@heroui/react";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, type FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { TypeObjectif } from "@prisma/client";
@@ -45,6 +45,22 @@ const etapeSchema = z.object({
 
 type EtapeFormData = z.infer<typeof etapeSchema>;
 
+type Onglet = "infos" | "objectifs";
+
+const CHAMPS_INFOS = [
+  "number",
+  "name",
+  "description",
+  "ordre",
+  "wpValue",
+] as const;
+
+const MESSAGE_ONGLET: Record<Onglet, string> = {
+  infos: "Des champs obligatoires sont vides dans l’onglet « Informations ».",
+  objectifs:
+    "Chaque objectif doit avoir un code et une description : complétez-les dans l’onglet « Objectifs », ou supprimez ceux qui ne servent pas.",
+};
+
 type EtapeModalProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -59,6 +75,7 @@ export default function EtapeModal({
   const [isPending, startTransition] = React.useTransition();
   const [icone, setIcone] = React.useState<File | null>(null);
   const [erreur, setErreur] = React.useState<string | null>(null);
+  const [onglet, setOnglet] = React.useState<Onglet>("infos");
 
   const {
     register,
@@ -88,6 +105,7 @@ export default function EtapeModal({
     if (isOpen) {
       setIcone(null);
       setErreur(null);
+      setOnglet("infos");
 
       if (etape) {
         setValue("number", etape.number);
@@ -144,6 +162,29 @@ export default function EtapeModal({
     });
   };
 
+  const onInvalid = (champsInvalides: FieldErrors<EtapeFormData>) => {
+    const ongletEnErreur: Onglet = CHAMPS_INFOS.some(
+      (champ) => champsInvalides[champ],
+    )
+      ? "infos"
+      : "objectifs";
+
+    setOnglet(ongletEnErreur);
+    setErreur(MESSAGE_ONGLET[ongletEnErreur]);
+  };
+
+  const infosEnErreur = CHAMPS_INFOS.some((champ) => errors[champ]);
+  const objectifsEnErreur = !!errors.objectifs;
+
+  const titreOnglet = (libelle: string, enErreur: boolean) => (
+    <span
+      className={`flex items-center gap-1.5 ${enErreur ? "text-danger" : ""}`}
+    >
+      {enErreur && <Icon icon="solar:danger-circle-linear" width={16} />}
+      {libelle}
+    </span>
+  );
+
   return (
     <FormModal
       erreur={erreur}
@@ -154,10 +195,15 @@ export default function EtapeModal({
       submitLabel={etape ? "Mettre à jour" : "Créer l'étape"}
       title={etape ? "Modifier l'Étape" : "Créer une Étape"}
       onClose={onClose}
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(onSubmit, onInvalid)}
     >
-      <Tabs fullWidth aria-label="Etape Options">
-        <Tab key="infos" title="Informations">
+      <Tabs
+        fullWidth
+        aria-label="Etape Options"
+        selectedKey={onglet}
+        onSelectionChange={(cle) => setOnglet(cle as Onglet)}
+      >
+        <Tab key="infos" title={titreOnglet("Informations", infosEnErreur)}>
           <div className="flex flex-col gap-4 py-2">
             <div className="flex flex-col sm:flex-row gap-4">
               <Input
@@ -216,30 +262,17 @@ export default function EtapeModal({
         </Tab>
 
         {!etape && (
-          <Tab key="objectifs" title={`Objectifs (${fields.length})`}>
+          <Tab
+            key="objectifs"
+            title={titreOnglet(
+              `Objectifs (${fields.length})`,
+              objectifsEnErreur,
+            )}
+          >
             <div className="flex flex-col gap-4 py-2">
-              <div className="flex justify-between items-center px-1">
-                <span className="text-small text-default-500">
-                  Définissez les objectifs initiaux pour cette étape.
-                </span>
-                <Button
-                  color="secondary"
-                  size="sm"
-                  startContent={<Icon icon="solar:add-circle-linear" />}
-                  variant="flat"
-                  onPress={() =>
-                    append({
-                      code: "",
-                      description: "",
-                      type: TypeObjectif.COMPETENCE,
-                      fichiersRequis: false,
-                      texteRequis: true,
-                    })
-                  }
-                >
-                  Ajouter
-                </Button>
-              </div>
+              <span className="px-1 text-small text-default-500">
+                Définissez les objectifs initiaux pour cette étape.
+              </span>
 
               <div className="flex flex-col gap-3">
                 {fields.map((field, index) => (
@@ -256,6 +289,9 @@ export default function EtapeModal({
                             placeholder="C1"
                             size="sm"
                             {...register(`objectifs.${index}.code`)}
+                            errorMessage={
+                              errors.objectifs?.[index]?.code?.message
+                            }
                             isInvalid={!!errors.objectifs?.[index]?.code}
                           />
                           <Select
@@ -308,6 +344,9 @@ export default function EtapeModal({
                         placeholder="Description de l'objectif..."
                         size="sm"
                         {...register(`objectifs.${index}.description`)}
+                        errorMessage={
+                          errors.objectifs?.[index]?.description?.message
+                        }
                         isInvalid={!!errors.objectifs?.[index]?.description}
                       />
                     </CardBody>
@@ -319,6 +358,25 @@ export default function EtapeModal({
                     <p className="text-small">Aucun objectif ajouté</p>
                   </div>
                 )}
+                <Button
+                  fullWidth
+                  className="border-dashed font-medium text-foreground"
+                  startContent={
+                    <Icon icon="solar:add-circle-linear" width={20} />
+                  }
+                  variant="bordered"
+                  onPress={() =>
+                    append({
+                      code: "",
+                      description: "",
+                      type: TypeObjectif.COMPETENCE,
+                      fichiersRequis: false,
+                      texteRequis: true,
+                    })
+                  }
+                >
+                  Ajouter un objectif
+                </Button>
               </div>
             </div>
           </Tab>

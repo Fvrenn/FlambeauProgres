@@ -249,7 +249,7 @@ export default function ContentChemise({
                 <div
                   key={niveau}
                   aria-hidden={niveau !== niveauActif}
-                  className={`[grid-area:1/1] flex min-w-0 flex-col justify-center ${
+                  className={`[grid-area:1/1] flex min-w-0 flex-col justify-start ${
                     niveau === niveauActif ? "" : "invisible"
                   }`}
                 >

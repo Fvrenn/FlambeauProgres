@@ -79,12 +79,14 @@ function CarrouselBadges({ badges, renderBadge }: CarrouselBadgesProps) {
   return (
     <div className="hidden flex-col items-center gap-1 md:flex">
       <div className="flex w-full items-center">
-        {aPlusieursPages && (
+        {aPlusieursPages ? (
           <FlechePage
             direction="precedente"
             estDesactivee={pageCourante === 0}
             onClick={() => allerALaPage(pageCourante - 1)}
           />
+        ) : (
+          <EmplacementFleche />
         )}
         <div
           ref={pisteRef}
@@ -100,12 +102,14 @@ function CarrouselBadges({ badges, renderBadge }: CarrouselBadgesProps) {
             </div>
           ))}
         </div>
-        {aPlusieursPages && (
+        {aPlusieursPages ? (
           <FlechePage
             direction="suivante"
             estDesactivee={pageCourante === pages.length - 1}
             onClick={() => allerALaPage(pageCourante + 1)}
           />
+        ) : (
+          <EmplacementFleche />
         )}
       </div>
 
@@ -182,6 +186,10 @@ function FlechePage({ direction, estDesactivee, onClick }: FlechePageProps) {
       />
     </button>
   );
+}
+
+function EmplacementFleche() {
+  return <div aria-hidden className="w-6 shrink-0" />;
 }
 
 type BadgeEtapeProps = {
