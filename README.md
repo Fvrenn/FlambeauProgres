@@ -44,7 +44,7 @@ npm run dev
 **Se connecter en local.** Comme l'authentification repose sur les cookies de
 `plateforme.flambeaux.org`, le navigateur ne les envoie qu'à un domaine en `.flambeaux.org`, en
 HTTPS. L'environnement de dev actuel sert l'app sur `https://dev.flambeaux.org:3000`
-(`dev.flambeaux.org` pointé sur la machine locale, `npx next dev --experimental-https`), puis on se
+(`dev.flambeaux.org` pointé sur la machine locale, `npm run dev:https`), puis on se
 connecte avec un compte de la plateforme. Un utilisateur du seed est rattaché à un compte WordPress
 qui a le même email.
 
@@ -52,6 +52,7 @@ qui a le même email.
 
 ```bash
 npm run dev           # serveur de développement
+npm run dev:https     # idem en HTTPS (dev.flambeaux.org, cookies WordPress)
 npm run build         # build de production (régénère aussi les icônes)
 npm test              # tests (Vitest)
 npm run lint          # ESLint + Prettier, avec correction

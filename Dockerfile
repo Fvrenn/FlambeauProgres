@@ -21,22 +21,22 @@ ENV HOSTNAME=0.0.0.0
 
 RUN groupadd -g 1001 nodejs && useradd -u 1001 -g nodejs -m -d /home/nextjs nextjs
 
-COPY --from=builder /app/package.json /app/package-lock.json ./
-RUN npm install prisma tsx --no-save --omit=dev
+RUN npm install --prefix /opt/prisma prisma@6.19.3 --no-audit --no-fund \
+    && npm cache clean --force
+ENV PATH=/opt/prisma/node_modules/.bin:$PATH
 
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder /app/prisma ./prisma
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 COPY --from=builder /app/scripts ./scripts
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma/client ./node_modules/.prisma/client
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma/client ./node_modules/@prisma/client
 
 RUN mkdir -p /app/uploads && chown nextjs:nodejs /app/uploads
-RUN chown -R nextjs:nodejs /app/node_modules /app/prisma
 
 VOLUME /app/uploads
 
 USER nextjs
 EXPOSE 8022
-CMD ["sh", "-c", "node scripts/check-env.mjs && npx prisma migrate deploy && node server.js"]
+CMD ["sh", "-c", "node scripts/check-env.mjs && prisma migrate deploy && node server.js"]
