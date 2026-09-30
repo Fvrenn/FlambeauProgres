@@ -90,12 +90,7 @@ export class EtapeService {
     chefId: string,
     etapeId: string,
   ): Promise<boolean> {
-    const [etapes, { etapesValidees }] = await Promise.all([
-      prisma.etape.findMany({
-        select: { id: true, niveau: true, type: true },
-      }),
-      getValidationsDuChef(chefId),
-    ]);
+    const { etapes, etapesValidees } = await getParcoursDuChef(chefId);
 
     const etape = etapes.find((candidate) => candidate.id === etapeId);
 
@@ -222,12 +217,7 @@ export class EtapeService {
     chefId: string,
     etapeId: string,
   ): Promise<ServiceResult> {
-    const [etapes, { etapesValidees }] = await Promise.all([
-      prisma.etape.findMany({
-        select: { id: true, niveau: true, type: true },
-      }),
-      getValidationsDuChef(chefId),
-    ]);
+    const { etapes, etapesValidees } = await getParcoursDuChef(chefId);
 
     const etape = etapes.find((candidate) => candidate.id === etapeId);
 
@@ -262,6 +252,17 @@ export class EtapeService {
 
     return { success: true };
   }
+}
+
+async function getParcoursDuChef(chefId: string) {
+  const [etapes, { etapesValidees }] = await Promise.all([
+    prisma.etape.findMany({
+      select: { id: true, niveau: true, type: true },
+    }),
+    getValidationsDuChef(chefId),
+  ]);
+
+  return { etapes, etapesValidees };
 }
 
 async function getValidationsDuChef(chefId: string) {

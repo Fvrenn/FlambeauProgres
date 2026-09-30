@@ -8,6 +8,8 @@ import {
 } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
+import { REGLES_JUSTIFICATION } from "@/lib/fichiers";
+import { StorageService } from "@/services/storage.service";
 import { canAccessJustification } from "@/lib/auth-guards";
 import {
   estNiveauEtape3,
@@ -68,6 +70,44 @@ export class DiscussionService {
       },
       include: { auteur: true, fichier: true },
     });
+  }
+
+  static async stockerPieceJointe(
+    file: File | undefined,
+  ): Promise<ServiceResult<FichierData | null>> {
+    if (!file) {
+      return { success: true, data: null };
+    }
+
+    try {
+      const { fileName, storedPath } = await StorageService.uploadFile(
+        file,
+        "justifications",
+        REGLES_JUSTIFICATION,
+      );
+
+      return {
+        success: true,
+        data: {
+          nomOriginal: file.name,
+          nomStockage: fileName,
+          cheminFichier: storedPath,
+          type: file.type.startsWith("image/") ? "IMAGE" : "DOCUMENT",
+          mimeType: file.type || "application/octet-stream",
+          taille: file.size,
+        },
+      };
+    } catch (error) {
+      console.error("Erreur d'upload:", error);
+
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Erreur lors du téléchargement du fichier",
+      };
+    }
   }
 
   static async getThread(

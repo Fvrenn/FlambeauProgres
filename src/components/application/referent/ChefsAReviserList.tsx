@@ -8,7 +8,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { Icon } from "@/lib/icons";
 import AdminDataTable, { Column } from "@/components/admin/AdminDataTable";
-import { Avatar, Card, CardBody, Button } from "@/components/ui";
+import { BoutonOuvrirLigne } from "@/components/admin/BoutonOuvrirLigne";
+import { CelluleUtilisateur } from "@/components/admin/CelluleUtilisateur";
+import { Avatar, Card, CardBody } from "@/components/ui";
 
 type ChefsAReviserListProps = {
   chefs: UserResume[];
@@ -52,17 +54,7 @@ export default function ChefsAReviserList({ chefs }: ChefsAReviserListProps) {
   const renderCell = (chef: (typeof data)[number], columnKey: React.Key) => {
     switch (columnKey) {
       case "chefName":
-        return (
-          <div className="flex items-center gap-3">
-            <Avatar name={chef.name} size="sm" src={chef.image} />
-            <div className="flex flex-col">
-              <p className="text-bold text-small">{chef.name}</p>
-              <p className="text-bold text-tiny text-default-400">
-                {chef.email}
-              </p>
-            </div>
-          </div>
-        );
+        return <CelluleUtilisateur utilisateur={chef} />;
       case "statut":
         return (
           <Chip
@@ -78,20 +70,10 @@ export default function ChefsAReviserList({ chefs }: ChefsAReviserListProps) {
         );
       case "actions":
         return (
-          <div className="flex items-center justify-end w-full pr-4">
-            <Button
-              isIconOnly
-              aria-label="Réviser le badge"
-              color="default"
-              size="sm"
-              startIcon="solar:arrow-right-linear"
-              variant="ghost"
-              onClick={(e) => {
-                e.stopPropagation();
-                router.push(reviseHref(chef.id));
-              }}
-            />
-          </div>
+          <BoutonOuvrirLigne
+            label="Réviser le badge"
+            onOuvrir={() => router.push(reviseHref(chef.id))}
+          />
         );
       default:
         return null;

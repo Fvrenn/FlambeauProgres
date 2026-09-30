@@ -79,4 +79,28 @@ Duplications retenues (même règle ou même mécanique, pas une ressemblance) :
       devenus inutiles retirés de `autoValiderJalon`), tests ajoutés pour
       `estJustificationValidee` et le refus d'un objectif qui n'est pas une réalisation.
       Vérifié : `tsc`, `eslint`, 282 tests, `next build` ; `jscpd` passe de 17 à 12 clones.
-- [ ] **Phase 3 — Extraire le réutilisable** : E1 à E5.
+- [x] **Phase 3 — Extraire le réutilisable** : E1 à E5.
+      ✅ Fait —
+      **E1** `DiscussionService.stockerPieceJointe` (`services/discussion.service.ts`, testée) :
+      stocke le fichier d'une justification et renvoie son `FichierData` ; les actions
+      `submitRealisation` et `postMessage` l'appellent au lieu de recopier l'upload.
+      **E2** groupe de routes `app/(app)/(compte)/` : `profil` et `signaler-un-bug` y sont
+      déplacés sous un seul `layout.tsx` (`CompteLayout`) ; URL inchangées.
+      **E3** `components/ui/stat-card.tsx` (`StatCard`, props `tone`, `hint`, `onSelect`) remplace
+      les cartes du dashboard admin, du dashboard référent et de `KpiBandeau` ; les couleurs en dur
+      du référent (`#a67300`, `#127f51`) deviennent les tokens `warning-700` / `success-700`
+      (mêmes valeurs).
+      **E4** `components/admin/CelluleUtilisateur.tsx` (avatar, nom, email : 3 tableaux, dont
+      `admin/users`) et `components/admin/BoutonOuvrirLigne.tsx` (flèche d'ouverture qui ne
+      déclenche pas le clic de ligne : 2 tableaux).
+      **E5** `components/admin/useSoumissionModal.ts` : transition, erreur affichée et fermeture
+      en cas de succès, pour `EtapeModal`, `ObjectifModal`, `FormationModal` et `UserModal`.
+      `AssignationModal` reste à part (mise à jour optimiste, sans fermeture).
+      **En plus** : `etape.service.ts` `getParcoursDuChef` (dernier chargement répété de la
+      phase 2) ; `analytics.service.ts` : filtre, champs lus et construction d'un événement
+      (`toEvenement`) communs aux réalisations et aux badges, après un test de caractérisation
+      (`analytics.service.test.ts`, le service n'en avait pas) ; `lib/icons.ts` reformaté.
+      Guide mis à jour (§1, composants partagés et erreur d'action admin).
+      **Comment** : vérifié par `tsc`, `eslint src` (0 avertissement), 287 tests, `next build`
+      (`/profil` et `/signaler-un-bug` toujours servies) ; `jscpd` : 17 → 3 clones, les trois
+      écartés volontairement ci-dessus.

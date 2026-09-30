@@ -5,9 +5,9 @@ import { revalidatePath } from "next/cache";
 
 import { getUser } from "@/lib/auth-server";
 import { LONGUEUR_MAX_CONTENU } from "@/lib/justification";
-import { REGLES_JUSTIFICATION } from "@/lib/fichiers";
 import { StorageService } from "@/services/storage.service";
 import { JustificationService } from "@/services/justification.service";
+import { DiscussionService } from "@/services/discussion.service";
 
 const submitRealisationSchema = z.object({
   objectifId: z.string().min(1),
@@ -32,42 +32,13 @@ export async function submitRealisation(
       return { success: false, error: "Données invalides" };
     }
 
-    let fichierData: {
-      nomOriginal: string;
-      nomStockage: string;
-      cheminFichier: string;
-      type: "IMAGE" | "DOCUMENT";
-      mimeType: string;
-      taille: number;
-    } | null = null;
+    const pieceJointe = await DiscussionService.stockerPieceJointe(file);
 
-    if (file) {
-      try {
-        const result = await StorageService.uploadFile(
-          file,
-          "justifications",
-          REGLES_JUSTIFICATION,
-        );
-
-        fichierData = {
-          nomOriginal: file.name,
-          nomStockage: result.fileName,
-          cheminFichier: result.storedPath,
-          type: file.type.startsWith("image/") ? "IMAGE" : "DOCUMENT",
-          mimeType: file.type || "application/octet-stream",
-          taille: file.size,
-        };
-      } catch (uploadError) {
-        console.error("Erreur d'upload:", uploadError);
-
-        const message =
-          uploadError instanceof Error
-            ? uploadError.message
-            : "Erreur lors du téléchargement du fichier";
-
-        return { success: false, error: message };
-      }
+    if (!pieceJointe.success) {
+      return pieceJointe;
     }
+
+    const fichierData = pieceJointe.data;
 
     const result = await JustificationService.submitRealisation({
       chefId: user.id,

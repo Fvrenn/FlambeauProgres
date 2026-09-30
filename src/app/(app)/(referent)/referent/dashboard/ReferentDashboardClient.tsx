@@ -4,7 +4,6 @@ import type { JustificationSuivie, UserResume } from "@/types";
 
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { cn } from "@heroui/react";
 
 import ReferentValidationModal, {
   type ReferentThreadJustification,
@@ -13,51 +12,8 @@ import ReferentTabs, { type OngletReferent } from "./_components/ReferentTabs";
 import JustificationsPanel from "./_components/panels/JustificationsPanel";
 import RevisionPanel from "./_components/panels/RevisionPanel";
 
-import { clickable } from "@/lib/a11y";
-import { Icon } from "@/lib/icons";
-import { Card, CardBody } from "@/components/ui";
+import { StatCard } from "@/components/ui";
 import { type DiscussionViewer } from "@/components/discussion/DiscussionThread";
-
-type StatTone = "default" | "warning" | "success";
-
-const TONE_STYLES: Record<StatTone, string> = {
-  default: "bg-dashboard-card text-nav-active",
-  warning: "bg-warning/15 text-[#a67300]",
-  success: "bg-success/15 text-[#127f51]",
-};
-
-function StatCard({
-  icon,
-  label,
-  value,
-  tone = "default",
-  onSelect,
-}: {
-  icon: string;
-  label: string;
-  value: number;
-  tone?: StatTone;
-  onSelect: () => void;
-}) {
-  return (
-    <Card isPressable className="bg-dashboard-panel" {...clickable(onSelect)}>
-      <CardBody className="gap-3">
-        <div
-          className={cn(
-            "flex items-center justify-center w-11 h-11 rounded-full",
-            TONE_STYLES[tone],
-          )}
-        >
-          <Icon icon={icon} width={22} />
-        </div>
-        <div className="flex flex-col">
-          <span className="text-3xl font-extrabold leading-none">{value}</span>
-          <span className="text-small text-default-500 mt-1">{label}</span>
-        </div>
-      </CardBody>
-    </Card>
-  );
-}
 
 interface ReferentDashboardClientProps {
   justificationsAValider: JustificationSuivie[];

@@ -30,53 +30,41 @@ type AnalyticsData = {
   referentsDisponibles: OptionFiltre[];
 };
 
+const CHAMPS_VALIDATION = {
+  id: true,
+  valideeAt: true,
+  valideeParId: true,
+  valideePar: { select: { name: true, role: true } },
+  chefId: true,
+  chef: { select: { name: true } },
+  etapeId: true,
+  etape: { select: { name: true } },
+} as const;
+
 export class AnalyticsService {
   static async getAnalytics(
     filtres: AnalyticsFiltres,
     maintenant: Date = new Date(),
   ): Promise<AnalyticsData> {
     const debut = debutPeriode(filtres.periode, maintenant);
-    const filtreDate = debut ? { gte: debut } : undefined;
+    const filtreValidation = {
+      valideeParId: filtres.referentId ?? { not: null },
+      valideeAt: debut ? { gte: debut } : undefined,
+      etapeId: filtres.etapeId,
+    };
 
     const [realisations, badges, etapesDisponibles, referentsDisponibles] =
       await Promise.all([
         prisma.justification.findMany({
-          where: {
-            statut: "VALIDEE",
-            valideeParId: filtres.referentId ?? { not: null },
-            valideeAt: filtreDate,
-            etapeId: filtres.etapeId,
-          },
+          where: { statut: "VALIDEE", ...filtreValidation },
           select: {
-            id: true,
-            valideeAt: true,
-            valideeParId: true,
-            valideePar: { select: { name: true, role: true } },
-            chefId: true,
-            chef: { select: { name: true } },
-            etapeId: true,
-            etape: { select: { name: true } },
+            ...CHAMPS_VALIDATION,
             objectif: { select: { code: true, description: true } },
           },
         }),
         prisma.chefEtapeStatut.findMany({
-          where: {
-            statut: "VALIDE",
-            origine: "APP",
-            valideeParId: filtres.referentId ?? { not: null },
-            valideeAt: filtreDate,
-            etapeId: filtres.etapeId,
-          },
-          select: {
-            id: true,
-            valideeAt: true,
-            valideeParId: true,
-            valideePar: { select: { name: true, role: true } },
-            chefId: true,
-            chef: { select: { name: true } },
-            etapeId: true,
-            etape: { select: { name: true } },
-          },
+          where: { statut: "VALIDE", origine: "APP", ...filtreValidation },
+          select: CHAMPS_VALIDATION,
         }),
         prisma.etape.findMany({
           orderBy: [{ niveau: "asc" }, { ordre: "asc" }],
@@ -91,30 +79,16 @@ export class AnalyticsService {
 
     const journal: ValidationEvent[] = [
       ...realisations.map((realisation) => ({
+        ...toEvenement(realisation),
         id: `r-${realisation.id}`,
         type: "REALISATION" as const,
-        date: realisation.valideeAt ?? new Date(0),
-        referentId: realisation.valideeParId ?? "",
-        referentName: realisation.valideePar?.name ?? "Inconnu",
-        referentRole: (realisation.valideePar?.role ?? "REFERENT") as UserRole,
-        chefId: realisation.chefId,
-        chefName: realisation.chef.name,
-        etapeId: realisation.etapeId,
-        etapeName: realisation.etape.name,
         objet: `${realisation.objectif.code} - ${realisation.objectif.description}`,
         justificationId: realisation.id,
       })),
       ...badges.map((badge) => ({
+        ...toEvenement(badge),
         id: `b-${badge.id}`,
         type: "BADGE" as const,
-        date: badge.valideeAt ?? new Date(0),
-        referentId: badge.valideeParId ?? "",
-        referentName: badge.valideePar?.name ?? "Inconnu",
-        referentRole: (badge.valideePar?.role ?? "REFERENT") as UserRole,
-        chefId: badge.chefId,
-        chefName: badge.chef.name,
-        etapeId: badge.etapeId,
-        etapeName: badge.etape.name,
         objet: "Badge complet",
         justificationId: null,
       })),
@@ -129,4 +103,25 @@ export class AnalyticsService {
       referentsDisponibles,
     };
   }
+}
+
+function toEvenement(validation: {
+  valideeAt: Date | null;
+  valideeParId: string | null;
+  valideePar: { name: string; role: UserRole } | null;
+  chefId: string;
+  chef: { name: string };
+  etapeId: string;
+  etape: { name: string };
+}) {
+  return {
+    date: validation.valideeAt ?? new Date(0),
+    referentId: validation.valideeParId ?? "",
+    referentName: validation.valideePar?.name ?? "Inconnu",
+    referentRole: validation.valideePar?.role ?? "REFERENT",
+    chefId: validation.chefId,
+    chefName: validation.chef.name,
+    etapeId: validation.etapeId,
+    etapeName: validation.etape.name,
+  };
 }

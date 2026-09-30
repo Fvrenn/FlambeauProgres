@@ -9,7 +9,9 @@ import { Icon } from "@/lib/icons";
 import { formaterAnciennete } from "@/lib/dates";
 import { suiviReferent, type SuiviReferent } from "@/lib/justification";
 import AdminDataTable, { Column } from "@/components/admin/AdminDataTable";
-import { Avatar, Card, CardBody, Button } from "@/components/ui";
+import { BoutonOuvrirLigne } from "@/components/admin/BoutonOuvrirLigne";
+import { CelluleUtilisateur } from "@/components/admin/CelluleUtilisateur";
+import { Avatar, Card, CardBody } from "@/components/ui";
 
 type ListeJustifications = "a-valider" | "attente-du-chef";
 
@@ -101,21 +103,7 @@ export default function JustificationsPanel({
   ) => {
     switch (columnKey) {
       case "chefName":
-        return (
-          <div className="flex items-center gap-3">
-            <Avatar
-              name={justification.chef.name}
-              size="sm"
-              src={justification.chef.image}
-            />
-            <div className="flex flex-col">
-              <p className="text-bold text-small">{justification.chef.name}</p>
-              <p className="text-bold text-tiny text-default-400">
-                {justification.chef.email}
-              </p>
-            </div>
-          </div>
-        );
+        return <CelluleUtilisateur utilisateur={justification.chef} />;
       case "objectif":
         return (
           <div className="flex items-center gap-2">
@@ -137,20 +125,10 @@ export default function JustificationsPanel({
         return <ChipSuivi justification={justification} />;
       case "actions":
         return (
-          <div className="flex items-center justify-end w-full pr-4">
-            <Button
-              isIconOnly
-              aria-label="Ouvrir"
-              color="default"
-              size="sm"
-              startIcon="solar:arrow-right-linear"
-              variant="ghost"
-              onClick={(e) => {
-                e.stopPropagation();
-                onJustificationClick(justification);
-              }}
-            />
-          </div>
+          <BoutonOuvrirLigne
+            label="Ouvrir"
+            onOuvrir={() => onJustificationClick(justification)}
+          />
         );
       default:
         return null;

@@ -13,6 +13,7 @@ import {
 } from "../../_actions/formation.actions";
 
 import { FormModal } from "@/components/admin/FormModal";
+import { useSoumissionModal } from "@/components/admin/useSoumissionModal";
 import { Input } from "@/components/ui";
 
 const formationSchema = z.object({
@@ -34,8 +35,8 @@ export default function FormationModal({
   onClose,
   formation,
 }: FormationModalProps) {
-  const [isPending, startTransition] = React.useTransition();
-  const [erreur, setErreur] = React.useState<string | null>(null);
+  const { isPending, erreur, setErreur, soumettre } =
+    useSoumissionModal(onClose);
 
   const {
     register,
@@ -57,25 +58,14 @@ export default function FormationModal({
         lien: formation?.lien ?? "",
       });
     }
-  }, [isOpen, formation, reset]);
+  }, [isOpen, formation, reset, setErreur]);
 
   const imageUrl = watch("imageUrl");
 
   const onSubmit = (data: FormationFormData) => {
-    setErreur(null);
-    startTransition(async () => {
-      const result = formation
-        ? await updateFormation(formation.id, data)
-        : await createFormation(data);
-
-      if (!result.success) {
-        setErreur(result.error ?? "Une erreur est survenue");
-
-        return;
-      }
-
-      onClose();
-    });
+    soumettre(() =>
+      formation ? updateFormation(formation.id, data) : createFormation(data),
+    );
   };
 
   return (

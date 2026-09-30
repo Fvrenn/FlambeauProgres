@@ -13,6 +13,7 @@ import {
 } from "../../_actions/objectif.actions";
 
 import { FormModal } from "@/components/admin/FormModal";
+import { useSoumissionModal } from "@/components/admin/useSoumissionModal";
 import { Input } from "@/components/ui";
 
 const objectifSchema = z.object({
@@ -38,8 +39,8 @@ export default function ObjectifModal({
   objectif,
   etapeId,
 }: ObjectifModalProps) {
-  const [isPending, startTransition] = React.useTransition();
-  const [erreur, setErreur] = React.useState<string | null>(null);
+  const { isPending, erreur, setErreur, soumettre } =
+    useSoumissionModal(onClose);
 
   const {
     register,
@@ -79,23 +80,14 @@ export default function ObjectifModal({
         });
       }
     }
-  }, [isOpen, objectif, setValue, reset]);
+  }, [isOpen, objectif, setValue, reset, setErreur]);
 
   const onSubmit = (data: ObjectifFormData) => {
-    setErreur(null);
-    startTransition(async () => {
-      const result = objectif
-        ? await updateObjectif(objectif.id, etapeId, data)
-        : await createObjectif(etapeId, data);
-
-      if (!result.success) {
-        setErreur(result.error ?? "Une erreur est survenue");
-
-        return;
-      }
-
-      onClose();
-    });
+    soumettre(() =>
+      objectif
+        ? updateObjectif(objectif.id, etapeId, data)
+        : createObjectif(etapeId, data),
+    );
   };
 
   return (

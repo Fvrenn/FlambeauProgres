@@ -22,14 +22,20 @@ vi.mock("@/services/etape.service", () => ({
   EtapeService: { estDossierComplet: vi.fn() },
 }));
 
+vi.mock("@/services/storage.service", () => ({
+  StorageService: { uploadFile: vi.fn() },
+}));
+
 import { prisma } from "@/lib/prisma";
 import { canAccessJustification } from "@/lib/auth-guards";
 import { DiscussionService } from "@/services/discussion.service";
 import { EtapeService } from "@/services/etape.service";
+import { StorageService } from "@/services/storage.service";
 
 const db = vi.mocked(prisma, true);
 const etapeService = vi.mocked(EtapeService, true);
 const canAccess = vi.mocked(canAccessJustification);
+const storage = vi.mocked(StorageService, true);
 
 const fichierData = {
   nomOriginal: "photo.jpg",
@@ -623,5 +629,49 @@ describe("DiscussionService.validateRealisation", () => {
 
     expect(result.success).toBe(false);
     expect(db.$transaction).not.toHaveBeenCalled();
+  });
+});
+
+describe("DiscussionService.stockerPieceJointe", () => {
+  it("ne stocke rien sans fichier", async () => {
+    const result = await DiscussionService.stockerPieceJointe(undefined);
+
+    expect(result).toEqual({ success: true, data: null });
+    expect(storage.uploadFile).not.toHaveBeenCalled();
+  });
+
+  it("décrit le fichier stocké pour l'enregistrer en base", async () => {
+    storage.uploadFile.mockResolvedValue({
+      fileName: "abc.png",
+      storedPath: "justifications/abc.png",
+    } as never);
+    const file = new File(["x"], "photo.png", { type: "image/png" });
+
+    const result = await DiscussionService.stockerPieceJointe(file);
+
+    expect(result).toEqual({
+      success: true,
+      data: {
+        nomOriginal: "photo.png",
+        nomStockage: "abc.png",
+        cheminFichier: "justifications/abc.png",
+        type: "IMAGE",
+        mimeType: "image/png",
+        taille: 1,
+      },
+    });
+  });
+
+  it("renvoie le message du refus quand le fichier n'est pas accepté", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    storage.uploadFile.mockRejectedValue(new Error("Fichier trop volumineux"));
+    const file = new File(["x"], "doc.pdf", { type: "application/pdf" });
+
+    const result = await DiscussionService.stockerPieceJointe(file);
+
+    expect(result).toEqual({
+      success: false,
+      error: "Fichier trop volumineux",
+    });
   });
 });

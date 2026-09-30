@@ -4,13 +4,9 @@ import { z } from "zod";
 
 import { getUser } from "@/lib/auth-server";
 import { estReferent } from "@/lib/roles";
-import { REGLES_JUSTIFICATION } from "@/lib/fichiers";
 import { LONGUEUR_MAX_CONTENU } from "@/lib/justification";
 import { StorageService } from "@/services/storage.service";
-import {
-  DiscussionService,
-  type FichierData,
-} from "@/services/discussion.service";
+import { DiscussionService } from "@/services/discussion.service";
 
 const justificationIdSchema = z.string().min(1);
 const contenuSchema = z.string().max(LONGUEUR_MAX_CONTENU).optional();
@@ -60,35 +56,13 @@ export async function postMessage(
       return { success: false as const, error: "Données invalides" };
     }
 
-    let fichierData: FichierData | null = null;
+    const pieceJointe = await DiscussionService.stockerPieceJointe(file);
 
-    if (file) {
-      try {
-        const result = await StorageService.uploadFile(
-          file,
-          "justifications",
-          REGLES_JUSTIFICATION,
-        );
-
-        fichierData = {
-          nomOriginal: file.name,
-          nomStockage: result.fileName,
-          cheminFichier: result.storedPath,
-          type: file.type.startsWith("image/") ? "IMAGE" : "DOCUMENT",
-          mimeType: file.type || "application/octet-stream",
-          taille: file.size,
-        };
-      } catch (uploadError) {
-        console.error("Erreur d'upload:", uploadError);
-
-        const message =
-          uploadError instanceof Error
-            ? uploadError.message
-            : "Erreur lors du téléchargement du fichier";
-
-        return { success: false as const, error: message };
-      }
+    if (!pieceJointe.success) {
+      return pieceJointe;
     }
+
+    const fichierData = pieceJointe.data;
 
     const role = "role" in user ? user.role : undefined;
 

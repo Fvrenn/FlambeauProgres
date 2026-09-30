@@ -10,6 +10,7 @@ import UserModal from "./_components/UserModal";
 
 import { Icon } from "@/lib/icons";
 import AdminDataTable, { Column } from "@/components/admin/AdminDataTable";
+import { CelluleUtilisateur } from "@/components/admin/CelluleUtilisateur";
 import { Badge, Avatar, Card, CardBody, Button } from "@/components/ui";
 import { roleColorMap, roleLabelMap } from "@/lib/roles";
 
@@ -40,21 +41,7 @@ export default function UsersClientPage({ users }: UsersClientPageProps) {
 
       switch (columnKey) {
         case "user":
-          return (
-            <div className="flex items-center gap-3">
-              <Avatar
-                name={user.name}
-                size="sm"
-                src={user.image || undefined}
-              />
-              <div className="flex flex-col">
-                <p className="text-bold text-small">{user.name}</p>
-                <p className="text-bold text-tiny text-default-400">
-                  {user.email}
-                </p>
-              </div>
-            </div>
-          );
+          return <CelluleUtilisateur utilisateur={user} />;
         case "role":
           return (
             <Badge
