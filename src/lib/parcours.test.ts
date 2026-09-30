@@ -10,6 +10,8 @@ import {
   construireContexteParcours,
   etapeEstAccessible,
   jalonProfilsEstValide,
+  estJalonBloquant,
+  NIVEAU_PROFILS,
 } from "@/lib/parcours";
 
 const jalons = [
@@ -231,5 +233,29 @@ describe("construireContexteParcours", () => {
     expect(contexte.niveauMax).toBe(Number.POSITIVE_INFINITY);
     expect(contexte.specialiteValidee).toBe(true);
     expect(contexte.jalonProfilsValide).toBe(true);
+  });
+});
+
+describe("estJalonBloquant", () => {
+  const jalon = (niveau: number, isValidated = false, verrouille = false) => ({
+    type: "JALON",
+    niveau,
+    isValidated,
+    verrouille,
+  });
+
+  it("bloque sur Allume-feu ou Découvrir non validé et débloqué", () => {
+    expect(estJalonBloquant(jalon(0))).toBe(true);
+    expect(estJalonBloquant(jalon(1))).toBe(true);
+  });
+
+  it("ne bloque pas sur Servir, même accessible et non validé", () => {
+    expect(estJalonBloquant(jalon(NIVEAU_PROFILS))).toBe(false);
+  });
+
+  it("ne bloque pas sur un jalon validé, verrouillé ou un badge", () => {
+    expect(estJalonBloquant(jalon(1, true))).toBe(false);
+    expect(estJalonBloquant(jalon(1, false, true))).toBe(false);
+    expect(estJalonBloquant({ ...jalon(1), type: "BADGE" })).toBe(false);
   });
 });

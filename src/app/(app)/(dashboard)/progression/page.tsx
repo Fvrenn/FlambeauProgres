@@ -6,6 +6,7 @@ import { RafraichissementArrierePlan } from "@/components/application/rafraichis
 import { getUser } from "@/lib/auth-server";
 import { redirectToLogin } from "@/lib/auth-redirect";
 import { DEFAULT_ETAPE_COLOR } from "@/lib/color";
+import { estJalonBloquant } from "@/lib/parcours";
 import { EtapeService } from "@/services/etape.service";
 import { Card, CardBody } from "@/components/ui";
 
@@ -19,9 +20,7 @@ export default async function ProgressionPage() {
   }
 
   const allEtapes = await EtapeService.getProgressForChef(user.id);
-  const jalonsAValider = allEtapes.filter(
-    (etape) => etape.type === "JALON" && !etape.isValidated,
-  );
+  const jalonsAValider = allEtapes.filter(estJalonBloquant);
   const etapes = allEtapes.filter(
     (etape) => etape.type === "BADGE" && !etape.verrouille,
   );

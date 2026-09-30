@@ -17,7 +17,7 @@ import ContentAction from "./contentAction/contentAction";
 import ObjectifModal from "./contentAction/panels/ObjectifModal";
 
 import { markNotificationAsRead } from "@/actions/notification/notification.actions";
-import { NIVEAU_PROFILS } from "@/lib/parcours";
+import { estJalonBloquant } from "@/lib/parcours";
 import { type DiscussionViewer } from "@/components/discussion/DiscussionThread";
 
 export type ObjectifAvecJustification = Objectif & {
@@ -177,14 +177,7 @@ export default function DashboardClient({
     }
   };
 
-  const currentJalon =
-    etapes.find(
-      (etape) =>
-        etape.type === "JALON" &&
-        etape.niveau < NIVEAU_PROFILS &&
-        !etape.isValidated &&
-        !etape.verrouille,
-    ) ?? null;
+  const currentJalon = etapes.find(estJalonBloquant) ?? null;
 
   return (
     <div className="flex items-stretch md:flex-1 gap-0 md:gap-4 md:pt-4 min-h-0 flex-auto md:flex-0">

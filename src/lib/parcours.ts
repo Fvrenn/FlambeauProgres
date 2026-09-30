@@ -116,3 +116,17 @@ export function etapeEstAccessible(
 
   return specialiteValidee && jalonProfilsValide;
 }
+
+export function estJalonBloquant(etape: {
+  type: string;
+  niveau: number;
+  isValidated?: boolean;
+  verrouille?: boolean;
+}): boolean {
+  return (
+    etape.type === "JALON" &&
+    etape.niveau < NIVEAU_PROFILS &&
+    !etape.isValidated &&
+    !etape.verrouille
+  );
+}

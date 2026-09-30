@@ -214,8 +214,17 @@ export default function ContentChemise({
         }}
       >
         {currentJalon ? (
-          <div className="flex flex-1 items-center justify-center py-2">
-            <JalonBadge key={currentJalon.id} jalon={currentJalon} />
+          <div className="grid flex-1">
+            <div className="[grid-area:1/1] flex items-center justify-center py-2">
+              <JalonBadge key={currentJalon.id} jalon={currentJalon} />
+            </div>
+            <div
+              aria-hidden
+              inert
+              className="invisible hidden [grid-area:1/1] md:block"
+            >
+              {renderGrille(specialites)}
+            </div>
           </div>
         ) : (
           <div className="relative flex flex-col mt-[-83px] md:mt-0 flex-none">
