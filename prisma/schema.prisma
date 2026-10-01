@@ -170,7 +170,7 @@ model Justification {
   chefId     String
   objectifId String
   etapeId    String
-  contenu    String?
+  contenu    String? @db.Text
 
   statut       StatutJustification @default(BROUILLON)
   soumiseAt    DateTime?
@@ -213,7 +213,7 @@ model Message {
   id              String      @id @default(cuid())
   justificationId String
   auteurId        String
-  contenu         String?
+  contenu         String?     @db.Text
   type            MessageType @default(USER)
   createdAt       DateTime    @default(now())
 
