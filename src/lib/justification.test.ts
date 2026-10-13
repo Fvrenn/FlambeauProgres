@@ -2,12 +2,25 @@ import { describe, it, expect } from "vitest";
 
 import {
   chefsAyantToutValide,
+  estJustificationValidee,
   filtreJustificationsValidantes,
   statutValidant,
   suiviReferent,
 } from "@/lib/justification";
 
 const total = { competences: 2, realisations: 1 };
+
+describe("estJustificationValidee", () => {
+  it("considère validées les justifications validées ou auto-validées", () => {
+    expect(estJustificationValidee("VALIDEE")).toBe(true);
+    expect(estJustificationValidee("AUTO_VALIDEE")).toBe(true);
+  });
+
+  it("ne considère pas validée une justification en cours", () => {
+    expect(estJustificationValidee("SOUMISE")).toBe(false);
+    expect(estJustificationValidee("DEMANDE_PRECISION")).toBe(false);
+  });
+});
 
 describe("chefsAyantToutValide", () => {
   it("retient le chef qui a validé toutes les compétences et réalisations", () => {

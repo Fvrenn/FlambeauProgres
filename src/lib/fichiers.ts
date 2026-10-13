@@ -6,7 +6,7 @@ export type ReglesFichier = {
   typesAcceptes: string;
 };
 
-export type FichierAValider = {
+type FichierAValider = {
   type: string;
   size: number;
 };

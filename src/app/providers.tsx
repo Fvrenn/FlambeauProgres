@@ -5,7 +5,7 @@ import { HeroUIProvider } from "@heroui/system";
 import { useRouter } from "next/navigation";
 import { ToastProvider } from "@heroui/toast";
 
-export interface ProvidersProps {
+interface ProvidersProps {
   children: React.ReactNode;
 }
 

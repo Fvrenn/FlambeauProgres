@@ -2,7 +2,6 @@
 
 import type { UiMessage } from "./types";
 
-import React from "react";
 import { Card, CardBody, Spinner } from "@heroui/react";
 
 import FileAttachment from "./FileAttachment";

@@ -101,6 +101,13 @@ describe("parseWpProfile", () => {
     expect(parseWpProfile(payloadChefPetitsFlambeaux).branche).toBe("PF");
   });
 
+  it("garde l'identifiant du groupe, envoyé en nombre ou en texte", () => {
+    expect(
+      parseWpProfile({ ...payloadChefFlambeaux, group_value: 7 }).groupValue,
+    ).toBe("7");
+    expect(parseWpProfile(payloadChefFlambeaux).groupValue).toBe(null);
+  });
+
   it("renvoie une branche nulle sans fonction", () => {
     expect(parseWpProfile({ progression: progressionReelle }).branche).toBe(
       null,

@@ -1,6 +1,6 @@
 type Entree<V> = { valeur: V; expireA: number };
 
-export type CacheMemoire<V> = {
+type CacheMemoire<V> = {
   get: (cle: string) => V | undefined;
   set: (cle: string, valeur: V) => void;
   delete: (cle: string) => void;

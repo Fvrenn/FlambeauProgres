@@ -1,13 +1,11 @@
-import React from "react";
 import Link from "next/link";
-import { cn } from "@heroui/react";
 
 import { RafraichissementArrierePlan } from "@/components/application/rafraichissement/RafraichissementArrierePlan";
 import { exigerRole } from "@/lib/auth-guards";
 import { Icon } from "@/lib/icons";
 import { AdminDashboardService } from "@/services/admin-dashboard.service";
 import { ROLES_ADMIN, roleColorMap } from "@/lib/roles";
-import { Badge, Card, CardBody } from "@/components/ui";
+import { Badge, Card, CardBody, StatCard } from "@/components/ui";
 
 const quickLinks = [
   {
@@ -35,45 +33,6 @@ const quickLinks = [
     description: "Gérer les ressources pédagogiques",
   },
 ];
-
-type StatTone = "default" | "warning" | "success";
-
-const TONE_STYLES: Record<StatTone, string> = {
-  default: "bg-dashboard-card text-nav-active",
-  warning: "bg-warning/15 text-warning-700",
-  success: "bg-success/15 text-success-700",
-};
-
-function StatCard({
-  icon,
-  label,
-  value,
-  tone = "default",
-}: {
-  icon: string;
-  label: string;
-  value: number;
-  tone?: StatTone;
-}) {
-  return (
-    <Card className="bg-dashboard-panel">
-      <CardBody className="gap-3">
-        <div
-          className={cn(
-            "flex items-center justify-center w-11 h-11 rounded-full",
-            TONE_STYLES[tone],
-          )}
-        >
-          <Icon icon={icon} width={22} />
-        </div>
-        <div className="flex flex-col">
-          <span className="text-3xl font-extrabold leading-none">{value}</span>
-          <span className="text-small text-default-500 mt-1">{label}</span>
-        </div>
-      </CardBody>
-    </Card>
-  );
-}
 
 export default async function AdminDashboardPage() {
   await exigerRole(...ROLES_ADMIN);
@@ -108,15 +67,11 @@ export default async function AdminDashboardPage() {
                 </span>
               </div>
               <div className="flex flex-wrap gap-1.5">
-                <Badge color={roleColorMap.CHEF} size="sm">
-                  {stats.chefs} Chefs
-                </Badge>
-                <Badge color={roleColorMap.REFERENT} size="sm">
+                <Badge color={roleColorMap.CHEF}>{stats.chefs} Chefs</Badge>
+                <Badge color={roleColorMap.REFERENT}>
                   {stats.referents} Référents
                 </Badge>
-                <Badge color={roleColorMap.ADMIN} size="sm">
-                  {stats.admins} Admins
-                </Badge>
+                <Badge color={roleColorMap.ADMIN}>{stats.admins} Admins</Badge>
               </div>
             </CardBody>
           </Card>

@@ -7,11 +7,13 @@ import type { ThreadAuthor, UiMessage } from "./types";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
+  annulerValidationRealisation,
   getThread,
   postMessage,
   validateRealisation,
 } from "@/actions/discussion/discussion.actions";
 import { REGLES_JUSTIFICATION, validerFichier } from "@/lib/fichiers";
+import { estJustificationValidee } from "@/lib/justification";
 
 const POLL_INTERVAL_MS = 7000;
 const MESSAGE_NON_ENVOYE =
@@ -44,6 +46,7 @@ type Viewer = { id: string | undefined; author: ThreadAuthor | null };
 export function useDiscussionThread(justificationId: string, viewer: Viewer) {
   const [messages, setMessages] = useState<UiMessage[]>([]);
   const [statut, setStatut] = useState<StatutJustification | null>(null);
+  const [etapeValidee, setEtapeValidee] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -64,6 +67,7 @@ export function useDiscussionThread(justificationId: string, viewer: Viewer) {
 
         setMessages((prev) => [...server, ...prev.filter((m) => m.pending)]);
         setStatut(result.data.statut);
+        setEtapeValidee(result.data.etapeValidee);
         setError(null);
       } else if (!opts?.silent) {
         setError(result.error);
@@ -179,13 +183,33 @@ export function useDiscussionThread(justificationId: string, viewer: Viewer) {
     }
   }, [justificationId, refresh]);
 
+  const annulerValidation = useCallback(async () => {
+    const result = await annulerValidationRealisation(justificationId).catch(
+      () => ({
+        success: false as const,
+        error:
+          "Annulation non enregistrée : vérifie ta connexion puis réessaie",
+      }),
+    );
+
+    if (result.success) {
+      await refresh({ silent: true });
+
+      return { success: true };
+    }
+
+    return { success: false, error: result.error };
+  }, [justificationId, refresh]);
+
   return {
     messages,
     statut,
+    etapeValidee,
     isLoading,
     error,
-    readOnly: statut ? ["VALIDEE", "AUTO_VALIDEE"].includes(statut) : false,
+    readOnly: statut ? estJustificationValidee(statut) : false,
     sendMessage,
     validate,
+    annulerValidation,
   };
 }

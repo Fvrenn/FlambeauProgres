@@ -8,13 +8,20 @@ import {
 } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
+import { REGLES_JUSTIFICATION } from "@/lib/fichiers";
+import { StorageService } from "@/services/storage.service";
 import { canAccessJustification } from "@/lib/auth-guards";
 import {
   estNiveauEtape3,
   messageRefusEvaluation,
   peutEvaluerEtape,
 } from "@/lib/roles";
-import { LIBELLE_TYPE_OBJECTIF, TITRE_VALIDATION } from "@/lib/justification";
+import {
+  LIBELLE_TYPE_OBJECTIF,
+  MESSAGE_ETAPE_DEJA_VALIDEE,
+  TITRE_VALIDATION,
+  estJustificationValidee,
+} from "@/lib/justification";
 import { EtapeService } from "@/services/etape.service";
 import { NotificationService } from "@/services/notification.service";
 
@@ -31,11 +38,13 @@ export type ThreadMessage = Prisma.MessageGetPayload<{
   include: { auteur: true; fichier: true };
 }>;
 
-export type ThreadData = {
+type ThreadData = {
   justificationId: string;
   statut: StatutJustification;
   objectif: { code: string; description: string };
   chef: { id: string; name: string };
+  etapeId: string;
+  etapeValidee: boolean;
   messages: ThreadMessage[];
 };
 
@@ -64,6 +73,44 @@ export class DiscussionService {
       },
       include: { auteur: true, fichier: true },
     });
+  }
+
+  static async stockerPieceJointe(
+    file: File | undefined,
+  ): Promise<ServiceResult<FichierData | null>> {
+    if (!file) {
+      return { success: true, data: null };
+    }
+
+    try {
+      const { fileName, storedPath } = await StorageService.uploadFile(
+        file,
+        "justifications",
+        REGLES_JUSTIFICATION,
+      );
+
+      return {
+        success: true,
+        data: {
+          nomOriginal: file.name,
+          nomStockage: fileName,
+          cheminFichier: storedPath,
+          type: file.type.startsWith("image/") ? "IMAGE" : "DOCUMENT",
+          mimeType: file.type || "application/octet-stream",
+          taille: file.size,
+        },
+      };
+    } catch (error) {
+      console.error("Erreur d'upload:", error);
+
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Erreur lors du téléchargement du fichier",
+      };
+    }
   }
 
   static async getThread(
@@ -97,6 +144,11 @@ export class DiscussionService {
       return { success: false, error: "Justification introuvable" };
     }
 
+    const etapeValidee = await EtapeService.estValideePourChef(
+      justification.chefId,
+      justification.etapeId,
+    );
+
     return {
       success: true,
       data: {
@@ -104,6 +156,8 @@ export class DiscussionService {
         statut: justification.statut,
         objectif: justification.objectif,
         chef: justification.chef,
+        etapeId: justification.etapeId,
+        etapeValidee,
         messages: justification.messages,
       },
     };
@@ -142,20 +196,13 @@ export class DiscussionService {
       return { success: false, error: "Accès refusé" };
     }
 
-    const justification = await prisma.justification.findUnique({
-      where: { id: justificationId },
-      include: {
-        objectif: { select: { code: true, description: true, type: true } },
-        etape: { select: { name: true, niveau: true } },
-        chef: { select: { name: true, email: true } },
-      },
-    });
+    const justification = await getJustificationANotifier(justificationId);
 
     if (!justification) {
       return { success: false, error: "Justification introuvable" };
     }
 
-    if (["VALIDEE", "AUTO_VALIDEE"].includes(justification.statut)) {
+    if (estJustificationValidee(justification.statut)) {
       return {
         success: false,
         error: `Cette ${LIBELLE_TYPE_OBJECTIF[justification.objectif.type]} est validée, le fil est clôturé`,
@@ -202,6 +249,10 @@ export class DiscussionService {
         nouveauMessage,
       );
     } else {
+      await NotificationService.marquerTraiteePourEvaluateurs(
+        justificationId,
+        justification.chefId,
+      );
       await NotificationService.notifierMessageAuChef(
         justification,
         nouveauMessage,
@@ -219,14 +270,7 @@ export class DiscussionService {
   }): Promise<ServiceResult<ThreadMessage>> {
     const { referentId, referentName, referentRole, justificationId } = input;
 
-    const justification = await prisma.justification.findUnique({
-      where: { id: justificationId },
-      include: {
-        objectif: { select: { code: true, description: true, type: true } },
-        etape: { select: { name: true, niveau: true } },
-        chef: { select: { name: true, email: true } },
-      },
-    });
+    const justification = await getJustificationANotifier(justificationId);
 
     if (!justification) {
       return { success: false, error: "Justification introuvable" };
@@ -273,6 +317,10 @@ export class DiscussionService {
       return created;
     });
 
+    await NotificationService.marquerTraiteePourEvaluateurs(
+      justificationId,
+      justification.chefId,
+    );
     await NotificationService.notifierValidation(justification, referentName);
 
     if (
@@ -291,6 +339,76 @@ export class DiscussionService {
 
     return { success: true, data: message };
   }
+
+  static async annulerValidation(input: {
+    referentId: string;
+    referentRole: UserRole | undefined;
+    justificationId: string;
+  }): Promise<ServiceResult<ThreadMessage>> {
+    const { referentId, referentRole, justificationId } = input;
+
+    const justification = await getJustificationANotifier(justificationId);
+
+    if (!justification) {
+      return { success: false, error: "Justification introuvable" };
+    }
+
+    if (!(await estEvaluateur(referentId, referentRole, justification))) {
+      return {
+        success: false,
+        error: messageRefusEvaluation(justification.etape.niveau),
+      };
+    }
+
+    if (justification.statut !== "VALIDEE") {
+      return {
+        success: false,
+        error: `Cette ${LIBELLE_TYPE_OBJECTIF[justification.objectif.type]} n'est pas validée`,
+      };
+    }
+
+    if (
+      await EtapeService.estValideePourChef(
+        justification.chefId,
+        justification.etapeId,
+      )
+    ) {
+      return { success: false, error: MESSAGE_ETAPE_DEJA_VALIDEE };
+    }
+
+    const message = await prisma.$transaction(async (tx) => {
+      const created = await this.addMessage(tx, {
+        justificationId,
+        auteurId: referentId,
+        contenu: "↺ Validation annulée",
+        type: "SYSTEM",
+      });
+
+      await tx.justification.update({
+        where: { id: justificationId },
+        data: {
+          statut: "SOUMISE",
+          valideeAt: null,
+          valideeParId: null,
+        },
+      });
+
+      return created;
+    });
+
+    return { success: true, data: message };
+  }
+}
+
+function getJustificationANotifier(justificationId: string) {
+  return prisma.justification.findUnique({
+    where: { id: justificationId },
+    include: {
+      objectif: { select: { code: true, description: true, type: true } },
+      etape: { select: { name: true, niveau: true } },
+      chef: { select: { name: true, email: true } },
+    },
+  });
 }
 
 async function estEvaluateur(

@@ -2,9 +2,28 @@ import { describe, expect, it } from "vitest";
 
 import { parseWpProfile } from "./wordpress-profile";
 import {
+  avecCategories,
   resoudreProgressionWp,
   valeursWpPourEtapes,
 } from "./wordpress-progression";
+
+describe("avecCategories", () => {
+  it("ajoute la catégorie parente de chaque valeur, sans doublon", () => {
+    expect(avecCategories(["101", "203", "2", "206", "302"])).toEqual([
+      "1",
+      "101",
+      "2",
+      "203",
+      "206",
+      "3",
+      "302",
+    ]);
+  });
+
+  it("laisse les valeurs non numériques telles quelles", () => {
+    expect(avecCategories(["abc", "7"])).toEqual(["abc", "7"]);
+  });
+});
 
 const progressionPlateforme = [
   { value: "1", label: "<b>Étape 1</b>" },

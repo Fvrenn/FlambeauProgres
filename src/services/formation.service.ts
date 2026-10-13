@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 
-export type FormationInput = {
+type FormationInput = {
   titre: string;
   imageUrl: string;
   lien: string;

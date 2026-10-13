@@ -2,7 +2,6 @@
 
 import type { ThreadFile } from "./types";
 
-import React from "react";
 import { Spinner } from "@heroui/react";
 
 import { Icon } from "@/lib/icons";

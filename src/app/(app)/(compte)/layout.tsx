@@ -8,7 +8,7 @@ import { redirectToLogin } from "@/lib/auth-redirect";
 import { appShellClassNames } from "@/config/navigation";
 import { COOKIE_DERNIERE_VUE, lireVue, sidebarItemsPourVue } from "@/lib/vue";
 
-export default async function ProfilLayout({
+export default async function CompteLayout({
   children,
 }: {
   children: React.ReactNode;

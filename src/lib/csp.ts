@@ -1,4 +1,4 @@
-export const CSP_BLOQUANTE = false;
+const CSP_BLOQUANTE = false;
 
 export const ENTETE_CSP = CSP_BLOQUANTE
   ? "Content-Security-Policy"

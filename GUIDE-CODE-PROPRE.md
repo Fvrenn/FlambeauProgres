@@ -17,11 +17,11 @@ Objectif : un code **facile à maintenir, à faire évoluer et à compléter**, 
 | Service (logique métier + Prisma) | `services/etape.service.ts` (+ `.test.ts`), `services/formation.service.ts` (CRUD simple) |
 | Contrôle d'accès | `lib/auth-guards.ts` (+ `.test.ts`), `lib/roles.ts` (+ `.test.ts`) |
 | Fonctions pures métier | `lib/parcours.ts` (+ `.test.ts`), `lib/wp-redirect.ts` (+ `.test.ts`) |
-| Page serveur → composant client | `app/(app)/profil/page.tsx` → `ClientPage.tsx` |
-| Action côté client (transition + message) | `app/(app)/profil/_components/ProgressionPlateforme.tsx` |
+| Page serveur → composant client | `app/(app)/(compte)/profil/page.tsx` → `ClientPage.tsx` |
+| Action côté client (transition + message) | `app/(app)/(compte)/profil/_components/ProgressionPlateforme.tsx` |
 | Confirmation d'une action | `components/ui/confirm-popover.tsx` (`ConfirmPopover`, jamais `confirm()`) |
-| Erreur d'une action dans un formulaire admin | `components/admin/FormModal.tsx` (prop `erreur`) + `admin/formations/_components/FormationModal.tsx` |
-| Composants partagés | `components/ui/*` (via `@/components/ui`), `components/admin/{FormModal, AdminDataTable}.tsx` |
+| Erreur d'une action dans un formulaire admin | `components/admin/FormModal.tsx` (prop `erreur`) + `components/admin/useSoumissionModal.ts`, utilisés par `admin/formations/_components/FormationModal.tsx` |
+| Composants partagés | `components/ui/*` (via `@/components/ui`, dont `StatCard`), `components/admin/{FormModal, AdminDataTable, CelluleUtilisateur, BoutonOuvrirLigne}.tsx` |
 
 **Écarts connus dans le code, à ne pas imiter** : aucun à ce jour, le refacto de septembre 2026 les a tous traités (`docs/refacto-code-propre.md`). En relever un ici quand on en repère un qu'on ne corrige pas tout de suite.
 

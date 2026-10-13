@@ -17,6 +17,15 @@ import { COOKIE_DERNIERE_VUE, vueDepuisChemin } from "@/lib/vue";
 
 const UN_AN_EN_SECONDES = 60 * 60 * 24 * 365;
 
+const SIDEBARS_FIXES = [
+  {
+    key: "compacte",
+    className: "md:flex lg:hidden w-20 z-20",
+    isCompact: true,
+  },
+  { key: "complete", className: "lg:flex w-60 xl:w-72", isCompact: false },
+];
+
 type AppClientLayoutProps = {
   children: React.ReactNode;
   user: SessionUser;
@@ -67,6 +76,14 @@ export default function AppClientLayout({
 
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
+  const contenuSidebar = {
+    contextSwitcherClassName,
+    defaultSelectedKey,
+    navItemClassNames,
+    sidebarItems,
+    user,
+  };
+
   React.useEffect(() => {
     const vue = vueDepuisChemin(pathname);
 
@@ -85,62 +102,23 @@ export default function AppClientLayout({
         onClose={() => setIsMenuOpen(false)}
       >
         <SidebarContent
-          contextSwitcherClassName={contextSwitcherClassName}
-          defaultSelectedKey={defaultSelectedKey}
-          navItemClassNames={navItemClassNames}
-          sidebarItems={sidebarItems}
-          user={user}
+          {...contenuSidebar}
           onItemSelect={() => setIsMenuOpen(false)}
         />
       </SidebarDrawer>
 
-      <div
-        className={cn(
-          "hidden md:flex lg:hidden h-full w-20 flex-col z-20 transition-width duration-300",
-          sidebarSurfaceClasses,
-        )}
-      >
-        <SidebarContent
-          contextSwitcherClassName={contextSwitcherClassName}
-          defaultSelectedKey={defaultSelectedKey}
-          isCompact={true}
-          navItemClassNames={navItemClassNames}
-          sidebarItems={sidebarItems}
-          user={user}
-        />
-      </div>
-
-      <div
-        className={cn(
-          "hidden lg:flex xl:hidden h-full w-60 flex-col transition-width duration-300",
-          sidebarSurfaceClasses,
-        )}
-      >
-        <SidebarContent
-          contextSwitcherClassName={contextSwitcherClassName}
-          defaultSelectedKey={defaultSelectedKey}
-          isCompact={false}
-          navItemClassNames={navItemClassNames}
-          sidebarItems={sidebarItems}
-          user={user}
-        />
-      </div>
-
-      <div
-        className={cn(
-          "hidden xl:flex h-full w-72 flex-col transition-width duration-300",
-          sidebarSurfaceClasses,
-        )}
-      >
-        <SidebarContent
-          contextSwitcherClassName={contextSwitcherClassName}
-          defaultSelectedKey={defaultSelectedKey}
-          isCompact={false}
-          navItemClassNames={navItemClassNames}
-          sidebarItems={sidebarItems}
-          user={user}
-        />
-      </div>
+      {SIDEBARS_FIXES.map(({ key, className, isCompact }) => (
+        <div
+          key={key}
+          className={cn(
+            "hidden h-full flex-col transition-width duration-300",
+            className,
+            sidebarSurfaceClasses,
+          )}
+        >
+          <SidebarContent {...contenuSidebar} isCompact={isCompact} />
+        </div>
+      ))}
 
       <main
         className={cn(

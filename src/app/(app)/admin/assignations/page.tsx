@@ -1,5 +1,3 @@
-import React from "react";
-
 import AssignationsClientPage from "./ClientPage";
 
 import { RafraichissementArrierePlan } from "@/components/application/rafraichissement/RafraichissementArrierePlan";

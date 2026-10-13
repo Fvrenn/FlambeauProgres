@@ -16,9 +16,10 @@ import {
 
 const INTERVALLE_SYNC_MS = 5 * 60 * 1000;
 
-export type ResultatSyncProgression = {
+type ResultatSyncProgression = {
   importees: number;
   retirees: number;
+  envoyees: number;
   nonReconnues: WpTaxonomyEntry[];
 };
 
@@ -26,6 +27,9 @@ export type EtapeProgressionPlateforme = {
   id: string;
   number: string;
   name: string;
+  image_src: string | null;
+  couleur: string | null;
+  niveau: number;
   wpValue: string | null;
   declaree: boolean;
   origine: OrigineValidation | null;
@@ -136,8 +140,58 @@ export class WpProgressionService {
 
     const { etapeIds, nonReconnues } = resoudreProgressionWp(entries, etapes);
     const compteurs = await this.appliquerEtapesDeclarees(chefId, etapeIds);
+    const envoyees = await this.envoyerValidationsManquantes(
+      chefId,
+      entries,
+      etapeIds,
+      etapes,
+    );
 
-    return { ...compteurs, nonReconnues };
+    return { ...compteurs, envoyees, nonReconnues };
+  }
+
+  static async envoyerValidationsManquantes(
+    chefId: string,
+    entries: WpTaxonomyEntry[],
+    etapeIdsSurPlateforme: string[],
+    etapes: { id: string; name: string; wpValue: string | null }[],
+  ): Promise<number> {
+    if (!ecritureProgressionActive()) {
+      return 0;
+    }
+
+    const validees = await prisma.chefEtapeStatut.findMany({
+      where: { chefId, statut: "VALIDE", origine: "APP" },
+      select: { etapeId: true },
+    });
+
+    const surPlateforme = new Set(etapeIdsSurPlateforme);
+    const { valeurs } = valeursWpPourEtapes(
+      validees
+        .map((statut) => statut.etapeId)
+        .filter((etapeId) => !surPlateforme.has(etapeId)),
+      etapes,
+    );
+
+    if (valeurs.length === 0) {
+      return 0;
+    }
+
+    const envoi = await pousserProgressionVersWp([
+      ...new Set([...entries.map((entry) => entry.value), ...valeurs]),
+    ]);
+
+    if (!envoi.success) {
+      console.warn(
+        "Progression non envoyée à la plateforme:",
+        envoi.error,
+        valeurs,
+      );
+
+      return 0;
+    }
+
+    return valeurs.length;
   }
 
   static async synchroniserSiNecessaire(
@@ -180,7 +234,15 @@ export class WpProgressionService {
     const [etapes, statuts] = await Promise.all([
       prisma.etape.findMany({
         orderBy: [{ niveau: "asc" }, { ordre: "asc" }],
-        select: { id: true, number: true, name: true, wpValue: true },
+        select: {
+          id: true,
+          number: true,
+          name: true,
+          image_src: true,
+          couleur: true,
+          niveau: true,
+          wpValue: true,
+        },
       }),
       prisma.chefEtapeStatut.findMany({
         where: { chefId, statut: "VALIDE" },

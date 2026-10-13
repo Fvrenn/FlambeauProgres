@@ -1,11 +1,9 @@
-import React from "react";
 import { Divider } from "@heroui/divider";
 
 import { ObjectifAvecJustification } from "../../DashboardClient";
 
-import StatusChip from "./StatusChip";
-
 import { Icon } from "@/lib/icons";
+import { StatusChip } from "@/components/ui";
 
 type ObjectifLigneProps = {
   objectif: ObjectifAvecJustification;

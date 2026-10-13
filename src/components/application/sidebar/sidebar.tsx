@@ -104,6 +104,25 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
       }),
     };
 
+    const renderIcone = (item: SidebarItem) =>
+      item.icon ? (
+        <Icon
+          className={cn(navIconClasses, iconClassName)}
+          icon={item.icon}
+          width={24}
+        />
+      ) : (
+        (item.startContent ?? null)
+      );
+
+    const renderIconeCompacte = (item: SidebarItem) => (
+      <Tooltip content={item.title} placement="right">
+        <div className="flex w-full items-center justify-center">
+          {renderIcone(item)}
+        </div>
+      </Tooltip>
+    );
+
     const renderNestItem = React.useCallback(
       (item: SidebarItem) => {
         const isNestType =
@@ -132,33 +151,11 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                 ? null
                 : (item.endContent ?? null)
             }
-            startContent={
-              isCompact || isNestType ? null : item.icon ? (
-                <Icon
-                  className={cn(navIconClasses, iconClassName)}
-                  icon={item.icon}
-                  width={24}
-                />
-              ) : (
-                (item.startContent ?? null)
-              )
-            }
+            startContent={isCompact || isNestType ? null : renderIcone(item)}
             title={isCompact || isNestType ? null : item.title}
           >
             {isCompact ? (
-              <Tooltip content={item.title} placement="right">
-                <div className="flex w-full items-center justify-center">
-                  {item.icon ? (
-                    <Icon
-                      className={cn(navIconClasses, iconClassName)}
-                      icon={item.icon}
-                      width={24}
-                    />
-                  ) : (
-                    (item.startContent ?? null)
-                  )}
-                </div>
-              </Tooltip>
+              renderIconeCompacte(item)
             ) : isNestType ? (
               <Accordion className={"p-0 "}>
                 <AccordionItem
@@ -193,7 +190,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                       aria-label={item.title}
                       className={"mt-0.5"}
                       classNames={{
-                        list: cn("border-l border-[#c0c0b8] pl-4 test"),
+                        list: "border-l border-[#c0c0b8] pl-4",
                       }}
                       itemClasses={{
                         base: "flex justify-between data-[hover=true]:bg-black data-[hover=true]:text-white py-3 rounded-full px-4 font-medium",
@@ -251,35 +248,11 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
             endContent={
               isCompact || hideEndContent ? null : (item.endContent ?? null)
             }
-            startContent={
-              isCompact ? null : item.icon ? (
-                <Icon
-                  className={cn(navIconClasses, iconClassName)}
-                  icon={item.icon}
-                  width={24}
-                />
-              ) : (
-                (item.startContent ?? null)
-              )
-            }
+            startContent={isCompact ? null : renderIcone(item)}
             textValue={item.title}
             title={isCompact ? null : item.title}
           >
-            {isCompact ? (
-              <Tooltip content={item.title} placement="right">
-                <div className="flex w-full items-center justify-center">
-                  {item.icon ? (
-                    <Icon
-                      className={cn(navIconClasses, iconClassName)}
-                      icon={item.icon}
-                      width={24}
-                    />
-                  ) : (
-                    (item.startContent ?? null)
-                  )}
-                </div>
-              </Tooltip>
-            ) : null}
+            {isCompact ? renderIconeCompacte(item) : null}
           </ListboxItem>
         );
       },

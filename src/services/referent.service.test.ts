@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
-    objectif: { groupBy: vi.fn() },
+    objectif: { groupBy: vi.fn(), findMany: vi.fn() },
     justification: { findMany: vi.fn() },
     chefEtapeStatut: { findMany: vi.fn() },
     etape: { findUnique: vi.fn() },
@@ -12,7 +12,7 @@ vi.mock("@/lib/prisma", () => ({
 }));
 
 vi.mock("@/services/etape.service", () => ({
-  EtapeService: { estDossierComplet: vi.fn() },
+  EtapeService: { estDossierComplet: vi.fn(), estValideePourChef: vi.fn() },
 }));
 
 import { prisma } from "@/lib/prisma";
@@ -51,6 +51,8 @@ beforeEach(() => {
   db.etape.findUnique.mockResolvedValue({ niveau: 2 } as never);
   db.etapeReferent.findFirst.mockResolvedValue({ id: "a1" } as never);
   db.user.findMany.mockResolvedValue([] as never);
+  db.objectif.findMany.mockResolvedValue([] as never);
+  etapeService.estValideePourChef.mockResolvedValue(false);
 });
 
 describe("ReferentService.getDashboard", () => {
@@ -133,16 +135,26 @@ describe("ReferentService.getRevision", () => {
     expect(revision?.refusValidation).toContain("propre étape");
   });
 
-  it("ne liste pour l'étape 3 que les compétences évaluées par la commission", async () => {
-    db.etape.findUnique.mockResolvedValue({ id: "e3", niveau: 3 } as never);
+  it("liste tous les objectifs de l'étape avec la justification du chef", async () => {
     db.user.findUnique.mockResolvedValue({ id: "c1" } as never);
 
-    await ReferentService.getRevision("c1", "e3", referent);
+    await ReferentService.getRevision("c1", "e1", referent);
 
-    expect(db.justification.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({ statut: "VALIDEE" }),
-      }),
-    );
+    expect(db.objectif.findMany).toHaveBeenCalledWith({
+      where: { etapeId: "e1" },
+      include: { justifications: { where: { chefId: "c1" } } },
+      orderBy: { code: "asc" },
+    });
+  });
+
+  it("bloque la validation d'une étape déjà validée", async () => {
+    db.user.findUnique.mockResolvedValue({ id: "c1" } as never);
+    etapeService.estDossierComplet.mockResolvedValue(true);
+    etapeService.estValideePourChef.mockResolvedValue(true);
+
+    const revision = await ReferentService.getRevision("c1", "e1", referent);
+
+    expect(revision?.peutValider).toBe(false);
+    expect(revision?.refusValidation).toContain("déjà validée");
   });
 });

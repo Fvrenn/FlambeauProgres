@@ -12,6 +12,7 @@ import { z } from "zod";
 import { updateUserRole } from "../../_actions/user.actions";
 
 import { FormModal } from "@/components/admin/FormModal";
+import { useSoumissionModal } from "@/components/admin/useSoumissionModal";
 import { roleLabelMap } from "@/lib/roles";
 import { Avatar } from "@/components/ui";
 
@@ -28,8 +29,8 @@ type UserModalProps = {
 };
 
 export default function UserModal({ isOpen, onClose, user }: UserModalProps) {
-  const [isPending, startTransition] = React.useTransition();
-  const [erreur, setErreur] = React.useState<string | null>(null);
+  const { isPending, erreur, setErreur, soumettre } =
+    useSoumissionModal(onClose);
 
   const {
     handleSubmit,
@@ -48,21 +49,10 @@ export default function UserModal({ isOpen, onClose, user }: UserModalProps) {
       setErreur(null);
       setValue("role", user.role);
     }
-  }, [user, setValue]);
+  }, [user, setValue, setErreur]);
 
   const onSubmit = (data: UserFormData) => {
-    setErreur(null);
-    startTransition(async () => {
-      const result = await updateUserRole(user.id, data.role);
-
-      if (!result.success) {
-        setErreur(result.error ?? "Une erreur est survenue");
-
-        return;
-      }
-
-      onClose();
-    });
+    soumettre(() => updateUserRole(user.id, data.role));
   };
 
   return (

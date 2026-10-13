@@ -10,13 +10,13 @@ import {
 } from "@/lib/links";
 import { LIBELLE_TYPE_OBJECTIF, TITRE_VALIDATION } from "@/lib/justification";
 
-export type DestinataireEtape = {
+type DestinataireEtape = {
   id: string;
   name: string;
   email: string;
 };
 
-export type JustificationANotifier = {
+type JustificationANotifier = {
   id: string;
   chefId: string;
   etapeId: string;
@@ -24,6 +24,8 @@ export type JustificationANotifier = {
   etape: { name: string; niveau: number };
   chef: { name: string; email: string };
 };
+
+export const DUREE_AFFICHAGE_NOTIFICATION_LUE_MS = 3 * 24 * 60 * 60 * 1000;
 
 type NouveauMessage = { auteur: string; texte: string | null };
 
@@ -49,7 +51,17 @@ export class NotificationService {
 
   static async getForUser(userId: string) {
     return prisma.notification.findMany({
-      where: { destinataireId: userId },
+      where: {
+        destinataireId: userId,
+        OR: [
+          { lue: false },
+          {
+            lueAt: {
+              gte: new Date(Date.now() - DUREE_AFFICHAGE_NOTIFICATION_LUE_MS),
+            },
+          },
+        ],
+      },
       orderBy: { createdAt: "desc" },
       include: {
         justification: {
@@ -100,9 +112,27 @@ export class NotificationService {
         justificationId,
         destinataireId: userId,
         lue: false,
-        type: { in: ["NOUVEAU_COMMENTAIRE", "REPONSE_PRECISION"] },
       },
       data: { lue: true, lueAt: new Date() },
+    });
+  }
+
+  static async marquerTraiteePourEvaluateurs(
+    justificationId: string,
+    chefId: string,
+  ) {
+    await prisma.notification.updateMany({
+      where: { justificationId, destinataireId: { not: chefId }, lue: false },
+      data: { lue: true, lueAt: new Date() },
+    });
+  }
+
+  static async supprimerPourEvaluateurs(
+    justificationId: string,
+    chefId: string,
+  ) {
+    await prisma.notification.deleteMany({
+      where: { justificationId, destinataireId: { not: chefId } },
     });
   }
 
@@ -173,20 +203,18 @@ export class NotificationService {
 
       await prisma.notification.createMany({ data: notifications });
 
-      await Promise.all(
-        evaluateurs.map((evaluateur) =>
-          EmailService.sendNewRealisation({
-            to: evaluateur.email,
-            chefName,
-            etapeName: etape.name,
-            objectifCode: objectif.code,
-            objectifDescription: objectif.description,
-            libelle,
-            reviewUrl: referentThreadUrl(etapeId, justificationId),
-            justificationId,
-          }),
-        ),
-      );
+      for (const evaluateur of evaluateurs) {
+        EmailService.sendNewRealisation({
+          to: evaluateur.email,
+          chefName,
+          etapeName: etape.name,
+          objectifCode: objectif.code,
+          objectifDescription: objectif.description,
+          libelle,
+          reviewUrl: referentThreadUrl(etapeId, justificationId),
+          justificationId,
+        });
+      }
     } catch (error) {
       console.error("Erreur lors de la création des notifications:", error);
     }
@@ -221,16 +249,14 @@ export class NotificationService {
         })),
       });
 
-      await Promise.all(
-        coordinateurs.map((coordinateur) =>
-          EmailService.sendDossierAValider({
-            to: coordinateur.email,
-            chefName,
-            etapeName: etape.name,
-            revisionUrl: referentRevisionUrl(chefId, etape.id),
-          }),
-        ),
-      );
+      for (const coordinateur of coordinateurs) {
+        EmailService.sendDossierAValider({
+          to: coordinateur.email,
+          chefName,
+          etapeName: etape.name,
+          revisionUrl: referentRevisionUrl(chefId, etape.id),
+        });
+      }
     } catch (error) {
       console.error(
         "Erreur lors de la notification du Coordinateur National:",
@@ -264,19 +290,17 @@ export class NotificationService {
 
     const replyUrl = referentThreadUrl(justification.etapeId, justification.id);
 
-    await Promise.all(
-      evaluateurs.map((evaluateur) =>
-        EmailService.sendNewMessage({
-          to: evaluateur.email,
-          authorName: message.auteur,
-          etapeName: justification.etape.name,
-          objectifCode: justification.objectif.code,
-          messageText: message.texte,
-          replyUrl,
-          justificationId: justification.id,
-        }),
-      ),
-    );
+    for (const evaluateur of evaluateurs) {
+      EmailService.sendNewMessage({
+        to: evaluateur.email,
+        authorName: message.auteur,
+        etapeName: justification.etape.name,
+        objectifCode: justification.objectif.code,
+        messageText: message.texte,
+        replyUrl,
+        justificationId: justification.id,
+      });
+    }
   }
 
   static async notifierMessageAuChef(
@@ -291,7 +315,7 @@ export class NotificationService {
       message: `Nouveau message de ${evaluateurDe(justification.etape.niveau)} au sujet de "${justification.objectif.code}".`,
     });
 
-    await EmailService.sendNewMessage({
+    EmailService.sendNewMessage({
       to: justification.chef.email,
       authorName: message.auteur,
       etapeName: justification.etape.name,
@@ -317,7 +341,7 @@ export class NotificationService {
       message: `Votre ${libelle} "${code}" a été validée par ${evaluateurDe(justification.etape.niveau)}.`,
     });
 
-    await EmailService.sendValidation({
+    EmailService.sendValidation({
       to: justification.chef.email,
       chefName: justification.chef.name,
       referentName,

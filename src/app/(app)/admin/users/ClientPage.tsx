@@ -1,24 +1,27 @@
 "use client";
 
-import type { UserResume } from "@/types";
+import type { UserAdmin, UserResume } from "@/types";
 
 import { UserRole } from "@prisma/client";
 import React from "react";
-import { Tooltip } from "@heroui/react";
+import { Select, SelectItem, Tooltip } from "@heroui/react";
 
 import UserModal from "./_components/UserModal";
 
 import { Icon } from "@/lib/icons";
 import AdminDataTable, { Column } from "@/components/admin/AdminDataTable";
+import { CelluleUtilisateur } from "@/components/admin/CelluleUtilisateur";
 import { Badge, Avatar, Card, CardBody, Button } from "@/components/ui";
 import { roleColorMap, roleLabelMap } from "@/lib/roles";
+import { cleGroupe, compterParGroupe } from "@/lib/groupes";
 
 type UsersClientPageProps = {
-  users: UserResume[];
+  users: UserAdmin[];
 };
 
 const columns: Column[] = [
   { key: "user", label: "UTILISATEUR", sortable: true },
+  { key: "groupe", label: "GROUPE", sortable: true },
   { key: "role", label: "RÔLE", sortable: true },
   { key: "actions", label: "ACTIONS" },
 ];
@@ -28,6 +31,16 @@ export default function UsersClientPage({ users }: UsersClientPageProps) {
     null,
   );
   const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [groupeFiltre, setGroupeFiltre] = React.useState<string | null>(null);
+
+  const effectifs = React.useMemo(() => compterParGroupe(users), [users]);
+  const usersAffiches = React.useMemo(
+    () =>
+      groupeFiltre
+        ? users.filter((user) => cleGroupe(user.groupe) === groupeFiltre)
+        : users,
+    [users, groupeFiltre],
+  );
 
   const handleEdit = (user: UserResume) => {
     setSelectedUser(user);
@@ -35,33 +48,21 @@ export default function UsersClientPage({ users }: UsersClientPageProps) {
   };
 
   const renderCell = React.useCallback(
-    (user: UserResume, columnKey: React.Key) => {
-      const cellValue = user[columnKey as keyof UserResume];
+    (user: UserAdmin, columnKey: React.Key) => {
+      const cellValue = user[columnKey as keyof UserAdmin];
 
       switch (columnKey) {
         case "user":
-          return (
-            <div className="flex items-center gap-3">
-              <Avatar
-                name={user.name}
-                size="sm"
-                src={user.image || undefined}
-              />
-              <div className="flex flex-col">
-                <p className="text-bold text-small">{user.name}</p>
-                <p className="text-bold text-tiny text-default-400">
-                  {user.email}
-                </p>
-              </div>
-            </div>
+          return <CelluleUtilisateur utilisateur={user} />;
+        case "groupe":
+          return user.groupe ? (
+            <span className="text-small">{user.groupe}</span>
+          ) : (
+            <span className="text-small text-default-400">Sans groupe</span>
           );
         case "role":
           return (
-            <Badge
-              color={roleColorMap[user.role as UserRole]}
-              size="sm"
-              variant="flat"
-            >
+            <Badge color={roleColorMap[user.role as UserRole]}>
               {roleLabelMap[user.role as UserRole]}
             </Badge>
           );
@@ -93,17 +94,47 @@ export default function UsersClientPage({ users }: UsersClientPageProps) {
         <h1 className="text-2xl font-extrabold">Gestion des Utilisateurs</h1>
       </div>
 
+      <Select
+        aria-label="Filtrer par groupe"
+        className="sm:max-w-72"
+        classNames={{
+          trigger:
+            "bg-dashboard-panel shadow-inset-border data-[hover=true]:bg-dashboard-panel-hover",
+          popoverContent: "bg-dashboard-panel border border-dashboard-border",
+        }}
+        label="Groupe"
+        labelPlacement="outside"
+        placeholder={`Tous les groupes (${users.length})`}
+        selectedKeys={groupeFiltre ? [groupeFiltre] : []}
+        size="sm"
+        onSelectionChange={(keys) =>
+          setGroupeFiltre((Array.from(keys)[0] as string | undefined) ?? null)
+        }
+      >
+        {effectifs.map((effectif) => (
+          <SelectItem key={effectif.cle} textValue={effectif.libelle}>
+            <div className="flex items-center justify-between gap-3">
+              <span>{effectif.libelle}</span>
+              <span className="text-tiny text-default-500">
+                {effectif.total} membre{effectif.total > 1 ? "s" : ""}
+              </span>
+            </div>
+          </SelectItem>
+        ))}
+      </Select>
+
       <div className="hidden sm:block">
         <AdminDataTable
+          key={groupeFiltre ?? "tous"}
           columns={columns}
-          data={users}
+          data={usersAffiches}
           renderCell={renderCell}
           searchPlaceholder="Rechercher un utilisateur..."
         />
       </div>
 
       <div className="flex flex-col gap-3 sm:hidden">
-        {users.map((user) => (
+        {usersAffiches.map((user) => (
           <Card
             key={user.id}
             isPressable
@@ -124,11 +155,11 @@ export default function UsersClientPage({ users }: UsersClientPageProps) {
                   <span className="text-tiny text-default-400 truncate">
                     {user.email}
                   </span>
+                  <span className="text-tiny text-default-500 truncate">
+                    {user.groupe ?? "Sans groupe"}
+                  </span>
                   <div className="flex items-center gap-2 mt-1">
-                    <Badge
-                      color={roleColorMap[user.role as UserRole]}
-                      size="sm"
-                    >
+                    <Badge color={roleColorMap[user.role as UserRole]}>
                       {roleLabelMap[user.role as UserRole]}
                     </Badge>
                   </div>

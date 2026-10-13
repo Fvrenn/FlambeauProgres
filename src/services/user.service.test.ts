@@ -19,7 +19,14 @@ describe("UserService", () => {
     await UserService.listForAdmin();
 
     expect(db.user.findMany).toHaveBeenCalledWith({
-      select: { id: true, name: true, email: true, image: true, role: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+        role: true,
+        groupe: true,
+      },
       orderBy: { createdAt: "desc" },
     });
   });

@@ -10,10 +10,22 @@ export const MESSAGE_DOSSIER_INCOMPLET =
 export const MESSAGE_AUTO_VALIDATION =
   "Vous ne pouvez pas valider votre propre étape";
 
+export const MESSAGE_ETAPE_DEJA_VALIDEE =
+  "L'étape est déjà validée, on ne peut plus revenir en arrière";
+
+export const STATUTS_EN_ATTENTE: StatutJustification[] = [
+  "SOUMISE",
+  "DEMANDE_PRECISION",
+];
+
 export const STATUTS_VALIDES: StatutJustification[] = [
   "AUTO_VALIDEE",
   "VALIDEE",
 ];
+
+export function estJustificationValidee(statut: StatutJustification): boolean {
+  return STATUTS_VALIDES.includes(statut);
+}
 
 export const LIBELLE_TYPE_OBJECTIF: Record<TypeObjectif, string> = {
   COMPETENCE: "compétence",
@@ -49,9 +61,9 @@ export function filtreJustificationsValidantes(niveau: number) {
   };
 }
 
-export type ObjectifValide = { chefId: string; type: TypeObjectif };
+type ObjectifValide = { chefId: string; type: TypeObjectif };
 
-export type TotalObjectifs = { competences: number; realisations: number };
+type TotalObjectifs = { competences: number; realisations: number };
 
 export function chefsAyantToutValide(
   validations: ObjectifValide[],
@@ -89,7 +101,7 @@ export function compterParType(
 
 export type SuiviReferent = "nouveau" | "reponse-du-chef" | "attente-du-chef";
 
-export type JustificationASuivre = {
+type JustificationASuivre = {
   statut: StatutJustification;
   chefId: string;
   messages: { auteurId: string }[];

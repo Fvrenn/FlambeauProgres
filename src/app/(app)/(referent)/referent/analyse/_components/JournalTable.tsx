@@ -144,10 +144,7 @@ export function JournalTable({
       case "objet":
         return (
           <div className="flex items-center gap-2 max-w-96">
-            <Badge
-              color={evenement.type === "BADGE" ? "secondary" : "default"}
-              size="sm"
-            >
+            <Badge color={evenement.type === "BADGE" ? "secondary" : "default"}>
               {evenement.type === "BADGE" ? "Badge" : "Réal."}
             </Badge>
             {evenement.justificationId ? (

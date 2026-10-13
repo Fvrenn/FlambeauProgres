@@ -1,6 +1,6 @@
-export type JalonNiveau = { id: string; niveau: number };
+type JalonNiveau = { id: string; niveau: number };
 
-export type EtapeParcours = { id: string; niveau: number; type: string };
+type EtapeParcours = { id: string; niveau: number; type: string };
 
 export type ContexteParcours = {
   niveauMax: number;
@@ -11,6 +11,13 @@ export type ContexteParcours = {
 
 export const NIVEAU_SPECIALITES = 2;
 export const NIVEAU_PROFILS = 3;
+
+export const NUMERO_ETAPE_1 = "1";
+export const ILLUSTRATION_ETAPE_1 = {
+  src: "/livrets/decouvrir/illustration.png",
+  width: 273,
+  height: 251,
+};
 
 export function niveauMaxDebloque(
   jalons: JalonNiveau[],

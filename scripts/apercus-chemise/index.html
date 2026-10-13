@@ -1,0 +1,119 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>html,body{margin:0;background:transparent}</style>
+<script type="importmap">
+{ "imports": { "three": "/three/build/three.module.js", "three/addons/": "/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<script type="module">
+import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
+
+const TAILLE = 800;
+const ECHELLE = 2;
+const FORMATS = {
+  ordinateur: { distance: 5, position: [0, 0, 0] },
+  telephone: { distance: 3.5, position: [0, -0.17, 0] },
+};
+const BRANCHES = { f: "F", pf: "PF", "sans-branche": null };
+const EPAULETTES = {
+  F: ["Epaulette branche F gauche", "Epaulette branche F droite"],
+  PF: ["Epaulette branche PF gauche", "Epaulette branche PF droite"],
+};
+const nom = (n) => n.replace(/\s/g, "_").replace(/[[\].:/]/g, "");
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true, powerPreference: "high-performance" });
+renderer.setPixelRatio(1);
+renderer.setSize(TAILLE, TAILLE);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.setClearColor(0x000000, 0);
+document.body.appendChild(renderer.domElement);
+
+const scene3 = new THREE.Scene();
+scene3.add(new THREE.AmbientLight("#ffffff", 0.8));
+const dir = new THREE.DirectionalLight("#ffffff", 2.0);
+dir.position.set(10, 10, 7);
+scene3.add(dir);
+const spot = new THREE.SpotLight("#ffffff", 80, 0, 0.6, 0);
+spot.position.set(-2, 6, 2);
+scene3.add(spot);
+const point = new THREE.PointLight("#ffffff", 10, 10, 2);
+point.position.set(4, -1.5, 1);
+scene3.add(point);
+
+const camera = new THREE.PerspectiveCamera(20, 1, 0.1, 1000);
+
+const draco = new DRACOLoader();
+draco.setDecoderPath("/public/draco/");
+const loader = new GLTFLoader();
+loader.setDRACOLoader(draco);
+const { scene } = await loader.loadAsync("/public/chemise/chemise.glb");
+
+const copie = scene.clone();
+copie.scale.setScalar(ECHELLE);
+copie.updateMatrixWorld(true);
+const centrage = new THREE.Box3().setFromObject(copie, true).getCenter(new THREE.Vector3()).negate();
+
+scene.traverse((child) => {
+  if (child.isMesh && child.material) Object.assign(child.material, { roughness: 0.8, metalness: 0.1, envMapIntensity: 0.3 });
+});
+scene.traverse((obj) => {
+  if (obj.type === "Group" && obj.name.startsWith("badge_")) {
+    obj.traverse((child) => {
+      if (child.isMesh && child.material) {
+        const m = child.material.clone();
+        m.color.set("#9c9c9c");
+        m.roughness = 0.3;
+        m.metalness = 0;
+        m.opacity = 0.4;
+        m.transparent = true;
+        child.material = m;
+      }
+    });
+  }
+});
+
+scene.scale.setScalar(ECHELLE);
+const pivot = new THREE.Group();
+pivot.add(scene);
+pivot.rotation.set(0, -0.3, 0);
+const racine = new THREE.Group();
+racine.position.copy(centrage);
+racine.add(pivot);
+scene3.add(racine);
+
+const visibilite = (branche, niveau) => {
+  const visibles = new Set(branche ? EPAULETTES[branche].map(nom) : []);
+  const carte = new Map(Object.values(EPAULETTES).flat().map((n) => [nom(n), visibles.has(nom(n))]));
+  carte.set(nom("Etape 1"), niveau >= 1);
+  carte.set(nom("Etape 1.001"), false);
+  carte.set(nom("Etape 2"), niveau >= 2);
+  return carte;
+};
+
+const resultats = [];
+for (const [format, cfg] of Object.entries(FORMATS)) {
+  camera.position.set(0, 0, cfg.distance);
+  camera.updateProjectionMatrix();
+  pivot.position.set(...cfg.position);
+  for (const [cle, branche] of Object.entries(BRANCHES)) {
+    for (const niveau of [0, 1, 2]) {
+      const carte = visibilite(branche, niveau);
+      scene.traverse((obj) => { const v = carte.get(obj.name); if (v !== undefined) obj.visible = v; });
+      renderer.render(scene3, camera);
+      const suffixe = niveau === 0 ? "" : `-etape${niveau}`;
+      const fichier = `apercu-${format}-${cle}${suffixe}.png`;
+      await fetch(`/save?nom=${fichier}`, { method: "POST", body: renderer.domElement.toDataURL("image/png") });
+      resultats.push(fichier);
+    }
+  }
+}
+await fetch("/fin", { method: "POST", body: JSON.stringify(resultats) });
+</script>
+</body>
+</html>

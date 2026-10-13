@@ -1,7 +1,11 @@
 import type { ServiceResult } from "@/types";
-import type { Objectif } from "@prisma/client";
+import type { Objectif, TypeObjectif } from "@prisma/client";
 
-import { LIBELLE_TYPE_OBJECTIF } from "@/lib/justification";
+import {
+  LIBELLE_TYPE_OBJECTIF,
+  MESSAGE_ETAPE_DEJA_VALIDEE,
+  STATUTS_EN_ATTENTE,
+} from "@/lib/justification";
 import { prisma } from "@/lib/prisma";
 import { competenceSoumiseAEvaluation } from "@/lib/roles";
 import { EtapeService } from "@/services/etape.service";
@@ -23,30 +27,15 @@ type Soumission = {
 
 export class JustificationService {
   static async submitCompetence(input: Soumission): Promise<ServiceResult> {
-    const { chefId, chefName, objectifId, contenu } = input;
+    const { chefId, chefName, objectifId } = input;
 
-    const objectif = await prisma.objectif.findUnique({
-      where: { id: objectifId },
-      include: { etape: { select: { niveau: true } } },
-    });
+    const preparation = await preparerSoumission(input, "COMPETENCE");
 
-    if (!objectif) {
-      return { success: false, error: "Objectif non trouvé" };
+    if (!preparation.success) {
+      return preparation;
     }
 
-    if (objectif.type !== "COMPETENCE") {
-      return { success: false, error: "Cet objectif n'est pas une compétence" };
-    }
-
-    if (!(await EtapeService.estAccessiblePourChef(chefId, objectif.etapeId))) {
-      return { success: false, error: ETAPE_VERROUILLEE };
-    }
-
-    const trimmed = contenu.trim();
-
-    if (objectif.texteRequis && !trimmed) {
-      return { success: false, error: TEXTE_OBLIGATOIRE };
-    }
+    const { objectif, contenu: trimmed } = preparation.data;
 
     if (competenceSoumiseAEvaluation(objectif.etape.niveau)) {
       if (!trimmed) {
@@ -97,32 +86,15 @@ export class JustificationService {
   static async submitRealisation(
     input: Soumission & { fichierData: FichierData | null },
   ): Promise<ServiceResult> {
-    const { chefId, chefName, objectifId, contenu, fichierData } = input;
+    const { chefId, chefName, fichierData } = input;
 
-    const objectif = await prisma.objectif.findUnique({
-      where: { id: objectifId },
-    });
+    const preparation = await preparerSoumission(input, "REALISATION");
 
-    if (!objectif) {
-      return { success: false, error: "Objectif non trouvé" };
+    if (!preparation.success) {
+      return preparation;
     }
 
-    if (objectif.type !== "REALISATION") {
-      return {
-        success: false,
-        error: "Cet objectif n'est pas une réalisation",
-      };
-    }
-
-    if (!(await EtapeService.estAccessiblePourChef(chefId, objectif.etapeId))) {
-      return { success: false, error: ETAPE_VERROUILLEE };
-    }
-
-    const trimmed = contenu.trim();
-
-    if (objectif.texteRequis && !trimmed) {
-      return { success: false, error: TEXTE_OBLIGATOIRE };
-    }
+    const { objectif, contenu: trimmed } = preparation.data;
 
     if (!trimmed && !fichierData) {
       return { success: false, error: "Ajoute une description ou un fichier" };
@@ -136,6 +108,100 @@ export class JustificationService {
       fichierData,
     });
   }
+
+  static async annuler(input: {
+    chefId: string;
+    justificationId: string;
+  }): Promise<ServiceResult> {
+    const { chefId, justificationId } = input;
+
+    const justification = await prisma.justification.findUnique({
+      where: { id: justificationId },
+      include: { objectif: { select: { type: true } } },
+    });
+
+    if (!justification || justification.chefId !== chefId) {
+      return { success: false, error: "Justification introuvable" };
+    }
+
+    const libelle = LIBELLE_TYPE_OBJECTIF[justification.objectif.type];
+
+    if (justification.statut === "VALIDEE") {
+      return {
+        success: false,
+        error: `Cette ${libelle} a déjà été validée par ton évaluateur`,
+      };
+    }
+
+    const estAutoValidee = justification.statut === "AUTO_VALIDEE";
+    const estEnAttente = STATUTS_EN_ATTENTE.includes(justification.statut);
+
+    if (!estAutoValidee && !estEnAttente) {
+      return { success: false, error: `Cette ${libelle} n'est pas envoyée` };
+    }
+
+    if (await EtapeService.estValideePourChef(chefId, justification.etapeId)) {
+      return { success: false, error: MESSAGE_ETAPE_DEJA_VALIDEE };
+    }
+
+    await prisma.$transaction(async (tx) => {
+      if (estEnAttente) {
+        await DiscussionService.addMessage(tx, {
+          justificationId,
+          auteurId: chefId,
+          contenu: "↺ Soumission retirée par le chef",
+          type: "SYSTEM",
+        });
+      }
+
+      await tx.justification.update({
+        where: { id: justificationId },
+        data: { statut: "BROUILLON", soumiseAt: null, valideeAt: null },
+      });
+    });
+
+    if (estEnAttente) {
+      await NotificationService.supprimerPourEvaluateurs(
+        justificationId,
+        chefId,
+      );
+    }
+
+    return { success: true };
+  }
+}
+
+async function preparerSoumission(
+  { chefId, objectifId, contenu }: Soumission,
+  typeAttendu: TypeObjectif,
+) {
+  const objectif = await prisma.objectif.findUnique({
+    where: { id: objectifId },
+    include: { etape: { select: { niveau: true } } },
+  });
+
+  if (!objectif) {
+    return { success: false as const, error: "Objectif non trouvé" };
+  }
+
+  if (objectif.type !== typeAttendu) {
+    return {
+      success: false as const,
+      error: `Cet objectif n'est pas une ${LIBELLE_TYPE_OBJECTIF[typeAttendu]}`,
+    };
+  }
+
+  if (!(await EtapeService.estAccessiblePourChef(chefId, objectif.etapeId))) {
+    return { success: false as const, error: ETAPE_VERROUILLEE };
+  }
+
+  const trimmed = contenu.trim();
+
+  if (objectif.texteRequis && !trimmed) {
+    return { success: false as const, error: TEXTE_OBLIGATOIRE };
+  }
+
+  return { success: true as const, data: { objectif, contenu: trimmed } };
 }
 
 async function soumettreAEvaluation(input: {

@@ -6,7 +6,6 @@ import {
   filtreJustificationsValidantes,
   MESSAGE_AUTO_VALIDATION,
   MESSAGE_DOSSIER_INCOMPLET,
-  statutValidant,
 } from "@/lib/justification";
 import { prisma } from "@/lib/prisma";
 import {
@@ -17,7 +16,9 @@ import {
 import { EtapeService } from "@/services/etape.service";
 import { USER_RESUME_SELECT } from "@/services/user.service";
 
-export type ReferentConnecte = { id: string; role: UserRole };
+type ReferentConnecte = { id: string; role: UserRole };
+
+const MESSAGE_ETAPE_VALIDEE = "Cette étape est déjà validée pour ce chef";
 
 export const JUSTIFICATION_SUIVIE_INCLUDE = {
   chef: { select: USER_RESUME_SELECT },
@@ -101,6 +102,13 @@ export class ReferentService {
     };
   }
 
+  static getJustificationSuivie(justificationId: string, etapeId: string) {
+    return prisma.justification.findFirst({
+      where: { id: justificationId, etapeId },
+      include: JUSTIFICATION_SUIVIE_INCLUDE,
+    });
+  }
+
   static async getRevision(
     chefId: string,
     etapeId: string,
@@ -112,26 +120,23 @@ export class ReferentService {
       return null;
     }
 
-    const [chef, justifications, assignation, estComplet] = await Promise.all([
-      prisma.user.findUnique({
-        where: { id: chefId },
-        select: USER_RESUME_SELECT,
-      }),
-      prisma.justification.findMany({
-        where: {
-          chefId,
-          etapeId,
-          statut: statutValidant("COMPETENCE", etape.niveau),
-          objectif: { type: "COMPETENCE" },
-        },
-        include: { objectif: true },
-        orderBy: { objectif: { code: "asc" } },
-      }),
-      prisma.etapeReferent.findFirst({
-        where: { referentId: referent.id, etapeId },
-      }),
-      EtapeService.estDossierComplet(chefId, etapeId),
-    ]);
+    const [chef, objectifs, assignation, estComplet, estValidee] =
+      await Promise.all([
+        prisma.user.findUnique({
+          where: { id: chefId },
+          select: USER_RESUME_SELECT,
+        }),
+        prisma.objectif.findMany({
+          where: { etapeId },
+          include: { justifications: { where: { chefId } } },
+          orderBy: { code: "asc" },
+        }),
+        prisma.etapeReferent.findFirst({
+          where: { referentId: referent.id, etapeId },
+        }),
+        EtapeService.estDossierComplet(chefId, etapeId),
+        EtapeService.estValideePourChef(chefId, etapeId),
+      ]);
 
     if (!chef) {
       return null;
@@ -147,13 +152,18 @@ export class ReferentService {
     return {
       chef,
       etape,
-      justifications,
-      peutValider: aLeDroit && !estSonPropreDossier && estComplet,
-      refusValidation: !aLeDroit
-        ? messageRefusValidation(etape.niveau)
-        : estSonPropreDossier
-          ? MESSAGE_AUTO_VALIDATION
-          : MESSAGE_DOSSIER_INCOMPLET,
+      objectifs,
+      estComplet,
+      estValidee,
+      peutValider:
+        aLeDroit && !estSonPropreDossier && estComplet && !estValidee,
+      refusValidation: estValidee
+        ? MESSAGE_ETAPE_VALIDEE
+        : !aLeDroit
+          ? messageRefusValidation(etape.niveau)
+          : estSonPropreDossier
+            ? MESSAGE_AUTO_VALIDATION
+            : MESSAGE_DOSSIER_INCOMPLET,
     };
   }
 }

@@ -10,7 +10,7 @@ const UPLOAD_DIR =
 
 mkdirSync(UPLOAD_DIR, { recursive: true });
 
-export interface StoredFile {
+interface StoredFile {
   storedPath: string;
   fileName: string;
 }

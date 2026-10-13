@@ -1,5 +1,3 @@
-import React from "react";
-
 import ReferentDashboardClient from "./ReferentDashboardClient";
 
 import { RafraichissementArrierePlan } from "@/components/application/rafraichissement/RafraichissementArrierePlan";
@@ -52,9 +50,13 @@ export default async function ReferentDashboardPage({
       peutEvaluer,
     },
     signature,
+    justificationCiblee,
   ] = await Promise.all([
     ReferentService.getDashboard(etapeId, user),
     NotificationService.getSignature(user.id),
+    targetJustificationId
+      ? ReferentService.getJustificationSuivie(targetJustificationId, etapeId)
+      : null,
   ]);
 
   return (
@@ -63,10 +65,10 @@ export default async function ReferentDashboardPage({
       <RafraichissementSurNotification signature={signature} />
       <ReferentDashboardClient
         chefsAReviser={chefsAReviser}
+        justificationCiblee={justificationCiblee}
         justificationsAValider={justificationsAValider}
         justificationsEnAttente={justificationsEnAttente}
         peutEvaluer={peutEvaluer}
-        targetJustificationId={targetJustificationId}
         viewer={{
           id: user.id,
           name: user.name,

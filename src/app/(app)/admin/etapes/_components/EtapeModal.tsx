@@ -23,6 +23,7 @@ import { createEtape, updateEtape } from "../../_actions/etape.actions";
 
 import { Icon } from "@/lib/icons";
 import { FormModal } from "@/components/admin/FormModal";
+import { useSoumissionModal } from "@/components/admin/useSoumissionModal";
 import { FileDropzone, Input } from "@/components/ui";
 import { REGLES_ICONE_ETAPE } from "@/lib/fichiers";
 
@@ -72,9 +73,9 @@ export default function EtapeModal({
   onClose,
   etape,
 }: EtapeModalProps) {
-  const [isPending, startTransition] = React.useTransition();
+  const { isPending, erreur, setErreur, soumettre } =
+    useSoumissionModal(onClose);
   const [icone, setIcone] = React.useState<File | null>(null);
-  const [erreur, setErreur] = React.useState<string | null>(null);
   const [onglet, setOnglet] = React.useState<Onglet>("infos");
 
   const {
@@ -133,13 +134,12 @@ export default function EtapeModal({
         });
       }
     }
-  }, [isOpen, etape, setValue, reset]);
+  }, [isOpen, etape, setValue, reset, setErreur]);
 
   const onSubmit = (data: EtapeFormData) => {
-    setErreur(null);
-    startTransition(async () => {
-      const result = etape
-        ? await updateEtape(
+    soumettre(() =>
+      etape
+        ? updateEtape(
             etape.id,
             {
               number: data.number,
@@ -150,16 +150,8 @@ export default function EtapeModal({
             },
             icone ?? undefined,
           )
-        : await createEtape(data, icone ?? undefined);
-
-      if (!result.success) {
-        setErreur(result.error ?? "Une erreur est survenue");
-
-        return;
-      }
-
-      onClose();
-    });
+        : createEtape(data, icone ?? undefined),
+    );
   };
 
   const onInvalid = (champsInvalides: FieldErrors<EtapeFormData>) => {

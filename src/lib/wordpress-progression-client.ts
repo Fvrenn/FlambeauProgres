@@ -3,21 +3,32 @@ import {
   getWordpressCookieHeader,
   oublierSessionWp,
 } from "@/lib/wordpress-auth";
+import { avecCategories } from "@/lib/wordpress-progression";
 
-export type ResultatEcritureWp = { success: boolean; error?: string };
+type ResultatEcritureWp = { success: boolean; error?: string };
 
 export function ecritureProgressionActive(): boolean {
   return process.env.WORDPRESS_PROGRESSION_WRITE === "true";
 }
 
-export async function pousserProgressionVersWp(
+export function pousserProgressionVersWp(
   valeurs: string[],
 ): Promise<ResultatEcritureWp> {
+  return ecrireProfilWp({ progression: avecCategories(valeurs) });
+}
+
+export function pousserGroupeVersWp(
+  valeur: string,
+): Promise<ResultatEcritureWp> {
+  return ecrireProfilWp({ groupe: valeur });
+}
+
+async function ecrireProfilWp(corps: unknown): Promise<ResultatEcritureWp> {
   if (!ecritureProgressionActive()) {
     return {
       success: false,
       error:
-        "L'écriture de la progression sur la plateforme n'est pas encore disponible.",
+        "L'écriture du profil sur la plateforme n'est pas encore disponible.",
     };
   }
 
@@ -28,9 +39,7 @@ export async function pousserProgressionVersWp(
   }
 
   try {
-    const res = await appelerProfilWp(cookieHeader, {
-      corps: { progression: valeurs },
-    });
+    const res = await appelerProfilWp(cookieHeader, { corps });
 
     if (!res.ok) {
       return {

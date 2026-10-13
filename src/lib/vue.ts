@@ -8,7 +8,7 @@ import {
 } from "@/config/navigation";
 import { estAdmin, estReferent } from "@/lib/roles";
 
-export type Vue = "chef" | "referent" | "admin";
+type Vue = "chef" | "referent" | "admin";
 
 export const COOKIE_DERNIERE_VUE = "derniere-vue";
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { Button, Popover, PopoverContent, PopoverTrigger } from "@heroui/react";
 
 import { Icon } from "@/lib/icons";
@@ -45,7 +45,8 @@ export default function ValidateRealisation({
               Valider la {libelle} ?
             </p>
             <p className="text-xs text-default-500">
-              Le fil sera clôturé : cette action est définitive.
+              Le fil sera clôturé. Vous pourrez revenir dessus tant que
+              l&apos;étape du chef n&apos;est pas validée.
             </p>
           </div>
 

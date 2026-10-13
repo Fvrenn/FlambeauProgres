@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { FILTRE_ETAPES_PAR_ASSIGNATION, ROLES_ADMIN } from "@/lib/roles";
 
-export type AdminDashboardStats = {
+type AdminDashboardStats = {
   chefs: number;
   referents: number;
   admins: number;
