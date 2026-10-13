@@ -67,15 +67,11 @@ export default async function AdminDashboardPage() {
                 </span>
               </div>
               <div className="flex flex-wrap gap-1.5">
-                <Badge color={roleColorMap.CHEF} size="sm">
-                  {stats.chefs} Chefs
-                </Badge>
-                <Badge color={roleColorMap.REFERENT} size="sm">
+                <Badge color={roleColorMap.CHEF}>{stats.chefs} Chefs</Badge>
+                <Badge color={roleColorMap.REFERENT}>
                   {stats.referents} Référents
                 </Badge>
-                <Badge color={roleColorMap.ADMIN} size="sm">
-                  {stats.admins} Admins
-                </Badge>
+                <Badge color={roleColorMap.ADMIN}>{stats.admins} Admins</Badge>
               </div>
             </CardBody>
           </Card>

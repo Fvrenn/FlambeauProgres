@@ -62,11 +62,7 @@ export default function UsersClientPage({ users }: UsersClientPageProps) {
           );
         case "role":
           return (
-            <Badge
-              color={roleColorMap[user.role as UserRole]}
-              size="sm"
-              variant="flat"
-            >
+            <Badge color={roleColorMap[user.role as UserRole]}>
               {roleLabelMap[user.role as UserRole]}
             </Badge>
           );
@@ -163,10 +159,7 @@ export default function UsersClientPage({ users }: UsersClientPageProps) {
                     {user.groupe ?? "Sans groupe"}
                   </span>
                   <div className="flex items-center gap-2 mt-1">
-                    <Badge
-                      color={roleColorMap[user.role as UserRole]}
-                      size="sm"
-                    >
+                    <Badge color={roleColorMap[user.role as UserRole]}>
                       {roleLabelMap[user.role as UserRole]}
                     </Badge>
                   </div>

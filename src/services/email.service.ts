@@ -1,4 +1,5 @@
 import nodemailer, { type Transporter } from "nodemailer";
+import { after } from "next/server";
 
 import {
   dossierAValiderEmail,
@@ -39,6 +40,8 @@ if (missingConfig().length > 0) {
   console.warn(MISSING_CONFIG_MESSAGE);
 }
 
+const DELAI_SMTP_MS = 15_000;
+
 let warnedOnSend = false;
 let transporter: Transporter | null = null;
 
@@ -49,6 +52,9 @@ function getTransporter(): Transporter {
       port: Number(process.env.SMTP_PORT ?? 25),
       secure: false,
       tls: { rejectUnauthorized: false },
+      connectionTimeout: DELAI_SMTP_MS,
+      greetingTimeout: DELAI_SMTP_MS,
+      socketTimeout: DELAI_SMTP_MS,
     });
   }
 
@@ -60,11 +66,11 @@ function threadMessageId(justificationId: string): string {
 }
 
 export class EmailService {
-  private static async send(
+  private static send(
     to: string,
     content: EmailContent,
     options?: SendOptions,
-  ): Promise<void> {
+  ): void {
     const missing = missingConfig();
 
     if (missing.length > 0) {
@@ -82,20 +88,22 @@ export class EmailService {
       return;
     }
 
-    try {
-      await getTransporter().sendMail({
-        from: process.env.EMAIL_FROM,
-        to,
-        subject: content.subject,
-        html: content.html,
-        text: content.text,
-        replyTo: process.env.EMAIL_REPLY_TO || undefined,
-        messageId: options?.messageId,
-        headers: options?.headers,
-      });
-    } catch (error) {
-      console.error("Erreur lors de l'envoi de l'email à", to, ":", error);
-    }
+    after(async () => {
+      try {
+        await getTransporter().sendMail({
+          from: process.env.EMAIL_FROM,
+          to,
+          subject: content.subject,
+          html: content.html,
+          text: content.text,
+          replyTo: process.env.EMAIL_REPLY_TO || undefined,
+          messageId: options?.messageId,
+          headers: options?.headers,
+        });
+      } catch (error) {
+        console.error("Erreur lors de l'envoi de l'email à", to, ":", error);
+      }
+    });
   }
 
   static sendNewMessage(opts: {
@@ -106,7 +114,7 @@ export class EmailService {
     messageText: string | null;
     replyUrl: string;
     justificationId: string;
-  }): Promise<void> {
+  }): void {
     const threadId = threadMessageId(opts.justificationId);
 
     return this.send(opts.to, newMessageEmail(opts), {
@@ -126,7 +134,7 @@ export class EmailService {
     libelle: string;
     reviewUrl: string;
     justificationId: string;
-  }): Promise<void> {
+  }): void {
     return this.send(opts.to, newRealisationEmail(opts), {
       messageId: threadMessageId(opts.justificationId),
     });
@@ -137,7 +145,7 @@ export class EmailService {
     chefName: string;
     etapeName: string;
     revisionUrl: string;
-  }): Promise<void> {
+  }): void {
     return this.send(opts.to, dossierAValiderEmail(opts));
   }
 
@@ -151,7 +159,7 @@ export class EmailService {
     libelle: string;
     viewUrl: string;
     justificationId: string;
-  }): Promise<void> {
+  }): void {
     const threadId = threadMessageId(opts.justificationId);
 
     return this.send(opts.to, validationEmail(opts), {
