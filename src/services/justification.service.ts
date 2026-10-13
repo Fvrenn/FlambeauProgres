@@ -1,7 +1,11 @@
 import type { ServiceResult } from "@/types";
 import type { Objectif, TypeObjectif } from "@prisma/client";
 
-import { LIBELLE_TYPE_OBJECTIF } from "@/lib/justification";
+import {
+  LIBELLE_TYPE_OBJECTIF,
+  MESSAGE_ETAPE_DEJA_VALIDEE,
+  STATUTS_EN_ATTENTE,
+} from "@/lib/justification";
 import { prisma } from "@/lib/prisma";
 import { competenceSoumiseAEvaluation } from "@/lib/roles";
 import { EtapeService } from "@/services/etape.service";
@@ -103,6 +107,67 @@ export class JustificationService {
       contenu: trimmed,
       fichierData,
     });
+  }
+
+  static async annuler(input: {
+    chefId: string;
+    justificationId: string;
+  }): Promise<ServiceResult> {
+    const { chefId, justificationId } = input;
+
+    const justification = await prisma.justification.findUnique({
+      where: { id: justificationId },
+      include: { objectif: { select: { type: true } } },
+    });
+
+    if (!justification || justification.chefId !== chefId) {
+      return { success: false, error: "Justification introuvable" };
+    }
+
+    const libelle = LIBELLE_TYPE_OBJECTIF[justification.objectif.type];
+
+    if (justification.statut === "VALIDEE") {
+      return {
+        success: false,
+        error: `Cette ${libelle} a déjà été validée par ton évaluateur`,
+      };
+    }
+
+    const estAutoValidee = justification.statut === "AUTO_VALIDEE";
+    const estEnAttente = STATUTS_EN_ATTENTE.includes(justification.statut);
+
+    if (!estAutoValidee && !estEnAttente) {
+      return { success: false, error: `Cette ${libelle} n'est pas envoyée` };
+    }
+
+    if (await EtapeService.estValideePourChef(chefId, justification.etapeId)) {
+      return { success: false, error: MESSAGE_ETAPE_DEJA_VALIDEE };
+    }
+
+    await prisma.$transaction(async (tx) => {
+      if (estEnAttente) {
+        await DiscussionService.addMessage(tx, {
+          justificationId,
+          auteurId: chefId,
+          contenu: "↺ Soumission retirée par le chef",
+          type: "SYSTEM",
+        });
+      }
+
+      await tx.justification.update({
+        where: { id: justificationId },
+        data: { statut: "BROUILLON", soumiseAt: null, valideeAt: null },
+      });
+    });
+
+    if (estEnAttente) {
+      await NotificationService.supprimerPourEvaluateurs(
+        justificationId,
+        chefId,
+      );
+    }
+
+    return { success: true };
   }
 }
 

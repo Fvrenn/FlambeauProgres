@@ -58,7 +58,10 @@ npm test              # tests (Vitest)
 npm run lint          # ESLint + Prettier, avec correction
 npm run build:icons   # régénère src/lib/icons.generated.ts depuis les icônes utilisées
 npm run glb:optimize  # recompresse public/chemise/chemise.glb (Draco)
+npm run chemise:apercus # régénère les 18 aperçus public/chemise/apercu-*.webp (Chrome headless)
 ```
+
+Nouveau modèle de chemise exporté de Blender : voir `docs/chemise.md`.
 
 Avant de conclure une modification : `npx tsc --noEmit`, `npm run build` et `npm test` doivent
 passer.
@@ -91,3 +94,5 @@ obligatoires (vérifiées au démarrage par `scripts/check-env.mjs`) ; sans `SMT
 | `docs/csp-durcissement.md` | Content-Security-Policy et suppression des CDN tiers |
 | `docs/refacto-code-propre.md` | Refacto et audit de sécurité de septembre 2026 (historique) |
 | `docs/nettoyage-code.md` | Nettoyage : code inutile, redondances et composants réutilisables |
+| `docs/chemise.md` | Chemise 3D : export Blender, optimisation du modèle, génération des aperçus |
+| `docs/retours-utilisateurs.md` | Retours utilisateurs d'octobre 2026 : retours en arrière, notifications, chat mobile |

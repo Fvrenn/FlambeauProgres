@@ -160,6 +160,8 @@ export const getCurrentUser = cache(async () => {
     }
   }
 
+  const profile = parseWpProfile(wp);
+
   if (!user) {
     user = await prisma.user.create({
       data: {
@@ -167,20 +169,25 @@ export const getCurrentUser = cache(async () => {
         email: wp.email,
         name: displayName,
         image: wp.avatar_url,
+        groupe: profile.group,
       },
     });
   } else if (
     user.email !== wp.email ||
     user.name !== displayName ||
-    user.image !== wp.avatar_url
+    user.image !== wp.avatar_url ||
+    user.groupe !== profile.group
   ) {
     user = await prisma.user.update({
       where: { id: user.id },
-      data: { email: wp.email, name: displayName, image: wp.avatar_url },
+      data: {
+        email: wp.email,
+        name: displayName,
+        image: wp.avatar_url,
+        groupe: profile.group,
+      },
     });
   }
-
-  const profile = parseWpProfile(wp);
 
   if (Array.isArray(wp.progression)) {
     await WpProgressionService.synchroniserSiNecessaire(

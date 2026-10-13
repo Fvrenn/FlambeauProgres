@@ -10,6 +10,7 @@
     "lint": "eslint --fix",
     "test": "vitest run",
     "glb:optimize": "bash scripts/optimize-glb.sh public/chemise/chemise.glb",
+    "chemise:apercus": "node scripts/apercus-chemise/generer.mjs",
     "build:icons": "node scripts/build-icons.mjs",
     "prebuild": "node scripts/build-icons.mjs"
   },

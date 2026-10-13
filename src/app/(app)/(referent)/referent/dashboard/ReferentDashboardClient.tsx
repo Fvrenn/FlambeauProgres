@@ -19,7 +19,7 @@ interface ReferentDashboardClientProps {
   justificationsAValider: JustificationSuivie[];
   justificationsEnAttente: JustificationSuivie[];
   chefsAReviser: UserResume[];
-  targetJustificationId?: string;
+  justificationCiblee: JustificationSuivie | null;
   viewer: DiscussionViewer;
   peutEvaluer: boolean;
 }
@@ -28,7 +28,7 @@ export default function ReferentDashboardClient({
   justificationsAValider,
   justificationsEnAttente,
   chefsAReviser,
-  targetJustificationId,
+  justificationCiblee,
   viewer,
   peutEvaluer,
 }: ReferentDashboardClientProps) {
@@ -40,25 +40,19 @@ export default function ReferentDashboardClient({
   const deepLinkConsumed = useRef(false);
 
   useEffect(() => {
-    if (deepLinkConsumed.current || !targetJustificationId) {
+    if (deepLinkConsumed.current || !justificationCiblee) {
       return;
     }
 
-    const aValider = justificationsAValider.find(
-      (j) => j.id === targetJustificationId,
-    );
-    const enAttente = justificationsEnAttente.find(
-      (j) => j.id === targetJustificationId,
-    );
-    const found = aValider ?? enAttente;
+    deepLinkConsumed.current = true;
 
-    if (found) {
-      deepLinkConsumed.current = true;
-      setActiveTab(aValider ? "a-valider" : "attente-du-chef");
-      setSelectedJustification(found);
-      setIsModalOpen(true);
+    if (justificationCiblee.statut === "DEMANDE_PRECISION") {
+      setActiveTab("attente-du-chef");
     }
-  }, [targetJustificationId, justificationsAValider, justificationsEnAttente]);
+
+    setSelectedJustification(justificationCiblee);
+    setIsModalOpen(true);
+  }, [justificationCiblee]);
 
   const handleJustificationClick = (justification: JustificationSuivie) => {
     setSelectedJustification(justification);

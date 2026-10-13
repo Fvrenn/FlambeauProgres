@@ -10,6 +10,10 @@ import {
   calculerKpis,
   debutPeriode,
 } from "@/lib/analytics";
+import {
+  type ValidationsGroupe,
+  agregerValidationsParGroupe,
+} from "@/lib/groupes";
 import { prisma } from "@/lib/prisma";
 import { ROLES_REFERENT } from "@/lib/roles";
 
@@ -102,6 +106,51 @@ export class AnalyticsService {
       etapesDisponibles,
       referentsDisponibles,
     };
+  }
+
+  static async getValidationsParGroupe(
+    filtres: AnalyticsFiltres,
+    maintenant: Date = new Date(),
+  ): Promise<ValidationsGroupe[]> {
+    const debut = debutPeriode(filtres.periode, maintenant);
+
+    const [validations, groupes] = await Promise.all([
+      prisma.chefEtapeStatut.findMany({
+        where: {
+          statut: "VALIDE",
+          etapeId: filtres.etapeId,
+          OR: [
+            {
+              origine: "APP",
+              valideeParId: filtres.referentId ?? { not: null },
+              valideeAt: debut ? { gte: debut } : undefined,
+            },
+            ...(filtres.referentId
+              ? []
+              : [
+                  {
+                    origine: "PLATEFORME" as const,
+                    etape: { wpValue: { not: null } },
+                  },
+                ]),
+          ],
+        },
+        select: { origine: true, chef: { select: { groupe: true } } },
+      }),
+      prisma.user.findMany({
+        where: { groupe: { not: null } },
+        distinct: ["groupe"],
+        select: { groupe: true },
+      }),
+    ]);
+
+    return agregerValidationsParGroupe(
+      validations.map((validation) => ({
+        groupe: validation.chef.groupe,
+        origine: validation.origine,
+      })),
+      groupes.map((groupe) => groupe.groupe),
+    );
   }
 }
 

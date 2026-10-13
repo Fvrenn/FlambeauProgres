@@ -1,5 +1,6 @@
 import { ChartCard } from "./_components/ChartCard";
 import { ClassementChart } from "./_components/ClassementChart";
+import { ClassementGroupes } from "./_components/ClassementGroupes";
 import { FiltresBar } from "./_components/FiltresBar";
 import { JournalTable } from "./_components/JournalTable";
 import { KpiBandeau } from "./_components/KpiBandeau";
@@ -23,11 +24,15 @@ export default async function AnalysePage({ searchParams }: AnalysePageProps) {
 
   const params = await searchParams;
   const periode = parsePeriode(params.periode);
-  const data = await AnalyticsService.getAnalytics({
+  const filtres = {
     periode,
     etapeId: params.etapeId,
     referentId: params.referentId,
-  });
+  };
+  const [data, groupes] = await Promise.all([
+    AnalyticsService.getAnalytics(filtres),
+    AnalyticsService.getValidationsParGroupe(filtres),
+  ]);
 
   return (
     <>
@@ -71,6 +76,14 @@ export default async function AnalysePage({ searchParams }: AnalysePageProps) {
               data={data.parReferent}
               messageVide="Aucun référent actif sur cette période"
             />
+          </ChartCard>
+
+          <ChartCard
+            className="bg-dashboard-panel xl:col-span-2"
+            description="Étapes validées par les chefs de chaque groupe, de celui qui en a le plus à celui qui en a le moins. Les étapes importées de la plateforme n'ont pas de date de validation : elles sont comptées quelle que soit la période, et exclues quand un référent est sélectionné."
+            title="Étapes validées par groupe"
+          >
+            <ClassementGroupes groupes={groupes} />
           </ChartCard>
         </div>
 

@@ -104,6 +104,18 @@ export class EtapeService {
     );
   }
 
+  static async estValideePourChef(
+    chefId: string,
+    etapeId: string,
+  ): Promise<boolean> {
+    const statut = await prisma.chefEtapeStatut.findUnique({
+      where: { chefId_etapeId: { chefId, etapeId } },
+      select: { statut: true },
+    });
+
+    return statut?.statut === "VALIDE";
+  }
+
   static async getDashboardEtapesForChef(chefId: string) {
     const [etapes, { etapesValidees, originesParEtape }] = await Promise.all([
       prisma.etape.findMany({

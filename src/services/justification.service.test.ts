@@ -12,7 +12,11 @@ vi.mock("@/lib/prisma", () => {
     etapeReferent: { findFirst: vi.fn(), findMany: vi.fn() },
     user: { findMany: vi.fn() },
     message: { create: vi.fn() },
-    notification: { create: vi.fn(), createMany: vi.fn() },
+    notification: {
+      create: vi.fn(),
+      createMany: vi.fn(),
+      deleteMany: vi.fn(),
+    },
     objectif: { findUnique: vi.fn() },
     $transaction: vi.fn(),
   };
@@ -21,7 +25,10 @@ vi.mock("@/lib/prisma", () => {
 });
 
 vi.mock("@/services/etape.service", () => ({
-  EtapeService: { estAccessiblePourChef: vi.fn() },
+  EtapeService: {
+    estAccessiblePourChef: vi.fn(),
+    estValideePourChef: vi.fn(),
+  },
 }));
 
 import { prisma } from "@/lib/prisma";
@@ -39,6 +46,7 @@ beforeEach(() => {
   db.message.create.mockResolvedValue({ id: "m1" } as never);
   db.notification.createMany.mockResolvedValue({ count: 1 } as never);
   etapeService.estAccessiblePourChef.mockResolvedValue(true);
+  etapeService.estValideePourChef.mockResolvedValue(false);
 });
 
 describe("JustificationService - étape verrouillée", () => {
@@ -380,5 +388,98 @@ describe("JustificationService.submitRealisation", () => {
     );
     expect(db.justification.create).not.toHaveBeenCalled();
     expect(db.message.create).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("JustificationService.annuler", () => {
+  const justification = (statut: string, type = "REALISATION") => ({
+    id: "j1",
+    chefId: "c1",
+    etapeId: "e1",
+    statut,
+    objectif: { type },
+  });
+
+  it("repasse une compétence auto-validée en brouillon sans message", async () => {
+    db.justification.findUnique.mockResolvedValue(
+      justification("AUTO_VALIDEE", "COMPETENCE") as never,
+    );
+
+    const result = await JustificationService.annuler({
+      chefId: "c1",
+      justificationId: "j1",
+    });
+
+    expect(result.success).toBe(true);
+    expect(db.justification.update).toHaveBeenCalledWith({
+      where: { id: "j1" },
+      data: { statut: "BROUILLON", soumiseAt: null, valideeAt: null },
+    });
+    expect(db.message.create).not.toHaveBeenCalled();
+    expect(db.notification.deleteMany).not.toHaveBeenCalled();
+  });
+
+  it("retire une réalisation en attente et efface les notifications des évaluateurs", async () => {
+    db.justification.findUnique.mockResolvedValue(
+      justification("SOUMISE") as never,
+    );
+
+    const result = await JustificationService.annuler({
+      chefId: "c1",
+      justificationId: "j1",
+    });
+
+    expect(result.success).toBe(true);
+    expect(db.message.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ type: "SYSTEM" }),
+      }),
+    );
+    expect(db.notification.deleteMany).toHaveBeenCalledWith({
+      where: { justificationId: "j1", destinataireId: { not: "c1" } },
+    });
+  });
+
+  it("refuse une réalisation déjà validée par l'évaluateur", async () => {
+    db.justification.findUnique.mockResolvedValue(
+      justification("VALIDEE") as never,
+    );
+
+    const result = await JustificationService.annuler({
+      chefId: "c1",
+      justificationId: "j1",
+    });
+
+    expect(result.success).toBe(false);
+    expect(db.justification.update).not.toHaveBeenCalled();
+  });
+
+  it("refuse quand l'étape est déjà validée", async () => {
+    db.justification.findUnique.mockResolvedValue(
+      justification("AUTO_VALIDEE", "COMPETENCE") as never,
+    );
+    etapeService.estValideePourChef.mockResolvedValue(true);
+
+    const result = await JustificationService.annuler({
+      chefId: "c1",
+      justificationId: "j1",
+    });
+
+    expect(result.success).toBe(false);
+    expect(db.justification.update).not.toHaveBeenCalled();
+  });
+
+  it("refuse la justification d'un autre chef", async () => {
+    db.justification.findUnique.mockResolvedValue(
+      justification("SOUMISE") as never,
+    );
+
+    const result = await JustificationService.annuler({
+      chefId: "autre",
+      justificationId: "j1",
+    });
+
+    expect(result.success).toBe(false);
+    expect(db.justification.update).not.toHaveBeenCalled();
   });
 });

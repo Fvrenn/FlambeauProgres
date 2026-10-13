@@ -75,7 +75,9 @@ export default function MessageComposer({
   };
 
   const handleKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === "Enter" && !event.shiftKey) {
+    const ecranTactile = window.matchMedia("(pointer: coarse)").matches;
+
+    if (event.key === "Enter" && !event.shiftKey && !ecranTactile) {
       event.preventDefault();
       handleSend();
     }
@@ -116,6 +118,7 @@ export default function MessageComposer({
         <Textarea
           className="flex-1"
           classNames={{
+            input: "text-base sm:text-sm",
             inputWrapper:
               "bg-dashboard-panel data-[hover=true]:bg-dashboard-panel-hover",
           }}

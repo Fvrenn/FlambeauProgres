@@ -121,3 +121,29 @@ export async function validateRealisation(justificationId: string) {
     return { success: false as const, error: "Erreur serveur" };
   }
 }
+
+export async function annulerValidationRealisation(justificationId: string) {
+  try {
+    const user = await getUser();
+
+    if (!user || !("role" in user) || !estReferent(user.role)) {
+      return { success: false as const, error: "Non autorisé" };
+    }
+
+    const parsed = justificationIdSchema.safeParse(justificationId);
+
+    if (!parsed.success) {
+      return { success: false as const, error: "Données invalides" };
+    }
+
+    return await DiscussionService.annulerValidation({
+      referentId: user.id,
+      referentRole: user.role,
+      justificationId: parsed.data,
+    });
+  } catch (error) {
+    console.error("Erreur lors de l'annulation de la validation:", error);
+
+    return { success: false as const, error: "Erreur serveur" };
+  }
+}

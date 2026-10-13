@@ -111,3 +111,74 @@ describe("AnalyticsService.getAnalytics", () => {
     );
   });
 });
+
+describe("AnalyticsService.getValidationsParGroupe", () => {
+  beforeEach(() => {
+    db.chefEtapeStatut.findMany.mockResolvedValue([
+      { origine: "APP", chef: { groupe: "COLMAR" } },
+      { origine: "PLATEFORME", chef: { groupe: "COLMAR" } },
+      { origine: "PLATEFORME", chef: { groupe: null } },
+    ] as never);
+    db.user.findMany.mockResolvedValue([
+      { groupe: "COLMAR" },
+      { groupe: "BARR" },
+    ] as never);
+  });
+
+  it("compte les validations app et plateforme par groupe, groupes vides compris", async () => {
+    const groupes = await AnalyticsService.getValidationsParGroupe(
+      { periode: "tout" },
+      mardi,
+    );
+
+    expect(groupes).toEqual([
+      { cle: "COLMAR", libelle: "COLMAR", app: 1, plateforme: 1 },
+      { cle: "BARR", libelle: "BARR", app: 0, plateforme: 0 },
+      {
+        cle: "__sans-groupe",
+        libelle: "Sans groupe",
+        app: 0,
+        plateforme: 1,
+      },
+    ]);
+  });
+
+  it("applique la période aux seules validations de l'app et ignore les jalons implicites de la plateforme", async () => {
+    await AnalyticsService.getValidationsParGroupe(
+      { periode: "30j", etapeId: "e1" },
+      mardi,
+    );
+
+    expect(db.chefEtapeStatut.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          statut: "VALIDE",
+          etapeId: "e1",
+          OR: [
+            {
+              origine: "APP",
+              valideeParId: { not: null },
+              valideeAt: { gte: expect.any(Date) },
+            },
+            { origine: "PLATEFORME", etape: { wpValue: { not: null } } },
+          ],
+        },
+      }),
+    );
+  });
+
+  it("ne compte que les validations de l'app quand un référent est filtré", async () => {
+    await AnalyticsService.getValidationsParGroupe(
+      { periode: "tout", referentId: "r1" },
+      mardi,
+    );
+
+    expect(db.chefEtapeStatut.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          OR: [{ origine: "APP", valideeParId: "r1", valideeAt: undefined }],
+        }),
+      }),
+    );
+  });
+});

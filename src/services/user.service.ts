@@ -11,10 +11,15 @@ export const USER_RESUME_SELECT = {
   role: true,
 } as const satisfies Prisma.UserSelect;
 
+export const USER_ADMIN_SELECT = {
+  ...USER_RESUME_SELECT,
+  groupe: true,
+} as const satisfies Prisma.UserSelect;
+
 export class UserService {
   static async listForAdmin() {
     return prisma.user.findMany({
-      select: USER_RESUME_SELECT,
+      select: USER_ADMIN_SELECT,
       orderBy: { createdAt: "desc" },
     });
   }

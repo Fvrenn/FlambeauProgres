@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { Chip } from "@heroui/react";
 import { StatutJustification } from "@prisma/client";
@@ -44,7 +46,7 @@ const STATUS_CONFIG: Record<
   },
 };
 
-export default function StatusChip({ statut, endContent }: StatusChipProps) {
+export function StatusChip({ statut, endContent }: StatusChipProps) {
   if (!statut) {
     return (
       <Chip

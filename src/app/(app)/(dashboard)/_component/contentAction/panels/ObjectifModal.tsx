@@ -9,7 +9,6 @@ import {
   ModalFooter,
   Button,
   Textarea,
-  cn,
 } from "@heroui/react";
 import { Divider } from "@heroui/divider";
 import { useRouter } from "next/navigation";
@@ -20,12 +19,15 @@ import { ObjectifAvecJustification } from "../../DashboardClient";
 import { Icon } from "@/lib/icons";
 import { REGLES_JUSTIFICATION } from "@/lib/fichiers";
 import { LONGUEUR_MAX_CONTENU } from "@/lib/justification";
-import { FileDropzone } from "@/components/ui";
+import { ConfirmPopover, FileDropzone } from "@/components/ui";
+import { CLASSES_MODALE_DISCUSSION } from "@/components/discussion/types";
 import DiscussionThread, {
   type DiscussionViewer,
 } from "@/components/discussion/DiscussionThread";
 import { submitCompetence } from "@/actions/dashboard/competence.actions";
 import { submitRealisation } from "@/actions/dashboard/realisation.actions";
+import { annulerJustification } from "@/actions/dashboard/justification.actions";
+import { markNotificationsAsReadForJustification } from "@/actions/notification/notification.actions";
 import { competenceSoumiseAEvaluation, estNiveauEtape3 } from "@/lib/roles";
 
 interface ObjectifModalProps {
@@ -33,6 +35,7 @@ interface ObjectifModalProps {
   onOpenChange: () => void;
   objectif: ObjectifAvecJustification | null;
   niveauEtape: number;
+  etapeValidee: boolean;
   viewer: DiscussionViewer;
   onUpdateJustification: (
     objectifId: string,
@@ -45,6 +48,7 @@ export default function ObjectifModal({
   onOpenChange,
   objectif,
   niveauEtape,
+  etapeValidee,
   viewer,
   onUpdateJustification,
 }: ObjectifModalProps) {
@@ -61,8 +65,37 @@ export default function ObjectifModal({
       setContenu(existingJustification?.contenu || "");
       setSelectedFile(null);
       setErreur(null);
+
+      if (
+        existingJustification &&
+        !existingJustification.id.startsWith("temp-")
+      ) {
+        markNotificationsAsReadForJustification(existingJustification.id);
+      }
     }
   }, [isOpen, objectif]);
+
+  const handleAnnuler = async () => {
+    const justification = objectif?.justifications[0];
+
+    if (!objectif || !justification) {
+      return { success: false, error: "Rien à annuler" };
+    }
+
+    const result = await annulerJustification(justification.id);
+
+    if (result.success) {
+      onUpdateJustification(objectif.id, {
+        statut: "BROUILLON",
+        soumiseAt: null,
+        valideeAt: null,
+      });
+      onOpenChange();
+      router.refresh();
+    }
+
+    return result;
+  };
 
   const handleSubmit = async () => {
     if (!objectif) return;
@@ -136,6 +169,11 @@ export default function ObjectifModal({
   const textRequired = objectif.texteRequis || competenceAEvaluer;
   const existingJustification = objectif.justifications[0];
   const isEditing = !!existingJustification;
+  const peutAnnulerCompetence =
+    isCompetence &&
+    !etapeValidee &&
+    existingJustification?.statut === "AUTO_VALIDEE" &&
+    !existingJustification.id.startsWith("temp-");
   const showThread =
     (!isCompetence || competenceAEvaluer) &&
     !!existingJustification &&
@@ -151,7 +189,9 @@ export default function ObjectifModal({
       size="3xl"
       onOpenChange={onOpenChange}
     >
-      <ModalContent className={cn("bg-dashboard", showThread && "h-[80vh]")}>
+      <ModalContent
+        className={showThread ? CLASSES_MODALE_DISCUSSION : "bg-dashboard"}
+      >
         {(onClose) =>
           showThread ? (
             <ModalBody className="overflow-hidden p-0">
@@ -164,6 +204,7 @@ export default function ObjectifModal({
                 }}
                 peutValider={false}
                 viewer={viewer}
+                onRetirer={handleAnnuler}
               />
             </ModalBody>
           ) : (
@@ -254,14 +295,34 @@ export default function ObjectifModal({
                 )}
               </ModalBody>
 
-              <ModalFooter>
+              <ModalFooter className="flex-wrap">
+                {peutAnnulerCompetence && (
+                  <ConfirmPopover
+                    confirmLabel="Annuler la validation"
+                    message="La compétence repassera en brouillon, ton texte est conservé."
+                    titre="Annuler cette compétence ?"
+                    onConfirm={handleAnnuler}
+                  >
+                    <Button
+                      className="mr-auto"
+                      color="danger"
+                      isDisabled={isSubmitting}
+                      startContent={
+                        <Icon icon="solar:undo-left-linear" width={18} />
+                      }
+                      variant="flat"
+                    >
+                      Annuler la validation
+                    </Button>
+                  </ConfirmPopover>
+                )}
                 <Button
                   color="danger"
                   isDisabled={isSubmitting}
                   variant="light"
                   onPress={onClose}
                 >
-                  Annuler
+                  Fermer
                 </Button>
 
                 {isCompetence && (

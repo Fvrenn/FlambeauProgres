@@ -3,7 +3,9 @@
 import type { TypeObjectif } from "@prisma/client";
 
 import { useEffect } from "react";
+import Link from "next/link";
 import {
+  Button,
   Modal,
   ModalContent,
   ModalHeader,
@@ -11,14 +13,17 @@ import {
   User,
 } from "@heroui/react";
 
+import { Icon } from "@/lib/icons";
 import DiscussionThread, {
   type DiscussionViewer,
 } from "@/components/discussion/DiscussionThread";
+import { CLASSES_MODALE_DISCUSSION } from "@/components/discussion/types";
 import { markNotificationsAsReadForJustification } from "@/actions/notification/notification.actions";
 
 export type ReferentThreadJustification = {
   id: string;
   chefId: string;
+  etapeId: string;
   chef: { name: string; email: string; image: string | null };
   objectif: { code: string; description: string; type: TypeObjectif };
 };
@@ -56,8 +61,8 @@ export default function ReferentValidationModal({
       size="3xl"
       onOpenChange={onOpenChange}
     >
-      <ModalContent className="h-[80vh] bg-dashboard">
-        <ModalHeader className="border-b border-dashboard-border">
+      <ModalContent className={CLASSES_MODALE_DISCUSSION}>
+        <ModalHeader className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-dashboard-border pr-12">
           <User
             avatarProps={{
               src: justification.chef.image || undefined,
@@ -75,6 +80,16 @@ export default function ReferentValidationModal({
               </span>
             }
           />
+          <Button
+            as={Link}
+            className="bg-dashboard-tab data-[hover=true]:bg-dashboard-tab-hover"
+            href={`/referent/revision?chefId=${justification.chefId}&etapeId=${justification.etapeId}`}
+            size="sm"
+            startContent={<Icon icon="solar:list-check-linear" width={16} />}
+            variant="flat"
+          >
+            Voir son étape
+          </Button>
         </ModalHeader>
 
         <ModalBody className="overflow-hidden p-0">

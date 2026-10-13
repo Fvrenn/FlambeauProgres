@@ -29,3 +29,6 @@ export type ThreadObjectif = {
   description: string;
   type: TypeObjectif;
 };
+
+export const CLASSES_MODALE_DISCUSSION =
+  "m-0 h-[100dvh] max-h-[100dvh] rounded-none bg-dashboard sm:mx-6 sm:my-16 sm:h-[80vh] sm:max-h-[80vh] sm:rounded-large";

@@ -31,6 +31,12 @@ function ProfilIdentity({ user }: { user: ProfilUser }) {
             {roleLabelMap[user?.role ?? "CHEF"]}
           </span>
         </p>
+        <p className="text-small text-default-500 mt-1">
+          Groupe :{" "}
+          <span className="font-medium text-foreground">
+            {user?.groupe ?? "Aucun groupe renseigné"}
+          </span>
+        </p>
       </div>
     </div>
   );

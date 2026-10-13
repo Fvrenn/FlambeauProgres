@@ -6,7 +6,11 @@ vi.mock("@/lib/prisma", () => {
     etape: { findUnique: vi.fn() },
     etapeReferent: { findFirst: vi.fn(), findMany: vi.fn() },
     user: { findMany: vi.fn() },
-    notification: { create: vi.fn(), createMany: vi.fn() },
+    notification: {
+      create: vi.fn(),
+      createMany: vi.fn(),
+      updateMany: vi.fn(),
+    },
     message: { create: vi.fn() },
     $transaction: vi.fn(),
   };
@@ -19,7 +23,7 @@ vi.mock("@/lib/auth-guards", () => ({
 }));
 
 vi.mock("@/services/etape.service", () => ({
-  EtapeService: { estDossierComplet: vi.fn() },
+  EtapeService: { estDossierComplet: vi.fn(), estValideePourChef: vi.fn() },
 }));
 
 vi.mock("@/services/storage.service", () => ({
@@ -55,6 +59,8 @@ beforeEach(() => {
   db.justification.update.mockResolvedValue({} as never);
   db.notification.create.mockResolvedValue({} as never);
   db.notification.createMany.mockResolvedValue({ count: 1 } as never);
+  db.notification.updateMany.mockResolvedValue({ count: 0 } as never);
+  etapeService.estValideePourChef.mockResolvedValue(false);
 });
 
 describe("DiscussionService.addMessage", () => {
@@ -138,6 +144,7 @@ describe("DiscussionService.getThread", () => {
     expect(result.data.objectif.code).toBe("G8");
     expect(result.data.chef.name).toBe("Chef");
     expect(result.data.messages).toHaveLength(2);
+    expect(result.data.etapeValidee).toBe(false);
   });
 });
 
@@ -543,6 +550,14 @@ describe("DiscussionService.validateRealisation", () => {
       db.justification.update.mock.calls[0][0].data.valideeAt,
     ).toBeInstanceOf(Date);
     expect(db.notification.create).toHaveBeenCalledTimes(1);
+    expect(db.notification.updateMany).toHaveBeenCalledWith({
+      where: {
+        justificationId: "j1",
+        destinataireId: { not: "c1" },
+        lue: false,
+      },
+      data: expect.objectContaining({ lue: true }),
+    });
   });
 
   it("refuses a referent assigned to an etape 3 profil", async () => {
@@ -673,5 +688,94 @@ describe("DiscussionService.stockerPieceJointe", () => {
       success: false,
       error: "Fichier trop volumineux",
     });
+  });
+});
+
+describe("DiscussionService.annulerValidation", () => {
+  const justificationValidee = {
+    id: "j1",
+    chefId: "c1",
+    etapeId: "e1",
+    statut: "VALIDEE",
+    objectif: { code: "G8", description: "desc", type: "REALISATION" },
+    etape: { name: "E", niveau: 2 },
+    chef: { name: "Chef", email: "chef@test.fr" },
+  };
+
+  it("remet la réalisation à valider avec un message système", async () => {
+    db.justification.findUnique.mockResolvedValue(
+      justificationValidee as never,
+    );
+    db.etapeReferent.findFirst.mockResolvedValue({ id: "a1" } as never);
+
+    const result = await DiscussionService.annulerValidation({
+      referentId: "ref1",
+      referentRole: "REFERENT",
+      justificationId: "j1",
+    });
+
+    expect(result.success).toBe(true);
+    expect(db.message.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          type: "SYSTEM",
+          contenu: "↺ Validation annulée",
+        }),
+      }),
+    );
+    expect(db.justification.update).toHaveBeenCalledWith({
+      where: { id: "j1" },
+      data: { statut: "SOUMISE", valideeAt: null, valideeParId: null },
+    });
+  });
+
+  it("refuse quand l'étape du chef est déjà validée", async () => {
+    db.justification.findUnique.mockResolvedValue(
+      justificationValidee as never,
+    );
+    db.etapeReferent.findFirst.mockResolvedValue({ id: "a1" } as never);
+    etapeService.estValideePourChef.mockResolvedValue(true);
+
+    const result = await DiscussionService.annulerValidation({
+      referentId: "ref1",
+      referentRole: "REFERENT",
+      justificationId: "j1",
+    });
+
+    expect(result.success).toBe(false);
+    expect(db.$transaction).not.toHaveBeenCalled();
+  });
+
+  it("refuse une réalisation qui n'est pas validée", async () => {
+    db.justification.findUnique.mockResolvedValue({
+      ...justificationValidee,
+      statut: "SOUMISE",
+    } as never);
+    db.etapeReferent.findFirst.mockResolvedValue({ id: "a1" } as never);
+
+    const result = await DiscussionService.annulerValidation({
+      referentId: "ref1",
+      referentRole: "REFERENT",
+      justificationId: "j1",
+    });
+
+    expect(result.success).toBe(false);
+    expect(db.$transaction).not.toHaveBeenCalled();
+  });
+
+  it("refuse un référent qui n'évalue pas l'étape", async () => {
+    db.justification.findUnique.mockResolvedValue(
+      justificationValidee as never,
+    );
+    db.etapeReferent.findFirst.mockResolvedValue(null as never);
+
+    const result = await DiscussionService.annulerValidation({
+      referentId: "ref2",
+      referentRole: "REFERENT",
+      justificationId: "j1",
+    });
+
+    expect(result.success).toBe(false);
+    expect(db.$transaction).not.toHaveBeenCalled();
   });
 });

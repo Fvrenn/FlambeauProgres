@@ -2,7 +2,13 @@
 
 import type { Branche } from "@/lib/wordpress-profile";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import dynamic from "next/dynamic";
 import { Justification, Notification } from "@prisma/client";
 
@@ -15,6 +21,7 @@ import JalonBadge from "../JalonBadge";
 import ApercuChemise from "./ApercuChemise";
 import GrilleBadges from "./GrilleBadges";
 
+import { evaluerAvancementBarettes } from "@/lib/chemise-parts";
 import { NIVEAU_PROFILS, NIVEAU_SPECIALITES } from "@/lib/parcours";
 import { type DiscussionViewer } from "@/components/discussion/DiscussionThread";
 
@@ -88,6 +95,8 @@ export default function ContentChemise({
     () => setEstChemiseChargee(true),
     [],
   );
+
+  const barettes = useMemo(() => evaluerAvancementBarettes(etapes), [etapes]);
 
   const specialites = etapes.filter(
     (etape) => etape.type === "BADGE" && etape.niveau === NIVEAU_SPECIALITES,
@@ -192,6 +201,7 @@ export default function ContentChemise({
     <div className="md:bg-dashboard-card h-full min-h-0 w-full md:w-[345px] flex flex-col justify-between p-0.5 rounded-3xl">
       <div className="relative flex h-2/4 shrink-0 overflow-hidden justify-center md:h-auto md:min-h-0 md:flex-1 md:shrink">
         <ApercuChemise
+          barettes={barettes}
           branche={branche}
           className={`transition-opacity duration-500 ${
             estChemiseChargee ? "opacity-0" : "opacity-100"
@@ -200,6 +210,7 @@ export default function ContentChemise({
         <ChemiseBoundary>
           <ChemiseModel
             branche={branche}
+            etapes={etapes}
             selectedBadge={selectedEtape?.number}
             onCharge={handleChemiseChargee}
           />

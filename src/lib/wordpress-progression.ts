@@ -51,6 +51,20 @@ export function resoudreProgressionWp(
   return { etapeIds, nonReconnues };
 }
 
+export function avecCategories(valeurs: string[]): string[] {
+  const resultat = new Set<string>();
+
+  for (const valeur of valeurs) {
+    if (/^\d{3,}$/.test(valeur)) {
+      resultat.add(valeur.slice(0, -2));
+    }
+
+    resultat.add(valeur);
+  }
+
+  return [...resultat];
+}
+
 export function valeursWpPourEtapes(
   etapeIds: string[],
   etapes: EtapeCorrespondance[],

@@ -6,3 +6,4 @@ export { Card, CardBody } from "./card";
 export { FileDropzone } from "./file-dropzone";
 export { ConfirmPopover } from "./confirm-popover";
 export { StatCard } from "./stat-card";
+export { StatusChip } from "./status-chip";

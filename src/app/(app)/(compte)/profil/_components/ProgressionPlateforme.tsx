@@ -72,12 +72,13 @@ export function ProgressionPlateforme({
               className="flex items-center justify-between gap-3 rounded-medium px-2 py-1"
             >
               <Checkbox
+                classNames={{ wrapper: "before:border-default-400" }}
                 isDisabled={!modifiable(etape)}
                 isSelected={selection.includes(etape.id)}
                 onValueChange={(coche) => basculer(etape.id, coche)}
               >
-                <span className="text-small">
-                  <span className="text-default-400">Étape {etape.number}</span>{" "}
+                <span className="text-small text-foreground">
+                  <span className="text-default-500">Étape {etape.number}</span>{" "}
                   {etape.name}
                 </span>
               </Checkbox>

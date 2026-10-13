@@ -45,7 +45,8 @@ export default function ValidateRealisation({
               Valider la {libelle} ?
             </p>
             <p className="text-xs text-default-500">
-              Le fil sera clôturé : cette action est définitive.
+              Le fil sera clôturé. Vous pourrez revenir dessus tant que
+              l&apos;étape du chef n&apos;est pas validée.
             </p>
           </div>
 

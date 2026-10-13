@@ -35,7 +35,7 @@ export default async function RevisionPage({
     redirect("/referent/dashboard");
   }
 
-  const { chef, etape, justifications, peutValider, refusValidation } =
+  const { chef, etape, objectifs, estComplet, peutValider, refusValidation } =
     revision;
 
   return (
@@ -43,8 +43,9 @@ export default async function RevisionPage({
       <RafraichissementArrierePlan />
       <RevisionClient
         chef={chef}
+        estComplet={estComplet}
         etape={etape}
-        justifications={justifications}
+        objectifs={objectifs}
         peutValider={peutValider}
         refusValidation={refusValidation}
       />

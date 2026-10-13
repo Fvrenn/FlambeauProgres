@@ -3,6 +3,7 @@ import {
   getWordpressCookieHeader,
   oublierSessionWp,
 } from "@/lib/wordpress-auth";
+import { avecCategories } from "@/lib/wordpress-progression";
 
 type ResultatEcritureWp = { success: boolean; error?: string };
 
@@ -29,7 +30,7 @@ export async function pousserProgressionVersWp(
 
   try {
     const res = await appelerProfilWp(cookieHeader, {
-      corps: { progression: valeurs },
+      corps: { progression: avecCategories(valeurs) },
     });
 
     if (!res.ok) {

@@ -25,6 +25,8 @@ type JustificationANotifier = {
   chef: { name: string; email: string };
 };
 
+export const DUREE_AFFICHAGE_NOTIFICATION_LUE_MS = 3 * 24 * 60 * 60 * 1000;
+
 type NouveauMessage = { auteur: string; texte: string | null };
 
 export class NotificationService {
@@ -49,7 +51,17 @@ export class NotificationService {
 
   static async getForUser(userId: string) {
     return prisma.notification.findMany({
-      where: { destinataireId: userId },
+      where: {
+        destinataireId: userId,
+        OR: [
+          { lue: false },
+          {
+            lueAt: {
+              gte: new Date(Date.now() - DUREE_AFFICHAGE_NOTIFICATION_LUE_MS),
+            },
+          },
+        ],
+      },
       orderBy: { createdAt: "desc" },
       include: {
         justification: {
@@ -100,9 +112,27 @@ export class NotificationService {
         justificationId,
         destinataireId: userId,
         lue: false,
-        type: { in: ["NOUVEAU_COMMENTAIRE", "REPONSE_PRECISION"] },
       },
       data: { lue: true, lueAt: new Date() },
+    });
+  }
+
+  static async marquerTraiteePourEvaluateurs(
+    justificationId: string,
+    chefId: string,
+  ) {
+    await prisma.notification.updateMany({
+      where: { justificationId, destinataireId: { not: chefId }, lue: false },
+      data: { lue: true, lueAt: new Date() },
+    });
+  }
+
+  static async supprimerPourEvaluateurs(
+    justificationId: string,
+    chefId: string,
+  ) {
+    await prisma.notification.deleteMany({
+      where: { justificationId, destinataireId: { not: chefId } },
     });
   }
 

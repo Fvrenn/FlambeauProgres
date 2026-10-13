@@ -119,8 +119,14 @@ plateforme n'apparaissent ni dans les KPI, ni dans le journal, ni dans les compt
 - [x] **Phase 4 — Restitution** : origine remontée jusqu'aux écrans Chef.
       ✅ Fait — `EtapeService` (`origineValidation`), carte `/progression`, `/profil`
       (`ProgressionPlateforme`), champ « Identifiant plateforme » dans `/admin/etapes`.
-- [ ] **Phase 5 — Écriture (POST)** : cocher depuis Flambeaux Progrès et mettre à jour le profil de la
-      plateforme. Le chemin complet est en place mais désactivé tant que la route n'existe pas :
+- [x] **Phase 5 — Écriture (POST)** : cocher depuis Flambeaux Progrès et mettre à jour le profil de la
+      plateforme.
+      ✅ Fait — route `POST /wp-json/flbx/v1/user-info` ouverte (doc « Flbx User Info API » : cookie
+      `wordpress_logged_in_*`, `X-WP-Nonce: x`, pas d'en-tête `Origin`, `progression` **remplace** la
+      liste). Activée par `WORDPRESS_PROGRESSION_WRITE=true`. Les en-têtes de catégorie sont désormais
+      réémis : `avecCategories` (`src/lib/wordpress-progression.ts`) ajoute le parent de chaque valeur
+      (`101` → `1`, `207` → `2`, `302` → `3`), comme dans l'exemple de la doc (`[1, 101, 2, 203]`).
+      Notes d'origine :
       `WORDPRESS_PROGRESSION_WRITE=true` active le bouton du profil,
       `pousserProgressionVersWp` (`src/lib/wordpress-progression-client.ts`) envoie
       `POST /wp-json/flbx/v1/user-info` avec `{ "progression": ["101", "203", ...] }`.
@@ -140,5 +146,25 @@ plateforme n'apparaissent ni dans les KPI, ni dans le journal, ni dans les compt
       `declarerSurPlateforme` relit donc le profil juste avant d'écrire et réémet les valeurs que
       l'app ne connaît pas (Branche Lumignons, Branche Pionniers, Ma spé, Étape 3) en plus des
       étapes cochées et de celles validées dans l'app ; si cette relecture échoue, rien n'est
-      envoyé. Les en-têtes de catégorie (`1`, `2`, `3`) ne sont pas réémis : à confirmer si la
-      plateforme les attend explicitement ou les déduit des enfants cochés.
+      envoyé.
+- [x] **Phase 6 — Envoi automatique des validations de l'app** : une étape validée par un référent
+      arrive sur la plateforme sans action du chef.
+      ✅ Fait — `WpProgressionService.envoyerValidationsManquantes`, appelée par `synchroniser` (donc à
+      la connexion du chef, au plus toutes les 5 min). L'API n'écrit que le profil de l'utilisateur
+      connecté : l'envoi ne peut pas partir au moment où le référent valide, il part à la visite
+      suivante du chef, avec son cookie. On envoie les entrées actuelles du profil + les étapes
+      `VALIDE`/`APP` absentes de la plateforme ; en cas d'échec, simple log et nouvel essai à la
+      synchro suivante. L'origine reste `APP` en base : la relecture suivante voit l'étape déjà
+      validée et n'y touche pas, donc le décompte des badges à remettre (`origine: "APP"`) est
+      inchangé. Tests : `src/services/wp-progression.service.test.ts`.
+- [ ] **Phase 7 — Groupe du membre** : le groupe (`group` de `GET /user-info`) est enregistré dans
+      `User.groupe` à chaque connexion (`getSessionWp`, `src/lib/wordpress-auth.ts`) ; l'API ne lit
+      que le profil de la personne connectée, un membre reste donc « Sans groupe » tant qu'il ne
+      s'est pas reconnecté. Migration `20261012120000_groupe_utilisateur`.
+      Affichage : `/profil` (ligne « Groupe »), `/admin/users` (colonne + filtre avec l'effectif de
+      chaque groupe), `/referent/analyse` (carte « Étapes validées par groupe », filtre
+      Toutes / Flambeaux Progrès / Plateforme). Calculs purs dans `src/lib/groupes.ts`,
+      requête dans `AnalyticsService.getValidationsParGroupe` : validations `APP` signées par un
+      référent (période et référent appliqués) + validations `PLATEFORME` des étapes qui ont un
+      `wpValue` (pas les jalons implicites ; sans date réelle, elles ignorent la période et sont
+      exclues quand un référent est filtré).

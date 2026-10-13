@@ -137,6 +137,7 @@ export default function ObjectifPanel({
       </div>
 
       <ObjectifModal
+        etapeValidee={Boolean(selectedEtape.isValidated)}
         isOpen={isOpen}
         niveauEtape={selectedEtape.niveau}
         objectif={selectedObjectif}

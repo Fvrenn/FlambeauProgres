@@ -10,6 +10,14 @@ export const MESSAGE_DOSSIER_INCOMPLET =
 export const MESSAGE_AUTO_VALIDATION =
   "Vous ne pouvez pas valider votre propre étape";
 
+export const MESSAGE_ETAPE_DEJA_VALIDEE =
+  "L'étape est déjà validée, on ne peut plus revenir en arrière";
+
+export const STATUTS_EN_ATTENTE: StatutJustification[] = [
+  "SOUMISE",
+  "DEMANDE_PRECISION",
+];
+
 export const STATUTS_VALIDES: StatutJustification[] = [
   "AUTO_VALIDEE",
   "VALIDEE",

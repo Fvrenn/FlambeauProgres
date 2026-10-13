@@ -28,11 +28,16 @@ export default function MessageList({
   isLoading,
   error,
 }: MessageListProps) {
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const conteneurRef = useRef<HTMLDivElement>(null);
+  const dernierMessageId = messages.at(-1)?.id;
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    const conteneur = conteneurRef.current;
+
+    if (conteneur && dernierMessageId) {
+      conteneur.scrollTop = conteneur.scrollHeight;
+    }
+  }, [dernierMessageId]);
 
   if (error && messages.length === 0) {
     return (
@@ -61,7 +66,10 @@ export default function MessageList({
   let lastDay = "";
 
   return (
-    <div className="flex flex-col gap-4 p-3">
+    <div
+      ref={conteneurRef}
+      className="flex h-full flex-col gap-4 overflow-y-auto overscroll-contain p-3"
+    >
       {messages.map((message) => {
         const day = dayLabel(message.createdAt);
         const showDay = day !== lastDay;
@@ -84,7 +92,6 @@ export default function MessageList({
           </Fragment>
         );
       })}
-      <div ref={bottomRef} />
     </div>
   );
 }

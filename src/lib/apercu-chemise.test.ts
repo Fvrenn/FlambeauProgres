@@ -14,4 +14,19 @@ describe("cheminApercuChemise", () => {
       "/chemise/apercu-ordinateur-sans-branche.webp",
     );
   });
+
+  it("montre les barrettes des étapes validées", () => {
+    expect(
+      cheminApercuChemise("ordinateur", "F", {
+        etape1Validee: true,
+        etape2Validee: false,
+      }),
+    ).toBe("/chemise/apercu-ordinateur-f-etape1.webp");
+    expect(
+      cheminApercuChemise("telephone", null, {
+        etape1Validee: true,
+        etape2Validee: true,
+      }),
+    ).toBe("/chemise/apercu-telephone-sans-branche-etape2.webp");
+  });
 });

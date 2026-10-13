@@ -19,6 +19,7 @@ const INTERVALLE_SYNC_MS = 5 * 60 * 1000;
 type ResultatSyncProgression = {
   importees: number;
   retirees: number;
+  envoyees: number;
   nonReconnues: WpTaxonomyEntry[];
 };
 
@@ -136,8 +137,58 @@ export class WpProgressionService {
 
     const { etapeIds, nonReconnues } = resoudreProgressionWp(entries, etapes);
     const compteurs = await this.appliquerEtapesDeclarees(chefId, etapeIds);
+    const envoyees = await this.envoyerValidationsManquantes(
+      chefId,
+      entries,
+      etapeIds,
+      etapes,
+    );
 
-    return { ...compteurs, nonReconnues };
+    return { ...compteurs, envoyees, nonReconnues };
+  }
+
+  static async envoyerValidationsManquantes(
+    chefId: string,
+    entries: WpTaxonomyEntry[],
+    etapeIdsSurPlateforme: string[],
+    etapes: { id: string; name: string; wpValue: string | null }[],
+  ): Promise<number> {
+    if (!ecritureProgressionActive()) {
+      return 0;
+    }
+
+    const validees = await prisma.chefEtapeStatut.findMany({
+      where: { chefId, statut: "VALIDE", origine: "APP" },
+      select: { etapeId: true },
+    });
+
+    const surPlateforme = new Set(etapeIdsSurPlateforme);
+    const { valeurs } = valeursWpPourEtapes(
+      validees
+        .map((statut) => statut.etapeId)
+        .filter((etapeId) => !surPlateforme.has(etapeId)),
+      etapes,
+    );
+
+    if (valeurs.length === 0) {
+      return 0;
+    }
+
+    const envoi = await pousserProgressionVersWp([
+      ...new Set([...entries.map((entry) => entry.value), ...valeurs]),
+    ]);
+
+    if (!envoi.success) {
+      console.warn(
+        "Progression non envoyée à la plateforme:",
+        envoi.error,
+        valeurs,
+      );
+
+      return 0;
+    }
+
+    return valeurs.length;
   }
 
   static async synchroniserSiNecessaire(

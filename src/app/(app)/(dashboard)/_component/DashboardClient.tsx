@@ -209,6 +209,10 @@ export default function DashboardClient({
       </div>
 
       <ObjectifModal
+        etapeValidee={Boolean(
+          etapes.find((etape) => etape.id === deepLinkObjectif?.etapeId)
+            ?.isValidated,
+        )}
         isOpen={!!deepLinkObjectif}
         niveauEtape={
           etapes.find((etape) => etape.id === deepLinkObjectif?.etapeId)
