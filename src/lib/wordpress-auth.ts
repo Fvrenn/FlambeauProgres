@@ -16,11 +16,23 @@ const WP_URL = process.env.WORDPRESS_URL!;
 const DUREE_CACHE_SESSION_MS = 60_000;
 const CODE_NON_MEMBRE = "flbx_not_member";
 const NOMBRE_MAX_SESSIONS_EN_CACHE = 1000;
+const DUREE_CACHE_CHOIX_MS = 10 * 60_000;
+const CLE_CHOIX = "choix";
 
 const sessionsWp = creerCacheMemoire<WpUser>({
   dureeMs: DUREE_CACHE_SESSION_MS,
   tailleMax: NOMBRE_MAX_SESSIONS_EN_CACHE,
 });
+
+const choixWp = creerCacheMemoire<ChoixWp>({
+  dureeMs: DUREE_CACHE_CHOIX_MS,
+  tailleMax: 1,
+});
+
+export type ChoixWp = {
+  groupe: WpTaxonomyEntry[];
+  progression: WpTaxonomyEntry[];
+};
 
 type WpUser = {
   id: number;
@@ -30,6 +42,7 @@ type WpUser = {
   email: string;
   avatar_url: string;
   group: string;
+  group_value?: string | number | null;
   fonction: { value: string; label: string }[];
   progression: { value: string; label: string }[];
   logout_nonce?: string;
@@ -87,11 +100,47 @@ export async function oublierSessionWp(): Promise<void> {
   if (cookieHeader) sessionsWp.delete(cleDeSession(cookieHeader));
 }
 
+export async function fetchWpChoix(): Promise<ChoixWp | null> {
+  const enCache = choixWp.get(CLE_CHOIX);
+
+  if (enCache) return enCache;
+
+  const cookieHeader = await getWordpressCookieHeader();
+
+  if (!cookieHeader) return null;
+
+  try {
+    const res = await requeteProfilWp(cookieHeader, "/choices");
+
+    if (!res.ok) return null;
+
+    const choix = await res.json();
+
+    if (!Array.isArray(choix?.groupe) || !Array.isArray(choix?.progression)) {
+      return null;
+    }
+
+    choixWp.set(CLE_CHOIX, choix);
+
+    return choix;
+  } catch {
+    return null;
+  }
+}
+
 export function appelerProfilWp(
   cookieHeader: string,
   ecriture?: { corps: unknown },
 ): Promise<Response> {
-  return fetch(`${WP_URL}/wp-json/flbx/v1/user-info`, {
+  return requeteProfilWp(cookieHeader, "", ecriture);
+}
+
+function requeteProfilWp(
+  cookieHeader: string,
+  chemin: string,
+  ecriture?: { corps: unknown },
+): Promise<Response> {
+  return fetch(`${WP_URL}/wp-json/flbx/v1/user-info${chemin}`, {
     method: ecriture ? "POST" : "GET",
     headers: {
       cookie: cookieHeader,

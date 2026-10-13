@@ -4,6 +4,7 @@ export type WpTaxonomyEntry = { value: string; label: string };
 
 export type WpProfile = {
   group: string | null;
+  groupValue: string | null;
   branche: Branche | null;
   fonctions: string[];
   progression: string[];
@@ -59,13 +60,22 @@ export function detectBranche(
   return null;
 }
 
+export function nettoyerLibelleWp(label: string): string {
+  return label.replace(/<[^>]*>/g, "").trim();
+}
+
 export function parseWpProfile(wp: {
   group?: string | null;
+  group_value?: string | number | null;
   fonction?: WpTaxonomyEntry[];
   progression?: WpTaxonomyEntry[];
 }): WpProfile {
   return {
     group: wp.group?.trim() || null,
+    groupValue:
+      wp.group_value === null || wp.group_value === undefined
+        ? null
+        : String(wp.group_value),
     branche: detectBranche(wp.fonction),
     fonctions: (wp.fonction ?? []).map((entry) =>
       normalizeWpLabel(entry.label),

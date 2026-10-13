@@ -14,7 +14,7 @@ import {
 import { EtapeAvecObjectifs } from "./DashboardClient";
 
 import { Icon } from "@/lib/icons";
-import { NIVEAU_PROFILS } from "@/lib/parcours";
+import { ILLUSTRATION_ETAPE_1, NIVEAU_PROFILS } from "@/lib/parcours";
 import { validerJalon } from "@/actions/etape/etape.actions";
 import { Button } from "@/components/ui";
 
@@ -41,9 +41,7 @@ const SERVIR = {
 };
 
 const DECOUVRIR = {
-  src: "/livrets/decouvrir/illustration.png",
-  width: 273,
-  height: 251,
+  ...ILLUSTRATION_ETAPE_1,
   subtitle: "Étape 1 du Parcours du Chef",
   pdfUrl: "/livrets/decouvrir/decouvrir-v11-2015.pdf",
   intro:

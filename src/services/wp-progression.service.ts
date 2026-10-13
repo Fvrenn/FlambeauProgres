@@ -27,6 +27,9 @@ export type EtapeProgressionPlateforme = {
   id: string;
   number: string;
   name: string;
+  image_src: string | null;
+  couleur: string | null;
+  niveau: number;
   wpValue: string | null;
   declaree: boolean;
   origine: OrigineValidation | null;
@@ -231,7 +234,15 @@ export class WpProgressionService {
     const [etapes, statuts] = await Promise.all([
       prisma.etape.findMany({
         orderBy: [{ niveau: "asc" }, { ordre: "asc" }],
-        select: { id: true, number: true, name: true, wpValue: true },
+        select: {
+          id: true,
+          number: true,
+          name: true,
+          image_src: true,
+          couleur: true,
+          niveau: true,
+          wpValue: true,
+        },
       }),
       prisma.chefEtapeStatut.findMany({
         where: { chefId, statut: "VALIDE" },

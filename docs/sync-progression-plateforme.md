@@ -168,3 +168,19 @@ plateforme n'apparaissent ni dans les KPI, ni dans le journal, ni dans les compt
       référent (période et référent appliqués) + validations `PLATEFORME` des étapes qui ont un
       `wpValue` (pas les jalons implicites ; sans date réelle, elles ignorent la période et sont
       exclues quand un référent est filtré).
+- [ ] **Phase 8 — Modal de première connexion** : à sa prochaine visite, chaque utilisateur voit une
+      fois une modal en 2 étapes : les étapes déjà obtenues avant Flambeaux Progrès (icônes
+      cliquables), puis son groupe (pré-rempli avec celui de la plateforme, pour pouvoir le changer
+      facilement). « Passer » ou « Enregistrer » renseigne `User.accueilTermineAt` (migration
+      `20261013120000_accueil_profil`) et la modal ne revient plus ; elle reste accessible depuis
+      `/profil` (lien « Modifier » à côté du groupe).
+      Code : `AccueilService` (`src/services/accueil.service.ts`), actions
+      `src/actions/profil/accueil.actions.ts`, composants `src/components/application/accueil/`.
+      Plateforme : liste des groupes lue sur `GET /user-info/choices` (gardée 10 min en mémoire,
+      `fetchWpChoix`), groupe actuel lu dans `group_value`, envoi par `POST /user-info`
+      `{ "groupe": 7 }` (`pousserGroupeVersWp`) ; les étapes passent par `declarerSurPlateforme`.
+      Seul ce qui a changé est envoyé. Sans `WORDPRESS_PROGRESSION_WRITE=true` ou si la liste des
+      groupes est illisible, la modal ne s'affiche pas.
+      **Branche (F / PF) non proposée** : elle vient du champ `fonction` (`102` PF, `103` F), que le
+      `POST` n'accepte pas, et l'app ne la stocke pas (relue sur la plateforme à chaque requête). À
+      ajouter si l'admin de la plateforme ouvre `fonction` à l'écriture.

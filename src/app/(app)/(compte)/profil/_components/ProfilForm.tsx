@@ -2,16 +2,25 @@
 
 import type { getUser } from "@/lib/auth-server";
 import type { UserRole } from "@prisma/client";
+import type { EtatAccueil } from "@/services/accueil.service";
 
+import React from "react";
 import { Card, CardBody, Avatar } from "@heroui/react";
 
 import { roleLabelMap } from "@/lib/roles";
+import { AccueilModal } from "@/components/application/accueil/AccueilModal";
 
 export type ProfilUser = NonNullable<Awaited<ReturnType<typeof getUser>>> & {
   role?: UserRole;
 };
 
-function ProfilIdentity({ user }: { user: ProfilUser }) {
+function ProfilIdentity({
+  user,
+  onModifierGroupe,
+}: {
+  user: ProfilUser;
+  onModifierGroupe?: () => void;
+}) {
   return (
     <div className="flex items-center gap-6">
       <Avatar
@@ -36,6 +45,18 @@ function ProfilIdentity({ user }: { user: ProfilUser }) {
           <span className="font-medium text-foreground">
             {user?.groupe ?? "Aucun groupe renseigné"}
           </span>
+          {onModifierGroupe && (
+            <>
+              {" · "}
+              <button
+                className="cursor-pointer underline"
+                type="button"
+                onClick={onModifierGroupe}
+              >
+                Modifier
+              </button>
+            </>
+          )}
         </p>
       </div>
     </div>
@@ -44,15 +65,31 @@ function ProfilIdentity({ user }: { user: ProfilUser }) {
 
 function ProfilFormWordpress({
   user,
+  accueil,
   wordpressProfileUrl,
 }: {
   user: ProfilUser;
+  accueil: EtatAccueil | null;
   wordpressProfileUrl: string;
 }) {
+  const [estAccueilOuvert, setEstAccueilOuvert] = React.useState(false);
+
   return (
     <Card className="w-full bg-dashboard-panel shadow-none border border-dashboard-border">
       <CardBody className="p-6 gap-6">
-        <ProfilIdentity user={user} />
+        <ProfilIdentity
+          user={user}
+          onModifierGroupe={
+            accueil ? () => setEstAccueilOuvert(true) : undefined
+          }
+        />
+        {accueil && (
+          <AccueilModal
+            etat={accueil}
+            isOpen={estAccueilOuvert}
+            onClose={() => setEstAccueilOuvert(false)}
+          />
+        )}
         <p className="text-small text-default-500">
           Ces informations sont gérées depuis WordPress.
           <a
@@ -71,13 +108,16 @@ function ProfilFormWordpress({
 
 export function ProfilForm({
   user,
+  accueil,
   wordpressProfileUrl,
 }: {
   user: ProfilUser;
+  accueil: EtatAccueil | null;
   wordpressProfileUrl: string;
 }) {
   return (
     <ProfilFormWordpress
+      accueil={accueil}
       user={user}
       wordpressProfileUrl={wordpressProfileUrl}
     />

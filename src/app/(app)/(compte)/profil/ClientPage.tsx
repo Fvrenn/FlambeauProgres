@@ -1,5 +1,6 @@
 "use client";
 
+import type { EtatAccueil } from "@/services/accueil.service";
 import type { EtatProgressionPlateforme } from "@/services/wp-progression.service";
 
 import { Spacer } from "@heroui/react";
@@ -9,10 +10,12 @@ import { ProgressionPlateforme } from "./_components/ProgressionPlateforme";
 
 export default function ClientPage({
   user,
+  accueil,
   progression,
   wordpressProfileUrl,
 }: {
   user: ProfilUser;
+  accueil: EtatAccueil | null;
   progression: EtatProgressionPlateforme;
   wordpressProfileUrl: string;
 }) {
@@ -27,7 +30,11 @@ export default function ClientPage({
 
       <Spacer y={2} />
 
-      <ProfilForm user={user} wordpressProfileUrl={wordpressProfileUrl} />
+      <ProfilForm
+        accueil={accueil}
+        user={user}
+        wordpressProfileUrl={wordpressProfileUrl}
+      />
 
       <ProgressionPlateforme
         ecritureActive={progression.ecritureActive}
