@@ -2,6 +2,55 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+const OBJECTIFS_EXPERT = [
+  {
+    code: "E1",
+    description: "Connaissance technique fine et documentée du domaine.",
+    type: "COMPETENCE",
+  },
+  {
+    code: "E2",
+    description:
+      "Analyse pointue et reconnue des réalisations dans le domaine.",
+    type: "COMPETENCE",
+  },
+  {
+    code: "E3",
+    description:
+      "Savoir transmettre son expertise ou participer à l’enrichissement du domaine en s’adaptant au public concerné.",
+    type: "COMPETENCE",
+  },
+  {
+    code: "E4",
+    description:
+      "Réalisation de qualité de grande ampleur ou sur une durée importante pour le Mouvement en mettant en évidence les compétences ci-dessus. Cette réalisation est à valider avec la commission Formation, si possible en amont de sa mise en œuvre.",
+    type: "REALISATION",
+    fichiersRequis: true,
+  },
+  {
+    code: "E5",
+    description:
+      "Analyser un projet, un groupe ou une activité en lien avec le domaine.",
+    type: "REALISATION",
+    fichiersRequis: true,
+  },
+] as const;
+
+const SPECIALITES_EXPERT = [
+  "2b",
+  "2c",
+  "2e",
+  "2f",
+  "2g",
+  "2h",
+  "2i",
+  "2j",
+  "2k",
+  "2l",
+  "2m",
+  "2n",
+];
+
 async function main() {
   console.log("Start seeding...");
 
@@ -1246,6 +1295,29 @@ async function main() {
   console.log(
     `Updated couleur for ${Object.keys(ETAPE_COULEURS).length} etapes`,
   );
+
+  for (const [index, numeroSpecialite] of SPECIALITES_EXPERT.entries()) {
+    const specialite = await prisma.etape.findUniqueOrThrow({
+      where: { number: numeroSpecialite },
+    });
+
+    await prisma.etape.create({
+      data: {
+        number: `3a-${numeroSpecialite}`,
+        name: `Expert ${specialite.name}`,
+        description:
+          "Étape 3 « Expert » : progresser et servir davantage dans la spécialité pour être reconnu expert du domaine. Chaque Expert est marqué par sa réalisation finale, qui apporte un nouvel outil ou savoir-faire utile au Mouvement.",
+        image_src: specialite.image_src,
+        couleur: specialite.couleur,
+        ordre: 4 + index,
+        niveau: 3,
+        specialiteId: specialite.id,
+        objectifs: { create: [...OBJECTIFS_EXPERT] },
+      },
+    });
+  }
+
+  console.log(`Created ${SPECIALITES_EXPERT.length} etapes Expert`);
 
   console.log("\nSeeding finished.");
 }

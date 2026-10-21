@@ -5,7 +5,7 @@ vi.mock("@/lib/prisma", () => ({
     objectif: { groupBy: vi.fn(), findMany: vi.fn() },
     justification: { findMany: vi.fn() },
     chefEtapeStatut: { findMany: vi.fn() },
-    etape: { findUnique: vi.fn() },
+    etape: { findUnique: vi.fn(), findMany: vi.fn() },
     etapeReferent: { findFirst: vi.fn() },
     user: { findMany: vi.fn(), findUnique: vi.fn() },
   },
@@ -92,6 +92,60 @@ describe("ReferentService.getDashboard", () => {
     const dashboard = await ReferentService.getDashboard("e1", referent);
 
     expect(dashboard.peutEvaluer).toBe(true);
+  });
+});
+
+describe("ReferentService.getDashboardExperts", () => {
+  const commission = { id: "com1", role: "COMMISSION_FORMATION" as const };
+  const coordinateur = { id: "coo1", role: "COORDINATEUR_NATIONAL" as const };
+
+  beforeEach(() => {
+    db.etape.findMany.mockResolvedValue([
+      { id: "x1", name: "Expert Cuisine", niveau: 3 },
+      { id: "x2", name: "Expert Nature", niveau: 3 },
+    ] as never);
+    db.user.findMany.mockResolvedValue([{ id: "complet" }] as never);
+  });
+
+  it("rattache chaque chef à réviser à l'Expert concerné", async () => {
+    const { chefsAReviser } =
+      await ReferentService.getDashboardExperts(commission);
+
+    expect(chefsAReviser).toEqual([
+      { chef: { id: "complet" }, etapeId: "x1", etapeName: "Expert Cuisine" },
+      { chef: { id: "complet" }, etapeId: "x2", etapeName: "Expert Nature" },
+    ]);
+  });
+
+  it("ne lit que les étapes reliées à une spécialité", async () => {
+    await ReferentService.getDashboardExperts(commission);
+
+    expect(db.etape.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { specialiteId: { not: null }, actif: true },
+      }),
+    );
+  });
+
+  it("réserve l'évaluation à la commission", async () => {
+    expect(
+      (await ReferentService.getDashboardExperts(commission)).peutEvaluer,
+    ).toBe(true);
+    expect(
+      (await ReferentService.getDashboardExperts(coordinateur)).peutEvaluer,
+    ).toBe(false);
+  });
+
+  it("compte les réalisations à évaluer pour la commission", async () => {
+    db.justification.findMany.mockImplementation((async (args: {
+      select?: unknown;
+    }) => (args.select ? [] : [{ id: "j1" }, { id: "j2" }])) as never);
+
+    expect(await ReferentService.compterActionsExperts(commission)).toBe(2);
+  });
+
+  it("compte les dossiers à valider pour le Coordinateur", async () => {
+    expect(await ReferentService.compterActionsExperts(coordinateur)).toBe(2);
   });
 });
 

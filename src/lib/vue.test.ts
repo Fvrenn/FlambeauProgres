@@ -60,3 +60,20 @@ describe("sidebarItemsPourVue", () => {
     expect(items.map((item) => item.key)).toEqual(["referent", "analyse"]);
   });
 });
+
+describe("sidebarItemsPourVue — Experts", () => {
+  it("ajoute la page Experts pour la commission et le Coordinateur", () => {
+    for (const role of [
+      "COMMISSION_FORMATION",
+      "COORDINATEUR_NATIONAL",
+    ] as const) {
+      const items = sidebarItemsPourVue("referent", utilisateur(role));
+
+      expect(items.map((item) => item.key)).toEqual([
+        "referent",
+        "experts",
+        "analyse",
+      ]);
+    }
+  });
+});

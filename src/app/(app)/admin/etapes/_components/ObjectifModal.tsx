@@ -26,6 +26,14 @@ const objectifSchema = z.object({
 
 type ObjectifFormData = z.infer<typeof objectifSchema>;
 
+const VALEURS_PAR_DEFAUT: ObjectifFormData = {
+  code: "",
+  description: "",
+  type: TypeObjectif.COMPETENCE,
+  fichiersRequis: false,
+  texteRequis: true,
+};
+
 type ObjectifModalProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -51,36 +59,25 @@ export default function ObjectifModal({
     formState: { errors },
   } = useForm<ObjectifFormData>({
     resolver: zodResolver(objectifSchema),
-    defaultValues: {
-      code: "",
-      description: "",
-      type: TypeObjectif.COMPETENCE,
-      fichiersRequis: false,
-      texteRequis: true,
-    },
+    defaultValues: VALEURS_PAR_DEFAUT,
   });
 
   React.useEffect(() => {
     if (isOpen) {
       setErreur(null);
-
-      if (objectif) {
-        setValue("code", objectif.code);
-        setValue("description", objectif.description);
-        setValue("type", objectif.type);
-        setValue("fichiersRequis", objectif.fichiersRequis);
-        setValue("texteRequis", objectif.texteRequis);
-      } else {
-        reset({
-          code: "",
-          description: "",
-          type: TypeObjectif.COMPETENCE,
-          fichiersRequis: false,
-          texteRequis: true,
-        });
-      }
+      reset(
+        objectif
+          ? {
+              code: objectif.code,
+              description: objectif.description,
+              type: objectif.type,
+              fichiersRequis: objectif.fichiersRequis,
+              texteRequis: objectif.texteRequis,
+            }
+          : VALEURS_PAR_DEFAUT,
+      );
     }
-  }, [isOpen, objectif, setValue, reset, setErreur]);
+  }, [isOpen, objectif, reset, setErreur]);
 
   const onSubmit = (data: ObjectifFormData) => {
     soumettre(() =>

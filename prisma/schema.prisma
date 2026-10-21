@@ -95,26 +95,30 @@ model User {
 }
 
 model Etape {
-  id          String    @id @default(cuid())
-  number      String    @unique
-  name        String
-  description String    @db.Text
-  image_src   String?
-  couleur     String?
-  ordre       Int
-  niveau      Int       @default(2)
-  type        TypeEtape @default(BADGE)
-  actif       Boolean   @default(true)
-  wpValue     String?   @unique
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id           String    @id @default(cuid())
+  number       String    @unique
+  name         String
+  description  String    @db.Text
+  image_src    String?
+  couleur      String?
+  ordre        Int
+  niveau       Int       @default(2)
+  type         TypeEtape @default(BADGE)
+  actif        Boolean   @default(true)
+  wpValue      String?   @unique
+  specialiteId String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
+  specialite     Etape?          @relation("ExpertSpecialite", fields: [specialiteId], references: [id], onDelete: SetNull)
+  experts        Etape[]         @relation("ExpertSpecialite")
   objectifs      Objectif[]
   referents      EtapeReferent[]
   justifications Justification[]
 
   statutsChefs ChefEtapeStatut[]
 
+  @@index([specialiteId])
   @@map("etapes")
 }
 

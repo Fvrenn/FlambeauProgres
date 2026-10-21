@@ -1,10 +1,10 @@
 "use client";
 
-import type { UserResume } from "@/types";
+import type { ChefAReviser } from "@/types";
 
 import React from "react";
 import { Chip } from "@heroui/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 import { Icon } from "@/lib/icons";
 import AdminDataTable, { Column } from "@/components/admin/AdminDataTable";
@@ -13,19 +13,18 @@ import { CelluleUtilisateur } from "@/components/admin/CelluleUtilisateur";
 import { Avatar, Card, CardBody } from "@/components/ui";
 
 type ChefsAReviserListProps = {
-  chefs: UserResume[];
+  chefs: ChefAReviser[];
 };
 
 const columns: Column[] = [
   { key: "chefName", label: "CHEF", sortable: true },
+  { key: "etape", label: "ÉTAPE" },
   { key: "statut", label: "STATUT" },
   { key: "actions", label: "ACTIONS" },
 ];
 
 export default function ChefsAReviserList({ chefs }: ChefsAReviserListProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const etapeId = searchParams.get("etapeId");
 
   if (chefs.length === 0) {
     return (
@@ -42,19 +41,27 @@ export default function ChefsAReviserList({ chefs }: ChefsAReviserListProps) {
     );
   }
 
-  const data = chefs.map((chef) => ({
+  const data = chefs.map(({ chef, etapeId, etapeName }) => ({
     ...chef,
+    id: `${etapeId}-${chef.id}`,
+    chefId: chef.id,
     chefName: chef.name,
     chefEmail: chef.email,
+    etapeId,
+    etapeName,
   }));
 
-  const reviseHref = (chefId: string) =>
-    `/referent/revision?chefId=${chefId}&etapeId=${etapeId}`;
+  const reviseHref = (dossier: (typeof data)[number]) =>
+    `/referent/revision?chefId=${dossier.chefId}&etapeId=${dossier.etapeId}`;
 
   const renderCell = (chef: (typeof data)[number], columnKey: React.Key) => {
     switch (columnKey) {
       case "chefName":
         return <CelluleUtilisateur utilisateur={chef} />;
+      case "etape":
+        return (
+          <span className="text-sm text-default-500">{chef.etapeName}</span>
+        );
       case "statut":
         return (
           <Chip
@@ -72,7 +79,7 @@ export default function ChefsAReviserList({ chefs }: ChefsAReviserListProps) {
         return (
           <BoutonOuvrirLigne
             label="Réviser le badge"
-            onOuvrir={() => router.push(reviseHref(chef.id))}
+            onOuvrir={() => router.push(reviseHref(chef))}
           />
         );
       default:
@@ -91,18 +98,18 @@ export default function ChefsAReviserList({ chefs }: ChefsAReviserListProps) {
           onRowAction={(key) => {
             const chef = data.find((item) => item.id === key);
 
-            if (chef) router.push(reviseHref(chef.id));
+            if (chef) router.push(reviseHref(chef));
           }}
         />
       </div>
 
       <div className="flex flex-col gap-2 sm:hidden">
-        {chefs.map((chef) => (
+        {data.map((chef) => (
           <Card
             key={chef.id}
             isPressable
             className="w-full"
-            onClick={() => router.push(reviseHref(chef.id))}
+            onClick={() => router.push(reviseHref(chef))}
           >
             <CardBody className="flex-row items-center gap-3">
               <Avatar name={chef.name} size="md" src={chef.image} />
@@ -111,7 +118,7 @@ export default function ChefsAReviserList({ chefs }: ChefsAReviserListProps) {
                   {chef.name}
                 </span>
                 <span className="text-xs text-default-400 truncate">
-                  {chef.email}
+                  {chef.etapeName}
                 </span>
               </div>
               <Chip color="success" size="sm" variant="flat">

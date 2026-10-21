@@ -82,7 +82,6 @@ export default function EtapeModal({
     register,
     control,
     handleSubmit,
-    setValue,
     reset,
     formState: { errors },
   } = useForm<EtapeFormData>({
@@ -109,12 +108,14 @@ export default function EtapeModal({
       setOnglet("infos");
 
       if (etape) {
-        setValue("number", etape.number);
-        setValue("name", etape.name);
-        setValue("description", etape.description);
-        setValue("ordre", etape.ordre);
-        setValue("wpValue", etape.wpValue ?? "");
-        setValue("objectifs", []);
+        reset({
+          number: etape.number,
+          name: etape.name,
+          description: etape.description,
+          ordre: etape.ordre,
+          wpValue: etape.wpValue ?? "",
+          objectifs: [],
+        });
       } else {
         reset({
           number: "",
@@ -134,7 +135,7 @@ export default function EtapeModal({
         });
       }
     }
-  }, [isOpen, etape, setValue, reset, setErreur]);
+  }, [isOpen, etape, reset, setErreur]);
 
   const onSubmit = (data: EtapeFormData) => {
     soumettre(() =>

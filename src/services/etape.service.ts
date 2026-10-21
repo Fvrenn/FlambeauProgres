@@ -55,6 +55,7 @@ export class EtapeService {
           couleur: true,
           niveau: true,
           type: true,
+          specialiteId: true,
           _count: { select: { objectifs: true } },
         },
       }),
@@ -269,7 +270,7 @@ export class EtapeService {
 async function getParcoursDuChef(chefId: string) {
   const [etapes, { etapesValidees }] = await Promise.all([
     prisma.etape.findMany({
-      select: { id: true, niveau: true, type: true },
+      select: { id: true, niveau: true, type: true, specialiteId: true },
     }),
     getValidationsDuChef(chefId),
   ]);

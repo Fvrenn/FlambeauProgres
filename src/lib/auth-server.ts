@@ -20,6 +20,7 @@ export const getUser = cache(async () => {
           id: true,
           name: true,
           image_src: true,
+          specialiteId: true,
         },
       },
     },
@@ -31,7 +32,7 @@ export const getUser = cache(async () => {
     const etapes3 = await prisma.etape.findMany({
       where: { niveau: { gte: NIVEAU_ETAPE_3 }, actif: true },
       orderBy: { ordre: "asc" },
-      select: { id: true, name: true, image_src: true },
+      select: { id: true, name: true, image_src: true, specialiteId: true },
     });
 
     for (const etape of etapes3) {

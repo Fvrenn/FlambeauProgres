@@ -1,6 +1,9 @@
+import type { StatutJustification } from "@prisma/client";
+
 import { describe, it, expect } from "vitest";
 
 import {
+  aCommenceAValider,
   chefsAyantToutValide,
   estJustificationValidee,
   filtreJustificationsValidantes,
@@ -19,6 +22,28 @@ describe("estJustificationValidee", () => {
   it("ne considère pas validée une justification en cours", () => {
     expect(estJustificationValidee("SOUMISE")).toBe(false);
     expect(estJustificationValidee("DEMANDE_PRECISION")).toBe(false);
+  });
+});
+
+describe("aCommenceAValider", () => {
+  const objectif = (...statuts: StatutJustification[]) => ({
+    justifications: statuts.map((statut) => ({ statut })),
+  });
+
+  it("est vrai dès qu'une justification est validée", () => {
+    expect(
+      aCommenceAValider([objectif(), objectif("SOUMISE", "VALIDEE")]),
+    ).toBe(true);
+    expect(aCommenceAValider([objectif("AUTO_VALIDEE")])).toBe(true);
+  });
+
+  it("est faux tant qu'aucune justification n'est validée", () => {
+    expect(aCommenceAValider([])).toBe(false);
+    expect(
+      aCommenceAValider([
+        objectif("BROUILLON", "SOUMISE", "DEMANDE_PRECISION"),
+      ]),
+    ).toBe(false);
   });
 });
 

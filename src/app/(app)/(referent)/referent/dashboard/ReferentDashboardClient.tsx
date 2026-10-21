@@ -1,6 +1,6 @@
 "use client";
 
-import type { JustificationSuivie, UserResume } from "@/types";
+import type { ChefAReviser, JustificationSuivie } from "@/types";
 
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -16,15 +16,19 @@ import { StatCard } from "@/components/ui";
 import { type DiscussionViewer } from "@/components/discussion/DiscussionThread";
 
 interface ReferentDashboardClientProps {
+  titre: string;
+  description: string;
   justificationsAValider: JustificationSuivie[];
   justificationsEnAttente: JustificationSuivie[];
-  chefsAReviser: UserResume[];
+  chefsAReviser: ChefAReviser[];
   justificationCiblee: JustificationSuivie | null;
   viewer: DiscussionViewer;
   peutEvaluer: boolean;
 }
 
 export default function ReferentDashboardClient({
+  titre,
+  description,
   justificationsAValider,
   justificationsEnAttente,
   chefsAReviser,
@@ -86,10 +90,8 @@ export default function ReferentDashboardClient({
   return (
     <div className="h-full flex flex-col w-full md:pb-0 pb-20">
       <div className="flex-shrink-0 hidden md:flex flex-col gap-1 mb-6">
-        <h1 className="text-2xl font-extrabold">Dashboard Référent</h1>
-        <p className="text-default-500">
-          Justifications et badges de vos chefs à traiter.
-        </p>
+        <h1 className="text-2xl font-extrabold">{titre}</h1>
+        <p className="text-default-500">{description}</p>
       </div>
 
       <div className="flex-shrink-0 grid grid-cols-2 lg:grid-cols-3 gap-4 mb-6">

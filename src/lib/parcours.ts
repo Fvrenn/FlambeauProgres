@@ -1,6 +1,11 @@
 type JalonNiveau = { id: string; niveau: number };
 
-type EtapeParcours = { id: string; niveau: number; type: string };
+type EtapeParcours = {
+  id: string;
+  niveau: number;
+  type: string;
+  specialiteId?: string | null;
+};
 
 export type ContexteParcours = {
   niveauMax: number;
@@ -98,6 +103,12 @@ export function construireContexteParcours(
   };
 }
 
+export function estProfilExpert(etape: {
+  specialiteId?: string | null;
+}): boolean {
+  return Boolean(etape.specialiteId);
+}
+
 export function etapeEstAccessible(
   etape: EtapeParcours,
   contexte: ContexteParcours,
@@ -119,6 +130,10 @@ export function etapeEstAccessible(
 
   if (etape.type === "JALON") {
     return specialiteValidee;
+  }
+
+  if (etape.specialiteId) {
+    return etapesValidees.has(etape.specialiteId) && jalonProfilsValide;
   }
 
   return specialiteValidee && jalonProfilsValide;

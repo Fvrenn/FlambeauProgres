@@ -94,12 +94,7 @@ défilent sur une ligne.
 
 ## Ce qui reste à faire
 
-- [ ] **Profil Expert.** Il se décline par spécialité et le livret précise qu'« il est possible de
-      faire plusieurs étapes Expert », ce que `@@unique([chefId, etapeId])` ne permet pas de
-      représenter. La plateforme a la même limite : un seul terme `301 Expert`. Piste retenue :
-      une seule étape Expert, affichée au même endroit que les deux autres profils, dont le clic
-      ouvre la liste des spécialités dans le panneau de droite pour choisir celle que l'on prolonge.
-      Tant qu'elle n'existe pas, `301 Expert` reste dans les entrées « non reconnues » de l'import.
+- [ ] **Profil Expert** — voir « Plan : profil Expert » ci-dessous.
 - [ ] **Modèle 3D.** Le GLB ne contient que `badge_2B`…`badge_2N` et les passants `Etape 1`,
       `Etape 1.001`, `Etape 2`. Il n'y a **ni `badge_3B`/`badge_3C`, ni passant « Etape 3 »** : le
       3ᵉ passant vert et les écussons de profil ne peuvent pas s'afficher sur la chemise sans un
@@ -114,6 +109,78 @@ défilent sur une ligne.
       `src/actions/{etape,discussion}/*.actions.ts`, pages `(referent)` et `admin`.
       Comment : `peutEvaluerEtape` / `peutValiderEtape` centralisent la règle, les rôles ouvrent
       l'accès sans ligne `EtapeReferent`.
+
+## Plan : profil Expert
+
+### Décision : une étape Expert par spécialité
+
+Le livret décline l'Expert « pour chaque spécialité » et autorise plusieurs Experts par chef.
+`@@unique([chefId, etapeId])` et `@@unique([chefId, objectifId])` interdisent d'en représenter
+plusieurs sur une seule étape ; plutôt que d'ajouter une dimension « spécialité » à
+`ChefEtapeStatut` et `Justification`, **on crée une étape `BADGE` de niveau 3 par spécialité**
+(12 : `2b`, `2c`, `2e`…`2n`), chacune avec les mêmes objectifs `E1`–`E5` du livret (pas de `E0` : la spé correspondante est déjà exigée par la règle d'accès). Le schéma des
+justifications, des statuts, des fils et des notifications ne change pas.
+
+- Numérotation : `3a-<numéro de la spé>`, par exemple `3a-2f` (Expert Communication).
+- `wpValue` : `null`. La plateforme n'a qu'un terme `301 Expert` et la fonctionnalité n'y est pas
+  développée ; les Experts ne sont donc pas synchronisés pour l'instant.
+- Écusson : celui de la spécialité, avec une pastille étoile dans la grille ; l'étoile sur la
+  chemise 3D relève du ré-export du modèle.
+
+### Ce que cela change dans le code
+
+Le seul point qui n'existe pas : **relier un Expert à sa spécialité**. `etapeEstAccessible` n'exige
+aujourd'hui qu'« au moins une spé validée » (`specialiteValidee`, booléen global). Pour l'Expert, la
+règle devient « **sa** spé validée ».
+
+- `Etape.specialiteId String?` : auto-relation vers l'étape de niveau 2 correspondante (nulle pour
+  tout le reste). Migration écrite à la main, voir `CLAUDE.md`.
+- `ContexteParcours` expose les étapes validées (`etapesValidees` y est déjà) ; `etapeEstAccessible`
+  ajoute une branche : une étape avec `specialiteId` exige `etapesValidees.has(specialiteId)` et
+  `jalonProfilsValide`. Fonction pure, testée dans `parcours.test.ts`.
+- Dashboard : l'onglet « Étape 3 » liste Formateur, Leader et seulement les Experts dont la spé est
+  validée ; chaque Expert commencé garde sa propre carte avec son icône « en cours ».
+- Rien à changer pour les rôles : `peutEvaluerEtape` / `peutValiderEtape` raisonnent déjà par niveau.
+
+### Phases
+
+- [x] **Phase 1 — Données.** ✅ Fait — colonne `Etape.specialiteId` (auto-relation `ExpertSpecialite`,
+      `onDelete: SetNull`), 12 étapes `3a-<spé>` (`Expert <nom de la spé>`, couleur de la spé, ordre
+      4 à 15, `wpValue` nul) et leurs objectifs `E1`–`E5` (`E4` rappelle l'accord préalable de la
+      commission). Où : `prisma/schema.prisma`, migration manuelle
+      `20261021120000_profil_expert` (`INSERT IGNORE … SELECT`, rejouable), `prisma/seed.ts`.
+      Comment : `migrate deploy` puis `generate`, `migrate diff` vide.
+- [x] **Phase 2 — Règle d'accès.** ✅ Fait — une étape avec `specialiteId` n'est accessible que si
+      **cette** spé est validée et que le livret « Servir » est lu ; les autres Experts restent
+      indépendants, et un Expert déjà validé reste visible. Où : `src/lib/parcours.ts`
+      (`etapeEstAccessible`, `EtapeParcours.specialiteId`), `src/services/etape.service.ts`
+      (`specialiteId` ajouté aux deux `select` qui alimentent le contexte), 5 tests dans
+      `src/lib/parcours.test.ts`. Comment : branche ajoutée en fin de `etapeEstAccessible`, fonction
+      pure sans changement de signature.
+- [x] **Phase 3 — Affichage.** ✅ Fait — l'onglet « Étape 3 » affiche Formateur, Leader et les seuls
+      Experts dont la spé est validée (le filtre `!verrouille` de `contentChemise.tsx` suffit, grâce à
+      la règle de la phase 2). L'Expert reprend l'écusson de sa spé (le livret ne lui en donne pas,
+      seulement une étoile à poser dessus) et porte une pastille étoile ; le tooltip affiche
+      « Expert <spé> ». Où : migration `20261021130000_expert_ecusson` (`image_src` copié depuis la
+      spé), `prisma/seed.ts`, `GrilleBadges.tsx` (pastille `Profil Expert`). `/progression` liste les
+      Experts à la suite, sans changement.
+- [x] **Phase 4 — Page « Experts » pour la commission.** ✅ Fait — une section « Profils Expert » dans
+      le sélecteur de contexte ne disait pas où se trouvait une action à faire parmi 12 entrées. La
+      commission et le Coordinateur disposent d'une page `/referent/experts` : les mêmes trois listes
+      que le dashboard référent (réalisations à valider, en attente du chef, badges complets à
+      réviser), **toutes spécialités confondues**, avec une colonne « Étape ». Une entrée « Experts »
+      de la sidebar porte le nombre d'actions en attente (réalisations à évaluer pour la commission,
+      dossiers à valider pour le Coordinateur). Les Experts ne figurent plus dans le sélecteur de
+      contexte. Où : `src/app/(app)/(referent)/referent/experts/page.tsx` (réutilise
+      `ReferentDashboardClient`, qui reçoit `titre` et `description`),
+      `ReferentService.getDashboardExperts` / `compterActionsExperts` et `chefsAReviserPourEtape`
+      (extrait de `getDashboard`) dans `src/services/referent.service.ts`, `ChefAReviser`
+      (`src/types`), `referentSidebarItems` + `SidebarItem.compteur`, `ContextSwitcher.tsx`.
+      Comment : une seule requête par liste sur les étapes à `specialiteId` non nul ; le badge
+      « à réviser » reste calculé par étape. Aucune demande formelle d'Expert (option A) : un chef
+      apparaît dès sa première justification soumise.
+- [ ] **Phase 5 — Import plateforme.** Sans objet tant que `301 Expert` n'est pas développé côté
+      plateforme ; à rouvrir alors (un chef avec plusieurs Experts pour un seul terme).
 
 ## Rôles de l'étape 3
 

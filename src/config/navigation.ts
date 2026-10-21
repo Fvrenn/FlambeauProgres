@@ -4,6 +4,9 @@ import type {
   SidebarNavItemClassNames,
 } from "@/components/application/sidebar/sidebar";
 
+import { estProfilExpert } from "@/lib/parcours";
+import { NIVEAU_ETAPE_3, suitEtapeSansAssignation } from "@/lib/roles";
+
 export const ROUTE_DECONNEXION = "/deconnexion";
 
 export const ROUTE_NON_MEMBRE = "/non-membre";
@@ -38,8 +41,13 @@ export const chefSidebarItems: SidebarItem[] = [
   },
 ];
 
-export function referentSidebarItems(user: SessionUser): SidebarItem[] {
-  const premiereEtape = user.etapesReferent?.[0];
+export function referentSidebarItems(
+  user: SessionUser,
+  actionsExperts = 0,
+): SidebarItem[] {
+  const premiereEtape = user.etapesReferent?.find(
+    (etape) => !estProfilExpert(etape),
+  );
 
   return [
     {
@@ -50,6 +58,17 @@ export function referentSidebarItems(user: SessionUser): SidebarItem[] {
       icon: "solar:checklist-minimalistic-linear",
       title: "Justifications à valider",
     },
+    ...(suitEtapeSansAssignation(user.role, NIVEAU_ETAPE_3)
+      ? [
+          {
+            key: "experts",
+            href: "/referent/experts",
+            icon: "solar:star-linear",
+            title: "Experts",
+            compteur: actionsExperts,
+          },
+        ]
+      : []),
     {
       key: "analyse",
       href: "/referent/analyse",

@@ -2,11 +2,14 @@
 
 import React from "react";
 import Image from "next/image";
+import { Tooltip } from "@heroui/react";
 
 import { EtapeAvecObjectifs } from "../DashboardClient";
 
 import { Icon } from "@/lib/icons";
+import { aCommenceAValider } from "@/lib/justification";
 import { decouperEnPages } from "@/lib/pagination";
+import { estProfilExpert } from "@/lib/parcours";
 
 const COLONNES = 3;
 const LIGNES_MIN = 2;
@@ -38,7 +41,7 @@ export default function GrilleBadges({
 
   return (
     <>
-      <div className="flex gap-2 overflow-x-auto overflow-y-hidden py-2 md:hidden">
+      <div className="flex gap-2 overflow-x-auto overflow-y-hidden px-2 py-2 md:hidden">
         {badges.map(renderBadge)}
       </div>
       <CarrouselBadges badges={badges} renderBadge={renderBadge} />
@@ -96,7 +99,7 @@ function CarrouselBadges({ badges, renderBadge }: CarrouselBadgesProps) {
           {pages.map((page, index) => (
             <div
               key={index}
-              className="page-badges grid w-full shrink-0 snap-start grid-cols-3 place-items-center gap-2 py-2"
+              className="page-badges grid w-full shrink-0 snap-start grid-cols-3 place-items-center gap-2 px-2 py-2"
             >
               {page.map(renderBadge)}
             </div>
@@ -199,40 +202,78 @@ type BadgeEtapeProps = {
 };
 
 function BadgeEtape({ etape, estSelectionne, onClick }: BadgeEtapeProps) {
+  const estEnCours = !etape.isValidated && aCommenceAValider(etape.objectifs);
+
   return (
     <div className="relative flex-shrink-0">
-      <button
-        aria-label={`Sélectionner l'étape ${etape.name}`}
-        className={`cursor-pointer opacity-100 holographic-card ${
-          etape.isValidated ? "validated md:opacity-80" : "md:opacity-50"
-        } ${estSelectionne ? "active" : ""}`}
-        onClick={onClick}
-      >
-        {etape.image_src ? (
-          <Image
-            alt={etape.name}
-            className="w-[50px] h-auto md:w-[67px] md:h-[77px]"
-            height={77}
-            sizes="(max-width: 768px) 50px, 67px"
-            src={etape.image_src}
-            width={67}
-          />
-        ) : (
-          <span
-            className="flex w-[50px] h-[58px] md:w-[67px] md:h-[77px] items-center justify-center rounded-medium border border-dashboard-border text-sm font-semibold"
-            style={{ color: etape.couleur ?? undefined }}
-          >
-            {etape.number}
-          </span>
-        )}
-      </button>
+      <Tooltip content={etape.name} placement="top">
+        <button
+          aria-label={`Sélectionner l'étape ${etape.name}`}
+          className={`cursor-pointer opacity-100 holographic-card ${
+            etape.isValidated ? "validated md:opacity-80" : "md:opacity-50"
+          } ${estSelectionne ? "active" : ""}`}
+          onClick={onClick}
+        >
+          {etape.image_src ? (
+            <Image
+              alt={etape.name}
+              className="w-[50px] h-auto md:w-[67px] md:h-[77px]"
+              height={77}
+              sizes="(max-width: 768px) 50px, 67px"
+              src={etape.image_src}
+              width={67}
+            />
+          ) : (
+            <span
+              className="flex w-[50px] h-[58px] md:w-[67px] md:h-[77px] items-center justify-center rounded-medium border border-dashboard-border text-sm font-semibold"
+              style={{ color: etape.couleur ?? undefined }}
+            >
+              {etape.number}
+            </span>
+          )}
+        </button>
+      </Tooltip>
+      {estProfilExpert(etape) && (
+        <PastilleEtat
+          fond="bg-default-500"
+          icon="solar:star-linear"
+          label="Profil Expert"
+          position="-bottom-1 -left-1"
+        />
+      )}
+      {estEnCours && (
+        <PastilleEtat
+          fond="bg-warning"
+          icon="solar:hourglass-linear"
+          label="Étape commencée"
+          position="-right-1 -bottom-1"
+        />
+      )}
       {etape.isValidated && (
-        <Icon
-          aria-label="Badge validé"
-          className="absolute -top-1 -right-1 z-10 w-5 h-5 text-primary drop-shadow-[0_1px_1px_rgba(0,0,0,0.35)]"
-          icon="solar:verified-check-bold"
+        <PastilleEtat
+          fond="bg-primary"
+          icon="solar:check-read-linear"
+          label="Badge validé"
+          position="-top-1 -right-1"
         />
       )}
     </div>
+  );
+}
+
+type PastilleEtatProps = {
+  icon: string;
+  label: string;
+  fond: string;
+  position: string;
+};
+
+function PastilleEtat({ icon, label, fond, position }: PastilleEtatProps) {
+  return (
+    <span
+      className={`absolute z-10 flex h-5 w-5 items-center justify-center rounded-full text-white shadow ${fond} ${position}`}
+    >
+      <Icon aria-label={label} icon={icon} width={14} />
+    </span>
   );
 }

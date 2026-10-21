@@ -84,6 +84,7 @@ export default function JustificationsPanel({
 
   const columns: Column[] = [
     { key: "chefName", label: "CHEF", sortable: true },
+    { key: "etape", label: "ÉTAPE" },
     { key: "objectif", label: "RÉALISATION" },
     { key: "date", label: libelleDate },
     { key: "statut", label: "STATUT" },
@@ -104,6 +105,12 @@ export default function JustificationsPanel({
     switch (columnKey) {
       case "chefName":
         return <CelluleUtilisateur utilisateur={justification.chef} />;
+      case "etape":
+        return (
+          <span className="text-sm text-default-500">
+            {justification.etape.name}
+          </span>
+        );
       case "objectif":
         return (
           <div className="flex items-center gap-2">
@@ -170,7 +177,7 @@ export default function JustificationsPanel({
                   {justification.chef.name}
                 </span>
                 <span className="text-xs text-default-400 truncate">
-                  {justification.objectif.code} -{" "}
+                  {justification.etape.name} · {justification.objectif.code} -{" "}
                   {justification.objectif.description}
                 </span>
                 <span className="text-[11px] text-default-400 mt-0.5">

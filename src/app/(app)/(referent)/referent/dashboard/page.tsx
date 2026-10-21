@@ -65,10 +65,12 @@ export default async function ReferentDashboardPage({
       <RafraichissementSurNotification signature={signature} />
       <ReferentDashboardClient
         chefsAReviser={chefsAReviser}
+        description="Justifications et badges de vos chefs à traiter."
         justificationCiblee={justificationCiblee}
         justificationsAValider={justificationsAValider}
         justificationsEnAttente={justificationsEnAttente}
         peutEvaluer={peutEvaluer}
+        titre="Dashboard Référent"
         viewer={{
           id: user.id,
           name: user.name,

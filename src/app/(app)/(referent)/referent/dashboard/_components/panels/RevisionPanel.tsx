@@ -1,9 +1,9 @@
-import type { UserResume } from "@/types";
+import type { ChefAReviser } from "@/types";
 
 import ChefsAReviserList from "@/components/application/referent/ChefsAReviserList";
 
 interface RevisionPanelProps {
-  chefs: UserResume[];
+  chefs: ChefAReviser[];
 }
 
 export default function RevisionPanel({ chefs }: RevisionPanelProps) {

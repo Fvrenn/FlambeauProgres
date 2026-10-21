@@ -8,7 +8,13 @@ import {
   type Selection,
 } from "@heroui/react";
 import React from "react";
-import { Listbox, Tooltip, ListboxItem, ListboxSection } from "@heroui/react";
+import {
+  Chip,
+  Listbox,
+  Tooltip,
+  ListboxItem,
+  ListboxSection,
+} from "@heroui/react";
 import { cn } from "@heroui/react";
 
 import { Icon } from "@/lib/icons";
@@ -31,6 +37,7 @@ export type SidebarItem = {
   type?: SidebarItemType;
   startContent?: React.ReactNode;
   endContent?: React.ReactNode;
+  compteur?: number;
   items?: SidebarItem[];
   className?: string;
 };
@@ -241,12 +248,20 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
           return renderNestItem(item);
         }
 
+        const { compteur, ...propsItem } = item;
+
         return (
           <ListboxItem
-            {...item}
+            {...propsItem}
             key={item.key}
             endContent={
-              isCompact || hideEndContent ? null : (item.endContent ?? null)
+              isCompact || hideEndContent ? null : compteur ? (
+                <Chip color="warning" size="sm" variant="flat">
+                  {compteur}
+                </Chip>
+              ) : (
+                (item.endContent ?? null)
+              )
             }
             startContent={isCompact ? null : renderIcone(item)}
             textValue={item.title}

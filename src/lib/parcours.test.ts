@@ -11,6 +11,7 @@ import {
   etapeEstAccessible,
   jalonProfilsEstValide,
   estJalonBloquant,
+  estProfilExpert,
   NIVEAU_PROFILS,
 } from "@/lib/parcours";
 
@@ -208,6 +209,61 @@ describe("etapeEstAccessible", () => {
   });
 });
 
+describe("etapeEstAccessible — profil Expert", () => {
+  const expertCuisine = {
+    id: "3a-2h",
+    niveau: 3,
+    type: "BADGE",
+    specialiteId: "2h",
+  };
+  const contexte = (surcharge: Partial<ContexteParcours> = {}) => ({
+    niveauMax: Number.POSITIVE_INFINITY,
+    specialiteValidee: true,
+    jalonProfilsValide: true,
+    etapesValidees: new Set<string>(["2h"]),
+    ...surcharge,
+  });
+
+  it("ouvre l'Expert d'une specialite validee", () => {
+    expect(etapeEstAccessible(expertCuisine, contexte())).toBe(true);
+  });
+
+  it("verrouille l'Expert quand seule une autre specialite est validee", () => {
+    expect(
+      etapeEstAccessible(
+        expertCuisine,
+        contexte({ etapesValidees: new Set(["2f"]) }),
+      ),
+    ).toBe(false);
+  });
+
+  it("verrouille l'Expert tant que le livret Servir n'est pas lu", () => {
+    expect(
+      etapeEstAccessible(
+        expertCuisine,
+        contexte({ jalonProfilsValide: false }),
+      ),
+    ).toBe(false);
+  });
+
+  it("ouvre chaque Expert independamment des autres", () => {
+    const expertNature = { ...expertCuisine, id: "3a-2l", specialiteId: "2l" };
+    const validees = contexte({ etapesValidees: new Set(["2h", "2l"]) });
+
+    expect(etapeEstAccessible(expertCuisine, validees)).toBe(true);
+    expect(etapeEstAccessible(expertNature, validees)).toBe(true);
+  });
+
+  it("laisse visible un Expert deja valide", () => {
+    expect(
+      etapeEstAccessible(
+        expertCuisine,
+        contexte({ etapesValidees: new Set(["3a-2h"]) }),
+      ),
+    ).toBe(true);
+  });
+});
+
 describe("construireContexteParcours", () => {
   const parcours = [
     { id: "af", niveau: 0, type: "JALON" },
@@ -257,5 +313,16 @@ describe("estJalonBloquant", () => {
     expect(estJalonBloquant(jalon(1, true))).toBe(false);
     expect(estJalonBloquant(jalon(1, false, true))).toBe(false);
     expect(estJalonBloquant({ ...jalon(1), type: "BADGE" })).toBe(false);
+  });
+});
+
+describe("estProfilExpert", () => {
+  it("reconnait une etape reliee a une specialite", () => {
+    expect(estProfilExpert({ specialiteId: "2h" })).toBe(true);
+  });
+
+  it("ne confond pas les autres etapes avec un Expert", () => {
+    expect(estProfilExpert({ specialiteId: null })).toBe(false);
+    expect(estProfilExpert({})).toBe(false);
   });
 });

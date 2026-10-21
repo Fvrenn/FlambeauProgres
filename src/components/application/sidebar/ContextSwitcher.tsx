@@ -1,6 +1,6 @@
 "use client";
 
-import type { SessionUser } from "@/types";
+import type { EtapeReferent, SessionUser } from "@/types";
 
 import React from "react";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -18,6 +18,7 @@ import Image from "next/image";
 import { cn } from "@heroui/react";
 
 import { Icon } from "@/lib/icons";
+import { estProfilExpert } from "@/lib/parcours";
 import { estAdmin, estReferent } from "@/lib/roles";
 import { Avatar } from "@/components/ui";
 import { ROUTE_DECONNEXION } from "@/config/navigation";
@@ -116,6 +117,36 @@ export default function ContextSwitcher({
 
   const iconClasses = "text-xl text-default-500 pointer-events-none shrink-0";
 
+  const etapesSuivies = (
+    estReferent(user.role) ? (user.etapesReferent ?? []) : []
+  ).filter((etape) => etape.id !== currentEtapeId);
+  const etapesAutresQuExperts = etapesSuivies.filter(
+    (etape) => !estProfilExpert(etape),
+  );
+
+  const renderEtape = (etape: EtapeReferent, libelle: string) => (
+    <DropdownItem
+      key={`referent-${etape.id}`}
+      as={Link}
+      href={`/referent/dashboard?etapeId=${etape.id}`}
+      startContent={
+        etape.image_src ? (
+          <Image
+            alt={`Badge ${etape.name}`}
+            className="shrink-0 object-contain"
+            height={24}
+            src={etape.image_src}
+            width={24}
+          />
+        ) : (
+          <DashboardIcon className={iconClasses} />
+        )
+      }
+    >
+      {libelle}
+    </DropdownItem>
+  );
+
   const viewItems = [
     ...(pathname === "/"
       ? []
@@ -130,32 +161,9 @@ export default function ContextSwitcher({
             Mon Progrès (Chef)
           </DropdownItem>,
         ]),
-    ...(estReferent(user.role) && user.etapesReferent
-      ? user.etapesReferent
-          .filter((etape) => etape.id !== currentEtapeId)
-          .map((etape) => (
-            <DropdownItem
-              key={`referent-${etape.id}`}
-              as={Link}
-              href={`/referent/dashboard?etapeId=${etape.id}`}
-              startContent={
-                etape.image_src ? (
-                  <Image
-                    alt={`Badge ${etape.name}`}
-                    className="shrink-0 object-contain"
-                    height={24}
-                    src={etape.image_src}
-                    width={24}
-                  />
-                ) : (
-                  <DashboardIcon className={iconClasses} />
-                )
-              }
-            >
-              Référent : {etape.name}
-            </DropdownItem>
-          ))
-      : []),
+    ...etapesAutresQuExperts.map((etape) =>
+      renderEtape(etape, `Référent : ${etape.name}`),
+    ),
     ...(estAdmin(user.role) && !pathname.startsWith("/admin")
       ? [
           <DropdownItem

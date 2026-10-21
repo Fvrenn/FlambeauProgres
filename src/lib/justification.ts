@@ -27,6 +27,14 @@ export function estJustificationValidee(statut: StatutJustification): boolean {
   return STATUTS_VALIDES.includes(statut);
 }
 
+export function aCommenceAValider(
+  objectifs: { justifications: { statut: StatutJustification }[] }[],
+): boolean {
+  return objectifs.some(({ justifications }) =>
+    justifications.some(({ statut }) => estJustificationValidee(statut)),
+  );
+}
+
 export const LIBELLE_TYPE_OBJECTIF: Record<TypeObjectif, string> = {
   COMPETENCE: "compétence",
   REALISATION: "réalisation",

@@ -7,13 +7,20 @@ import type {
 
 import { Prisma, UserRole } from "@prisma/client";
 
+export type EtapeReferent = {
+  id: string;
+  name: string;
+  image_src: string | null;
+  specialiteId: string | null;
+};
+
 export type SessionUser = {
   id: string;
   name: string;
   email: string;
   image?: string | null;
   role?: UserRole;
-  etapesReferent?: { id: string; name: string; image_src: string | null }[];
+  etapesReferent?: EtapeReferent[];
   wp?: WpProfile | null;
 };
 
@@ -46,3 +53,9 @@ export type JustificationSuivie = Prisma.JustificationGetPayload<{
 export type ServiceResult<T = void> =
   | ([T] extends [void] ? { success: true } : { success: true; data: T })
   | { success: false; error: string };
+
+export type ChefAReviser = {
+  chef: UserResume;
+  etapeId: string;
+  etapeName: string;
+};
