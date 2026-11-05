@@ -1,11 +1,14 @@
 import { describe, it, expect } from "vitest";
 
 import {
+  accedeEspaceCommission,
+  accedeEspaceCoordination,
   estAdmin,
   estReferent,
   peutEvaluerEtape,
   peutValiderEtape,
-  suitEtapeSansAssignation,
+  consulteEtape3,
+  peutGererRemises,
   competenceSoumiseAEvaluation,
   etapeSeGereParAssignation,
 } from "@/lib/roles";
@@ -25,6 +28,41 @@ describe("estAdmin / estReferent", () => {
     expect(estReferent("COMMISSION_FORMATION")).toBe(true);
     expect(estReferent("COORDINATEUR_NATIONAL")).toBe(true);
     expect(estReferent("CHEF")).toBe(false);
+  });
+});
+
+describe("accedeEspaceCommission / accedeEspaceCoordination", () => {
+  it("sépare la commission, qui évalue, du coordinateur, qui valide", () => {
+    expect(accedeEspaceCommission("COMMISSION_FORMATION")).toBe(true);
+    expect(accedeEspaceCommission("COORDINATEUR_NATIONAL")).toBe(false);
+    expect(accedeEspaceCoordination("COORDINATEUR_NATIONAL")).toBe(true);
+    expect(accedeEspaceCoordination("COMMISSION_FORMATION")).toBe(false);
+  });
+
+  it("ouvre les deux espaces à l'admin, et aucun aux autres rôles", () => {
+    expect(accedeEspaceCommission("ADMIN")).toBe(true);
+    expect(accedeEspaceCoordination("ADMIN")).toBe(true);
+
+    for (const role of ["REFERENT", "CHEF", undefined] as const) {
+      expect(accedeEspaceCommission(role)).toBe(false);
+      expect(accedeEspaceCoordination(role)).toBe(false);
+    }
+  });
+});
+
+describe("peutGererRemises", () => {
+  it("réserve les remises de badges au Coordinateur et à l'admin", () => {
+    expect(peutGererRemises("COORDINATEUR_NATIONAL")).toBe(true);
+    expect(peutGererRemises("ADMIN")).toBe(true);
+
+    for (const role of [
+      "COMMISSION_FORMATION",
+      "REFERENT",
+      "CHEF",
+      undefined,
+    ] as const) {
+      expect(peutGererRemises(role)).toBe(false);
+    }
   });
 });
 
@@ -57,12 +95,13 @@ describe("peutValiderEtape", () => {
   });
 });
 
-describe("suitEtapeSansAssignation", () => {
-  it("n'ouvre l'accès direct que sur l'étape 3", () => {
-    expect(suitEtapeSansAssignation("COMMISSION_FORMATION", 3)).toBe(true);
-    expect(suitEtapeSansAssignation("COORDINATEUR_NATIONAL", 3)).toBe(true);
-    expect(suitEtapeSansAssignation("COMMISSION_FORMATION", 2)).toBe(false);
-    expect(suitEtapeSansAssignation("ADMIN", 3)).toBe(false);
+describe("consulteEtape3", () => {
+  it("ouvre l'Étape 3 aux rôles des deux espaces, admin compris", () => {
+    expect(consulteEtape3("COMMISSION_FORMATION")).toBe(true);
+    expect(consulteEtape3("COORDINATEUR_NATIONAL")).toBe(true);
+    expect(consulteEtape3("ADMIN")).toBe(true);
+    expect(consulteEtape3("REFERENT")).toBe(false);
+    expect(consulteEtape3("CHEF")).toBe(false);
   });
 });
 

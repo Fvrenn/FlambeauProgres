@@ -7,11 +7,13 @@ import type {
   TypeObjectif,
 } from "@prisma/client";
 import type { UserResume } from "@/types";
+import type { EspaceSuivi } from "@/lib/espaces-suivi";
 
 import { Divider, Button, Chip } from "@heroui/react";
 import Link from "next/link";
 
 import { Icon } from "@/lib/icons";
+import { lienDiscussion, lienRetourDossier } from "@/lib/espaces-suivi";
 import ValidationFinaleButton from "@/components/application/referent/ValidationFinaleButton";
 import { Avatar, Card, CardBody, StatusChip } from "@/components/ui";
 
@@ -31,6 +33,7 @@ type RevisionClientProps = {
   estComplet: boolean;
   peutValider: boolean;
   refusValidation: string;
+  espace: EspaceSuivi;
 };
 
 export default function RevisionClient({
@@ -40,6 +43,7 @@ export default function RevisionClient({
   estComplet,
   peutValider,
   refusValidation,
+  espace,
 }: RevisionClientProps) {
   return (
     <div className="h-full max-h-screen flex flex-col md:overflow-hidden bg-dashboard">
@@ -48,7 +52,7 @@ export default function RevisionClient({
           <Button
             as={Link}
             className="pl-0 min-w-0"
-            href={`/referent/dashboard?etapeId=${etape.id}&tab=a-reviser`}
+            href={lienRetourDossier(espace, etape.id)}
             size="sm"
             startContent={<Icon icon="solar:arrow-left-linear" />}
             variant="light"
@@ -141,7 +145,11 @@ export default function RevisionClient({
                           <Button
                             as={Link}
                             className="self-start bg-dashboard-tab data-[hover=true]:bg-dashboard-tab-hover"
-                            href={`/referent/dashboard?etapeId=${etape.id}&justification=${justification.id}`}
+                            href={lienDiscussion(
+                              espace,
+                              etape.id,
+                              justification.id,
+                            )}
                             size="sm"
                             startContent={
                               <Icon icon="solar:chat-round-line-linear" />

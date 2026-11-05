@@ -88,6 +88,7 @@ model User {
 
   statutsEtapes         ChefEtapeStatut[] @relation("ChefStatuts")
   validationsEffectuees ChefEtapeStatut[] @relation("ReferentValidations")
+  remisesCreees         RemiseBadges[]    @relation("RemisesCreees")
 
   realisationsValidees Justification[] @relation("ReferentJustificationValidations")
 
@@ -141,16 +142,33 @@ model ChefEtapeStatut {
   origine      OrigineValidation @default(APP)
   valideeAt    DateTime?
   valideeParId String?
+  remiseId     String?
 
-  chef       User  @relation("ChefStatuts", fields: [chefId], references: [id], onDelete: Cascade)
-  etape      Etape @relation(fields: [etapeId], references: [id], onDelete: Cascade)
-  valideePar User? @relation("ReferentValidations", fields: [valideeParId], references: [id], onDelete: SetNull)
+  chef       User          @relation("ChefStatuts", fields: [chefId], references: [id], onDelete: Cascade)
+  etape      Etape         @relation(fields: [etapeId], references: [id], onDelete: Cascade)
+  valideePar User?         @relation("ReferentValidations", fields: [valideeParId], references: [id], onDelete: SetNull)
+  remise     RemiseBadges? @relation(fields: [remiseId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([chefId, etapeId])
+  @@index([remiseId])
   @@map("chef_etape_statuts")
+}
+
+model RemiseBadges {
+  id        String   @id @default(cuid())
+  nom       String
+  date      DateTime
+  creeParId String?
+  createdAt DateTime @default(now())
+
+  creePar User?             @relation("RemisesCreees", fields: [creeParId], references: [id], onDelete: SetNull)
+  badges  ChefEtapeStatut[]
+
+  @@index([creeParId])
+  @@map("remises_badges")
 }
 
 model Objectif {

@@ -40,8 +40,10 @@ confort.
 
 - **Limite de fréquence des messages.** Chaque message déclenche des emails, sans limite. Acceptable
   tant que l'app reste interne ; à revoir si des abus apparaissent.
-- **Page Analyse : visibilité.** Tout référent voit les validations de toutes les étapes et de tous
-  les Chefs. À limiter aux étapes suivies, ou à réserver à certains rôles ?
+- **Page Analyse : visibilité.** ✅ Réservée à la Commission Formation, au Coordinateur National et
+  aux Admins : déplacée de `/referent/analyse` vers l'onglet Historique de `/commission/suivi` et `/coordination/suivi`
+  (composant partagé `src/components/analyse/`), voir
+  [espaces-commission-coordination](./espaces-commission-coordination.md).
 - **Page Analyse : période par défaut.** « Depuis le début » renvoie tout l'historique au
   navigateur ; « 12 mois » par défaut suffirait longtemps.
 - **Admins non assignés.** Depuis la phase 1, un admin non assigné à une spécialité ne voit plus son

@@ -5,8 +5,8 @@ import { estNiveauEtape3 } from "@/lib/roles";
 import { EmailService } from "@/services/email.service";
 import {
   chefThreadUrl,
-  referentRevisionUrl,
-  referentThreadUrl,
+  dossierAValiderUrl,
+  evaluateurThreadUrl,
 } from "@/lib/links";
 import { LIBELLE_TYPE_OBJECTIF, TITRE_VALIDATION } from "@/lib/justification";
 
@@ -211,7 +211,7 @@ export class NotificationService {
           objectifCode: objectif.code,
           objectifDescription: objectif.description,
           libelle,
-          reviewUrl: referentThreadUrl(etapeId, justificationId),
+          reviewUrl: evaluateurThreadUrl(etape, justificationId),
           justificationId,
         });
       }
@@ -254,7 +254,7 @@ export class NotificationService {
           to: coordinateur.email,
           chefName,
           etapeName: etape.name,
-          revisionUrl: referentRevisionUrl(chefId, etape.id),
+          revisionUrl: dossierAValiderUrl(chefId, etape.id),
         });
       }
     } catch (error) {
@@ -288,7 +288,10 @@ export class NotificationService {
       })),
     });
 
-    const replyUrl = referentThreadUrl(justification.etapeId, justification.id);
+    const replyUrl = evaluateurThreadUrl(
+      { id: justification.etapeId, niveau: justification.etape.niveau },
+      justification.id,
+    );
 
     for (const evaluateur of evaluateurs) {
       EmailService.sendNewMessage({

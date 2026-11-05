@@ -10,7 +10,6 @@ import {
 } from "@/lib/justification";
 import { prisma } from "@/lib/prisma";
 import {
-  NIVEAU_ETAPE_3,
   messageRefusValidation,
   peutEvaluerEtape,
   peutValiderEtape,
@@ -69,43 +68,6 @@ export class ReferentService {
         Boolean(assignation),
       ),
     };
-  }
-
-  static async getDashboardExperts(referent: ReferentConnecte) {
-    const [etapes, justificationsAValider, justificationsEnAttente] =
-      await Promise.all([
-        prisma.etape.findMany({
-          where: FILTRE_ETAPES_EXPERT,
-          select: { id: true, name: true, niveau: true },
-        }),
-        prisma.justification.findMany({
-          where: { etape: FILTRE_ETAPES_EXPERT, statut: "SOUMISE" },
-          include: JUSTIFICATION_SUIVIE_INCLUDE,
-          orderBy: { soumiseAt: "asc" },
-        }),
-        prisma.justification.findMany({
-          where: { etape: FILTRE_ETAPES_EXPERT, statut: "DEMANDE_PRECISION" },
-          include: JUSTIFICATION_SUIVIE_INCLUDE,
-          orderBy: { updatedAt: "asc" },
-        }),
-      ]);
-    const chefsAReviser = (
-      await Promise.all(etapes.map(chefsAReviserPourEtape))
-    ).flat();
-
-    return {
-      chefsAReviser,
-      justificationsAValider,
-      justificationsEnAttente,
-      peutEvaluer: peutEvaluerEtape(referent.role, NIVEAU_ETAPE_3, false),
-    };
-  }
-
-  static async compterActionsExperts(referent: ReferentConnecte) {
-    const { chefsAReviser, justificationsAValider, peutEvaluer } =
-      await ReferentService.getDashboardExperts(referent);
-
-    return peutEvaluer ? justificationsAValider.length : chefsAReviser.length;
   }
 
   static getJustificationSuivie(justificationId: string, etapeId: string) {
@@ -174,12 +136,7 @@ export class ReferentService {
   }
 }
 
-const FILTRE_ETAPES_EXPERT = {
-  specialiteId: { not: null },
-  actif: true,
-} satisfies Prisma.EtapeWhereInput;
-
-async function chefsAReviserPourEtape(etape: {
+export async function chefsAReviserPourEtape(etape: {
   id: string;
   name: string;
   niveau: number;

@@ -4,7 +4,7 @@ import type { AnalyticsPeriode } from "@/lib/analytics";
 import type { OptionFiltre } from "@/services/analytics.service";
 
 import React from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Select, SelectItem, cn } from "@heroui/react";
 
 import { PERIODES } from "@/lib/analytics";
@@ -25,6 +25,7 @@ export function FiltresBar({
   referents,
 }: FiltresBarProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = React.useTransition();
 
@@ -39,12 +40,12 @@ export function FiltresBar({
       }
 
       startTransition(() => {
-        router.replace(`/referent/analyse?${params.toString()}`, {
+        router.replace(`${pathname}?${params.toString()}`, {
           scroll: false,
         });
       });
     },
-    [router, searchParams],
+    [pathname, router, searchParams],
   );
 
   const selectClassNames = {

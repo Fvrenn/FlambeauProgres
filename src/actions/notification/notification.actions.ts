@@ -94,6 +94,8 @@ export async function markNotificationsAsReadForJustification(
     await NotificationService.markAsReadForJustification(user.id, parsed.data);
     revalidatePath("/");
     revalidatePath("/referent/dashboard");
+    revalidatePath("/commission/evaluations");
+    revalidatePath("/coordination/validations");
 
     return { success: true };
   } catch (error) {

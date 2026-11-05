@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 
 import { getUser } from "@/lib/auth-server";
 import { prisma } from "@/lib/prisma";
-import { estReferent, suitEtapeSansAssignation } from "@/lib/roles";
+import { consulteEtape3, estNiveauEtape3, estReferent } from "@/lib/roles";
 
 export async function authorizeRole(...roles: UserRole[]) {
   const user = await getUser();
@@ -60,6 +60,10 @@ export async function canAccessJustification(
     return true;
   }
 
+  if (estNiveauEtape3(justification.etape.niveau)) {
+    return consulteEtape3(role);
+  }
+
   return referentSuitEtape(
     userId,
     role,
@@ -74,12 +78,8 @@ async function referentSuitEtape(
   etapeId: string,
   niveau: number,
 ): Promise<boolean> {
-  if (!estReferent(role)) {
+  if (!estReferent(role) || estNiveauEtape3(niveau)) {
     return false;
-  }
-
-  if (suitEtapeSansAssignation(role, niveau)) {
-    return true;
   }
 
   const assignation = await prisma.etapeReferent.findFirst({

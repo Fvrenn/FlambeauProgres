@@ -1,4 +1,6 @@
+import { lienDiscussion, lienDossier } from "@/lib/espaces-suivi";
 import { origineApplication } from "@/lib/public-url";
+import { estNiveauEtape3 } from "@/lib/roles";
 
 export function chefThreadUrl(justificationId: string): string {
   const params = new URLSearchParams({ justification: justificationId });
@@ -6,20 +8,15 @@ export function chefThreadUrl(justificationId: string): string {
   return `${origineApplication()}/?${params.toString()}`;
 }
 
-export function referentThreadUrl(
-  etapeId: string,
+export function evaluateurThreadUrl(
+  etape: { id: string; niveau: number },
   justificationId: string,
 ): string {
-  const params = new URLSearchParams({
-    etapeId,
-    justification: justificationId,
-  });
+  const espace = estNiveauEtape3(etape.niveau) ? "commission" : "referent";
 
-  return `${origineApplication()}/referent/dashboard?${params.toString()}`;
+  return `${origineApplication()}${lienDiscussion(espace, etape.id, justificationId)}`;
 }
 
-export function referentRevisionUrl(chefId: string, etapeId: string): string {
-  const params = new URLSearchParams({ chefId, etapeId });
-
-  return `${origineApplication()}/referent/revision?${params.toString()}`;
+export function dossierAValiderUrl(chefId: string, etapeId: string): string {
+  return `${origineApplication()}${lienDossier("coordination", chefId, etapeId)}`;
 }

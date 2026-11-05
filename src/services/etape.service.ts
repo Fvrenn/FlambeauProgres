@@ -145,7 +145,7 @@ export class EtapeService {
     referentId: string;
     referentRole: UserRole | undefined;
     etapeId: string;
-  }): Promise<ServiceResult> {
+  }): Promise<ServiceResult<{ niveau: number }>> {
     const { chefId, referentId, referentRole, etapeId } = input;
 
     const [etape, chef, assignation] = await Promise.all([
@@ -185,7 +185,7 @@ export class EtapeService {
       message: `Félicitations ! Votre badge "${etape.name}" a été officiellement validé par ${validateur}. Vous pouvez le coudre sur votre chemise !`,
     });
 
-    return { success: true };
+    return { success: true, data: { niveau: etape.niveau } };
   }
 
   static async estDossierComplet(

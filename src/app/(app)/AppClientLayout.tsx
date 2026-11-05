@@ -1,6 +1,7 @@
 "use client";
 
 import type { SessionUser } from "@/types";
+import type { Vue } from "@/lib/vue";
 
 import React from "react";
 import { usePathname } from "next/navigation";
@@ -29,7 +30,8 @@ const SIDEBARS_FIXES = [
 type AppClientLayoutProps = {
   children: React.ReactNode;
   user: SessionUser;
-  sidebarItems: SidebarItem[];
+  sidebars: Record<Vue, SidebarItem[]>;
+  vueMemorisee: Vue;
   mainClassName?: string;
   sidebarClassName?: string;
   navItemClassNames?: SidebarNavItemClassNames;
@@ -39,13 +41,22 @@ type AppClientLayoutProps = {
 export default function AppClientLayout({
   children,
   user,
-  sidebarItems,
+  sidebars,
+  vueMemorisee,
   mainClassName,
   sidebarClassName,
   navItemClassNames,
   contextSwitcherClassName,
 }: AppClientLayoutProps) {
   const pathname = usePathname();
+  const vueDuChemin = vueDepuisChemin(pathname);
+  const [derniereVue, setDerniereVue] = React.useState(vueMemorisee);
+
+  if (vueDuChemin && vueDuChemin !== derniereVue) {
+    setDerniereVue(vueDuChemin);
+  }
+
+  const sidebarItems = sidebars[vueDuChemin ?? derniereVue];
   const sidebarSurfaceClasses =
     sidebarClassName ?? "bg-background border-r-small border-divider";
 
@@ -85,12 +96,10 @@ export default function AppClientLayout({
   };
 
   React.useEffect(() => {
-    const vue = vueDepuisChemin(pathname);
-
-    if (vue) {
-      document.cookie = `${COOKIE_DERNIERE_VUE}=${vue}; path=/; max-age=${UN_AN_EN_SECONDES}; samesite=lax`;
+    if (vueDuChemin) {
+      document.cookie = `${COOKIE_DERNIERE_VUE}=${vueDuChemin}; path=/; max-age=${UN_AN_EN_SECONDES}; samesite=lax`;
     }
-  }, [pathname]);
+  }, [vueDuChemin]);
 
   return (
     <div className="h-screen min-h-[48rem] flex flex-col md:flex-row">

@@ -54,7 +54,7 @@ export class AccueilService {
     }
 
     return {
-      etapes: progression.etapes.filter((etape) => etape.wpValue !== null),
+      etapes: progression.etapes.filter((etape) => etape.type !== "JALON"),
       groupes,
       groupeActuel,
     };

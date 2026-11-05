@@ -32,13 +32,18 @@ const ecriture = vi.mocked(ecritureProgressionActive);
 const pousserGroupe = vi.mocked(pousserGroupeVersWp);
 const progression = vi.mocked(WpProgressionService, true);
 
-const etape = (id: string, wpValue: string | null) => ({
+const etape = (
+  id: string,
+  wpValue: string | null,
+  type: "BADGE" | "JALON" = "BADGE",
+) => ({
   id,
   number: id,
   name: id,
   image_src: null,
   couleur: null,
   niveau: 2,
+  type,
   wpValue,
   declaree: false,
   origine: null,
@@ -59,16 +64,20 @@ beforeEach(() => {
 });
 
 describe("AccueilService.getEtat", () => {
-  it("propose les étapes connues de la plateforme et les groupes nettoyés", async () => {
+  it("propose les étapes à déclarer, hors jalons, et les groupes nettoyés", async () => {
     progression.getEtat.mockResolvedValue({
-      etapes: [etape("2b", "202"), etape("0", null)],
+      etapes: [
+        etape("2b", "202"),
+        etape("3a", null),
+        etape("0", null, "JALON"),
+      ],
       ecritureActive: true,
     });
 
     const etat = await AccueilService.getEtat("u1", "7");
 
     expect(etat).toEqual({
-      etapes: [etape("2b", "202")],
+      etapes: [etape("2b", "202"), etape("3a", null)],
       groupes: [
         { value: "1", label: "BARR" },
         { value: "7", label: "COLMAR" },

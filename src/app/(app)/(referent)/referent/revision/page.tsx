@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 
-import RevisionClient from "./RevisionClient";
-
+import RevisionClient from "@/components/application/referent/RevisionClient";
 import { RafraichissementArrierePlan } from "@/components/application/rafraichissement/RafraichissementArrierePlan";
 import { exigerRole, suitEtape } from "@/lib/auth-guards";
 import { ROLES_REFERENT } from "@/lib/roles";
@@ -43,6 +42,7 @@ export default async function RevisionPage({
       <RafraichissementArrierePlan />
       <RevisionClient
         chef={chef}
+        espace="referent"
         estComplet={estComplet}
         etape={etape}
         objectifs={objectifs}

@@ -2,6 +2,7 @@
 
 import type { SortDescriptor } from "@heroui/react";
 import type { ValidationEvent } from "@/lib/analytics";
+import type { EspaceSuivi } from "@/lib/espaces-suivi";
 
 import React from "react";
 import Link from "next/link";
@@ -13,12 +14,20 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
-  cn,
 } from "@heroui/react";
 
 import { versCsv } from "@/lib/analytics";
+import { telechargerCsv } from "@/lib/csv";
+import { lienDiscussion } from "@/lib/espaces-suivi";
+import { estNiveauEtape3 } from "@/lib/roles";
 import { Icon } from "@/lib/icons";
-import { Badge, Button, Input } from "@/components/ui";
+import {
+  Badge,
+  Button,
+  CLASSES_TABLEAU,
+  FiltreSegmente,
+  Input,
+} from "@/components/ui";
 
 const LIGNES_PAR_PAGE = 20;
 
@@ -47,8 +56,10 @@ const formatteurDate = new Intl.DateTimeFormat("fr-FR", {
 
 export function JournalTable({
   evenements,
+  espace,
 }: {
   evenements: ValidationEvent[];
+  espace: Exclude<EspaceSuivi, "referent">;
 }) {
   const [recherche, setRecherche] = React.useState("");
   const [type, setType] = React.useState<(typeof TYPES)[number]["key"]>("TOUT");
@@ -115,16 +126,10 @@ export function JournalTable({
   }, [recherche, type]);
 
   const exporter = React.useCallback(() => {
-    const blob = new Blob([`﻿${versCsv(triees)}`], {
-      type: "text/csv;charset=utf-8;",
-    });
-    const url = URL.createObjectURL(blob);
-    const lien = document.createElement("a");
-
-    lien.href = url;
-    lien.download = `validations-${new Date().toISOString().slice(0, 10)}.csv`;
-    lien.click();
-    URL.revokeObjectURL(url);
+    telechargerCsv(
+      versCsv(triees),
+      `validations-${new Date().toISOString().slice(0, 10)}.csv`,
+    );
   }, [triees]);
 
   const renderCell = (evenement: ValidationEvent, cle: React.Key) => {
@@ -150,7 +155,11 @@ export function JournalTable({
             {evenement.justificationId ? (
               <Link
                 className="truncate text-nav-active underline-offset-2 hover:underline"
-                href={`/referent/dashboard?etapeId=${evenement.etapeId}&justification=${evenement.justificationId}`}
+                href={lienDiscussion(
+                  estNiveauEtape3(evenement.etapeNiveau) ? espace : "referent",
+                  evenement.etapeId,
+                  evenement.justificationId,
+                )}
               >
                 {evenement.objet}
               </Link>
@@ -177,24 +186,7 @@ export function JournalTable({
             onClear={() => setRecherche("")}
             onValueChange={setRecherche}
           />
-          <div className="flex rounded-full bg-dashboard-card p-1">
-            {TYPES.map((option) => (
-              <button
-                key={option.key}
-                aria-pressed={type === option.key}
-                className={cn(
-                  "rounded-full px-3 py-1.5 text-tiny font-medium transition-colors duration-fast",
-                  type === option.key
-                    ? "bg-nav-active text-white"
-                    : "text-default-500 hover:text-foreground",
-                )}
-                type="button"
-                onClick={() => setType(option.key)}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
+          <FiltreSegmente options={TYPES} valeur={type} onChange={setType} />
         </div>
         <Button
           size="sm"
@@ -208,36 +200,7 @@ export function JournalTable({
 
       <Table
         aria-label="Historique des validations"
-        classNames={{
-          wrapper: [
-            "rounded-[22px]",
-            "bg-dashboard-panel",
-            "shadow-none",
-            "border-none",
-            "p-0",
-          ],
-          th: [
-            "bg-transparent",
-            "text-[11px]",
-            "font-semibold",
-            "uppercase",
-            "tracking-wider",
-            "text-foreground/40",
-            "py-4",
-            "px-4",
-            "first:rounded-tl-[22px]",
-            "last:rounded-tr-[22px]",
-          ],
-          td: [
-            "py-3",
-            "px-4",
-            "text-sm",
-            "border-b",
-            "border-dashboard-border/60",
-            "group-last:border-b-0",
-          ],
-          tr: ["group", "transition-colors", "hover:bg-dashboard-tab"],
-        }}
+        classNames={CLASSES_TABLEAU}
         sortDescriptor={sortDescriptor}
         onSortChange={setSortDescriptor}
       >

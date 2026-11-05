@@ -1,12 +1,14 @@
 "use client";
 
 import type { ChefAReviser } from "@/types";
+import type { EspaceSuivi } from "@/lib/espaces-suivi";
 
 import React from "react";
 import { Chip } from "@heroui/react";
 import { useRouter } from "next/navigation";
 
 import { Icon } from "@/lib/icons";
+import { lienDossier } from "@/lib/espaces-suivi";
 import AdminDataTable, { Column } from "@/components/admin/AdminDataTable";
 import { BoutonOuvrirLigne } from "@/components/admin/BoutonOuvrirLigne";
 import { CelluleUtilisateur } from "@/components/admin/CelluleUtilisateur";
@@ -14,6 +16,7 @@ import { Avatar, Card, CardBody } from "@/components/ui";
 
 type ChefsAReviserListProps = {
   chefs: ChefAReviser[];
+  espace: EspaceSuivi;
 };
 
 const columns: Column[] = [
@@ -23,7 +26,10 @@ const columns: Column[] = [
   { key: "actions", label: "ACTIONS" },
 ];
 
-export default function ChefsAReviserList({ chefs }: ChefsAReviserListProps) {
+export default function ChefsAReviserList({
+  chefs,
+  espace,
+}: ChefsAReviserListProps) {
   const router = useRouter();
 
   if (chefs.length === 0) {
@@ -52,7 +58,7 @@ export default function ChefsAReviserList({ chefs }: ChefsAReviserListProps) {
   }));
 
   const reviseHref = (dossier: (typeof data)[number]) =>
-    `/referent/revision?chefId=${dossier.chefId}&etapeId=${dossier.etapeId}`;
+    lienDossier(espace, dossier.chefId, dossier.etapeId);
 
   const renderCell = (chef: (typeof data)[number], columnKey: React.Key) => {
     switch (columnKey) {

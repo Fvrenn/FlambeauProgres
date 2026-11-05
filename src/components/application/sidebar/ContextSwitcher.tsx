@@ -18,10 +18,18 @@ import Image from "next/image";
 import { cn } from "@heroui/react";
 
 import { Icon } from "@/lib/icons";
-import { estProfilExpert } from "@/lib/parcours";
-import { estAdmin, estReferent } from "@/lib/roles";
+import {
+  accedeEspaceCommission,
+  accedeEspaceCoordination,
+  estAdmin,
+  estReferent,
+} from "@/lib/roles";
 import { Avatar } from "@/components/ui";
 import { ROUTE_DECONNEXION } from "@/config/navigation";
+
+import "./ContextSwitcher.css";
+
+const DELAI_RETRAIT_MENU_MS = 200;
 
 function DropdownIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -96,6 +104,29 @@ export default function ContextSwitcher({
   triggerClassName?: string;
 }) {
   const pathname = usePathname();
+  const [menuOuvert, setMenuOuvert] = React.useState(false);
+  const [menuEnFermeture, setMenuEnFermeture] = React.useState(false);
+  const minuteurFermeture =
+    React.useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  React.useEffect(() => () => clearTimeout(minuteurFermeture.current), []);
+
+  const changerOuvertureMenu = (ouvert: boolean) => {
+    clearTimeout(minuteurFermeture.current);
+
+    if (ouvert) {
+      setMenuEnFermeture(false);
+      setMenuOuvert(true);
+
+      return;
+    }
+
+    setMenuEnFermeture(true);
+    minuteurFermeture.current = setTimeout(() => {
+      setMenuOuvert(false);
+      setMenuEnFermeture(false);
+    }, DELAI_RETRAIT_MENU_MS);
+  };
 
   const searchParams = useSearchParams();
   const currentEtapeId = searchParams.get("etapeId");
@@ -106,6 +137,10 @@ export default function ContextSwitcher({
 
   const getCurrentContext = () => {
     if (pathname.startsWith("/admin")) return "Interface Admin";
+
+    if (pathname.startsWith("/commission")) return "Commission Formation";
+
+    if (pathname.startsWith("/coordination")) return "Coordination nationale";
 
     if (pathname.startsWith("/referent") && currentEtape) {
       return `Référent : ${currentEtape.name}`;
@@ -120,11 +155,8 @@ export default function ContextSwitcher({
   const etapesSuivies = (
     estReferent(user.role) ? (user.etapesReferent ?? []) : []
   ).filter((etape) => etape.id !== currentEtapeId);
-  const etapesAutresQuExperts = etapesSuivies.filter(
-    (etape) => !estProfilExpert(etape),
-  );
 
-  const renderEtape = (etape: EtapeReferent, libelle: string) => (
+  const renderEtape = (etape: EtapeReferent) => (
     <DropdownItem
       key={`referent-${etape.id}`}
       as={Link}
@@ -143,7 +175,7 @@ export default function ContextSwitcher({
         )
       }
     >
-      {libelle}
+      {etape.name}
     </DropdownItem>
   );
 
@@ -161,9 +193,33 @@ export default function ContextSwitcher({
             Mon Progrès (Chef)
           </DropdownItem>,
         ]),
-    ...etapesAutresQuExperts.map((etape) =>
-      renderEtape(etape, `Référent : ${etape.name}`),
-    ),
+    ...(accedeEspaceCommission(user.role) && !pathname.startsWith("/commission")
+      ? [
+          <DropdownItem
+            key="commission"
+            as={Link}
+            description="Évaluer l'Étape 3"
+            href="/commission/evaluations"
+            startContent={<DashboardIcon className={iconClasses} />}
+          >
+            Commission Formation
+          </DropdownItem>,
+        ]
+      : []),
+    ...(accedeEspaceCoordination(user.role) &&
+    !pathname.startsWith("/coordination")
+      ? [
+          <DropdownItem
+            key="coordination"
+            as={Link}
+            description="Valider l'Étape 3"
+            href="/coordination/validations"
+            startContent={<DashboardIcon className={iconClasses} />}
+          >
+            Coordination nationale
+          </DropdownItem>,
+        ]
+      : []),
     ...(estAdmin(user.role) && !pathname.startsWith("/admin")
       ? [
           <DropdownItem
@@ -179,13 +235,22 @@ export default function ContextSwitcher({
       : []),
   ];
 
+  const etapeItems = etapesSuivies.map(renderEtape);
+
   return (
     <div className="flex flex-col">
       <Dropdown
+        disableAnimation
         classNames={{
+          base: cn(
+            "menu-contexte",
+            menuEnFermeture && "menu-contexte--fermeture",
+          ),
           content: "bg-dashboard-panel border border-dashboard-border",
         }}
+        isOpen={menuOuvert}
         placement={isCompact ? "right-start" : "bottom-end"}
+        onOpenChange={changerOuvertureMenu}
       >
         <DropdownTrigger>
           {isCompact ? (
@@ -255,6 +320,17 @@ export default function ContextSwitcher({
                     title="Changer de vue"
                   >
                     {viewItems}
+                  </DropdownSection>,
+                ]
+              : []),
+            ...(etapeItems.length > 0
+              ? [
+                  <DropdownSection
+                    key="etapes"
+                    showDivider
+                    title="Étapes suivies"
+                  >
+                    {etapeItems}
                   </DropdownSection>,
                 ]
               : []),

@@ -89,12 +89,19 @@ Les `wpValue` en base correspondent exactement à cette liste (verrouillé par
 
 À chaque requête authentifiée, au plus une fois toutes les 5 minutes :
 
-| Situation                                      | Effet                            |
-| ---------------------------------------------- | -------------------------------- |
-| Cochée sur la plateforme, absente en base      | Création `VALIDE` / `PLATEFORME` |
-| Cochée sur la plateforme, statut ≠ `VALIDE`    | Passage `VALIDE` / `PLATEFORME`  |
-| Décochée sur la plateforme, ligne `PLATEFORME` | Suppression                      |
-| Décochée sur la plateforme, ligne `APP`        | **Inchangée** (l'app fait foi)   |
+| Situation                                      | Effet                               |
+| ---------------------------------------------- | ----------------------------------- |
+| Cochée sur la plateforme, absente en base      | Création `VALIDE` / `PLATEFORME`    |
+| Cochée sur la plateforme, statut ≠ `VALIDE`    | Passage `VALIDE` / `PLATEFORME`     |
+| Décochée sur la plateforme, ligne `PLATEFORME` | Suppression                         |
+| Décochée sur la plateforme, ligne `APP`        | **Inchangée** (l'app fait foi)      |
+| Étape sans `wpValue`, ligne `PLATEFORME`       | **Inchangée** (déclarée dans l'app) |
+
+Les étapes sans équivalent sur la plateforme (`wpValue` vide, hors jalons, ex. les Experts de
+l'Étape 3) restent cochables dans `/profil` et la modal d'accueil : elles sont enregistrées en
+`VALIDE` / `PLATEFORME` (pastille « Déclarée »), rien n'est envoyé à la plateforme pour elles, et la
+synchronisation ne les retire pas (`WpProgressionService.synchroniser`). Seul un décochage dans le
+profil les supprime.
 
 Une validation faite dans l'app (`EtapeService.validateBadge` / `autoValiderJalon`) repasse toujours
 l'origine à `APP`. Un échec de synchronisation n'empêche jamais la connexion.
@@ -147,6 +154,7 @@ plateforme n'apparaissent ni dans les KPI, ni dans le journal, ni dans les compt
       l'app ne connaît pas (Branche Lumignons, Branche Pionniers, Ma spé, Étape 3) en plus des
       étapes cochées et de celles validées dans l'app ; si cette relecture échoue, rien n'est
       envoyé.
+
 - [x] **Phase 6 — Envoi automatique des validations de l'app** : une étape validée par un référent
       arrive sur la plateforme sans action du chef.
       ✅ Fait — `WpProgressionService.envoyerValidationsManquantes`, appelée par `synchroniser` (donc à
@@ -162,7 +170,7 @@ plateforme n'apparaissent ni dans les KPI, ni dans le journal, ni dans les compt
       que le profil de la personne connectée, un membre reste donc « Sans groupe » tant qu'il ne
       s'est pas reconnecté. Migration `20261012120000_groupe_utilisateur`.
       Affichage : `/profil` (ligne « Groupe »), `/admin/users` (colonne + filtre avec l'effectif de
-      chaque groupe), `/referent/analyse` (carte « Étapes validées par groupe », filtre
+      chaque groupe), `/commission/suivi`, onglet Historique (carte « Étapes validées par groupe », filtre
       Toutes / Flambeaux Progrès / Plateforme). Calculs purs dans `src/lib/groupes.ts`,
       requête dans `AnalyticsService.getValidationsParGroupe` : validations `APP` signées par un
       référent (période et référent appliqués) + validations `PLATEFORME` des étapes qui ont un

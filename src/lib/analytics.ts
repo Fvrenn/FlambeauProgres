@@ -1,5 +1,7 @@
 import type { UserRole } from "@prisma/client";
 
+import { tableauCsv } from "@/lib/csv";
+
 export type AnalyticsPeriode = "30j" | "3m" | "12m" | "tout";
 
 export const PERIODES: { key: AnalyticsPeriode; label: string }[] = [
@@ -51,6 +53,7 @@ export type ValidationEvent = {
   chefName: string;
   etapeId: string;
   etapeName: string;
+  etapeNiveau: number;
   objet: string;
   justificationId: string | null;
 };
@@ -127,11 +130,11 @@ const ENTETES_CSV = [
   "Etape",
   "Objet",
 ];
-const DEBUT_DE_FORMULE = /^[=+\-@\t\r]/;
 
 export function versCsv(evenements: ValidationEvent[]): string {
-  const lignes = evenements.map((evenement) =>
-    [
+  return tableauCsv(
+    ENTETES_CSV,
+    evenements.map((evenement) => [
       evenement.date.toISOString(),
       evenement.type,
       evenement.referentName,
@@ -139,16 +142,6 @@ export function versCsv(evenements: ValidationEvent[]): string {
       evenement.chefName,
       evenement.etapeName,
       evenement.objet,
-    ]
-      .map(celluleCsv)
-      .join(";"),
+    ]),
   );
-
-  return [ENTETES_CSV.map(celluleCsv).join(";"), ...lignes].join("\r\n");
-}
-
-function celluleCsv(valeur: string): string {
-  const texte = DEBUT_DE_FORMULE.test(valeur) ? `'${valeur}` : valeur;
-
-  return `"${texte.replace(/"/g, '""')}"`;
 }

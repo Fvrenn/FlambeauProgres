@@ -31,18 +31,18 @@ Faux positifs de `knip`, à ne pas supprimer :
 
 Duplications retenues (même règle ou même mécanique, pas une ressemblance) :
 
-| #   | Où                                                                                                                          | Quoi                                                                    |
-| --- | --------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| R1  | `app/(app)/AppClientLayout.tsx`                                                                                             | 3 sidebars identiques, seule la largeur et le point de rupture changent |
-| R2  | `components/application/sidebar/sidebar.tsx`                                                                                | icône compacte avec tooltip écrite deux fois                            |
-| R3  | `services/discussion.service.ts`                                                                                            | même chargement de justification (include) deux fois                    |
-| R4  | `services/etape.service.ts`                                                                                                 | chargement « étapes + statuts validés du chef » répété                  |
-| R5  | `services/justification.service.ts`                                                                                         | contrôles communs d'une soumission (accès, texte requis)                |
-| E1  | `actions/dashboard/realisation.actions.ts`, `actions/discussion/discussion.actions.ts`                                      | upload d'un fichier de justification (26 lignes identiques)             |
-| E2  | `app/(app)/profil/layout.tsx`, `app/(app)/signaler-un-bug/layout.tsx`                                                       | layout identique au nom près                                            |
-| E3  | `admin/dashboard/page.tsx`, `referent/dashboard/ReferentDashboardClient.tsx`, `referent/analyse/_components/KpiBandeau.tsx` | carte de statistique (icône, valeur, libellé)                           |
-| E4  | `components/application/referent/ChefsAReviserList.tsx`, `referent/dashboard/_components/panels/JustificationsPanel.tsx`    | cellule « chef » (avatar, nom, email) et bouton d'ouverture de ligne    |
-| E5  | `admin/etapes/_components/{EtapeModal,ObjectifModal}.tsx`, `admin/formations/_components/FormationModal.tsx`                | soumission d'une modal admin (transition, erreur, fermeture)            |
+| #   | Où                                                                                                                       | Quoi                                                                    |
+| --- | ------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------- |
+| R1  | `app/(app)/AppClientLayout.tsx`                                                                                          | 3 sidebars identiques, seule la largeur et le point de rupture changent |
+| R2  | `components/application/sidebar/sidebar.tsx`                                                                             | icône compacte avec tooltip écrite deux fois                            |
+| R3  | `services/discussion.service.ts`                                                                                         | même chargement de justification (include) deux fois                    |
+| R4  | `services/etape.service.ts`                                                                                              | chargement « étapes + statuts validés du chef » répété                  |
+| R5  | `services/justification.service.ts`                                                                                      | contrôles communs d'une soumission (accès, texte requis)                |
+| E1  | `actions/dashboard/realisation.actions.ts`, `actions/discussion/discussion.actions.ts`                                   | upload d'un fichier de justification (26 lignes identiques)             |
+| E2  | `app/(app)/profil/layout.tsx`, `app/(app)/signaler-un-bug/layout.tsx`                                                    | layout identique au nom près                                            |
+| E3  | `admin/dashboard/page.tsx`, `referent/dashboard/ReferentDashboardClient.tsx`, `components/analyse/KpiBandeau.tsx`        | carte de statistique (icône, valeur, libellé)                           |
+| E4  | `components/application/referent/ChefsAReviserList.tsx`, `referent/dashboard/_components/panels/JustificationsPanel.tsx` | cellule « chef » (avatar, nom, email) et bouton d'ouverture de ligne    |
+| E5  | `admin/etapes/_components/{EtapeModal,ObjectifModal}.tsx`, `admin/formations/_components/FormationModal.tsx`             | soumission d'une modal admin (transition, erreur, fermeture)            |
 
 Écartées volontairement : les variantes `tailwind-variants` de `ui/badge.tsx` et `ui/button.tsx`
 (deux composants distincts qui évolueront séparément), les props proches de `ContentAction` et

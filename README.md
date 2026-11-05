@@ -90,6 +90,8 @@ obligatoires (vérifiées au démarrage par `scripts/check-env.mjs`) ; sans `SMT
 | `CLAUDE.md` | Consignes courtes pour travailler sur le projet |
 | `GUIDE-CODE-PROPRE.md` | Règles de code, où ranger quoi, conventions Next.js |
 | `docs/etape-3-profils.md` | Étape 3 « Servir » : profils, accès, rôles et circuit d'évaluation |
+| `docs/espaces-commission-coordination.md` | Espaces Commission Formation et Coordination nationale (Étape 3) |
+| `docs/suivi-remises-badges.md` | Suivi : en attente, badges à remettre et remises de badges |
 | `docs/sync-progression-plateforme.md` | Synchronisation de la progression avec la plateforme WordPress |
 | `docs/csp-durcissement.md` | Content-Security-Policy et suppression des CDN tiers |
 | `docs/refacto-code-propre.md` | Refacto et audit de sécurité de septembre 2026 (historique) |

@@ -1,0 +1,30 @@
+export const CLASSES_TABLEAU = {
+  wrapper: [
+    "rounded-[22px]",
+    "bg-dashboard-panel",
+    "shadow-none",
+    "border-none",
+    "p-0",
+  ],
+  th: [
+    "bg-transparent",
+    "text-[11px]",
+    "font-semibold",
+    "uppercase",
+    "tracking-wider",
+    "text-foreground/40",
+    "py-4",
+    "px-4",
+    "first:rounded-tl-[22px]",
+    "last:rounded-tr-[22px]",
+  ],
+  td: [
+    "py-3",
+    "px-4",
+    "text-sm",
+    "border-b",
+    "border-dashboard-border/60",
+    "group-last:border-b-0",
+  ],
+  tr: ["group", "transition-colors", "hover:bg-dashboard-tab"],
+};

@@ -26,7 +26,7 @@ export function ProgressionPlateforme({
   const [isPending, startTransition] = React.useTransition();
 
   const modifiable = (etape: EtapeProgressionPlateforme) =>
-    ecritureActive && etape.origine !== "APP" && etape.wpValue !== null;
+    ecritureActive && etape.origine !== "APP" && etape.type !== "JALON";
 
   const aChange =
     selection.length !== initiales.length ||
@@ -90,7 +90,7 @@ export function ProgressionPlateforme({
               )}
               {etape.origine === "PLATEFORME" && (
                 <Chip color="default" size="sm" variant="flat">
-                  Plateforme
+                  {etape.wpValue === null ? "Déclarée" : "Plateforme"}
                 </Chip>
               )}
             </div>

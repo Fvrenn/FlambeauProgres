@@ -93,7 +93,11 @@ import type { IconifyJSON } from "@iconify/types";
 export const solarIcons: IconifyJSON = `;
 
 fs.writeFileSync(OUTPUT, `${entete}${JSON.stringify(sousEnsemble, null, 2)};\n`);
-execFileSync("npx", ["prettier", "--write", OUTPUT], { stdio: "ignore" });
+execFileSync(
+  process.execPath,
+  [require.resolve("prettier/bin/prettier.cjs"), "--write", OUTPUT],
+  { stdio: "ignore" },
+);
 
 const poids = fs.statSync(OUTPUT).size;
 const nbAlias = Object.keys(sousEnsemble.aliases).length;

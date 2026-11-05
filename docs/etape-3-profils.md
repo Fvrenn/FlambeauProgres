@@ -179,6 +179,10 @@ règle devient « **sa** spé validée ».
       Comment : une seule requête par liste sur les étapes à `specialiteId` non nul ; le badge
       « à réviser » reste calculé par étape. Aucune demande formelle d'Expert (option A) : un chef
       apparaît dès sa première justification soumise.
+      ⚠️ **Remplacé** par les espaces Commission Formation et Coordination nationale, qui couvrent
+      toute l'Étape 3 et séparent l'évaluation de la validation : voir
+      [espaces-commission-coordination](./espaces-commission-coordination.md). La page
+      `/referent/experts` n'existe plus.
 - [ ] **Phase 5 — Import plateforme.** Sans objet tant que `301 Expert` n'est pas développé côté
       plateforme ; à rouvrir alors (un chef avec plusieurs Experts pour un seul terme).
 

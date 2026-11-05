@@ -23,6 +23,7 @@ function evenement(surcharge: Partial<ValidationEvent> = {}): ValidationEvent {
     chefName: "Chef A",
     etapeId: "et1",
     etapeName: "Cuisine",
+    etapeNiveau: 2,
     objet: "3.2 - Cuisiner",
     justificationId: "j1",
     ...surcharge,
@@ -139,6 +140,7 @@ describe("versCsv", () => {
     chefName: "Jean",
     etapeId: "e1",
     etapeName: "Cuisine",
+    etapeNiveau: 2,
     objet: 'H1 - Dire "bonjour"',
     justificationId: "j1",
   };

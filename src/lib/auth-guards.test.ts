@@ -171,6 +171,27 @@ describe("canAccessJustification", () => {
     ).toBe(true);
   });
 
+  it("returns true for an admin on an etape 3, to read it", async () => {
+    db.justification.findUnique.mockResolvedValue({
+      chefId: "other",
+      etapeId: "e3",
+      etape: { niveau: 3 },
+    } as never);
+
+    expect(await canAccessJustification("admin1", "ADMIN", "j1")).toBe(true);
+  });
+
+  it("returns false for a referent on an etape 3, even if assigned", async () => {
+    db.justification.findUnique.mockResolvedValue({
+      chefId: "other",
+      etapeId: "e3",
+      etape: { niveau: 3 },
+    } as never);
+    db.etapeReferent.findFirst.mockResolvedValue({ id: "a1" } as never);
+
+    expect(await canAccessJustification("ref1", "REFERENT", "j1")).toBe(false);
+  });
+
   it("still requires an assignation for the commission on an etape 2", async () => {
     db.justification.findUnique.mockResolvedValue({
       chefId: "other",
@@ -223,11 +244,17 @@ describe("suitEtape", () => {
     expect(await suitEtape("ref1", "REFERENT", "e1")).toBe(true);
   });
 
-  it("accepte la commission Formation sur l'étape 3 sans assignation", async () => {
+  it("ne fait plus suivre l'étape 3 depuis la vue référent", async () => {
     db.etape.findUnique.mockResolvedValue({ niveau: 3 } as never);
+    db.etapeReferent.findFirst.mockResolvedValue({ id: "a1" } as never);
 
-    expect(await suitEtape("cf1", "COMMISSION_FORMATION", "e3")).toBe(true);
-    expect(db.etapeReferent.findFirst).not.toHaveBeenCalled();
+    for (const role of [
+      "COMMISSION_FORMATION",
+      "COORDINATEUR_NATIONAL",
+      "REFERENT",
+    ] as const) {
+      expect(await suitEtape("u1", role, "e3")).toBe(false);
+    }
   });
 
   it("refuse un chef même assigné par erreur", async () => {

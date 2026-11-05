@@ -6,7 +6,8 @@ import { redirect } from "next/navigation";
 
 import { authorizeRole } from "@/lib/auth-guards";
 import { getUser } from "@/lib/auth-server";
-import { estReferent, ROLES_REFERENT } from "@/lib/roles";
+import { type EspaceSuivi, lienRetourDossier } from "@/lib/espaces-suivi";
+import { estNiveauEtape3, estReferent, ROLES_REFERENT } from "@/lib/roles";
 import { EtapeService } from "@/services/etape.service";
 
 const validateEtapeSchema = z.object({
@@ -15,6 +16,8 @@ const validateEtapeSchema = z.object({
 });
 
 export async function validateEtape(chefId: string, etapeId: string) {
+  let espace: EspaceSuivi = "referent";
+
   try {
     const user = await getUser();
 
@@ -39,15 +42,15 @@ export async function validateEtape(chefId: string, etapeId: string) {
       return result;
     }
 
-    revalidatePath("/referent/dashboard");
-    revalidatePath("/referent/revision");
+    espace = estNiveauEtape3(result.data.niveau) ? "coordination" : "referent";
+    revalidatePath("/", "layout");
   } catch (error) {
     console.error("Erreur lors de la validation finale de l'étape:", error);
 
     return { success: false, error: "Erreur serveur" };
   }
 
-  redirect(`/referent/dashboard?etapeId=${etapeId}`);
+  redirect(lienRetourDossier(espace, etapeId));
 }
 
 const validerJalonSchema = z.object({

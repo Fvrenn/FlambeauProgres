@@ -17,7 +17,7 @@ import {
 import { prisma } from "@/lib/prisma";
 import { ROLES_REFERENT } from "@/lib/roles";
 
-type AnalyticsFiltres = {
+export type AnalyticsFiltres = {
   periode: AnalyticsPeriode;
   etapeId?: string;
   referentId?: string;
@@ -42,7 +42,7 @@ const CHAMPS_VALIDATION = {
   chefId: true,
   chef: { select: { name: true } },
   etapeId: true,
-  etape: { select: { name: true } },
+  etape: { select: { name: true, niveau: true } },
 } as const;
 
 export class AnalyticsService {
@@ -161,7 +161,7 @@ function toEvenement(validation: {
   chefId: string;
   chef: { name: string };
   etapeId: string;
-  etape: { name: string };
+  etape: { name: string; niveau: number };
 }) {
   return {
     date: validation.valideeAt ?? new Date(0),
@@ -172,5 +172,6 @@ function toEvenement(validation: {
     chefName: validation.chef.name,
     etapeId: validation.etapeId,
     etapeName: validation.etape.name,
+    etapeNiveau: validation.etape.niveau,
   };
 }

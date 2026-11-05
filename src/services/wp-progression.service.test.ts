@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 vi.mock("@/lib/prisma", () => {
   const prisma = {
     chefEtapeStatut: { findMany: vi.fn() },
+    etape: { findMany: vi.fn() },
   };
 
   return { prisma };
@@ -127,5 +128,33 @@ describe("WpProgressionService.envoyerValidationsManquantes", () => {
     );
 
     expect(envoyees).toBe(0);
+  });
+});
+
+describe("WpProgressionService.synchroniser", () => {
+  it("garde les étapes déclarées qui n'existent pas sur la plateforme", async () => {
+    db.etape.findMany.mockResolvedValue(etapes as never);
+    db.chefEtapeStatut.findMany.mockResolvedValue([{ etapeId: "e3" }] as never);
+    const appliquer = vi
+      .spyOn(WpProgressionService, "appliquerEtapesDeclarees")
+      .mockResolvedValue({ importees: 0, retirees: 0 });
+
+    vi.spyOn(
+      WpProgressionService,
+      "envoyerValidationsManquantes",
+    ).mockResolvedValue(0);
+
+    await WpProgressionService.synchroniser("c1", entreesPlateforme);
+
+    expect(appliquer).toHaveBeenCalledWith("c1", ["e101", "e3"]);
+    expect(db.chefEtapeStatut.findMany).toHaveBeenCalledWith({
+      where: {
+        chefId: "c1",
+        statut: "VALIDE",
+        origine: "PLATEFORME",
+        etape: { wpValue: null, type: { not: "JALON" } },
+      },
+      select: { etapeId: true },
+    });
   });
 });

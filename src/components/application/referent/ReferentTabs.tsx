@@ -32,7 +32,7 @@ const ONGLETS: {
 interface ReferentTabsProps {
   selectedKey: OngletReferent;
   onSelectionChange: (onglet: OngletReferent) => void;
-  compteurs: Record<OngletReferent, number>;
+  compteurs: Partial<Record<OngletReferent, number>>;
 }
 
 export default function ReferentTabs({
@@ -56,27 +56,29 @@ export default function ReferentTabs({
         selectedKey={selectedKey}
         onSelectionChange={(cle) => onSelectionChange(cle as OngletReferent)}
       >
-        {ONGLETS.map(({ cle, libelle, libelleCourt, couleurCompteur }) => (
-          <Tab
-            key={cle}
-            title={
-              <div className="flex items-center gap-2">
-                <span className="md:inline hidden">{libelle}</span>
-                <span className="md:hidden inline">{libelleCourt}</span>
-                {compteurs[cle] > 0 && (
-                  <Chip
-                    className="h-5 min-w-5 px-1 text-[10px]"
-                    color={couleurCompteur}
-                    size="sm"
-                    variant="solid"
-                  >
-                    {compteurs[cle]}
-                  </Chip>
-                )}
-              </div>
-            }
-          />
-        ))}
+        {ONGLETS.filter(({ cle }) => compteurs[cle] !== undefined).map(
+          ({ cle, libelle, libelleCourt, couleurCompteur }) => (
+            <Tab
+              key={cle}
+              title={
+                <div className="flex items-center gap-2">
+                  <span className="md:inline hidden">{libelle}</span>
+                  <span className="md:hidden inline">{libelleCourt}</span>
+                  {(compteurs[cle] ?? 0) > 0 && (
+                    <Chip
+                      className="h-5 min-w-5 px-1 text-[10px]"
+                      color={couleurCompteur}
+                      size="sm"
+                      variant="solid"
+                    >
+                      {compteurs[cle]}
+                    </Chip>
+                  )}
+                </div>
+              }
+            />
+          ),
+        )}
       </Tabs>
     </div>
   );

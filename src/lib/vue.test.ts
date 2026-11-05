@@ -3,7 +3,12 @@ import type { SessionUser } from "@/types";
 import { describe, it, expect } from "vitest";
 
 import { adminSidebarItems, chefSidebarItems } from "@/config/navigation";
-import { lireVue, sidebarItemsPourVue, vueDepuisChemin } from "@/lib/vue";
+import {
+  lireVue,
+  sidebarItemsPourVue,
+  sidebarsParVue,
+  vueDepuisChemin,
+} from "@/lib/vue";
 
 const utilisateur = (role: SessionUser["role"]): SessionUser => ({
   id: "u1",
@@ -14,9 +19,11 @@ const utilisateur = (role: SessionUser["role"]): SessionUser => ({
 });
 
 describe("vueDepuisChemin", () => {
-  it("reconnaît les trois vues", () => {
+  it("reconnaît les cinq vues", () => {
     expect(vueDepuisChemin("/admin/users")).toBe("admin");
     expect(vueDepuisChemin("/referent/dashboard")).toBe("referent");
+    expect(vueDepuisChemin("/commission/suivi")).toBe("commission");
+    expect(vueDepuisChemin("/coordination/validations")).toBe("coordination");
     expect(vueDepuisChemin("/")).toBe("chef");
     expect(vueDepuisChemin("/progression")).toBe("chef");
     expect(vueDepuisChemin("/formation")).toBe("chef");
@@ -38,6 +45,8 @@ describe("lireVue", () => {
     expect(lireVue(undefined)).toBe("chef");
     expect(lireVue("superadmin")).toBe("chef");
     expect(lireVue("admin")).toBe("admin");
+    expect(lireVue("commission")).toBe("commission");
+    expect(lireVue("coordination")).toBe("coordination");
   });
 });
 
@@ -57,12 +66,15 @@ describe("sidebarItemsPourVue", () => {
   it("donne la navigation référent à un référent", () => {
     const items = sidebarItemsPourVue("referent", utilisateur("REFERENT"));
 
-    expect(items.map((item) => item.key)).toEqual(["referent", "analyse"]);
+    expect(items.map((item) => item.key)).toEqual([
+      "referent",
+      "referent-suivi",
+    ]);
   });
 });
 
-describe("sidebarItemsPourVue — Experts", () => {
-  it("ajoute la page Experts pour la commission et le Coordinateur", () => {
+describe("sidebarItemsPourVue — vue Référent", () => {
+  it("n'ajoute plus l'Étape 3 à la commission ni au Coordinateur", () => {
     for (const role of [
       "COMMISSION_FORMATION",
       "COORDINATEUR_NATIONAL",
@@ -71,9 +83,74 @@ describe("sidebarItemsPourVue — Experts", () => {
 
       expect(items.map((item) => item.key)).toEqual([
         "referent",
-        "experts",
-        "analyse",
+        "referent-suivi",
       ]);
+    }
+  });
+});
+
+describe("sidebarsParVue", () => {
+  it("prépare la navigation de chaque vue, bornée au rôle", () => {
+    const sidebars = sidebarsParVue(utilisateur("CHEF"));
+
+    for (const items of Object.values(sidebars)) {
+      expect(items).toBe(chefSidebarItems);
+    }
+  });
+
+  it("transmet chaque compteur à son espace", () => {
+    const sidebars = sidebarsParVue(utilisateur("ADMIN"), {
+      evaluations: 4,
+      validations: 2,
+    });
+
+    expect(sidebars.commission[0]).toMatchObject({
+      key: "commission-evaluations",
+      compteur: 4,
+    });
+    expect(sidebars.coordination[0]).toMatchObject({
+      key: "coordination-validations",
+      compteur: 2,
+    });
+  });
+});
+
+describe("espaces Commission et Coordination", () => {
+  it("réserve chaque espace à son rôle, et ouvre les deux à l'admin", () => {
+    const keys = (
+      vue: "commission" | "coordination",
+      role: SessionUser["role"],
+    ) => sidebarItemsPourVue(vue, utilisateur(role)).map((item) => item.key);
+
+    expect(keys("commission", "COMMISSION_FORMATION")).toEqual([
+      "commission-evaluations",
+      "commission-suivi",
+    ]);
+    expect(keys("coordination", "COORDINATEUR_NATIONAL")).toEqual([
+      "coordination-validations",
+      "coordination-suivi",
+    ]);
+    expect(keys("commission", "ADMIN")).toContain("commission-evaluations");
+    expect(keys("coordination", "ADMIN")).toContain("coordination-validations");
+  });
+
+  it("ferme l'espace de l'autre rôle", () => {
+    expect(
+      sidebarItemsPourVue("commission", utilisateur("COORDINATEUR_NATIONAL")),
+    ).toBe(chefSidebarItems);
+    expect(
+      sidebarItemsPourVue("coordination", utilisateur("COMMISSION_FORMATION")),
+    ).toBe(chefSidebarItems);
+  });
+
+  it("n'ouvre aucun des deux aux référents et aux chefs", () => {
+    for (const role of ["REFERENT", "CHEF"] as const) {
+      expect(sidebarItemsPourVue("commission", utilisateur(role))).toBe(
+        chefSidebarItems,
+      );
+      expect(sidebarItemsPourVue("coordination", utilisateur(role))).toBe(
+        chefSidebarItems,
+      );
     }
   });
 });

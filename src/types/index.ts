@@ -11,7 +11,6 @@ export type EtapeReferent = {
   id: string;
   name: string;
   image_src: string | null;
-  specialiteId: string | null;
 };
 
 export type SessionUser = {

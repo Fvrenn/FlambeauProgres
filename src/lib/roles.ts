@@ -10,6 +10,21 @@ export const ROLES_ADMIN: UserRole[] = [
 
 export const ROLES_REFERENT: UserRole[] = ["REFERENT", ...ROLES_ADMIN];
 
+export const ROLES_ESPACE_COMMISSION: UserRole[] = [
+  "COMMISSION_FORMATION",
+  "ADMIN",
+];
+
+export const ROLES_ESPACE_COORDINATION: UserRole[] = [
+  "COORDINATEUR_NATIONAL",
+  "ADMIN",
+];
+
+export const ROLES_GESTION_REMISES: UserRole[] = [
+  "COORDINATEUR_NATIONAL",
+  "ADMIN",
+];
+
 export const roleColorMap: Record<
   UserRole,
   "default" | "primary" | "secondary" | "success" | "warning" | "danger"
@@ -37,18 +52,28 @@ export function estReferent(role: UserRole | null | undefined): boolean {
   return Boolean(role && ROLES_REFERENT.includes(role));
 }
 
+export function accedeEspaceCommission(
+  role: UserRole | null | undefined,
+): boolean {
+  return Boolean(role && ROLES_ESPACE_COMMISSION.includes(role));
+}
+
+export function accedeEspaceCoordination(
+  role: UserRole | null | undefined,
+): boolean {
+  return Boolean(role && ROLES_ESPACE_COORDINATION.includes(role));
+}
+
 export function estNiveauEtape3(niveau: number): boolean {
   return niveau >= NIVEAU_ETAPE_3;
 }
 
-export function suitEtapeSansAssignation(
-  role: UserRole | null | undefined,
-  niveau: number,
-): boolean {
-  return (
-    estNiveauEtape3(niveau) &&
-    (role === "COMMISSION_FORMATION" || role === "COORDINATEUR_NATIONAL")
-  );
+export function peutGererRemises(role: UserRole | null | undefined): boolean {
+  return Boolean(role && ROLES_GESTION_REMISES.includes(role));
+}
+
+export function consulteEtape3(role: UserRole | null | undefined): boolean {
+  return accedeEspaceCommission(role) || accedeEspaceCoordination(role);
 }
 
 export function peutEvaluerEtape(

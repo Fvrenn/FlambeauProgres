@@ -1,4 +1,4 @@
-import type { OrigineValidation } from "@prisma/client";
+import type { OrigineValidation, TypeEtape } from "@prisma/client";
 import type { WpTaxonomyEntry } from "@/lib/wordpress-profile";
 
 import { jalonsImplicites } from "@/lib/parcours";
@@ -30,6 +30,7 @@ export type EtapeProgressionPlateforme = {
   image_src: string | null;
   couleur: string | null;
   niveau: number;
+  type: TypeEtape;
   wpValue: string | null;
   declaree: boolean;
   origine: OrigineValidation | null;
@@ -134,12 +135,26 @@ export class WpProgressionService {
     chefId: string,
     entries: WpTaxonomyEntry[],
   ): Promise<ResultatSyncProgression> {
-    const etapes = await prisma.etape.findMany({
-      select: { id: true, name: true, wpValue: true },
-    });
+    const [etapes, declareesHorsPlateforme] = await Promise.all([
+      prisma.etape.findMany({
+        select: { id: true, name: true, wpValue: true },
+      }),
+      prisma.chefEtapeStatut.findMany({
+        where: {
+          chefId,
+          statut: "VALIDE",
+          origine: "PLATEFORME",
+          etape: { wpValue: null, type: { not: "JALON" } },
+        },
+        select: { etapeId: true },
+      }),
+    ]);
 
     const { etapeIds, nonReconnues } = resoudreProgressionWp(entries, etapes);
-    const compteurs = await this.appliquerEtapesDeclarees(chefId, etapeIds);
+    const compteurs = await this.appliquerEtapesDeclarees(chefId, [
+      ...etapeIds,
+      ...declareesHorsPlateforme.map((statut) => statut.etapeId),
+    ]);
     const envoyees = await this.envoyerValidationsManquantes(
       chefId,
       entries,
@@ -241,6 +256,7 @@ export class WpProgressionService {
           image_src: true,
           couleur: true,
           niveau: true,
+          type: true,
           wpValue: true,
         },
       }),

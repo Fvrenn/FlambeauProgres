@@ -1,5 +1,4 @@
-import ReferentDashboardClient from "./ReferentDashboardClient";
-
+import ReferentDashboardClient from "@/components/application/referent/ReferentDashboardClient";
 import { RafraichissementArrierePlan } from "@/components/application/rafraichissement/RafraichissementArrierePlan";
 import { RafraichissementSurNotification } from "@/components/application/rafraichissement/RafraichissementSurNotification";
 import { exigerRole, suitEtape } from "@/lib/auth-guards";
@@ -66,6 +65,7 @@ export default async function ReferentDashboardPage({
       <ReferentDashboardClient
         chefsAReviser={chefsAReviser}
         description="Justifications et badges de vos chefs à traiter."
+        espace="referent"
         justificationCiblee={justificationCiblee}
         justificationsAValider={justificationsAValider}
         justificationsEnAttente={justificationsEnAttente}

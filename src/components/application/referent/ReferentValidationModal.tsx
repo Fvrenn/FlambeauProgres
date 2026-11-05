@@ -14,6 +14,7 @@ import {
 } from "@heroui/react";
 
 import { Icon } from "@/lib/icons";
+import { type EspaceSuivi, lienDossier } from "@/lib/espaces-suivi";
 import DiscussionThread, {
   type DiscussionViewer,
 } from "@/components/discussion/DiscussionThread";
@@ -34,6 +35,7 @@ interface ReferentValidationModalProps {
   justification: ReferentThreadJustification | null;
   viewer: DiscussionViewer;
   peutEvaluer: boolean;
+  espace: EspaceSuivi;
 }
 
 export default function ReferentValidationModal({
@@ -42,6 +44,7 @@ export default function ReferentValidationModal({
   justification,
   viewer,
   peutEvaluer,
+  espace,
 }: ReferentValidationModalProps) {
   useEffect(() => {
     if (isOpen && justification) {
@@ -83,7 +86,11 @@ export default function ReferentValidationModal({
           <Button
             as={Link}
             className="bg-dashboard-tab data-[hover=true]:bg-dashboard-tab-hover"
-            href={`/referent/revision?chefId=${justification.chefId}&etapeId=${justification.etapeId}`}
+            href={lienDossier(
+              espace,
+              justification.chefId,
+              justification.etapeId,
+            )}
             size="sm"
             startContent={<Icon icon="solar:list-check-linear" width={16} />}
             variant="flat"

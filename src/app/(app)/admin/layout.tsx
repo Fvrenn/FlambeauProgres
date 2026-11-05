@@ -1,11 +1,8 @@
 import React from "react";
 import { redirect } from "next/navigation";
 
-import AppClientLayout from "../AppClientLayout";
-
 import { getUser } from "@/lib/auth-server";
 import { estAdmin } from "@/lib/roles";
-import { adminSidebarItems, appShellClassNames } from "@/config/navigation";
 
 export default async function AdminLayout({
   children,
@@ -18,13 +15,5 @@ export default async function AdminLayout({
     redirect("/");
   }
 
-  return (
-    <AppClientLayout
-      {...appShellClassNames}
-      sidebarItems={adminSidebarItems}
-      user={user}
-    >
-      {children}
-    </AppClientLayout>
-  );
+  return <>{children}</>;
 }

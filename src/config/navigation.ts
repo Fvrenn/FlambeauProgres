@@ -4,9 +4,6 @@ import type {
   SidebarNavItemClassNames,
 } from "@/components/application/sidebar/sidebar";
 
-import { estProfilExpert } from "@/lib/parcours";
-import { NIVEAU_ETAPE_3, suitEtapeSansAssignation } from "@/lib/roles";
-
 export const ROUTE_DECONNEXION = "/deconnexion";
 
 export const ROUTE_NON_MEMBRE = "/non-membre";
@@ -41,13 +38,8 @@ export const chefSidebarItems: SidebarItem[] = [
   },
 ];
 
-export function referentSidebarItems(
-  user: SessionUser,
-  actionsExperts = 0,
-): SidebarItem[] {
-  const premiereEtape = user.etapesReferent?.find(
-    (etape) => !estProfilExpert(etape),
-  );
+export function referentSidebarItems(user: SessionUser): SidebarItem[] {
+  const premiereEtape = user.etapesReferent?.[0];
 
   return [
     {
@@ -58,22 +50,47 @@ export function referentSidebarItems(
       icon: "solar:checklist-minimalistic-linear",
       title: "Justifications à valider",
     },
-    ...(suitEtapeSansAssignation(user.role, NIVEAU_ETAPE_3)
-      ? [
-          {
-            key: "experts",
-            href: "/referent/experts",
-            icon: "solar:star-linear",
-            title: "Experts",
-            compteur: actionsExperts,
-          },
-        ]
-      : []),
     {
-      key: "analyse",
-      href: "/referent/analyse",
+      key: "referent-suivi",
+      href: "/referent/suivi",
       icon: "solar:chart-square-linear",
-      title: "Analyse",
+      title: "Suivi",
+    },
+  ];
+}
+
+export function commissionSidebarItems(evaluations = 0): SidebarItem[] {
+  return [
+    {
+      key: "commission-evaluations",
+      href: "/commission/evaluations",
+      icon: "solar:clipboard-check-linear",
+      title: "Évaluations",
+      compteur: evaluations,
+    },
+    {
+      key: "commission-suivi",
+      href: "/commission/suivi",
+      icon: "solar:chart-square-linear",
+      title: "Suivi",
+    },
+  ];
+}
+
+export function coordinationSidebarItems(validations = 0): SidebarItem[] {
+  return [
+    {
+      key: "coordination-validations",
+      href: "/coordination/validations",
+      icon: "solar:verified-check-linear",
+      title: "Validations",
+      compteur: validations,
+    },
+    {
+      key: "coordination-suivi",
+      href: "/coordination/suivi",
+      icon: "solar:chart-square-linear",
+      title: "Suivi",
     },
   ];
 }
