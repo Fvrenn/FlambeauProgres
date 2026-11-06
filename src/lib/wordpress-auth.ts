@@ -46,6 +46,7 @@ type WpUser = {
   fonction: { value: string; label: string }[];
   progression: { value: string; label: string }[];
   logout_nonce?: string;
+  logout_url?: string;
 };
 
 export async function getWordpressCookieHeader(): Promise<string | null> {
