@@ -2,6 +2,7 @@
 
 import type { UserResume } from "@/types";
 
+import Link from "next/link";
 import React from "react";
 import { Select, SelectItem } from "@heroui/react";
 import { UserRole } from "@prisma/client";
@@ -85,6 +86,13 @@ export default function UserModal({ isOpen, onClose, user }: UserModalProps) {
           <SelectItem key={role}>{roleLabelMap[role]}</SelectItem>
         ))}
       </Select>
+
+      <Link
+        className="self-start text-tiny text-default-500 underline-offset-2 hover:underline"
+        href={`/admin/users/${user.id}/progression`}
+      >
+        Gérer ses soumissions et validations
+      </Link>
     </FormModal>
   );
 }
