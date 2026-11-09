@@ -27,12 +27,11 @@ export default function MessageBubble({ message, isOwn }: MessageBubbleProps) {
   return (
     <div className={`flex ${isOwn ? "justify-end" : "justify-start"}`}>
       <div
-        className={`flex max-w-[80%] gap-2 ${
+        className={`flex min-w-0 max-w-[80%] gap-2 ${
           isOwn ? "flex-row-reverse" : "flex-row"
         }`}
       >
         <Avatar
-          className="min-w-fit"
           name={message.auteur.name}
           size="sm"
           src={message.auteur.image}
